@@ -73,7 +73,7 @@ class CIMCoreSimulator:
         elif data_format == 'MXINT8':
             # Microscaling: 8-bit 尾数 + 8-bit 共享指数(每32个元素共享)
             # 平均 bytes = 1 + 1/32 ~= 1.03 (或者按块对齐算 1.125)
-            self.storage_bytes = 1.03125 
+            self.storage_bytes = 1.0 # 这个地方先按1.0算，因为增大会导致不对齐
             self.compute_bits = 8       # 核心只算 8-bit 整数
         else:
             raise ValueError(f"Unsupported format: {data_format}")
