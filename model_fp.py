@@ -73,7 +73,7 @@ class CIMCoreSimulator:
         elif data_format == 'MXINT8':
             # Microscaling: 8-bit 尾数 + 8-bit 共享指数(每32个元素共享)
             # 平均 bytes = 1 + 1/32 ~= 1.03 (或者按块对齐算 1.125)
-            self.storage_bytes = 1.0 # 这个地方先按1.0算，因为增大会导致不对齐
+            self.storage_bytes = 1.03125 
             self.compute_bits = 8       # 核心只算 8-bit 整数
         else:
             raise ValueError(f"Unsupported format: {data_format}")
@@ -108,8 +108,8 @@ class CIMCoreSimulator:
             raise ValueError(f"不支持的映射策略: {mapping_strategy}")
 
         # 这里的 datatype_bytes 变成了 self.storage_bytes (支持浮点/分数)
-        m_tile_from_input = self.size_input_buffer // (k_tile * self.storage_bytes) if k_tile > 0 else float('inf')
-        m_tile_from_output = self.size_output_buffer // (n_tile * self.storage_bytes) if n_tile > 0 else float('inf')
+        m_tile_from_input = self.size_input_buffer // (k_tile * math.floor(self.storage_bytes)) if k_tile > 0 else float('inf')
+        m_tile_from_output = self.size_output_buffer // (n_tile * math.floor(self.storage_bytes)) if n_tile > 0 else float('inf')
         
         m_tile = min(m_tile_from_input, m_tile_from_output)
         m_tile = max(1, int(m_tile))
