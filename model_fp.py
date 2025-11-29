@@ -1,7 +1,7 @@
 import math
 import itertools
 
-# --- 1. 硬件规格定义 (保持不变，代表物理架构) ---
+# --- 1. 硬件规格定义 ---
 class CIMMacroSpec:
     def __init__(self, n_banks_internal=32, n_subarrays_per_bank=32, n_loc_per_subarray=4, n_cols_per_bank=8, p_input=8):
         self.n_banks_internal = n_banks_internal
@@ -13,7 +13,7 @@ class CIMMacroSpec:
         # p_input: 物理单元支持的输入位宽，通常为8
         self.p_input = p_input 
 
-# --- 2. 核心仿真器 (大幅增强，支持多数据格式) ---
+# --- 2. 核心仿真器 ---
 class CIMCoreSimulator:
     """
     支持 INT8 / MXINT8 / BF16 的 CIM 仿真器
@@ -44,8 +44,7 @@ class CIMCoreSimulator:
         self.energy_params = energy_params
         self.data_format = data_format
 
-        # --- A. 设置默认开销参数 (如果用户未提供) ---
-        # 这些系数基于 ISSCC Paper 的分析
+        # --- A. 设置默认开销参数 ---
         default_overheads = {
             # 预处理/对齐带来的每bit能耗 (Digital Logic Power)
             "pre_align_energy_pj_per_bit": 0.0, 
@@ -53,10 +52,8 @@ class CIMCoreSimulator:
             "pre_align_latency_cycles_per_input": 0, 
             
             # 后处理(Vector Unit)的能耗放大系数 (相对于INT累加)
-            # BF16通常需要Shift+Add，能耗较高
             "post_process_energy_scale": 1.0,
             # 后处理的吞吐率折损系数 (例如浮点加法比INT加法慢)
-            # 1.0 表示全速，0.5 表示速度减半
             "post_process_throughput_scale": 1.0
         }
         if overhead_params:
@@ -68,8 +65,8 @@ class CIMCoreSimulator:
             self.storage_bytes = 1.0    # 8-bit 存储
             self.compute_bits = 8       # 8-bit 计算
         elif data_format == 'BF16':
-            self.storage_bytes = 2.0    # 16-bit 存储 (带宽瓶颈!)
-            self.compute_bits = 8       # 核心只算 8-bit Mantissa (参考ReCIM/M2-CIM)
+            self.storage_bytes = 2.0    # 16-bit 存储
+            self.compute_bits = 8       # 核心只算 8-bit Mantissa
         elif data_format == 'MXINT8':
             # Microscaling: 8-bit 尾数 + 8-bit 共享指数(每32个元素共享)
             # 平均 bytes = 1 + 1/32 ~= 1.03 (或者按块对齐算 1.125)
@@ -173,7 +170,6 @@ class CIMCoreSimulator:
             latencies["local_readout"] += num_loc_switches_per_block * self.t_local_readout
             energies_pj["local_readout"] += num_loc_switches_per_block * self.bytes_per_local_readout * self.energy_params["cim_local_read_power"]
 
-            # 核心计算: 使用 self.compute_bits (BF16和INT8都是8，所以这里延迟一样)
             total_compute_cycles_for_block = num_loc_switches_per_block * (m_tile * self.compute_bits)
             latencies["compute_macro"] += total_compute_cycles_for_block
 
@@ -198,7 +194,6 @@ class CIMCoreSimulator:
                 energies_pj["accum_vector_unit"] += ops_to_accum * self.energy_params["vect_flop_power"] * self.overheads['post_process_energy_scale']
                 
                 # 读写 buffer (PSUM 通常保持高精度，比如FP32或INT32，这里简化假设PSUM位宽也是 storage_bytes，
-                # 或者你可以单独定义 psum_bytes。为了对比公平，暂假设PSUM位宽与输入输出一致或按比例)
                 bytes_psums = m_tile * n_tile * self.storage_bytes # 简化
                 energies_pj["read_psums"] += bytes_psums * self.energy_params["sram_read_power"]
                 energies_pj["load_X"] += bytes_psums * self.energy_params["sram_write_power"] # Write back
