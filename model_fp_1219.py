@@ -101,6 +101,43 @@ class CIMCoreSimulator:
         else:
             raise ValueError(f"Unsupported format: {data_format}")
 
+        self.overheads = {
+            "pre_latency_cycles_per_input": 0.0,
+            "pre_energy_pj_per_bit": 0.0,
+            "macro_energy_scale": 1.0,
+            "post_throughput_scale": 1.0,
+            "post_energy_scale": 1.0,
+        }
+
+        if data_format == 'BF16':
+            # 假设采用预对齐方案 (类似 ReCiM)，开销主要在前处理
+            print("  [Overhead Model] BF16: Applying Exponent Pre-alignment model.")
+            self.overheads.update({
+                "pre_latency_cycles_per_input": 0.3, # 桶形移位器流水线延迟
+                "pre_energy_pj_per_bit": 0.05,       # 桶形移位器功耗
+                "post_throughput_scale": 0.9,      # 后处理需要规格化，稍慢
+                "post_energy_scale": 1.4,          # 浮点加法器能耗更高
+            })
+        elif data_format == 'MXINT8':
+            # 假设采用指数比较方案，开销均衡
+            print("  [Overhead Model] MXINT8: Applying Shared-Scale processing model.")
+            self.overheads.update({
+                "pre_latency_cycles_per_input": 0.2, # 共享指数处理延迟
+                "pre_energy_pj_per_bit": 0.03,       # 共享指数处理能耗
+                "macro_energy_scale": 1.1,         # 阵列周边可能有轻微修改
+                "post_throughput_scale": 0.95,     # 后处理接近整数
+                "post_energy_scale": 1.2,          # 同样需要处理指数
+            })
+        
+        # 如果用户传入自定义开销，则覆盖默认值
+        if custom_overheads:
+            self.overheads.update(custom_overheads)
+
+        print(f"--- Overhead Setup for {data_format} ---")
+        print(f"  Pre-Proc: {self.overheads['pre_latency_cycles_per_input']:.2f} Cycles/Input, {self.overheads['pre_energy_pj_per_bit']:.3f} pJ/bit")
+        print(f"  Macro Energy Scale: x{self.overheads['macro_energy_scale']:.2f}")
+        print(f"  Post-Proc: Throughput Scale x{self.overheads['post_throughput_scale']:.2f}, Energy Scale x{self.overheads['post_energy_scale']:.2f}")
+
         # --- C. 基础参数计算 ---
         self.bw_input_buffer_bytes_per_cycle = (self.bw_input_buffer_gbps * 1e9) / (self.clock_freq_ghz * 1e9)
         self.ops_per_cycle_vector_unit = (self.throughput_vector_unit_gops * 1e9) / (self.clock_freq_ghz * 1e9)

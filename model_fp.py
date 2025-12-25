@@ -1,9 +1,10 @@
 import math
 import itertools
+import pandas as pd
 
 # --- 1. 硬件规格定义 ---
 class CIMMacroSpec:
-    def __init__(self, n_banks_internal=32, n_subarrays_per_bank=32, n_loc_per_subarray=4, n_cols_per_bank=8, p_input=8):
+    def __init__(self, n_banks_internal=64, n_subarrays_per_bank=64, n_loc_per_subarray=4, n_cols_per_bank=8, p_input=8):
         self.n_banks_internal = n_banks_internal
         self.n_subarrays_per_bank = n_subarrays_per_bank
         self.n_loc_per_subarray = n_loc_per_subarray
@@ -23,290 +24,626 @@ class CIMCoreSimulator:
     def __init__(self,
                  n_macros: int,
                  macro_spec: CIMMacroSpec,
-                 size_input_buffer_bytes: int,
-                 size_output_buffer_bytes: int,
-                 bw_input_buffer_gbps: float,
+                 size_l1_input_buffer_bytes: int, 
+                 size_l1_output_buffer_bytes: int,
+                 size_l0_input_buffer_bytes: int,
+                 size_l0_output_buffer_bytes: int,
+                 bw_noc_to_l1_gbps: float,
+                 bw_l1_to_l0_gbps: float,
                  throughput_vector_unit_gops: float,
                  energy_params: dict,
                  clock_freq_ghz: float = 1.0,
-                 # --- 新增参数 ---
-                 data_format: str = 'INT8', # 'INT8', 'BF16', 'MXINT8'
-                 overhead_params: dict = None):
+                 data_format: str = 'INT8',
+                 custom_overheads: dict = None):
         
         print(f"--- 初始化CIM Core (Format: {data_format}) ---")
         self.n_macros = n_macros
         self.macro_spec = macro_spec
-        self.size_input_buffer = size_input_buffer_bytes
-        self.size_output_buffer = size_output_buffer_bytes
-        self.bw_input_buffer_gbps = bw_input_buffer_gbps
+        self.size_l1_input = size_l1_input_buffer_bytes
+        self.size_l0_input = size_l0_input_buffer_bytes
+        self.size_l1_output = size_l1_output_buffer_bytes
+        self.size_l0_output = size_l0_output_buffer_bytes
+        self.bw_noc_to_l1_gbps = bw_noc_to_l1_gbps
+        self.bw_l1_to_l0_gbps = bw_l1_to_l0_gbps
         self.throughput_vector_unit_gops = throughput_vector_unit_gops
         self.clock_freq_ghz = clock_freq_ghz
         self.energy_params = energy_params
         self.data_format = data_format
 
-        # --- A. 设置默认开销参数 ---
-        default_overheads = {
-            # 预处理/对齐带来的每bit能耗 (Digital Logic Power)
-            "pre_align_energy_pj_per_bit": 0.0, 
-            # 预处理带来的额外延迟 (CIM Array计算前的 Pipeline Bubble 或 Setup time)
-            "pre_align_latency_cycles_per_input": 0, 
-            
-            # 后处理(Vector Unit)的能耗放大系数 (相对于INT累加)
-            "post_process_energy_scale": 1.0,
-            # 后处理的吞吐率折损系数 (例如浮点加法比INT加法慢)
-            "post_process_throughput_scale": 1.0
+        # --- 新增：为所有数据格式定义详细属性 ---
+        # compute_bits: 物理硬件位宽 (INT8)
+        # effective_compute_bits: 有效计算位宽 (影响延迟)
+        # mantissa_bits: 尾数位数 (用于计算活动因子)
+        format_specs = {
+            # Format: {'storage_bytes', 'mantissa_bits', 'guard_bits'}
+            'INT8':     {'storage': 1.0,       'mantissa': 8, 'guard': 0},
+            'BF16':     {'storage': 2.0,       'mantissa': 8, 'guard': 7}, # 8位尾数 + 5保护位 = 13位有效计算
+            'MXINT8':   {'storage': 1.03125,   'mantissa': 8, 'guard': 2}, # 共享指数限制了动态范围
+            'FP8':      {'storage': 1.0,       'mantissa': 4, 'guard': 5}, # 4位尾数 + 4保护位 = 8位有效计算
+            'MXFP8_M4': {'storage': 1.03125, 'mantissa': 4, 'guard': 5}  # 共享指数限制了动态范围
         }
-        if overhead_params:
-            default_overheads.update(overhead_params)
-        self.overheads = default_overheads
-
-        # --- B. 根据数据格式推导 存储位宽 vs 计算位宽 ---
-        if data_format == 'INT8':
-            self.storage_bytes = 1.0    # 8-bit 存储
-            self.compute_bits = 8       # 8-bit 计算
-        elif data_format == 'BF16':
-            self.storage_bytes = 2.0    # 16-bit 存储
-            self.compute_bits = 8       # 核心只算 8-bit Mantissa
-        elif data_format == 'MXINT8':
-            # Microscaling: 8-bit 尾数 + 8-bit 共享指数(每32个元素共享)
-            # 平均 bytes = 1 + 1/32 ~= 1.03 (或者按块对齐算 1.125)
-            self.storage_bytes = 1.03125 
-            self.compute_bits = 8       # 核心只算 8-bit 整数
-        else:
+        
+        spec = format_specs.get(data_format)
+        if not spec:
             raise ValueError(f"Unsupported format: {data_format}")
 
-        # --- C. 基础参数计算 ---
-        self.bw_input_buffer_bytes_per_cycle = (self.bw_input_buffer_gbps * 1e9) / (self.clock_freq_ghz * 1e9)
+        self.storage_bytes = spec['storage']
+        self.compute_bits = 8 # 硬件物理位宽固定为 8
+        self.effective_compute_bits = spec['mantissa'] + spec['guard']
+
+        base_activity_factor = 0.3
+        if self.effective_compute_bits <= self.compute_bits:
+            data_activity_ratio = self.effective_compute_bits / self.compute_bits
+            self.activity_factor = base_activity_factor + (1 - base_activity_factor) * data_activity_ratio
+        else:
+            # e.g., BF16 需要13位，远超8位，每次8位操作都是满负荷
+            self.activity_factor = 1.0
+        
+        # --- 统一的、分阶段的开销模型 ---
+        self.overheads = {
+            "pre_latency_cycles_per_input": 0.0,
+            "pre_energy_pj_per_bit": 0.0,
+            "macro_energy_scale": 1.0,
+            "post_throughput_scale": 1.0,
+            "post_energy_scale": 1.0,
+        }
+
+        # --- 根据数据格式，加载精细化的开销 ---
+        if data_format == 'BF16':
+            self.overheads.update({
+                "pre_latency_cycles_per_input": 0.3, "pre_energy_pj_per_bit": 0.05,
+                "post_throughput_scale": 0.9, "post_energy_scale": 1.4,
+            })
+        elif data_format == 'MXINT8':
+            self.overheads.update({
+                "pre_latency_cycles_per_input": 0.2, "pre_energy_pj_per_bit": 0.03,
+                "macro_energy_scale": 1.1, "post_throughput_scale": 0.95, "post_energy_scale": 1.2,
+            })
+        elif data_format == 'FP8':
+            # 开销类似BF16，但因位宽短而稍低
+            self.overheads.update({
+                "pre_latency_cycles_per_input": 0.25, "pre_energy_pj_per_bit": 0.04,
+                "post_throughput_scale": 0.9, "post_energy_scale": 1.3,
+            })
+        elif data_format == 'MXFP8_M4':
+            # 开销类似MXINT8，但因位宽短而稍低
+            self.overheads.update({
+                "pre_latency_cycles_per_input": 0.15, "pre_energy_pj_per_bit": 0.025,
+                "macro_energy_scale": 1.05, "post_throughput_scale": 0.95, "post_energy_scale": 1.15,
+            })
+        
+        if custom_overheads:
+            self.overheads.update(custom_overheads)
+
+        # 基础参数计算
         self.ops_per_cycle_vector_unit = (self.throughput_vector_unit_gops * 1e9) / (self.clock_freq_ghz * 1e9)
         self.t_load_block_per_macro = self.macro_spec.block_k_dim
         self.t_local_readout = 1 
-        
-        # 核心计算延迟：取决于 compute_bits (例如BF16也是8个周期，而非16)
-        self.t_block_compute_per_m = self.macro_spec.n_loc_per_subarray * \
-                                     (self.t_local_readout + self.compute_bits)
-
         self.bytes_per_local_readout = (self.macro_spec.n_subarrays_per_bank * self.macro_spec.block_n_dim * self.macro_spec.n_cols_per_bank) / 8
-        
-        print(f"  Storage Precision: {self.storage_bytes:.4f} Bytes/item (影响带宽)")
-        print(f"  Compute Precision: {self.compute_bits} Bits (影响阵列计算延迟)")
-        print(f"  Pre-Align Overhead: {self.overheads['pre_align_latency_cycles_per_input']} Cycles/Input, {self.overheads['pre_align_energy_pj_per_bit']} pJ/bit")
-        print(f"  Post-Process Scale: Energy x{self.overheads['post_process_energy_scale']}, Throughput x{self.overheads['post_process_throughput_scale']}")
+
+        # 打印仿真器配置
+        print(f"--- Memory Hierarchy Setup ---")
+        print(f"  L1 Buffer (Global): {self.size_l1_input/1024:.1f} KB")
+        print(f"--- Data Format Specifics ({data_format}) ---")
+        print(f"  Storage Precision: {self.storage_bytes:.4f} Bytes/item")
+        print(f"  Mantissa/Guard Bits: {spec['mantissa']} / {spec['guard']}")
+        print(f"  Effective Compute Bits (Latency): {self.effective_compute_bits} Bits")
+        print(f"  CIM Energy Activity Factor: {self.activity_factor:.2f}")
         print("---------------------------------------------------\n")
 
-    def _derive_tile_sizes(self, M, K, N, mapping_strategy, loop_order):
-        # 逻辑不变，但使用 self.storage_bytes 来计算容量
-        if mapping_strategy == 'N_Parallel':
-            n_tile = self.n_macros * self.macro_spec.block_n_dim
-            k_tile = self.macro_spec.block_k_dim
-        elif mapping_strategy == 'K_Parallel':
-            n_tile = self.macro_spec.block_n_dim
-            k_tile = self.n_macros * self.macro_spec.block_k_dim
+    def _derive_tile_sizes(self, M, K, N, partition_strategy, loop_order):
+        """
+        计算两级 Tile 大小：
+        1. L0 Tile (Sub Tile): 受限于单个 Macro 的 L0 容量。
+        2. L1 Tile (Super Tile): 受限于 Core 的 L1 容量。
+        """
+        # --- A. 解析并行策略 ---
+        if isinstance(partition_strategy, str):
+            if partition_strategy == 'N_Parallel':
+                pk, pn = 1, self.n_macros
+            elif partition_strategy == 'K_Parallel':
+                pk, pn = self.n_macros, 1
+            else:
+                raise ValueError(f"Unknown strategy: {partition_strategy}")
         else:
-            raise ValueError(f"不支持的映射策略: {mapping_strategy}")
+            pk, pn = partition_strategy
 
-        # 这里的 datatype_bytes 变成了 self.storage_bytes (支持浮点/分数)
-        m_tile_from_input = self.size_input_buffer // (k_tile * math.floor(self.storage_bytes)) if k_tile > 0 else float('inf')
-        m_tile_from_output = self.size_output_buffer // (n_tile * math.floor(self.storage_bytes)) if n_tile > 0 else float('inf')
+        # --- B. 基础物理维度 (Hardware Atomic Dimensions) ---
+        atomic_k = pk * self.macro_spec.block_k_dim
+        atomic_n = pn * self.macro_spec.block_n_dim
+        bytes_per_item = self.storage_bytes
+
+        # --- C. 计算 L0 Tile (微观切分) ---
+        k_per_macro = self.macro_spec.block_k_dim
+        # 注意：这里可能产生浮点数，所以必须转 int
+        m_limit_l0_input = int(self.size_l0_input // (k_per_macro * bytes_per_item)) if k_per_macro > 0 else M
         
-        m_tile = min(m_tile_from_input, m_tile_from_output)
-        m_tile = max(1, int(m_tile))
-        return m_tile, k_tile, n_tile
-
-    def simulate(self, M: int, K: int, N: int, mapping_strategy: str, loop_order: str) -> dict:
-        m_tile, k_tile, n_tile = self._derive_tile_sizes(M, K, N, mapping_strategy, loop_order)
+        n_per_macro = self.macro_spec.block_n_dim
+        m_limit_l0_output = int(self.size_l0_output // (n_per_macro * bytes_per_item)) if n_per_macro > 0 else M
         
-        num_m_chunks = math.ceil(M / m_tile)
-        num_k_chunks = math.ceil(K / k_tile)
-        num_n_chunks = math.ceil(N / n_tile)
+        m_tile_l0 = min(m_limit_l0_input, m_limit_l0_output)
+        m_tile_l0 = max(1, int(m_tile_l0)) 
 
-        # 初始化计数器 (新增 pre_process)
-        latencies = {"load_X": 0, "load_W": 0, "pre_process": 0, "compute_macro": 0, "accum_vector_unit": 0, "local_readout": 0}
-        energies_pj = {"load_X": 0, "load_W": 0, "pre_process": 0, "compute_macro": 0, "accum_vector_unit": 0, "read_X_from_buffer": 0, "read_psums": 0, "local_readout": 0}
+        # L0 Tile 的逻辑尺寸 (系统视角)
+        l0_dims = {
+            'm': int(m_tile_l0),   # 强制转 int
+            'k': int(atomic_k),    # 强制转 int
+            'n': int(atomic_n)     # 强制转 int
+        }
+
+        # --- D. 计算 L1 Tile (宏观切分) ---
+        k_tile_l1 = atomic_k
+        n_tile_l1 = atomic_n
         
-        loop_map = {'M': range(num_m_chunks), 'K': range(num_k_chunks), 'N': range(num_n_chunks)}
-        outer, mid, inner = loop_order
-        main_loop_iterator = itertools.product(loop_map[outer], loop_map[mid], loop_map[inner])
+        # M_L1 * K_L1 * Bytes <= L1_Size
+        # 这里的 bytes_per_item 是 float，会导致结果为 float (例如 64.0)
+        m_limit_l1 = self.size_l1_input // (k_tile_l1 * bytes_per_item)
         
-        last_loaded = {'X': (-1, -1), 'W': (-1, -1)}
-
-        for loop_indices in main_loop_iterator:
-            idx_map = {outer: loop_indices[0], mid: loop_indices[1], inner: loop_indices[2]}
-            m, k, n = idx_map['M'], idx_map['K'], idx_map['N']
-
-            # --- 1. 权重加载 (受 storage_bytes 影响) ---
-            if last_loaded['W'] != (k, n):
-                # 数据量 = 元素个数 * 每个元素的存储字节数
-                bytes_to_load_w = k_tile * n_tile * self.storage_bytes
-                latencies["load_W"] += self.t_load_block_per_macro
-                energies_pj["load_W"] += bytes_to_load_w * self.energy_params["sram_write_power"]
-                last_loaded['W'] = (k, n)
-
-            # --- 2. 输入加载 (受 storage_bytes 影响) ---
-            if last_loaded['X'] != (m, k):
-                bytes_to_load_x = m_tile * k_tile * self.storage_bytes
-                latencies["load_X"] += math.ceil(bytes_to_load_x / self.bw_input_buffer_bytes_per_cycle)
-                energies_pj["load_X"] += bytes_to_load_x * self.energy_params["sram_write_power"]
-                last_loaded['X'] = (m, k)
-
-            # --- 3. Pre-Processing / Alignment (新增模块) ---
-            # 任何数据在进入CIM阵列前，如果是浮点/MX，需要经过对齐逻辑
-            # 这是一个纯数字逻辑开销
-            num_inputs_in_tile = m_tile * k_tile
+        # 对齐: L1 Tile 最好是 L0 Tile 的整数倍
+        # !!! 修复点：最后加上 int() 强转 !!!
+        m_tile_l1 = int((m_limit_l1 // m_tile_l0) * m_tile_l0)
+        
+        # 边界: 至少要能装下一个 L0 Tile
+        if m_tile_l1 < m_tile_l0:
+            m_tile_l1 = int(m_tile_l0)
             
-            # 延迟：假设硬件有一定的并行度，或者流水线化。
-            # 这里简化模型：每批数据有一个固定的 Setup Latency overhead
-            if self.overheads['pre_align_latency_cycles_per_input'] > 0:
-                 # 假设完全流水线化，只增加流水线填充时间，或者假设 throughput 受限
-                 # 这里采用吞吐量模型：处理这么多数据需要多少周期
-                 latencies["pre_process"] += math.ceil(num_inputs_in_tile * self.overheads['pre_align_latency_cycles_per_input'] / self.macro_spec.block_k_dim) # 假设K维度并行处理
+        l1_dims = {
+            'm': int(m_tile_l1),  # 确保是 int，修复 range() 报错
+            'k': int(k_tile_l1),
+            'n': int(n_tile_l1)
+        }
+        
+        return l0_dims, l1_dims, (pk, pn)
 
-            # 能耗：每个bit都需要经过数字逻辑 (Shifter/Comparator)
-            total_bits_aligned = num_inputs_in_tile * (self.storage_bytes * 8)
-            energies_pj["pre_process"] += total_bits_aligned * self.overheads['pre_align_energy_pj_per_bit']
+    def simulate(self, M: int, K: int, N: int, partition_strategy, loop_order: str) -> dict:
+        l0_dims, l1_dims, (pk, pn) = self._derive_tile_sizes(M, K, N, partition_strategy, loop_order)
+        
+        t_avail = {"NoC": 0, "Bus_L1_L0": 0, "Pre_Proc": 0, "Macro": 0, "Post_Proc": 0}
+        t_l1_space_available = 0 
+        
+        energies_pj = {k: 0 for k in [
+            "dram_read", "dram_write", "load_X_NoC", "load_W", 
+            "read_L1", "write_L0", "pre_process", 
+            "read_L0", "local_readout", "compute_macro", 
+            "accum_vector_unit", "read_psums", "write_psums"
+        ]}
 
-            # --- 4. Macro 计算 (受 compute_bits 影响) ---
-            # Local Readout
-            num_loc_switches_per_block = self.macro_spec.n_loc_per_subarray
-            latencies["local_readout"] += num_loc_switches_per_block * self.t_local_readout
-            energies_pj["local_readout"] += num_loc_switches_per_block * self.bytes_per_local_readout * self.energy_params["cim_local_read_power"]
+        bw_noc_bpc = (self.bw_noc_to_l1_gbps * 1e9) / (self.clock_freq_ghz * 1e9) / 8
+        bw_bus_bpc = (self.bw_l1_to_l0_gbps * 1e9) / (self.clock_freq_ghz * 1e9) / 8
+        
+        current_l1_input_tag = None
+        current_l1_weight_tag = None
 
-            total_compute_cycles_for_block = num_loc_switches_per_block * (m_tile * self.compute_bits)
-            latencies["compute_macro"] += total_compute_cycles_for_block
+        step_m_l1, step_k_l1, step_n_l1 = l1_dims['m'], l1_dims['k'], l1_dims['n']
+        step_m_l0, step_k_l0, step_n_l0 = l0_dims['m'], l0_dims['k'], l0_dims['n']
 
-            # 计算能量
-            ops_compute = m_tile * k_tile * n_tile
-            energies_pj["compute_macro"] += ops_compute * self.energy_params["tpu_flop_power"]
+        ranges_l1 = {'M': range(0, M, step_m_l1), 'K': range(0, K, step_k_l1), 'N': range(0, N, step_n_l1)}
+        outer_iter = itertools.product(ranges_l1[loop_order[0]], ranges_l1[loop_order[1]], ranges_l1[loop_order[2]])
+
+        for l1_indices in outer_iter:
+            idx_map_l1 = {loop_order[0]: l1_indices[0], loop_order[1]: l1_indices[1], loop_order[2]: l1_indices[2]}
+            m_l1_start, k_l1_start, n_l1_start = idx_map_l1['M'], idx_map_l1['K'], idx_map_l1['N']
             
-            # 读SRAM能量 (受 storage_bytes 影响)
-            bytes_read_x = m_tile * k_tile * self.storage_bytes
-            energies_pj["read_X_from_buffer"] += bytes_read_x * self.energy_params["sram_read_power"]
-            
-            # --- 5. Vector Unit 累加 (受 Post-Process Scale 影响) ---
-            if k > 0:
-                ops_to_accum = m_tile * n_tile
-                
-                # 应用吞吐率折损 (Throughput Scale)
-                # 如果是浮点加法，ops_per_cycle 会变小 (即 latency 变大)
-                effective_ops_per_cycle = self.ops_per_cycle_vector_unit * self.overheads['post_process_throughput_scale']
-                latencies["accum_vector_unit"] += math.ceil(ops_to_accum / effective_ops_per_cycle)
-                
-                # 应用能耗放大 (Energy Scale)
-                energies_pj["accum_vector_unit"] += ops_to_accum * self.energy_params["vect_flop_power"] * self.overheads['post_process_energy_scale']
-                
-                # 读写 buffer (PSUM 通常保持高精度，比如FP32或INT32，这里简化假设PSUM位宽也是 storage_bytes，
-                bytes_psums = m_tile * n_tile * self.storage_bytes # 简化
-                energies_pj["read_psums"] += bytes_psums * self.energy_params["sram_read_power"]
-                energies_pj["load_X"] += bytes_psums * self.energy_params["sram_write_power"] # Write back
+            m_l1_actual = min(step_m_l1, M - m_l1_start)
+            k_l1_actual = min(step_k_l1, K - k_l1_start)
+            n_l1_actual = min(step_n_l1, N - n_l1_start)
 
-        total_latency = sum(latencies.values())
+            # LEVEL 1: DRAM -> L1 Traffic (With Backpressure)
+            input_tag = (m_l1_start, k_l1_start)
+            input_miss = (current_l1_input_tag != input_tag)
+            weight_tag = (k_l1_start, n_l1_start)
+            weight_miss = (current_l1_weight_tag != weight_tag)
+            
+            if input_miss or weight_miss:
+                start_noc = max(t_avail["NoC"], t_l1_space_available)
+                current_noc_time = start_noc
+                if input_miss:
+                    bytes_x = m_l1_actual * k_l1_actual * self.storage_bytes
+                    dur = math.ceil(bytes_x / bw_noc_bpc)
+                    current_noc_time += dur
+                    energies_pj["dram_read"] += bytes_x * self.energy_params["dram_read_power"]
+                    energies_pj["load_X_NoC"] += bytes_x * self.energy_params["l1_sram_write_power"]
+                    current_l1_input_tag = input_tag
+                if weight_miss:
+                    bytes_w = k_l1_actual * n_l1_actual * self.storage_bytes
+                    dur = math.ceil(bytes_w / bw_noc_bpc)
+                    current_noc_time += dur
+                    energies_pj["dram_read"] += bytes_w * self.energy_params["dram_read_power"]
+                    energies_pj["load_W"] += bytes_w * self.energy_params["sram_write_power"]
+                    current_l1_weight_tag = weight_tag
+                t_avail["NoC"] = current_noc_time
+
+            # LEVEL 2: L1 -> L0 Traffic & Compute (Sub Tiles)
+            r_m_in = range(0, m_l1_actual, step_m_l0)
+            r_k_in = range(0, k_l1_actual, step_k_l0)
+            r_n_in = range(0, n_l1_actual, step_n_l0)
+            
+            for dm, dk, dn in itertools.product(r_m_in, r_k_in, r_n_in):
+                m_tile = min(step_m_l0, m_l1_actual - dm)
+                k_tile = min(step_k_l0, k_l1_actual - dk)
+                n_tile = min(step_n_l0, n_l1_actual - dn)
+                
+                # --- [Action 1: L1 -> L0 Transfer] ---
+                bytes_x_l0 = m_tile * k_tile * self.storage_bytes
+                dur_bus = math.ceil(bytes_x_l0 / bw_bus_bpc)
+                start_bus = max(t_avail["NoC"], t_avail["Bus_L1_L0"])
+                t_avail["Bus_L1_L0"] = start_bus + dur_bus
+                energies_pj["read_L1"] += bytes_x_l0 * self.energy_params["l1_sram_read_power"]
+                energies_pj["write_L0"] += bytes_x_l0 * pn * self.energy_params["l0_sram_write_power"]
+
+                # --- [Action 2: Pre-processing with Unified Overheads] ---
+                num_inputs_to_pre_proc = m_tile * k_tile
+                parallelism = pk * self.macro_spec.block_k_dim 
+                cycles_pre = math.ceil(num_inputs_to_pre_proc * self.overheads['pre_latency_cycles_per_input'] / parallelism)
+                start_pre = max(t_avail["Bus_L1_L0"], t_avail["Pre_Proc"])
+                t_avail["Pre_Proc"] = start_pre + cycles_pre
+                bits_to_pre_proc = bytes_x_l0 * 8
+                energies_pj["pre_process"] += bits_to_pre_proc * self.overheads['pre_energy_pj_per_bit']
+
+                # --- [Action 3: Macro Compute with Corrected FP Model] ---
+                num_switches = self.macro_spec.n_loc_per_subarray
+                num_chunks = math.ceil(self.effective_compute_bits / self.compute_bits)
+                dur_per_chunk = num_switches * (self.t_local_readout + m_tile * self.compute_bits)
+                dur_macro = dur_per_chunk * num_chunks
+                start_macro = max(t_avail["Pre_Proc"], t_avail["Macro"])
+                t_avail["Macro"] = start_macro + dur_macro
+                
+                energies_pj["read_L0"] += bytes_x_l0 * pn * self.energy_params["l0_sram_read_power"]
+                
+                base_readout_energy = num_switches * self.bytes_per_local_readout * self.energy_params["cim_local_read_power"] * self.n_macros
+                energies_pj["local_readout"] += base_readout_energy * self.activity_factor * num_chunks
+
+                base_compute_energy = (m_tile * k_tile * n_tile) * self.energy_params["tpu_flop_power"]
+                ops_equivalent = base_compute_energy / self.energy_params["tpu_flop_power"] * (self.effective_compute_bits / 8.0)
+                energy_compute = ops_equivalent * self.energy_params["tpu_flop_power"]
+                energies_pj["compute_macro"] += energy_compute * self.overheads['macro_energy_scale'] * self.activity_factor
+                
+                # =========================================================
+                # === [Action 4: Post-processing with Corrected PSUM Logic] ===
+                # =========================================================
+                ops_mac_output = m_tile * n_tile
+                reduction_penalty = 1.0 if pk == 1 else 1.5
+                
+                # 检查这是否是K维度的第一次计算
+                is_first_k_chunk = (k_l1_start + dk == 0)
+
+                # 1. PSUM Read (如果不是第一个K chunk)
+                bytes_psum = ops_mac_output * 4 # PSUMs usually 32-bit
+                if not is_first_k_chunk:
+                    energies_pj["read_psums"] += bytes_psum * self.energy_params["l0_sram_read_power"]
+                
+                # 2. Accumulation in Vector Unit (延迟和能耗)
+                ops_to_accumulate = ops_mac_output
+                
+                eff_ops_per_cycle = self.ops_per_cycle_vector_unit * self.overheads['post_throughput_scale'] / reduction_penalty
+                dur_post = math.ceil(ops_to_accumulate / eff_ops_per_cycle) if eff_ops_per_cycle > 0 else 0
+                start_post = max(t_avail["Macro"], t_avail["Post_Proc"])
+                t_avail["Post_Proc"] = start_post + dur_post
+                
+                base_accum_energy = ops_to_accumulate * self.energy_params["vect_flop_power"]
+                energies_pj["accum_vector_unit"] += base_accum_energy * self.overheads['post_energy_scale'] * reduction_penalty
+                
+                # 3. PSUM Write (每次K迭代后都写回)
+                energies_pj["write_psums"] += bytes_psum * self.energy_params["l0_sram_write_power"]
+
+            # === [关键更新] Update Space Availability ===
+            t_l1_space_available = t_avail["Macro"]
+
+        # === 循环结束: 最终结果写回 (DRAM Write) ===
+        output_bytes = 4 # 最终输出总是高精度
+        total_out_bytes = M * N * output_bytes
+        energies_pj["dram_write"] += total_out_bytes * self.energy_params["dram_write_power"]
+
+        # 汇总结果
+        total_latency = max(t_avail.values())
         total_energy_pj = sum(energies_pj.values())
-        total_ops = M * K * N 
+        # 注意：这里的 M*K*N 是理论Ops，实际有效Ops可能因数据格式而异，但用这个作为基准是通用做法
+        total_ops = M * K * N * 2 # MAC operation is 2 ops (multiply and add)
+        throughput = (total_ops / total_latency * self.clock_freq_ghz) if total_latency > 0 else 0
         
-        if self.clock_freq_ghz > 0 and total_latency > 0:
-            total_time_s = total_latency / (self.clock_freq_ghz * 1e9)
-            throughput_gops = total_ops / total_time_s / 1e9
-        else:
-            throughput_gops = 0.0
-            
-        results = {
+        return {
             "Format": self.data_format,
-            "latencies": latencies,
+            "L1_Tile_M": l1_dims['m'],
+            "L0_Tile_M": l0_dims['m'],
+            "latencies": t_avail,
             "energies_pj": energies_pj,
             "total_latency_cycles": total_latency,
             "total_energy_pj": total_energy_pj,
-            "throughput_gops": throughput_gops,
-            "energy_efficiency_tops_per_watt": (total_ops / 1e12) / (total_energy_pj / 1e12) if total_energy_pj > 0 else 0
+            "throughput_gops": throughput,
+            "energy_efficiency_tops_per_watt": (total_ops/1e12)/(total_energy_pj/1e12) if total_energy_pj > 0 else 0,
+            "bottleneck": max(t_avail, key=t_avail.get)
         }
-        
-        self._report_results(results)
-        return results
 
+    # 稍微修改报告函数以适应新的 latency 结构
     def _report_results(self, results: dict):
-        print(f"=== 仿真结果 [{results['Format']}] ===")
-        print(f"Latency Breakdown (Cycles):")
-        for k, v in results['latencies'].items():
-            ratio = v / results['total_latency_cycles'] * 100
-            print(f"  {k:<20}: {v:10,.0f} ({ratio:5.1f}%)")
+        print(f"=== 仿真结果 [{results.get('Format', 'N/A')}] ===")
+        
+        # 1. 流水线/延迟详情
+        print(f"Pipeline Status (Last Timestamp per Stage):")
+        # 兼容处理：检查 latencies 是时间戳字典还是时长字典
+        if 'latencies' in results:
+            # 找最大值用于算百分比（如果是duration的话）或者直接打印
+            for k, v in results['latencies'].items():
+                print(f"  {k:<15}: {v:12,.0f} Cycles")
+        
+        if 'bottleneck' in results:
+            print(f"  >> System Bottleneck determined by: {results['bottleneck']}")
+        
+        # 2. 能耗详情
         print(f"Energy Breakdown (pJ):")
+        total_e = results['total_energy_pj']
         for k, v in results['energies_pj'].items():
-            ratio = v / results['total_energy_pj'] * 100
-            print(f"  {k:<20}: {v:10,.2f} ({ratio:5.1f}%)")
+            # 防止除以0
+            ratio = (v / total_e * 100) if total_e > 0 else 0
+            print(f"  {k:<20}: {v:12,.2f} ({ratio:5.1f}%)")
+            
+        # 3. 总体性能
         print(f"Performance:")
-        print(f"  Throughput: {results['throughput_gops']:.2f} GOPS")
-        print(f"  Efficiency: {results['energy_efficiency_tops_per_watt']:.2f} TOPS/W")
+        print(f"  Total Latency: {results['total_latency_cycles']:,.0f} Cycles")
+        print(f"  Total Energy : {results['total_energy_pj']:,.2f} pJ")
+        print(f"  Throughput   : {results['throughput_gops']:.2f} GOPS")
+        print(f"  Efficiency   : {results['energy_efficiency_tops_per_watt']:.2f} TOPS/W")
         print("========================================\n")
 
+class CIMDesignExplorer:
+    def __init__(self, macro_spec, l0_params, energy_params, workload):
+        self.macro_spec = macro_spec
+        self.l0_params = l0_params
+        self.energy_params = energy_params
+        self.workload = workload # (M, K, N)
+        
+        # 固定带宽参数 (可以根据需要改为变量)
+        self.fixed_bw = {
+            "noc_to_l1": 64.0, 
+            "l1_to_l0": 128.0
+        }
 
-# --- 3. 使用示例：对比 INT8, BF16, MXINT8 ---
+    def run_dse_hybrid(self, l1_size_candidates, loop_orders, data_format: str):
+        # 1. 解包工作负载
+        M, K, N = self.workload 
+        results_db = []
+
+        # 2. 生成策略 (假设 Total Macros = 4)
+        total_macros = 32
+        valid_partitions = []
+        for i in range(1, total_macros + 1):
+            if total_macros % i == 0:
+                pk = i
+                pn = total_macros // i
+                valid_partitions.append((pk, pn))
+        
+        # 生成搜索空间
+        search_space = list(itertools.product(l1_size_candidates, valid_partitions, loop_orders))
+        
+        print(f"Starting Hybrid DSE for Workload M={M}, K={K}, N={N}...")
+        print(f"Total configurations to explore: {len(search_space)}")
+        
+        count = 0
+        failed_count = 0
+        
+        for l1_size, strategy, order in search_space:
+            # 实例化仿真器
+            sim = CIMCoreSimulator(
+                n_macros=total_macros, 
+                macro_spec=self.macro_spec,
+                clock_freq_ghz=1.0,
+                
+                size_l1_input_buffer_bytes=l1_size,
+                size_l1_output_buffer_bytes=l1_size,
+                
+                size_l0_input_buffer_bytes=self.l0_params['input'],
+                size_l0_output_buffer_bytes=self.l0_params['output'],
+                bw_noc_to_l1_gbps=self.fixed_bw['noc_to_l1'],
+                bw_l1_to_l0_gbps=self.fixed_bw['l1_to_l0'],
+                
+                throughput_vector_unit_gops=128,
+                energy_params=self.energy_params,
+                data_format=data_format, 
+                custom_overheads=None
+            )
+            
+            try:
+                # 运行仿真
+                res = sim.simulate(M, K, N, strategy, order)
+                
+                edp = res['total_energy_pj'] * res['total_latency_cycles']
+                
+                entry = {
+                    "Data_Format": data_format,
+                    "L1_Size_KB": l1_size / 1024,
+                    "Strategy": str(strategy),
+                    "Loop_Order": order,
+                    "Latency_Cyc": res['total_latency_cycles'],
+                    "Energy_pJ": res['total_energy_pj'],
+                    "Throughput_GOPS": res['throughput_gops'],
+                    "EDP": edp,
+                    "Bottleneck": res['bottleneck']
+                }
+                results_db.append(entry)
+                count += 1
+                
+            except Exception as e:
+                failed_count += 1
+                # --- 修改点：打印具体的报错信息 ---
+                print(f"[ERROR] Config failed: L1={l1_size}, Strategy={strategy}, Order={order}")
+                print(f"Error details: {e}")
+                import traceback
+                traceback.print_exc() # 打印详细的错误堆栈
+                print("-" * 30)
+                # 如果你想看每一个错误，就把下面这行 break 注释掉；
+                # 如果你想一出错就停下来修bug，就保留 break
+                break 
+
+        print(f"DSE Completed. Valid: {count}, Failed: {failed_count}")
+        return results_db
+
+    def analyze_results(self, results_db):
+        # 1. 检查是否为空
+        if not results_db:
+            print("\n[WARNING] No valid results found! Check the error logs above.")
+            return pd.DataFrame() # 返回空表
+
+        try:
+            df = pd.DataFrame(results_db)
+            print(f"\n=== DSE Summary (Total Configs: {len(df)}) ===")
+            
+            # 1. 最佳 EDP (平衡)
+            # 确保列名存在
+            if "EDP" in df.columns:
+                best_edp = df.sort_values(by="EDP").iloc[0]
+                print(f"\n[Best EDP Config] (Balanced)")
+                print(best_edp.to_string())
+            
+            # 2. 最佳 吞吐
+            if "Throughput_GOPS" in df.columns:
+                best_perf = df.sort_values(by="Throughput_GOPS", ascending=False).iloc[0]
+                print(f"\n[Max Throughput Config] (Performance)")
+                print(best_perf[['L1_Size_KB', 'Strategy', 'Loop_Order', 'Throughput_GOPS', 'Bottleneck']].to_string())
+            
+            # 3. 最佳 能效
+            if "Energy_pJ" in df.columns:
+                best_energy = df.sort_values(by="Energy_pJ").iloc[0]
+                print(f"\n[Min Energy Config] (Efficiency)")
+                print(best_energy[['L1_Size_KB', 'Strategy', 'Loop_Order', 'Energy_pJ', 'Bottleneck']].to_string())
+
+            return df
+            
+        except ImportError:
+            print("Pandas not found, utilizing basic sort.")
+            sorted_res = sorted(results_db, key=lambda x: x.get('EDP', float('inf')))
+            if sorted_res:
+                print("Best EDP:", sorted_res[0])
+            return sorted_res
+
+    def reproduce_specific_config(self, config_row):
+        import ast
+
+        print("\n" + "="*80)
+        print(f"REPRODUCING DETAILED REPORT FOR BEST CONFIGURATION")
+        print("="*80)
+
+        # 1. 参数还原
+        data_format = config_row['Data_Format']
+        l1_size_bytes = int(config_row['L1_Size_KB'] * 1024)
+        strat_raw = config_row['Strategy']
+        try:
+            strategy = ast.literal_eval(strat_raw)
+        except (ValueError, SyntaxError):
+            strategy = strat_raw
+        loop_order = config_row['Loop_Order']
+        
+        print(f"Target Config: L1={config_row['L1_Size_KB']} KB | Strategy={strategy} | Order={loop_order}")
+        
+        # 2. 重新实例化仿真器
+        # 务必确保这里的 n_macros 和你 DSE 时用的一致
+        total_macros = 32
+        
+        sim = CIMCoreSimulator(
+            n_macros=total_macros, 
+            macro_spec=self.macro_spec,
+            clock_freq_ghz=1.0,
+            
+            size_l1_input_buffer_bytes=l1_size_bytes,
+            size_l1_output_buffer_bytes=l1_size_bytes,
+            
+            size_l0_input_buffer_bytes=self.l0_params['input'],
+            size_l0_output_buffer_bytes=self.l0_params['output'],
+            bw_noc_to_l1_gbps=self.fixed_bw['noc_to_l1'],
+            bw_l1_to_l0_gbps=self.fixed_bw['l1_to_l0'],
+            
+            throughput_vector_unit_gops=128,
+            energy_params=self.energy_params,
+            data_format=data_format, 
+            custom_overheads=None
+        )
+        
+        # 3. 运行仿真
+        M, K, N = self.workload
+        res = sim.simulate(M, K, N, strategy, loop_order)
+        
+        # 4. [关键] 显式调用报告打印函数
+        # 即使 simulate 内部不再打印，这里也会强制打印
+        sim._report_results(res)
+
+
+# --- 3. 使用示例 ---
 if __name__ == "__main__":
     
     # 基础能量参数 (22nm)
-    base_energy_params = {
+    extended_energy_params = {
         "tpu_flop_power": 0.0823, 
         "vect_flop_power": 0.170, 
         "sram_write_power": 1.568, 
         "sram_read_power": 1.568, 
-        "cim_local_read_power": 0.436 
+        "l1_sram_write_power": 2.5,     # High energy to write from NoC
+        "l1_sram_read_power": 2.0,      # High energy to drive bus to L0
+        
+        "l0_sram_write_power": 0.5,     # Low energy (local wire)
+        "l0_sram_read_power": 0.5,       # Low energy (feed CIM)
+        "cim_local_read_power": 0.436,
+        "dram_read_power": 32,
+        "dram_write_power": 32, 
     }
-    
-    macro_spec = CIMMacroSpec()
-    
-    # 任务规模
-    M, K, N = 2048, 1024, 2048
 
-    # --- Case 1: INT8 Baseline ---
-    # 纯整数，无对齐开销，后处理简单
-    sim_int8 = CIMCoreSimulator(
-        n_macros=4, macro_spec=macro_spec,
-        size_input_buffer_bytes=128*1024, size_output_buffer_bytes=128*1024,
-        bw_input_buffer_gbps=64, throughput_vector_unit_gops=128,
-        energy_params=base_energy_params,
-        data_format='INT8',
-        overhead_params={
-            "pre_align_latency_cycles_per_input": 0,
-            "pre_align_energy_pj_per_bit": 0,
-            "post_process_energy_scale": 1.0,
-            "post_process_throughput_scale": 1.0
-        }
+    macro_spec = CIMMacroSpec(
+        n_banks_internal=64, 
+        n_subarrays_per_bank=64, 
+        n_loc_per_subarray=4, 
+        n_cols_per_bank=8
     )
-    sim_int8.simulate(M, K, N, 'N_Parallel', 'KMN')
 
-    # --- Case 2: BF16 (Digital CIM Approach) ---
-    # 特征：
-    # 1. Storage = 2.0 Bytes (带宽压力大)
-    # 2. Pre-Align: 需要比较指数，移位尾数。有一定的数字逻辑功耗和延迟。
-    # 3. Post-Process: 浮点累加，功耗是INT加法的 1.5~2倍，吞吐可能受限(0.8x)。
-    sim_bf16 = CIMCoreSimulator(
-        n_macros=4, macro_spec=macro_spec,
-        size_input_buffer_bytes=128*1024, size_output_buffer_bytes=128*1024,
-        bw_input_buffer_gbps=64, throughput_vector_unit_gops=128,
-        energy_params=base_energy_params,
-        data_format='BF16',
-        overhead_params={
-            "pre_align_latency_cycles_per_input": 0.5, # 假设流水线化，平均每输入增加0.5周期
-            "pre_align_energy_pj_per_bit": 0.05,       # 移位器功耗估算
-            "post_process_energy_scale": 1.8,          # 浮点累加更费电
-            "post_process_throughput_scale": 0.8       # 浮点累加稍微慢一点
-        }
-    )
-    sim_bf16.simulate(M, K, N, 'N_Parallel', 'KMN')
+    # 1. 设置固定参数
+    # 使用之前定义的 MXINT8 参数
+    mx_overheads = {
+        "pre_align_latency_cycles_per_input": 0.2,
+        "pre_align_energy_pj_per_bit": 0.03,
+        "post_energy_scale": 1.3,
+        "post_throughput_scale": 0.9
+    }
 
-    # --- Case 3: MXINT8 (Microscaling, ISSCC 2025 style) ---
-    # 特征：
-    # 1. Storage ~= 1.03 Bytes (带宽优势巨大，接近INT8)
-    # 2. Pre-Align: 主要是处理共享指数(Shared Scale)，比BF16逐个对齐要简单一点，或者类似。
-    # 3. Post-Process: 需要 De-scaling，比纯INT复杂，但比全浮点简单。
-    sim_mx = CIMCoreSimulator(
-        n_macros=4, macro_spec=macro_spec,
-        size_input_buffer_bytes=128*1024, size_output_buffer_bytes=128*1024,
-        bw_input_buffer_gbps=64, throughput_vector_unit_gops=128,
-        energy_params=base_energy_params,
-        data_format='MXINT8',
-        overhead_params={
-            "pre_align_latency_cycles_per_input": 0.2, # 块级对齐，均摊开销小
-            "pre_align_energy_pj_per_bit": 0.03,       # 逻辑更简单
-            "post_process_energy_scale": 1.3,          # 需要 scaling 操作
-            "post_process_throughput_scale": 0.9
-        }
+    # 定义搜索空间
+    # L1 大小: 64KB 到 1MB
+    l1_candidates = [64*1024, 128*1024, 256*1024, 512*1024, 1024*1024]
+
+    # 映射策略
+    # strategies = ['N_Parallel', 'K_Parallel']
+
+    # 循环顺序: 6种排列
+    loop_orders = [''.join(p) for p in itertools.permutations('MKN')]
+    # 例如: ['MKN', 'MNK', 'KMN', 'KNM', 'NMK', 'NKM']
+
+    # 1. 初始化 DSE 引擎 (不再需要 overheads)
+    dse = CIMDesignExplorer(
+        macro_spec=macro_spec,
+        l0_params={'input': 4096, 'output': 4096},
+        energy_params=extended_energy_params,
+        workload=(1024, 4096, 1024)
     )
-    sim_mx.simulate(M, K, N, 'N_Parallel', 'KMN')
+
+    # 2. 定义要测试的数据格式列表
+    formats_to_test = ['INT8', 'BF16', 'MXINT8', 'FP8', 'MXFP8_M4']
+    # formats_to_test = ['INT8']
+    all_results = []
+
+    # 3. 循环运行 DSE
+    for fmt in formats_to_test:
+        results = dse.run_dse_hybrid(l1_candidates, loop_orders, data_format=fmt)
+        all_results.extend(results)
+
+    # 4. 对所有格式的全部结果进行分析
+    if all_results:
+        df_all = dse.analyze_results(all_results)
+        
+        # 找到全局最佳配置并复现
+        best_config_overall = df_all.sort_values(by="EDP").iloc[0]
+        dse.reproduce_specific_config(best_config_overall)
+        
+        # (可选) 分别打印每种格式的最佳配置
+        for fmt in formats_to_test:
+            df_fmt = df_all[df_all['Data_Format'] == fmt]
+            if not df_fmt.empty:
+                best_config_fmt = df_fmt.sort_values(by="EDP").iloc[0]
+                print(f"\n--- Best EDP config for {fmt} ---")
+                print(best_config_fmt)
+    else:
+        print("\n!!! 错误：所有数据格式的仿真均未产生有效结果。请检查上方的 [ERROR] 信息进行修复 !!!")
