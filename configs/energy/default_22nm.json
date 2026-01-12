@@ -1,0 +1,17 @@
+{
+  "description": "22nm工艺能量参数",
+  "unit": "pJ",
+  "parameters": {
+    "tpu_flop_power": 0.0823,
+    "vect_flop_power": 0.170,
+    "sram_write_power": 1.568,
+    "sram_read_power": 1.568,
+    "l1_sram_write_power": 2.5,
+    "l1_sram_read_power": 2.0,
+    "l0_sram_write_power": 0.5,
+    "l0_sram_read_power": 0.5,
+    "cim_local_read_power": 0.436,
+    "dram_read_power": 32,
+    "dram_write_power": 32
+  }
+}
