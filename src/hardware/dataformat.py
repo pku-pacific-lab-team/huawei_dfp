@@ -80,6 +80,18 @@ FORMAT_SPECS: Dict[str, DataFormatSpec] = {
         mantissa_bits=4,
         guard_bits=5  # 共享指数限制了动态范围
     ),
+    "INT16": DataFormatSpec(
+        name="INT16",
+        storage_bytes=2.0,
+        mantissa_bits=16,
+        guard_bits=0
+    ),
+    "FP16": DataFormatSpec(
+        name="FP16",
+        storage_bytes=2.0,
+        mantissa_bits=10,  # FP16: 1 sign + 5 exponent + 10 mantissa
+        guard_bits=0  # FP16 不需要额外的保护位
+    ),
 }
 
 
@@ -138,6 +150,62 @@ def get_format_overheads(data_format: str, custom_overheads: Optional[Dict[str, 
             "macro_energy_scale": 1.05,
             "post_throughput_scale": 0.95,
             "post_energy_scale": 1.15,
+        },
+        "INT16": {
+            "pre_latency_cycles_per_input": 0.1,
+            "pre_energy_pj_per_bit": 0.02,
+            "macro_energy_scale": 1.0,
+            "post_throughput_scale": 1.0,
+            "post_energy_scale": 1.0,
+        },
+        "FP16": {
+            "pre_latency_cycles_per_input": 0.2,
+            "pre_energy_pj_per_bit": 0.03,
+            "macro_energy_scale": 1.0,
+            "post_throughput_scale": 1.0,
+            "post_energy_scale": 1.1,
+        },
+    }
+
+    if data_format in format_specific_overheads:
+        overheads.update(format_specific_overheads[data_format])
+
+    # 应用自定义开销
+    if custom_overheads:
+        overheads.update(custom_overheads)
+
+    return overheads
+
+
+def get_cube_format_overheads(data_format: str, custom_overheads: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
+    """
+    获取Cube模块指定数据格式的开销参数
+
+    Cube矩阵运算模块只需要计算能耗缩放因子，不需要预处理和后处理参数：
+    - cube_energy_scale: Cube计算能耗缩放因子
+
+    Args:
+        data_format: 数据格式名称
+        custom_overheads: 自定义开销参数（可选）
+
+    Returns:
+        开销参数字典，只包含cube_energy_scale
+    """
+    # 默认开销（INT8）
+    overheads = {
+        "cube_energy_scale": 1.0,
+    }
+
+    # 根据数据格式更新开销
+    format_specific_overheads = {
+        "INT8": {
+            "cube_energy_scale": 1.0,
+        },
+        "INT16": {
+            "cube_energy_scale": 2.0,
+        },
+        "FP16": {
+            "cube_energy_scale": 3.0,
         },
     }
 

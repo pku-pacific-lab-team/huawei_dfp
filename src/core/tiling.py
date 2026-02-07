@@ -107,8 +107,10 @@ class TilingEngine:
             if k_per_macro > 0 else M
 
         # L0输出Buffer限制
+        # 注意：PSUM输出固定为32位（4字节），不依赖输入数据格式
         n_per_macro = self.macro_spec.block_n_dim
-        m_limit_l0_output = int(self.size_l0_output // (n_per_macro * bytes_per_item)) \
+        PSUM_BYTES = 4  # PSUM输出始终为32位
+        m_limit_l0_output = int(self.size_l0_output // (n_per_macro * PSUM_BYTES)) \
             if n_per_macro > 0 else M
 
         # 取两者最小值

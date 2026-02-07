@@ -40,17 +40,17 @@ class ResultReporter:
             ratio = (v / total_e * 100) if total_e > 0 else 0
             bar_len = int(ratio / 5)  # 每5%一个块
             bar = "█" * bar_len
-            print(f"  {k:<20} {bar:<8} {ratio:5.1f}%  ({v/1e6:,.1f} mJ)")
+            print(f"  {k:<20} {bar:<8} {ratio:5.1f}%  ({v/1e9:,.1f} mJ)")
 
         other_energy = sum(v for k, v in sorted_energy[6:])
         if other_energy > 0:
             other_ratio = (other_energy / total_e * 100)
-            print(f"  {'(others)':<20} {'':8} {other_ratio:5.1f}%  ({other_energy/1e6:,.1f} mJ)")
+            print(f"  {'(others)':<20} {'':8} {other_ratio:5.1f}%  ({other_energy/1e9:,.1f} mJ)")
 
         # 3. 总体性能
         print(f"\n[Performance Summary]")
         print(f"  Total Latency : {results['total_latency_cycles']:>12,} Cycles")
-        print(f"  Total Energy  : {results['total_energy_pj']/1e6:>12,.2f} mJ")
+        print(f"  Total Energy  : {results['total_energy_pj']/1e9:>12,.2f} mJ")
         print(f"  Throughput    : {results['throughput_gops']:>12,.2f} GOPS")
         print(f"  Efficiency    : {results['energy_efficiency_tops_per_watt']:>12,.2f} TOPS/W")
         print("")
@@ -84,7 +84,7 @@ class ResultReporter:
         for i, entry in enumerate(sorted_by_edp[:top_n]):
             print(f"{i+1:<5} {entry['Data_Format']:<10} {entry['L1_Size_KB']:<8.0f} "
                   f"{entry['Strategy']:<12} {entry['Loop_Order']:<7} "
-                  f"{entry['Throughput_GOPS']:>12.2f} {entry['Energy_pJ']/1e6:>12.2f} "
+                  f"{entry['Throughput_GOPS']:>12.2f} {entry['Energy_pJ']/1e9:>12.2f} "
                   f"{entry['Bottleneck']:<12}")
 
         print("-" * 100)

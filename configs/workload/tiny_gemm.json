@@ -1,0 +1,11 @@
+{
+    "description": "TINY GEMM工作负载",
+    "gemm": {
+      "M": 512,
+      "K": 256,
+      "N": 512
+    },
+    "data_format": "FP16",
+    "custom_overheads": null
+  }
+  

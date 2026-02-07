@@ -12,6 +12,8 @@
     "l0_sram_read_power": 0.5,
     "cim_local_read_power": 0.436,
     "dram_read_power": 32,
-    "dram_write_power": 32
+    "dram_write_power": 32,
+    "weight_prog_power": 1.568,
+    "weight_prog_bw_gbps": 64.0
   }
 }

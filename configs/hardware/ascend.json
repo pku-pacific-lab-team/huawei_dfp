@@ -1,0 +1,30 @@
+{
+    "description": "Ascend 910 AI Processor",
+    "Cube": {
+        "num_cubes": 32,
+        "clock_freq_ghz": 1.0,
+        "cube": {
+            "m_dim": 16,
+            "n_dim": 16,
+            "k_dim": 16,
+            "p_input": 16
+        }
+    },
+    "memory": {
+        "size_l0_a_input_buffer_bytes": 65536,
+        "size_l0_b_input_buffer_bytes": 65536,
+        "size_l0_c_output_buffer_bytes": 262144,
+        "size_l1_buffer_bytes": 1048576,
+        "size_l2_buffer_bytes": 12582912
+    },
+    "bandwidth": {
+        "bw_noc_to_l0_a_gbps": 64.0,
+        "bw_l1_to_l0_gbps": 128.0,
+        "bw_l0_to_cube_gbps": 128.0,
+        "bw_l0_a_to_l0_b_gbps": 128.0,
+        "bw_l0_b_to_l0_c_gbps": 128.0
+    },
+    "vector_unit": {
+        "throughput_gops": 128
+    }
+}

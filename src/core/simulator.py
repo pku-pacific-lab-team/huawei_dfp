@@ -168,32 +168,66 @@ class CIMCoreSimulator:
         # 初始化流水线时间戳
         t_avail = {
             "NoC": 0,
+            "Weight_Prog": 0,       # 权重重编程 (L1 → SRAM bitcell)
             "Bus_L1_L0": 0,
             "Pre_Proc": 0,
             "Macro": 0,
-            "Post_Proc": 0
+            "Post_Proc": 0,
+            "L1_Output": 0,         # L0 output → L1 output 传输
         }
         t_l1_space_available = 0
 
         # 初始化能耗计数器
         energies_pj = {k: 0 for k in [
             "dram_read", "dram_write", "load_X_NoC", "load_W",
+            "weight_prog",          # 权重重编程能耗
             "read_L1", "write_L0", "pre_process",
             "read_L0", "local_readout", "compute_macro",
-            "accum_vector_unit", "read_psums", "write_psums"
+            "accum_vector_unit", "read_psums", "write_psums",
+            "write_l1_output",      # L0 output → L1 output 写回能耗
         ]}
 
         # 计算带宽（字节/周期）
         bw_noc_bpc = (self.bw_noc_to_l1_gbps * 1e9) / (self.clock_freq_ghz * 1e9) / 8
         bw_bus_bpc = (self.bw_l1_to_l0_gbps * 1e9) / (self.clock_freq_ghz * 1e9) / 8
+        bw_l0_to_l1_bpc = bw_bus_bpc  # L0→L1 假设与 L1→L0 对称
 
-        # L1缓存标签
-        current_l1_input_tag = None
-        current_l1_weight_tag = None
+        # 权重重编程带宽
+        weight_prog_bw = self.energy_params.get("weight_prog_bw_gbps", 0)
+        weight_prog_bpc = (weight_prog_bw * 1e9 / (self.clock_freq_ghz * 1e9) / 8
+                           ) if weight_prog_bw > 0 else 0
+
+        # [P2-1] L1 多 tag 缓存追踪
+        l1_input_tile_space = {}   # {(m, k): bytes}
+        l1_weight_tile_space = {}  # {(k, n): bytes}
+        l1_used_bytes = 0
+
+        # [P0-2] L0 output PSUM 空间管理
+        # per-macro: PSUM bytes = m_tile * block_n_dim * 4
+        l0_output_tile_space = {}  # {(abs_m, abs_n): (t_write_complete, bytes_per_macro)}
+        C_tile_K_progress = {}     # {(abs_m, abs_n): set(abs_k, ...)}
+
+        # 统计信息
+        l0_to_l1_output_stats = {
+            'total_evict_count': 0, 'total_evict_bytes': 0,
+            'tile_evict_count': {}, 'tile_evict_bytes': {},
+        }
+        l1_cache_stats = {
+            'input_hits': 0, 'input_misses': 0,
+            'weight_hits': 0, 'weight_misses': 0,
+        }
+        l0_input_cache_stats = {'hits': 0, 'misses': 0}
 
         # Tile步长
         step_m_l1, step_k_l1, step_n_l1 = l1_dims['m'], l1_dims['k'], l1_dims['n']
         step_m_l0, step_k_l0, step_n_l0 = l0_dims['m'], l0_dims['k'], l0_dims['n']
+
+        # 预计算所有会被访问的绝对K位置（用于判断C tile是否完成）
+        expected_K_set = set()
+        for k_l1 in range(0, K, step_k_l1):
+            k_l1_act = min(step_k_l1, K - k_l1)
+            for dk in range(0, k_l1_act, step_k_l0):
+                expected_K_set.add(k_l1 + dk)
 
         # 生成L1级循环迭代器
         ranges_l1 = {
@@ -209,11 +243,7 @@ class CIMCoreSimulator:
 
         # === 外层循环: L1 Tile ===
         for l1_indices in outer_iter:
-            idx_map_l1 = {
-                loop_order[0]: l1_indices[0],
-                loop_order[1]: l1_indices[1],
-                loop_order[2]: l1_indices[2]
-            }
+            idx_map_l1 = {loop_order[i]: l1_indices[i] for i in range(3)}
             m_l1_start = idx_map_l1['M']
             k_l1_start = idx_map_l1['K']
             n_l1_start = idx_map_l1['N']
@@ -222,11 +252,22 @@ class CIMCoreSimulator:
             k_l1_actual = min(step_k_l1, K - k_l1_start)
             n_l1_actual = min(step_n_l1, N - n_l1_start)
 
-            # === LEVEL 1: DRAM -> L1 Traffic (With Backpressure) ===
+            # === LEVEL 1: DRAM -> L1 Traffic ===
             input_tag = (m_l1_start, k_l1_start)
-            input_miss = (current_l1_input_tag != input_tag)
             weight_tag = (k_l1_start, n_l1_start)
-            weight_miss = (current_l1_weight_tag != weight_tag)
+
+            # [P2-1] L1 多 tag 缓存命中检测
+            input_miss = (input_tag not in l1_input_tile_space)
+            weight_miss = (weight_tag not in l1_weight_tile_space)
+
+            if input_miss:
+                l1_cache_stats['input_misses'] += 1
+            else:
+                l1_cache_stats['input_hits'] += 1
+            if weight_miss:
+                l1_cache_stats['weight_misses'] += 1
+            else:
+                l1_cache_stats['weight_hits'] += 1
 
             if input_miss or weight_miss:
                 start_noc = max(t_avail["NoC"], t_l1_space_available)
@@ -234,41 +275,91 @@ class CIMCoreSimulator:
 
                 if input_miss:
                     bytes_x = m_l1_actual * k_l1_actual * self.storage_bytes
+                    # L1 空间不足时驱逐最早的 input tile
+                    while l1_used_bytes + bytes_x > self.size_l1_input and l1_input_tile_space:
+                        oldest = next(iter(l1_input_tile_space))
+                        l1_used_bytes -= l1_input_tile_space.pop(oldest)
                     dur = math.ceil(bytes_x / bw_noc_bpc)
                     current_noc_time += dur
                     energies_pj["dram_read"] += bytes_x * self.energy_params["dram_read_power"]
                     energies_pj["load_X_NoC"] += bytes_x * self.energy_params["l1_sram_write_power"]
-                    current_l1_input_tag = input_tag
+                    l1_input_tile_space[input_tag] = bytes_x
+                    l1_used_bytes += bytes_x
 
                 if weight_miss:
                     bytes_w = k_l1_actual * n_l1_actual * self.storage_bytes
+                    # L1 空间不足时驱逐最早的 weight tile
+                    while l1_used_bytes + bytes_w > self.size_l1_input and l1_weight_tile_space:
+                        oldest = next(iter(l1_weight_tile_space))
+                        l1_used_bytes -= l1_weight_tile_space.pop(oldest)
                     dur = math.ceil(bytes_w / bw_noc_bpc)
                     current_noc_time += dur
                     energies_pj["dram_read"] += bytes_w * self.energy_params["dram_read_power"]
                     energies_pj["load_W"] += bytes_w * self.energy_params["sram_write_power"]
-                    current_l1_weight_tag = weight_tag
+                    l1_weight_tile_space[weight_tag] = bytes_w
+                    l1_used_bytes += bytes_w
 
                 t_avail["NoC"] = current_noc_time
+
+            # [P1-2] 权重重编程: L1 → SRAM bitcell 通过 Weight I/O
+            if weight_miss and weight_prog_bpc > 0:
+                bytes_per_macro_prog = (self.macro_spec.block_k_dim *
+                                        self.macro_spec.block_n_dim *
+                                        self.storage_bytes)
+                dur_prog = math.ceil(bytes_per_macro_prog / weight_prog_bpc)
+                start_prog = max(t_avail["NoC"], t_avail["Weight_Prog"])
+                t_avail["Weight_Prog"] = start_prog + dur_prog
+                weight_prog_power = self.energy_params.get("weight_prog_power", 0)
+                energies_pj["weight_prog"] += (bytes_per_macro_prog *
+                                               self.n_macros * weight_prog_power)
 
             # === LEVEL 2: L1 -> L0 Traffic & Compute (Sub Tiles) ===
             r_m_in = range(0, m_l1_actual, step_m_l0)
             r_k_in = range(0, k_l1_actual, step_k_l0)
             r_n_in = range(0, n_l1_actual, step_n_l0)
 
-            for dm, dk, dn in itertools.product(r_m_in, r_k_in, r_n_in):
+            # [P2-2] 内层循环尊重 loop_order
+            ranges_l0 = {'M': r_m_in, 'K': r_k_in, 'N': r_n_in}
+            inner_iter = itertools.product(
+                ranges_l0[loop_order[0]],
+                ranges_l0[loop_order[1]],
+                ranges_l0[loop_order[2]]
+            )
+
+            # [P3] L0 输入数据复用追踪（每个 L1 tile 重置）
+            l0_input_current_tag = None
+
+            for l0_indices in inner_iter:
+                l0_idx_map = {loop_order[i]: l0_indices[i] for i in range(3)}
+                dm = l0_idx_map['M']
+                dk = l0_idx_map['K']
+                dn = l0_idx_map['N']
+
                 m_tile = min(step_m_l0, m_l1_actual - dm)
                 k_tile = min(step_k_l0, k_l1_actual - dk)
                 n_tile = min(step_n_l0, n_l1_actual - dn)
 
                 # --- [Action 1: L1 -> L0 Transfer] ---
+                # [P3] 检查 L0 输入数据是否可复用
+                l0_input_tag = (dm, dk)
+                l0_input_hit = (l0_input_current_tag == l0_input_tag)
                 bytes_x_l0 = m_tile * k_tile * self.storage_bytes
-                dur_bus = math.ceil(bytes_x_l0 / bw_bus_bpc)
-                start_bus = max(t_avail["NoC"], t_avail["Bus_L1_L0"])
-                t_avail["Bus_L1_L0"] = start_bus + dur_bus
-                energies_pj["read_L1"] += bytes_x_l0 * self.energy_params["l1_sram_read_power"]
-                energies_pj["write_L0"] += bytes_x_l0 * pn * self.energy_params["l0_sram_write_power"]
 
-                # --- [Action 2: Pre-processing with Unified Overheads] ---
+                if l0_input_hit:
+                    # 数据已在 L0 中，跳过传输
+                    l0_input_cache_stats['hits'] += 1
+                else:
+                    dur_bus = math.ceil(bytes_x_l0 / bw_bus_bpc)
+                    start_bus = max(t_avail["NoC"], t_avail["Bus_L1_L0"])
+                    t_avail["Bus_L1_L0"] = start_bus + dur_bus
+                    energies_pj["read_L1"] += (bytes_x_l0 *
+                                               self.energy_params["l1_sram_read_power"])
+                    energies_pj["write_L0"] += (bytes_x_l0 * pn *
+                                                self.energy_params["l0_sram_write_power"])
+                    l0_input_current_tag = l0_input_tag
+                    l0_input_cache_stats['misses'] += 1
+
+                # --- [Action 2: Pre-processing] ---
                 num_inputs_to_pre_proc = m_tile * k_tile
                 parallelism = pk * self.macro_spec.block_k_dim
                 cycles_pre = math.ceil(
@@ -278,17 +369,22 @@ class CIMCoreSimulator:
                 start_pre = max(t_avail["Bus_L1_L0"], t_avail["Pre_Proc"])
                 t_avail["Pre_Proc"] = start_pre + cycles_pre
                 bits_to_pre_proc = bytes_x_l0 * 8
-                energies_pj["pre_process"] += bits_to_pre_proc * self.overheads['pre_energy_pj_per_bit']
+                energies_pj["pre_process"] += (bits_to_pre_proc *
+                                               self.overheads['pre_energy_pj_per_bit'])
 
-                # --- [Action 3: Macro Compute with Corrected FP Model] ---
+                # --- [Action 3: Macro Compute] ---
                 num_switches = self.macro_spec.n_loc_per_subarray
                 num_chunks = math.ceil(self.effective_compute_bits / self.compute_bits)
-                dur_per_chunk = num_switches * (self.t_local_readout + m_tile * self.compute_bits)
+                dur_per_chunk = num_switches * (self.t_local_readout +
+                                                m_tile * self.compute_bits)
                 dur_macro = dur_per_chunk * num_chunks
-                start_macro = max(t_avail["Pre_Proc"], t_avail["Macro"])
+                # [P1-2] Macro 必须等待权重编程完成
+                start_macro = max(t_avail["Pre_Proc"], t_avail["Macro"],
+                                  t_avail["Weight_Prog"])
                 t_avail["Macro"] = start_macro + dur_macro
 
-                energies_pj["read_L0"] += bytes_x_l0 * pn * self.energy_params["l0_sram_read_power"]
+                energies_pj["read_L0"] += (bytes_x_l0 * pn *
+                                           self.energy_params["l0_sram_read_power"])
 
                 base_readout_energy = (
                     num_switches *
@@ -300,9 +396,11 @@ class CIMCoreSimulator:
                     base_readout_energy * self.activity_factor * num_chunks
                 )
 
-                base_compute_energy = (m_tile * k_tile * n_tile) * self.energy_params["tpu_flop_power"]
-                ops_equivalent = base_compute_energy / self.energy_params["tpu_flop_power"] * \
-                    (self.effective_compute_bits / 8.0)
+                base_compute_energy = ((m_tile * k_tile * n_tile) *
+                                       self.energy_params["tpu_flop_power"])
+                ops_equivalent = (base_compute_energy /
+                                  self.energy_params["tpu_flop_power"] *
+                                  (self.effective_compute_bits / 8.0))
                 energy_compute = ops_equivalent * self.energy_params["tpu_flop_power"]
                 energies_pj["compute_macro"] += (
                     energy_compute *
@@ -310,45 +408,164 @@ class CIMCoreSimulator:
                     self.activity_factor
                 )
 
-                # === [Action 4: Post-processing with Corrected PSUM Logic] ===
+                # === [Action 4: Post-processing + PSUM 空间管理] ===
+                # 绝对 C tile 标识
+                abs_m = m_l1_start + dm
+                abs_n = n_l1_start + dn
+                abs_k = k_l1_start + dk
+                C_tile_tag = (abs_m, abs_n)
+
+                if C_tile_tag not in C_tile_K_progress:
+                    C_tile_K_progress[C_tile_tag] = set()
+
+                # 判断是否是该 C tile 的第一次 K 迭代
+                has_previous_K = len(C_tile_K_progress[C_tile_tag]) > 0
+
                 ops_mac_output = m_tile * n_tile
                 reduction_penalty = 1.0 if pk == 1 else 1.5
+                bytes_psum_total = ops_mac_output * 4  # 所有 macro 合计
+                psum_bytes_macro = m_tile * self.macro_spec.block_n_dim * 4  # 单 macro
 
-                # 检查这是否是K维度的第一次计算
-                is_first_k_chunk = (k_l1_start + dk == 0)
+                # [P0-2] PSUM 读取：从 L0 output 或 L1 output
+                if has_previous_K:
+                    if C_tile_tag in l0_output_tile_space:
+                        # PSUM 仍在 L0 output 中
+                        energies_pj["read_psums"] += (
+                            bytes_psum_total *
+                            self.energy_params["l0_sram_read_power"]
+                        )
+                    else:
+                        # PSUM 已被 evict 到 L1 output，需从 L1 读回
+                        dur_reload = math.ceil(bytes_psum_total / bw_l0_to_l1_bpc)
+                        start_reload = max(t_avail["Macro"], t_avail["L1_Output"])
+                        t_avail["L1_Output"] = start_reload + dur_reload
+                        energies_pj["read_psums"] += (
+                            bytes_psum_total *
+                            self.energy_params["l1_sram_read_power"]
+                        )
+                        energies_pj["write_L0"] += (
+                            bytes_psum_total *
+                            self.energy_params["l0_sram_write_power"]
+                        )
 
-                # 1. PSUM Read (如果不是第一个K chunk)
-                bytes_psum = ops_mac_output * 4  # PSUMs usually 32-bit
-                if not is_first_k_chunk:
-                    energies_pj["read_psums"] += (
-                        bytes_psum * self.energy_params["l0_sram_read_power"]
-                    )
-
-                # 2. Accumulation in Vector Unit (延迟和能耗)
+                # 累加（Vector Unit）
                 ops_to_accumulate = ops_mac_output
                 eff_ops_per_cycle = (
                     self.ops_per_cycle_vector_unit *
                     self.overheads['post_throughput_scale'] / reduction_penalty
                 )
-                dur_post = math.ceil(ops_to_accumulate / eff_ops_per_cycle) \
-                    if eff_ops_per_cycle > 0 else 0
+                dur_post = (math.ceil(ops_to_accumulate / eff_ops_per_cycle)
+                            if eff_ops_per_cycle > 0 else 0)
                 start_post = max(t_avail["Macro"], t_avail["Post_Proc"])
                 t_avail["Post_Proc"] = start_post + dur_post
 
-                base_accum_energy = ops_to_accumulate * self.energy_params["vect_flop_power"]
+                base_accum_energy = (ops_to_accumulate *
+                                     self.energy_params["vect_flop_power"])
                 energies_pj["accum_vector_unit"] += (
                     base_accum_energy *
                     self.overheads['post_energy_scale'] *
                     reduction_penalty
                 )
 
-                # 3. PSUM Write (每次K迭代后都写回)
-                energies_pj["write_psums"] += bytes_psum * self.energy_params["l0_sram_write_power"]
+                # [P0-2] L0 output 空间管理：写入 PSUM 前检查空间
+                if C_tile_tag not in l0_output_tile_space:
+                    # 需要分配新空间，可能需要驱逐现有 tile
+                    for evict_tag in [t for t in l0_output_tile_space
+                                      if t != C_tile_tag]:
+                        evict_write_time, evict_bytes = l0_output_tile_space[evict_tag]
+                        evict_total = evict_bytes * self.n_macros
+
+                        start_evict = max(t_avail["Post_Proc"],
+                                          t_avail["L1_Output"],
+                                          evict_write_time)
+                        dur_evict = math.ceil(evict_total / bw_l0_to_l1_bpc)
+                        t_avail["L1_Output"] = start_evict + dur_evict
+
+                        energies_pj["read_psums"] += (
+                            evict_total *
+                            self.energy_params["l0_sram_read_power"]
+                        )
+                        energies_pj["write_l1_output"] += (
+                            evict_total *
+                            self.energy_params["l1_sram_write_power"]
+                        )
+
+                        l0_to_l1_output_stats['total_evict_count'] += 1
+                        l0_to_l1_output_stats['total_evict_bytes'] += evict_total
+                        if evict_tag not in l0_to_l1_output_stats['tile_evict_count']:
+                            l0_to_l1_output_stats['tile_evict_count'][evict_tag] = 0
+                            l0_to_l1_output_stats['tile_evict_bytes'][evict_tag] = 0
+                        l0_to_l1_output_stats['tile_evict_count'][evict_tag] += 1
+                        l0_to_l1_output_stats['tile_evict_bytes'][evict_tag] += evict_total
+
+                        del l0_output_tile_space[evict_tag]
+                        break  # L0 output 只能放一个 tile，驱逐一个即够
+
+                # 写 PSUM 到 L0 output
+                energies_pj["write_psums"] += (bytes_psum_total *
+                                               self.energy_params["l0_sram_write_power"])
+                l0_output_tile_space[C_tile_tag] = (t_avail["Post_Proc"],
+                                                    psum_bytes_macro)
+
+                # 记录 K 进度
+                C_tile_K_progress[C_tile_tag].add(abs_k)
+
+                # [P1-1] 检查 C tile 是否完成所有 K 维度
+                is_complete = expected_K_set.issubset(
+                    C_tile_K_progress[C_tile_tag])
+                if is_complete and C_tile_tag in l0_output_tile_space:
+                    # 完成的 C tile 从 L0 output 转移到 L1 output
+                    done_write_time, done_bytes = l0_output_tile_space[C_tile_tag]
+                    done_total = done_bytes * self.n_macros
+
+                    start_transfer = max(t_avail["Post_Proc"],
+                                         t_avail["L1_Output"],
+                                         done_write_time)
+                    dur_transfer = math.ceil(done_total / bw_l0_to_l1_bpc)
+                    t_avail["L1_Output"] = start_transfer + dur_transfer
+
+                    energies_pj["read_psums"] += (
+                        done_total * self.energy_params["l0_sram_read_power"]
+                    )
+                    energies_pj["write_l1_output"] += (
+                        done_total * self.energy_params["l1_sram_write_power"]
+                    )
+
+                    l0_to_l1_output_stats['total_evict_count'] += 1
+                    l0_to_l1_output_stats['total_evict_bytes'] += done_total
+                    if C_tile_tag not in l0_to_l1_output_stats['tile_evict_count']:
+                        l0_to_l1_output_stats['tile_evict_count'][C_tile_tag] = 0
+                        l0_to_l1_output_stats['tile_evict_bytes'][C_tile_tag] = 0
+                    l0_to_l1_output_stats['tile_evict_count'][C_tile_tag] += 1
+                    l0_to_l1_output_stats['tile_evict_bytes'][C_tile_tag] += done_total
+
+                    del l0_output_tile_space[C_tile_tag]
 
             # === [关键更新] Update Space Availability ===
             t_l1_space_available = t_avail["Macro"]
 
-        # === 循环结束: 最终结果写回 (DRAM Write) ===
+        # === 循环结束后：清理 L0 output 中剩余的 tile ===
+        for tile_tag, (t_write, t_bytes) in list(l0_output_tile_space.items()):
+            total_bytes = t_bytes * self.n_macros
+            start_evict = max(t_avail["Post_Proc"], t_avail["L1_Output"], t_write)
+            dur_evict = math.ceil(total_bytes / bw_l0_to_l1_bpc)
+            t_avail["L1_Output"] = start_evict + dur_evict
+
+            energies_pj["read_psums"] += (total_bytes *
+                                          self.energy_params["l0_sram_read_power"])
+            energies_pj["write_l1_output"] += (total_bytes *
+                                               self.energy_params["l1_sram_write_power"])
+
+            l0_to_l1_output_stats['total_evict_count'] += 1
+            l0_to_l1_output_stats['total_evict_bytes'] += total_bytes
+            if tile_tag not in l0_to_l1_output_stats['tile_evict_count']:
+                l0_to_l1_output_stats['tile_evict_count'][tile_tag] = 0
+                l0_to_l1_output_stats['tile_evict_bytes'][tile_tag] = 0
+            l0_to_l1_output_stats['tile_evict_count'][tile_tag] += 1
+            l0_to_l1_output_stats['tile_evict_bytes'][tile_tag] += total_bytes
+        l0_output_tile_space.clear()
+
+        # === 最终结果写回 (DRAM Write) ===
         output_bytes = 4  # 最终输出总是高精度
         total_out_bytes = M * N * output_bytes
         energies_pj["dram_write"] += total_out_bytes * self.energy_params["dram_write_power"]
@@ -357,7 +574,8 @@ class CIMCoreSimulator:
         total_latency = max(t_avail.values())
         total_energy_pj = sum(energies_pj.values())
         total_ops = M * K * N * 2  # MAC operation is 2 ops (multiply and add)
-        throughput = (total_ops / total_latency * self.clock_freq_ghz) if total_latency > 0 else 0
+        throughput = ((total_ops / total_latency * self.clock_freq_ghz)
+                      if total_latency > 0 else 0)
 
         return {
             "Format": self.data_format,
@@ -369,7 +587,15 @@ class CIMCoreSimulator:
             "total_energy_pj": total_energy_pj,
             "throughput_gops": throughput,
             "energy_efficiency_tops_per_watt": (
-                (total_ops / 1e12) / (total_energy_pj / 1e12) if total_energy_pj > 0 else 0
+                (total_ops / 1e12) / (total_energy_pj / 1e12)
+                if total_energy_pj > 0 else 0
             ),
-            "bottleneck": max(t_avail, key=t_avail.get)
+            "bottleneck": max(t_avail, key=t_avail.get),
+            "l0_to_l1_output_stats": {
+                "total_evict_count": l0_to_l1_output_stats['total_evict_count'],
+                "total_evict_bytes": l0_to_l1_output_stats['total_evict_bytes'],
+                "theoretical_min_bytes": M * N * 4,
+            },
+            "l1_cache_stats": l1_cache_stats,
+            "l0_input_cache_stats": l0_input_cache_stats,
         }
