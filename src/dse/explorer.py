@@ -114,6 +114,7 @@ class CIMDesignExplorer:
                 size_l0_output_buffer_bytes=self.l0_params['output'],
                 bw_noc_to_l1_gbps=self.fixed_bw['noc_to_l1'],
                 bw_l1_to_l0_gbps=self.fixed_bw['l1_to_l0'],
+                bw_l0_to_l1_output_gbps=self.fixed_bw.get('l0_to_l1_output'),
                 throughput_vector_unit_gops=128,
                 energy_params=self.energy_params,
                 data_format=data_format,
@@ -127,6 +128,9 @@ class CIMDesignExplorer:
 
                 edp = res['total_energy_pj'] * res['total_latency_cycles']
 
+                dram_energy = res['energies_pj'].get('dram_read', 0) + res['energies_pj'].get('dram_write', 0)
+                compute_energy = res['total_energy_pj'] - dram_energy
+
                 entry = {
                     "Data_Format": data_format,
                     "L1_Size_KB": l1_size / 1024,
@@ -134,6 +138,7 @@ class CIMDesignExplorer:
                     "Loop_Order": order,
                     "Latency_Cyc": res['total_latency_cycles'],
                     "Energy_pJ": res['total_energy_pj'],
+                    "Compute_Energy_pJ": compute_energy,
                     "Throughput_GOPS": res['throughput_gops'],
                     "EDP": edp,
                     "Bottleneck": res['bottleneck']
@@ -227,6 +232,7 @@ class CIMDesignExplorer:
             size_l0_output_buffer_bytes=self.l0_params['output'],
             bw_noc_to_l1_gbps=self.fixed_bw['noc_to_l1'],
             bw_l1_to_l0_gbps=self.fixed_bw['l1_to_l0'],
+            bw_l0_to_l1_output_gbps=self.fixed_bw.get('l0_to_l1_output'),
             throughput_vector_unit_gops=128,
             energy_params=self.energy_params,
             data_format=data_format,

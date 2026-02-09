@@ -30,29 +30,56 @@ class ResultReporter:
 
         print(f"\n  Bottleneck: {results.get('bottleneck', 'N/A')}")
 
-        # 2. 能耗分解 (只显示主要项)
-        print(f"\n[Energy Breakdown]")
+        # 2. 能耗分解 — 按物理资源分组
+        print(f"\n[Energy Breakdown by Resource]")
         total_e = results['total_energy_pj']
+        e = results['energies_pj']
 
-        # 按能耗排序，只显示前5项
-        sorted_energy = sorted(results['energies_pj'].items(), key=lambda x: -x[1])
-        for k, v in sorted_energy[:6]:
-            ratio = (v / total_e * 100) if total_e > 0 else 0
-            bar_len = int(ratio / 5)  # 每5%一个块
+        # 分组定义
+        groups = {
+            "DRAM":       ["dram_read", "dram_write"],
+            "L1 SRAM":    ["load_X_NoC", "load_W", "read_L1", "write_l1_output"],
+            "L0 SRAM":    ["write_L0", "read_L0", "write_psums", "read_psums"],
+            "Compute":    ["compute_macro", "local_readout"],
+            "Pre/Post":   ["pre_process", "accum_vector_unit"],
+            "Weight Prog": ["weight_prog"],
+        }
+
+        for group_name, keys in groups.items():
+            group_e = sum(e.get(k, 0) for k in keys)
+            if group_e <= 0:
+                continue
+            ratio = (group_e / total_e * 100) if total_e > 0 else 0
+            bar_len = int(ratio / 5)
             bar = "█" * bar_len
-            print(f"  {k:<20} {bar:<8} {ratio:5.1f}%  ({v/1e9:,.1f} mJ)")
+            # 打印分组行
+            print(f"  {group_name:<14} {bar:<10} {ratio:5.1f}%  ({group_e/1e9:,.3f} mJ)")
+            # 打印子项
+            for k in keys:
+                v = e.get(k, 0)
+                if v <= 0:
+                    continue
+                sub_ratio = (v / total_e * 100) if total_e > 0 else 0
+                print(f"    {k:<16}          {sub_ratio:5.1f}%  ({v/1e9:,.3f} mJ)")
 
-        other_energy = sum(v for k, v in sorted_energy[6:])
-        if other_energy > 0:
-            other_ratio = (other_energy / total_e * 100)
-            print(f"  {'(others)':<20} {'':8} {other_ratio:5.1f}%  ({other_energy/1e9:,.1f} mJ)")
+        # 3. 总体性能（含DRAM vs 不含DRAM对比）
+        total_e = results['total_energy_pj']
+        dram_e = results['energies_pj'].get('dram_read', 0) + results['energies_pj'].get('dram_write', 0)
+        compute_e = total_e - dram_e
+        total_latency = results['total_latency_cycles']
+        total_ops = results['throughput_gops'] * total_latency / results.get('clock_freq_ghz', 1.0) if results['throughput_gops'] > 0 else 0
 
-        # 3. 总体性能
         print(f"\n[Performance Summary]")
-        print(f"  Total Latency : {results['total_latency_cycles']:>12,} Cycles")
-        print(f"  Total Energy  : {results['total_energy_pj']/1e9:>12,.2f} mJ")
-        print(f"  Throughput    : {results['throughput_gops']:>12,.2f} GOPS")
-        print(f"  Efficiency    : {results['energy_efficiency_tops_per_watt']:>12,.2f} TOPS/W")
+        print(f"  {'':30} {'w/ DRAM':>14} {'w/o DRAM':>14}")
+        print(f"  {'─'*58}")
+        print(f"  {'Total Latency':<30} {total_latency:>12,} Cycles")
+        print(f"  {'Total Energy':<30} {total_e/1e9:>12,.2f} mJ {compute_e/1e9:>12,.2f} mJ")
+
+        eff_full = (total_ops / 1e12) / (total_e / 1e12) if total_e > 0 else 0
+        eff_no_dram = (total_ops / 1e12) / (compute_e / 1e12) if compute_e > 0 else 0
+        print(f"  {'Throughput':<30} {results['throughput_gops']:>12,.2f} GOPS")
+        print(f"  {'Energy Efficiency':<30} {eff_full:>12,.2f} TOPS/W {eff_no_dram:>12,.2f} TOPS/W")
+        print(f"  {'DRAM Energy':<30} {dram_e/1e9:>12,.2f} mJ  ({dram_e/total_e*100:.1f}% of total)" if total_e > 0 else "")
         print("")
 
     def print_dse_summary(

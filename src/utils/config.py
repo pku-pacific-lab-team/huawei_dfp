@@ -139,9 +139,11 @@ class ConfigLoader:
             带宽参数字典
         """
         bw = hardware_config.get("bandwidth", {})
+        l1_to_l0 = bw.get("bw_l1_to_l0_gbps", 128.0)
         return {
             "noc_to_l1": bw.get("bw_noc_to_l1_gbps", 64.0),
-            "l1_to_l0": bw.get("bw_l1_to_l0_gbps", 128.0)
+            "l1_to_l0": l1_to_l0,
+            "l0_to_l1_output": bw.get("bw_l0_to_l1_output_gbps", l1_to_l0)
         }
 
 

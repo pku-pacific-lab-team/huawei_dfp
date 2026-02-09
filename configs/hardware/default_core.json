@@ -18,8 +18,9 @@
     "size_l0_output_buffer_bytes": 4096
   },
   "bandwidth": {
-    "bw_noc_to_l1_gbps": 64.0,
-    "bw_l1_to_l0_gbps": 128.0
+    "bw_noc_to_l1_gbps": 128.0,
+    "bw_l1_to_l0_gbps": 256.0,
+    "bw_l0_to_l1_output_gbps": 256.0
   },
   "vector_unit": {
     "throughput_gops": 128

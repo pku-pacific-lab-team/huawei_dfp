@@ -75,8 +75,8 @@ def parse_args():
     parser.add_argument(
         "--energy",
         type=str,
-        default="12nm.json",
-        help="Energy configuration file name or path relative to ascend.py (default: 12nm.json)"
+        default="7nm_cube.json",
+        help="Energy configuration file name or path relative to ascend.py (default: 7nm_cube.json)"
     )
     parser.add_argument(
         "--hardware",
@@ -87,7 +87,7 @@ def parse_args():
     parser.add_argument(
         "--workload",
         type=str,
-        default="tiny_gemm.json",
+        default="default_gemm.json",
         help="Workload configuration file name or path relative to ascend.py (default: default_gemm.json)"
     )
     parser.add_argument(

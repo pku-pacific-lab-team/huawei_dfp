@@ -39,6 +39,7 @@ class CIMCoreSimulator:
         clock_freq_ghz: float = 1.0,
         data_format: str = 'INT8',
         custom_overheads: Optional[Dict[str, float]] = None,
+        bw_l0_to_l1_output_gbps: Optional[float] = None,
         verbose: bool = True
     ):
         """
@@ -58,6 +59,7 @@ class CIMCoreSimulator:
             clock_freq_ghz: 时钟频率（GHz），默认1.0
             data_format: 数据格式，默认'INT8'
             custom_overheads: 自定义开销参数
+            bw_l0_to_l1_output_gbps: L0→L1 Output独立带宽（Gbps），默认与bw_l1_to_l0_gbps相同
             verbose: 是否打印详细信息
         """
         if verbose:
@@ -71,6 +73,7 @@ class CIMCoreSimulator:
         self.size_l0_output = size_l0_output_buffer_bytes
         self.bw_noc_to_l1_gbps = bw_noc_to_l1_gbps
         self.bw_l1_to_l0_gbps = bw_l1_to_l0_gbps
+        self.bw_l0_to_l1_output_gbps = bw_l0_to_l1_output_gbps or bw_l1_to_l0_gbps
         self.throughput_vector_unit_gops = throughput_vector_unit_gops
         self.clock_freq_ghz = clock_freq_ghz
         self.energy_params = energy_params
@@ -190,7 +193,7 @@ class CIMCoreSimulator:
         # 计算带宽（字节/周期）
         bw_noc_bpc = (self.bw_noc_to_l1_gbps * 1e9) / (self.clock_freq_ghz * 1e9) / 8
         bw_bus_bpc = (self.bw_l1_to_l0_gbps * 1e9) / (self.clock_freq_ghz * 1e9) / 8
-        bw_l0_to_l1_bpc = bw_bus_bpc  # L0→L1 假设与 L1→L0 对称
+        bw_l0_to_l1_bpc = (self.bw_l0_to_l1_output_gbps * 1e9) / (self.clock_freq_ghz * 1e9) / 8
 
         # 权重重编程带宽
         weight_prog_bw = self.energy_params.get("weight_prog_bw_gbps", 0)
@@ -473,7 +476,8 @@ class CIMCoreSimulator:
                     for evict_tag in [t for t in l0_output_tile_space
                                       if t != C_tile_tag]:
                         evict_write_time, evict_bytes = l0_output_tile_space[evict_tag]
-                        evict_total = evict_bytes * self.n_macros
+                        # 归约后只有 pn 个 macro 有独立输出
+                        evict_total = evict_bytes * pn
 
                         start_evict = max(t_avail["Post_Proc"],
                                           t_avail["L1_Output"],
@@ -516,7 +520,8 @@ class CIMCoreSimulator:
                 if is_complete and C_tile_tag in l0_output_tile_space:
                     # 完成的 C tile 从 L0 output 转移到 L1 output
                     done_write_time, done_bytes = l0_output_tile_space[C_tile_tag]
-                    done_total = done_bytes * self.n_macros
+                    # 归约后只有 pn 个 macro 有独立输出
+                    done_total = done_bytes * pn
 
                     start_transfer = max(t_avail["Post_Proc"],
                                          t_avail["L1_Output"],
@@ -546,7 +551,8 @@ class CIMCoreSimulator:
 
         # === 循环结束后：清理 L0 output 中剩余的 tile ===
         for tile_tag, (t_write, t_bytes) in list(l0_output_tile_space.items()):
-            total_bytes = t_bytes * self.n_macros
+            # 归约后只有 pn 个 macro 有独立输出
+            total_bytes = t_bytes * pn
             start_evict = max(t_avail["Post_Proc"], t_avail["L1_Output"], t_write)
             dur_evict = math.ceil(total_bytes / bw_l0_to_l1_bpc)
             t_avail["L1_Output"] = start_evict + dur_evict
