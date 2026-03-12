@@ -1,0 +1,102 @@
+================================================================================
+  Unified BF16 Simulation Results
+  Workload: GEMM 1024 × 4096 × 1024 | Process: 7nm | Format: BF16
+================================================================================
+
+================================================================================
+  1. CIM Core Simulator (main.py --formats BF16)
+================================================================================
+
+[Hardware] 32 CIM Macros, L0=4KB, NoC BW=128 Gbps, Freq=1.0 GHz
+[DSE Best] L1=8192KB, Strategy=(4,8), Loop=MKN
+
+[Pipeline Latency]
+  NoC          ██████████████████░░    1,518,101 cyc
+  Weight_Prog  ██████████████████░░    1,518,613 cyc
+  Bus_L1_L0    ███████████████████░    1,583,637 cyc
+  Pre_Proc     ███████████████████░    1,583,640 cyc
+  Macro        ███████████████████░    1,585,176 cyc
+  Post_Proc    ███████████████████░    1,585,230 cyc
+  L1_Output    ████████████████████    1,650,208 cyc
+
+  Bottleneck: L1_Output
+
+[Energy Breakdown]
+  DRAM           ██████████  53.8%  (0.671 mJ)
+    dram_read                  43.0%  (0.537 mJ)
+    dram_write                 10.8%  (0.134 mJ)
+  L1 SRAM                     4.9%  (0.061 mJ)
+  L0 SRAM        █            8.2%  (0.102 mJ)
+  Compute        ██████      31.9%  (0.398 mJ)
+    compute_macro              21.3%  (0.266 mJ)
+    local_readout              10.6%  (0.132 mJ)
+  Pre/Post                    0.6%  (0.007 mJ)
+  Weight Prog                 0.6%  (0.007 mJ)
+
+[Performance Summary]
+                                      w/ DRAM       w/o DRAM
+  ──────────────────────────────────────────────────────────
+  Total Latency                   1,650,208 Cycles
+  Total Energy                         1.25 mJ         0.58 mJ
+  Throughput                       5,205.36 GOPS
+  Energy Efficiency                    6.88 TOPS/W        14.90 TOPS/W
+  DRAM Energy                          0.67 mJ  (53.8%)
+
+================================================================================
+  2. Cube Simulator (ascend.py --format BF16)
+================================================================================
+
+[Hardware] Cube 16×16×16, L1=1MB, L0_A/B=64KB, L0_C=256KB
+[Bandwidth] L1->L0: 128 Gbps, L0->Cube: 2048 Gbps, Freq=1.0 GHz
+[BF16 Energy] cube_energy_scale = 2.16 (= FP16 × 0.72, 尾数7bit vs 10bit)
+
+[Pipeline Latency]
+  L0_A            █████████████████████████████░    5,238,739 cyc
+  L0_B            █████████████████████████████░    5,238,784 cyc
+  L0_C            ██████████████████████████████    5,302,787 cyc
+  Cube            █████████████████████████████░    5,238,785 cyc
+  Accumulate      █████████████████████████████░    5,238,786 cyc
+  L1              ██████████████████████████████    5,302,787 cyc
+
+  Bottleneck: L0_C
+
+[Energy Breakdown]
+  cube_compute         ██████████████  74.2%  (3,618.08 mJ × 10⁻³)
+  accumulate           █            8.6%  ( 418.76 mJ × 10⁻³)
+  write_C_L0           █            6.2%  ( 300.65 mJ × 10⁻³)
+  read_C_L0            █            6.2%  ( 300.65 mJ × 10⁻³)
+  read_B_L0                         3.1%  ( 150.32 mJ × 10⁻³)
+  load_A_L1                         0.8%  (  37.58 mJ × 10⁻³)
+  load_B_L1                         0.8%  (  37.58 mJ × 10⁻³)
+  read_A_L0                         0.2%  (   9.40 mJ × 10⁻³)
+  write_C_L1                        0.1%  (   5.87 mJ × 10⁻³)
+
+[Performance Summary]
+  Total Latency :    5,302,787 Cycles
+  Total Energy  :         4.88 mJ
+  Throughput    :     1,619.89 GFLOPS
+  Efficiency    :         1.76 TOPS/W
+
+================================================================================
+  3. Cross-Architecture Comparison (BF16)
+================================================================================
+
+  Metric                CIM Core           Cube Unit
+                        (32 Macros)        (Ascend 910)
+  ─────────────────────────────────────────────────────
+  Latency (cycles)       1,650,208          5,302,787
+  Throughput (GOPS)       5,205.4            1,619.9
+  Energy (mJ)              1.25               4.88
+    w/o DRAM               0.58                4.88
+  TOPS/W                   6.88               1.76
+    w/o DRAM              14.90               1.76
+  Bottleneck            L1_Output            L0_C
+
+  Key Observations:
+  - CIM throughput 3.2× higher than Cube (5205 vs 1620 GOPS)
+  - CIM energy efficiency 3.9× better with DRAM, 8.5× better without DRAM
+  - Cube energy dominated by compute (74%); CIM by DRAM (54%) or compute (32%)
+
+  Notes:
+  - CIM Core includes DRAM (L3) access; Cube only models up to L1
+  - L0→Cube bandwidth set to 2048 Gbps (high-speed SRAM access)

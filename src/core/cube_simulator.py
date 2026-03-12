@@ -77,8 +77,8 @@ class CubeCoreSimulator:
         self.verbose = verbose
         
         # --- 获取数据格式规格 ---
-        # Cube只支持INT8、INT16、FP16三种输入数据格式
-        supported_formats = {"INT8", "INT16", "FP16"}
+        # Cube支持INT8、INT16、FP16、BF16四种输入数据格式
+        supported_formats = {"INT8", "INT16", "FP16", "BF16"}
         if data_format not in supported_formats:
             raise ValueError(
                 f"Unsupported format for Cube: {data_format}. "

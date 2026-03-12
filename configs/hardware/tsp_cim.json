@@ -1,0 +1,36 @@
+{
+  "description": "TSP-CIM配置 V2（Groq TSP架构 + CIM Macro替换MXM，含物理布局）",
+  "superlane": {
+    "n_superlanes": 20,
+    "n_lanes_per_superlane": 16,
+    "n_macros_per_superlane": 4
+  },
+  "macro": {
+    "n_banks_internal": 64,
+    "n_subarrays_per_bank": 64,
+    "n_loc_per_subarray": 4,
+    "n_cols_per_bank": 8,
+    "p_input": 8
+  },
+  "mem": {
+    "total_bytes": 230686720,
+    "n_slices": 88,
+    "bw_tbps": 80.0,
+    "stream_bw_tbps": 20.0
+  },
+  "vxm": {
+    "alus_per_lane": 16
+  },
+  "layout": {
+    "n_mem_slices_per_hemisphere": 44,
+    "n_hemispheres": 2,
+    "act_mem_start_slice": 0,
+    "wt_mem_start_slice": 28
+  },
+  "streams": {
+    "n_streams_per_direction": 32,
+    "stream_width_bytes": 320
+  },
+  "clock_freq_ghz": 0.9,
+  "weight_prog_bw_gbps": 512.0
+}

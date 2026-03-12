@@ -5,6 +5,6 @@
     "K": 4096,
     "N": 1024
   },
-  "data_format": "INT8",
+  "data_format": "BF16",
   "custom_overheads": null
 }

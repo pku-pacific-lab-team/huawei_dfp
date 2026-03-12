@@ -99,9 +99,9 @@ def parse_args():
     parser.add_argument(
         "--format",
         type=str,
-        default="INT8",
-        choices=["INT8", "INT16", "FP16"],
-        help="Data format to test (default: INT8)"
+        default="BF16",
+        choices=["INT8", "INT16", "FP16", "BF16"],
+        help="Data format to test (default: BF16)"
     )
     parser.add_argument(
         "--loop-order",

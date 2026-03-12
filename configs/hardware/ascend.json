@@ -20,7 +20,7 @@
     "bandwidth": {
         "bw_noc_to_l0_a_gbps": 64.0,
         "bw_l1_to_l0_gbps": 128.0,
-        "bw_l0_to_cube_gbps": 128.0,
+        "bw_l0_to_cube_gbps": 2048,
         "bw_l0_a_to_l0_b_gbps": 128.0,
         "bw_l0_b_to_l0_c_gbps": 128.0
     },

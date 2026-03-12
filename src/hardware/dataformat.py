@@ -207,6 +207,9 @@ def get_cube_format_overheads(data_format: str, custom_overheads: Optional[Dict[
         "FP16": {
             "cube_energy_scale": 3.0,
         },
+        "BF16": {
+            "cube_energy_scale": 2.16,  # BF16 MAC ≈ 0.72 × FP16 MAC (尾数7bit vs 10bit, 乘法器面积∝m²)
+        },
     }
 
     if data_format in format_specific_overheads:

@@ -90,3 +90,7 @@ results/
 *.temp
 .DS_Store
 Thumbs.db
+
+ppt/
+pdf/
+.claude/

@@ -15,6 +15,6 @@
     "dram_write_power": 32.0,
     "noc_hop_power": 0.5676,
     "weight_prog_power": 0.88,
-    "weight_prog_bw_gbps": 64.0
+    "weight_prog_bw_gbps": 512.0
   }
 }
