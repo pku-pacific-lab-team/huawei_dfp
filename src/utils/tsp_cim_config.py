@@ -34,6 +34,13 @@ class TSPCIMConfigLoader:
         config = self._load_json(file_path)
         return config.get("parameters", config)
 
+    def load_area_config(
+        self, filename: str = "7nm_tsp_cim.json"
+    ) -> Dict[str, float]:
+        file_path = self.config_dir / "area" / filename
+        config = self._load_json(file_path)
+        return config.get("parameters", config)
+
     def load_hardware_config(
         self, filename: str = "tsp_cim.json"
     ) -> Dict[str, Any]:

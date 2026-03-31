@@ -3,20 +3,25 @@
   "superlane": {
     "n_superlanes": 20,
     "n_lanes_per_superlane": 16,
-    "n_macros_per_superlane": 4
+    "n_macros_per_superlane": 80
   },
   "macro": {
-    "n_banks_internal": 64,
-    "n_subarrays_per_bank": 64,
+    "n_banks_internal": 32,
+    "n_subarrays_per_bank": 32,
     "n_loc_per_subarray": 4,
     "n_cols_per_bank": 8,
     "p_input": 8
   },
   "mem": {
-    "total_bytes": 230686720,
+    "total_bytes": 335544320,
     "n_slices": 88,
     "bw_tbps": 80.0,
     "stream_bw_tbps": 20.0
+  },
+  "sram": {
+    "physical_total_bytes": 369098752,
+    "global_mem_bytes": 335544320,
+    "local_reserved_bytes": 33554432
   },
   "vxm": {
     "alus_per_lane": 16
@@ -26,6 +31,11 @@
     "n_hemispheres": 2,
     "act_mem_start_slice": 0,
     "wt_mem_start_slice": 28
+  },
+  "cim_fabric": {
+    "macro_arrangement": "grid_broadcast_reduce",
+    "macro_link_hops": 1,
+    "macro_k_groups_per_superlane": 40
   },
   "streams": {
     "n_streams_per_direction": 32,

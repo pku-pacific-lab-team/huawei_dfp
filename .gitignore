@@ -79,18 +79,21 @@ venv.bak/
 *.gif
 *.bmp
 
-# Output files
+# Project outputs and local materials
 *.log
+*.csv
 output/
 results/
-*.csv
+results.txt
+tmp/
+pdf/
+ppt/
+docs/
+.claude/
+AGENTS.md
 
 # Temporary files
 *.tmp
 *.temp
 .DS_Store
 Thumbs.db
-
-ppt/
-pdf/
-.claude/

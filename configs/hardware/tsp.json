@@ -1,0 +1,38 @@
+{
+  "description": "Native Groq TSP baseline (paper-faithful single-chip MXM model)",
+  "superlane": {
+    "n_superlanes": 20,
+    "n_lanes_per_superlane": 16,
+    "n_spare_superlanes": 1
+  },
+  "mxm": {
+    "n_planes_per_hemisphere": 2,
+    "plane_dim": 320,
+    "pipeline_depth": 20,
+    "weight_install_cycles": 40
+  },
+  "mem": {
+    "total_bytes": 335544320,
+    "n_slices": 88,
+    "bw_tbps": 80.0
+  },
+  "sram": {
+    "physical_total_bytes": 369098752,
+    "global_mem_bytes": 335544320,
+    "local_reserved_bytes": 33554432
+  },
+  "vxm": {
+    "alus_per_lane": 16
+  },
+  "layout": {
+    "n_mem_slices_per_hemisphere": 44,
+    "n_hemispheres": 2,
+    "act_mem_start_slice": 0,
+    "wt_mem_start_slice": 28
+  },
+  "streams": {
+    "n_streams_per_direction": 32,
+    "stream_width_bytes": 320
+  },
+  "clock_freq_ghz": 0.9
+}

@@ -15,6 +15,7 @@ Groq TSP 架构 + CIM Macro 替换 MXM 的 GEMM 仿真器。
 import argparse
 from pathlib import Path
 
+from src.core.area_model import AreaModel
 from src.utils.tsp_cim_config import TSPCIMConfigLoader
 from src.core.tsp_cim_simulator import TSPCIMSimulator, LOOP_ORDERS
 
@@ -30,6 +31,10 @@ def parse_args():
     parser.add_argument(
         "--energy", type=str, default="7nm_tsp_cim.json",
         help="Energy config file (default: 7nm_tsp_cim.json)"
+    )
+    parser.add_argument(
+        "--area", type=str, default="7nm_tsp_cim.json",
+        help="Area config file (default: 7nm_tsp_cim.json)"
     )
     parser.add_argument(
         "--workload", type=str, default="default_gemm.json",
@@ -71,6 +76,7 @@ def parse_args():
 def print_spatial_flow(results: dict) -> None:
     sf = results.get('spatial_flow', {})
     ma = results.get('mem_alloc', {})
+    topo = results.get('macro_topology', {})
     if not sf:
         return
 
@@ -88,12 +94,55 @@ def print_spatial_flow(results: dict) -> None:
     print(f"    Wt MEM -> CIM (outward):     {sf['hops_wt_to_cim']:>3} hops")
     print(f"    CIM -> VXM (inward chain):   {sf['hops_cim_to_vxm']:>3} hops")
     print(f"    VXM -> Result MEM (outward):  {sf['hops_vxm_to_result']:>3} hops")
+    print(f"    Macro fanout depth:          {sf.get('act_fanout_internal_hops', 0):>3} hops")
+    print(f"    Active K groups/tile:        {sf.get('active_k_groups', 1):>3}")
+    print(f"    Parallel K slots/tile:       {sf.get('active_k_parallel_groups', 1):>3}")
+    print(f"    K serial depth/tile:         {sf.get('serial_k_depth', 1):>3}")
     print(f"    Stagger (20 superlanes):     {sf['stagger']:>3} cyc/instruction")
     print(f"    Hemispheres:                  {sf['n_hemispheres']}x parallel")
 
     print(f"\n  Loop Order: {results.get('loop_order', 'N/A')}")
     print(f"  Weight Prog Events: {results.get('weight_prog_count', 'N/A')}"
           f" / {results.get('total_tiles', 'N/A')} tiles")
+
+    if topo:
+        print(f"\n[Macro Topology]")
+        print(f"  Arrangement:       {topo.get('macro_arrangement', 'N/A')}")
+        print(f"  Lanes/superlane:   {topo.get('lanes_per_superlane', 'N/A')}")
+        print(f"  Macros/superlane:  {topo.get('macros_per_superlane', 'N/A')}")
+        print(f"  K groups/superlane:{topo.get('macro_k_groups_per_superlane', 'N/A')}")
+        print(f"  N groups/superlane:{topo.get('macro_n_groups_per_superlane', 'N/A')}")
+        print(f"  Macro supercell span: {topo.get('macro_supercell_k_span', 'N/A')}K x "
+              f"{topo.get('macro_supercell_n_span', 'N/A')}N supercells")
+        print(f"  Macro grid/plane:  {topo.get('macro_rows_per_plane', 'N/A')} rows x "
+              f"{topo.get('macro_cols_per_plane', 'N/A')} cols")
+        print(f"  Macro sheets/hem:  {topo.get('macro_sheets_per_hemisphere', 'N/A')}")
+        print(f"  Sheet stack:       {topo.get('macro_sheet_stack_k', 'N/A')}K x "
+              f"{topo.get('macro_sheet_stack_n', 'N/A')}N")
+        print(f"  Parallel K slots:  {topo.get('active_k_parallel_groups', 'N/A')}")
+        print(f"  Parallel N slots:  {topo.get('active_n_parallel_groups', 'N/A')}")
+        print(f"  Serial K depth:    {topo.get('serial_k_depth', 'N/A')}")
+        print(f"  Macros/hemisphere: {topo.get('macros_per_hemisphere', 'N/A')}")
+        print(f"  Active superlanes: {topo.get('active_superlanes', 'N/A')}")
+        print(f"  Active macros:     {topo.get('active_macros', 'N/A')}")
+        for sheet in topo.get('sheets', [])[:2]:
+            if not sheet.get('active'):
+                continue
+            print(f"  Sheet[{sheet['sheet_k']},{sheet['sheet_n']}] base K={sheet['k_base']} N={sheet['n_base']}")
+            for plane in sheet.get('planes', [])[:2]:
+                if not plane.get('active'):
+                    continue
+                print(f"    Plane {plane['plane']} active cols={plane.get('active_supercell_cols', 0)}")
+                active_rows = [row for row in plane.get('macro_rows', []) if row.get('active')]
+                for row in active_rows[:2]:
+                    macro_desc = ", ".join(
+                        f"M[{m['macro_row']},{m['macro_col']}]"
+                        f"(SC={m['supercell_k_start']}..{m['supercell_k_end']},"
+                        f"{m['supercell_n_start']}..{m['supercell_n_end']};"
+                        f"K={m['k_start']}..{m['k_end']},N={m['n_start']}..{m['n_end']})"
+                        for m in row.get('macros', []) if m.get('active')
+                    )
+                    print(f"      Row {row['macro_row']}: {macro_desc}")
 
 
 def print_latency_breakdown(results: dict) -> None:
@@ -109,10 +158,16 @@ def print_latency_breakdown(results: dict) -> None:
     items = [
         ("MEM Read (issue+SRAM)", ld.get('mem_read_issue_total', 0)),
         ("Transit act->CIM", ld.get('transit_act_total', 0)),
+        ("Macro act fanout", ld.get('macro_fanout_act_total', 0)),
+        ("Macro act dispatch", ld.get('macro_act_dispatch_total', 0)),
         ("Weight Programming", ld.get('weight_prog_total', 0)),
         ("Transit wt->CIM", ld.get('transit_wt_total', 0)),
+        ("Macro wt fanout", ld.get('macro_fanout_wt_total', 0)),
+        ("Macro wt dispatch", ld.get('macro_wt_dispatch_total', 0)),
         ("CIM Compute", ld.get('cim_compute_total', 0)),
         ("Transit CIM->VXM", ld.get('transit_cim_vxm_total', 0)),
+        ("Macro result return", ld.get('macro_return_total', 0)),
+        ("Reduce occupancy", ld.get('macro_reduce_occupancy_total', 0)),
         ("VXM Compute", ld.get('vxm_compute_total', 0)),
         ("Transit VXM->MEM", ld.get('transit_vxm_mem_total', 0)),
         ("Stagger Overhead", ld.get('stagger_overhead_total', 0)),
@@ -143,13 +198,37 @@ def print_energy_breakdown(results: dict) -> None:
     e = results['energies_pj']
 
     groups = {
-        "SRAM Read":     ["sram_read_act", "sram_read_weight"],
-        "Weight Prog":   ["weight_prog"],
-        "CIM Compute":   ["cim_local_readout", "cim_compute"],
-        "Pre-process":   ["pre_process"],
-        "VXM Post":      ["vxm_post_proc"],
-        "SRAM Write":    ["sram_write_result"],
-        "Stream Hops":   ["stream_hop_act", "stream_hop_wt", "stream_hop_result"],
+        "SRAM Read":       ["sram_read_act", "sram_read_weight", "sram_psum_buffer_read"],
+        "Weight Prog":     ["weight_prog"],
+        "CIM Compute":     ["cim_local_readout", "cim_compute"],
+        "Pre-process":     ["pre_process"],
+        "VXM Post":        ["vxm_post_proc", "vxm_operand_io"],
+        "SRAM Write":      ["sram_write_result", "sram_psum_buffer_write"],
+        "Interconnect":    [
+            "stream_hop_act_external",
+            "stream_hop_act_internal",
+            "stream_hop_wt_external",
+            "stream_hop_wt_internal",
+            "stream_hop_result_external",
+            "stream_hop_result_internal",
+            "sxm_broadcast",
+        ],
+        "Reduction":       ["reduce_collect", "reduce_buffer"],
+        "Leakage & Static": [
+            "global_sram_standby",
+            "local_sram_standby",
+            "macro_logic_leak",
+            "fabric_retention",
+            "fabric_logic_leak",
+            "sxm_logic_leak",
+            "vxm_logic_leak",
+        ],
+        "Clock/Control":   [
+            "clock_backbone",
+            "clock_domains",
+            "control_backbone",
+            "control_domains",
+        ],
     }
 
     for group_name, keys in groups.items():
@@ -159,13 +238,13 @@ def print_energy_breakdown(results: dict) -> None:
         ratio = (group_e / total_e * 100) if total_e > 0 else 0
         bar_len = int(ratio / 5)
         bar = "\u2588" * bar_len
-        print(f"  {group_name:<14} {bar:<12} {ratio:5.1f}%  ({group_e/1e9:,.4f} mJ)")
+        print(f"  {group_name:<18} {bar:<12} {ratio:5.1f}%  ({group_e/1e9:,.4f} mJ)")
         for k in keys:
             v = e.get(k, 0)
             if v <= 0:
                 continue
             sub_ratio = (v / total_e * 100) if total_e > 0 else 0
-            print(f"    {k:<22}    {sub_ratio:5.1f}%  ({v/1e9:,.4f} mJ)")
+            print(f"    {k:<28} {sub_ratio:5.1f}%  ({v/1e9:,.4f} mJ)")
 
 
 def print_mxm_comparison(results: dict) -> None:
@@ -192,6 +271,8 @@ def print_mxm_comparison(results: dict) -> None:
     print(f"  {'Eff. (TOPS/W)':<28} "
           f"{results['energy_efficiency_tops_per_watt']:>14,.2f} "
           f"{mxm['energy_efficiency_tops_per_watt']:>14,.2f}")
+    if mxm.get("scope_note"):
+        print(f"  Scope note: {mxm['scope_note']}")
 
     if speedup > 1.0:
         print(f"\n  --> CIM ADVANTAGE: {speedup:.2f}x faster, "
@@ -204,6 +285,7 @@ def print_mxm_comparison(results: dict) -> None:
 def print_performance_summary(results: dict) -> None:
     print(f"\n[Performance Summary]")
     print(f"  {'Total Latency (2-hem)':<30} {results['total_latency_cycles']:>12,} cycles")
+    print(f"  {'Wall-clock Cycles':<30} {results.get('wall_clock_cycles', results['total_latency_cycles']):>12,} cycles")
     print(f"  {'Single Hem Latency':<30} {results['single_hem_latency_cycles']:>12,} cycles")
     print(f"  {'Total Energy':<30} {results['total_energy_pj']/1e9:>12,.4f} mJ")
     print(f"  {'Throughput':<30} {results['throughput_gops']:>12,.2f} GOPS")
@@ -214,13 +296,61 @@ def print_performance_summary(results: dict) -> None:
     print(f"  {'Weight Prog Count':<30} {results.get('weight_prog_count', 'N/A')}"
           f" / {results.get('total_tiles', 'N/A')} tiles")
 
+    sram = results.get('sram_summary', {})
+    if sram:
+        print(f"\n[SRAM Summary]")
+        print(f"  {'Physical SRAM':<30} {sram.get('physical_total_sram_mib', 0.0):>12,.1f} MiB")
+        print(f"  {'Global MEM SRAM':<30} {sram.get('global_mem_sram_mib', 0.0):>12,.1f} MiB")
+        print(f"  {'Local Reserved SRAM':<30} {sram.get('local_reserved_sram_mib', 0.0):>12,.1f} MiB")
+        print(f"  {'Per-slice Capacity':<30} {sram.get('mem_slice_capacity_mib', 0.0):>12,.3f} MiB")
+
+    area = results.get('area_report', {})
+    if area:
+        print(f"\n[Area Summary]")
+        print(f"  {'Total Area':<30} {area.get('total_area_mm2', 0.0):>12,.2f} mm^2")
+        print(f"  {'Global SRAM Area':<30} {area.get('global_sram_mm2', 0.0):>12,.2f} mm^2")
+        print(f"  {'Local SRAM Area':<30} {area.get('local_sram_mm2', 0.0):>12,.2f} mm^2")
+        print(f"  {'Compute Area':<30} {area.get('compute_area_mm2', 0.0):>12,.2f} mm^2")
+        print(f"  {'Fabric Area':<30} {area.get('fabric_area_mm2', 0.0):>12,.2f} mm^2")
+        print(f"  {'Area Efficiency':<30} {area.get('tops_per_mm2', 0.0):>12,.3f} TOPS/mm^2")
+
     spec = results.get('tsp_spec_summary', {})
     if spec:
         print(f"\n[TSP-CIM Architecture]")
         print(f"  Total CIM Macros:  {spec.get('total_macros', 'N/A')}")
+        print(f"  Macros/Hemisphere: {spec.get('macros_per_hemisphere', 'N/A')}")
+        print(f"  Macros/Superlane:  {spec.get('macros_per_superlane', 'N/A')} "
+              f"({spec.get('macro_k_groups_per_superlane', 'N/A')}K x "
+              f"{spec.get('macro_n_groups_per_superlane', 'N/A')}N groups)")
+        print(f"  Macro block:       K={spec.get('macro_block_k', 'N/A')}, N={spec.get('macro_block_n', 'N/A')}")
+        print(f"  Macro supercell span: "
+              f"{spec.get('macro_supercell_k_span', 'N/A')}x{spec.get('macro_supercell_n_span', 'N/A')}")
+        print(f"  Macro grid / plane: {spec.get('macro_rows_per_plane', 'N/A')} x "
+              f"{spec.get('macro_cols_per_plane', 'N/A')}")
+        print(f"  Macro sheets / hem: {spec.get('macro_sheets_per_hemisphere', 'N/A')}")
+        print(f"  Sheet stack K x N:  {spec.get('macro_sheet_stack_k', 'N/A')} x "
+              f"{spec.get('macro_sheet_stack_n', 'N/A')}")
+        print(f"  Parallel K slots:   {spec.get('active_k_parallel_groups', 'N/A')}")
+        print(f"  Parallel N slots:   {spec.get('active_n_parallel_groups', 'N/A')}")
+        print(f"  Serial K depth:     {spec.get('serial_k_depth', 'N/A')}")
+        print(f"  Tile capacity:      K={spec.get('tile_k_capacity', 'N/A')}, "
+              f"N={spec.get('tile_n_capacity', 'N/A')}")
+        print(f"  Macro/Supercell weight ratio: "
+              f"{spec.get('macro_weight_ratio_vs_supercell', 0):.2f}x")
+        print(f"  Macro/Supercell INT8 peak ratio: "
+              f"{spec.get('macro_peak_ratio_vs_supercell_int8', 0):.2f}x")
+        print(f"  Macros per supercell (INT8 peak): "
+              f"{spec.get('macros_per_supercell_peak_equivalent_int8', 0):.2f}")
+        print(f"  Peak-equiv supercells/superlane: "
+              f"{spec.get('peak_equivalent_supercells_per_superlane_int8', 0):.2f}")
+        print(f"  Peak-equiv supercells/chip:      "
+              f"{spec.get('peak_equivalent_supercells_chip_int8', 0):.2f}")
         print(f"  Total Lanes:       {spec.get('total_lanes', 'N/A')}")
+        print(f"  Effective N/lane:  {spec.get('effective_n_columns_per_lane', 0):.2f} columns")
         print(f"  VXM ALUs:          {spec.get('total_vxm_alus', 'N/A')}")
-        print(f"  MEM SRAM:          {spec.get('mem_mb', 'N/A')} MB")
+        print(f"  Global MEM SRAM:   {spec.get('global_sram_mb', spec.get('mem_mb', 'N/A'))} MB")
+        print(f"  Local SRAM:        {spec.get('local_sram_mb', 'N/A')} MB")
+        print(f"  Physical SRAM:     {spec.get('physical_sram_mb', 'N/A')} MB")
 
 
 def print_sweep_results(sweep_results: list) -> None:
@@ -280,6 +410,7 @@ def main():
 
     # Load configs
     energy_params = loader.load_energy_config(args.energy)
+    area_params = loader.load_area_config(args.area)
     hw_config = loader.load_hardware_config(args.hardware)
     workload_config = loader.load_workload_config(args.workload)
 
@@ -305,6 +436,10 @@ def main():
         )
 
         results = sim.simulate(M, K, N, loop_order=args.loop_order)
+        results['area_report'] = AreaModel(area_params).evaluate(
+            results.get('area_inventory', tsp_spec.area_inventory()),
+            throughput_gops=results['throughput_gops'],
+        )
 
         # Print results
         print_spatial_flow(results)

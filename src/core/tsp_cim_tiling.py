@@ -51,11 +51,9 @@ class TSPCIMTilingEngine:
         """
         spec = self.tsp_spec
 
-        # K tile: 单 macro 的 block_k
-        tile_k = min(spec.chip_block_k, K)  # 256
-
-        # N tile: 所有 superlane 并行, 每 superlane chip_block_n
-        tile_n = min(spec.n_superlanes * spec.chip_block_n, N)
+        # K/N tile: 由 macro sheets 覆盖的 native TSP supercell mesh 容量决定
+        tile_k = min(spec.tile_k_capacity, K)
+        tile_n = min(spec.tile_n_capacity, N)
 
         # M tile: 受 stream 并发度约束
         # 每 stream 320 bytes, activation row = K * storage_bytes
@@ -99,6 +97,7 @@ class TSPCIMTilingEngine:
             'm': tile_m,
             'k': tile_k,
             'n': tile_n,
+            'macro_topology': spec.summarize_topology(tile_k, tile_n),
             'mem_alloc': {
                 'act_slices': act_slices,
                 'act_start': spec.act_mem_start_slice,
