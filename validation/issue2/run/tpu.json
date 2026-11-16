@@ -1,0 +1,569 @@
+{
+  "schema_version": 2,
+  "model": "tpu_v4_count",
+  "mode": "count",
+  "workload": {
+    "operation": "gemm",
+    "M": 16,
+    "K": 32,
+    "N": 16,
+    "data_format": "INT8",
+    "accumulation_dtype": "INT32",
+    "output_dtype": "INT32",
+    "declared_data_format": "INT8",
+    "format_overridden": false,
+    "useful_ops": 16384
+  },
+  "boundary": {
+    "scope": "single_tensorcore",
+    "simulated_tensorcores": 1,
+    "hardware_scope": "chip",
+    "counting_scope": "single_tensorcore",
+    "chip_execution_included": false,
+    "start": "logical_INT8_A_B_in_HBM",
+    "end": "logical_INT32_C_in_HBM",
+    "numeric_values_simulated": false,
+    "packing_included": false,
+    "host_transfer_included": false
+  },
+  "counting_policy": {
+    "status": "assumed_logical_program",
+    "loop_order": "MNK",
+    "buffers": 1,
+    "requested_tile_mkn": [
+      128,
+      128,
+      128
+    ],
+    "selected": {
+      "m": 16,
+      "k": 32,
+      "n": 16,
+      "peak_working_bytes": 2048,
+      "hbm_footprint_bytes": 2048
+    },
+    "tail_policy": "actual_dimensions; physical_padding_not_evaluated",
+    "cross_output_block_input_reuse": false,
+    "partial_sum": "C stays in logical VMEM across K; read/write once per K block, first block has no old-C read",
+    "input_access": "one logical input read per block at aggregate matrix service; no MXU fanout model",
+    "accumulation": "INT32 project workload convention; native TPU numerical semantics unverified",
+    "scratch": "only A/B/C logical storage; runtime, register spills and packing workspace not modeled"
+  },
+  "counts": {
+    "useful_macs": 8192,
+    "useful_ops": 16384,
+    "executed_padded_ops": null,
+    "compute_blocks": 1,
+    "output_blocks": 1,
+    "logical_output_bytes": 1024,
+    "input_a_transfer_bytes": 512,
+    "input_b_transfer_bytes": 512,
+    "input_transfer_bytes": 1024,
+    "psum_read_bytes": 0,
+    "psum_write_bytes": 0
+  },
+  "action_counts": {
+    "matrix_mac": {
+      "count": 8192,
+      "unit": "MAC",
+      "scope": "single_tensorcore",
+      "basis": "logical_arithmetic"
+    },
+    "hbm_read_bytes": {
+      "count": 1024,
+      "unit": "byte",
+      "scope": "single_tensorcore",
+      "basis": "logical_payload"
+    },
+    "hbm_write_bytes": {
+      "count": 1024,
+      "unit": "byte",
+      "scope": "single_tensorcore",
+      "basis": "logical_payload"
+    },
+    "vmem_input_write_bytes": {
+      "count": 1024,
+      "unit": "byte",
+      "scope": "single_tensorcore",
+      "basis": "logical_payload"
+    },
+    "vmem_input_read_bytes": {
+      "count": 1024,
+      "unit": "byte",
+      "scope": "single_tensorcore",
+      "basis": "logical_payload"
+    },
+    "vmem_psum_read_bytes": {
+      "count": 0,
+      "unit": "byte",
+      "scope": "single_tensorcore",
+      "basis": "logical_payload"
+    },
+    "vmem_psum_write_bytes": {
+      "count": 0,
+      "unit": "byte",
+      "scope": "single_tensorcore",
+      "basis": "logical_payload"
+    },
+    "vmem_final_write_bytes": {
+      "count": 1024,
+      "unit": "byte",
+      "scope": "single_tensorcore",
+      "basis": "logical_payload"
+    },
+    "vmem_export_read_bytes": {
+      "count": 1024,
+      "unit": "byte",
+      "scope": "single_tensorcore",
+      "basis": "logical_payload"
+    }
+  },
+  "memory": {
+    "vmem": {
+      "scope": "tensorcore",
+      "usable_bytes": 16777216,
+      "peak_logical_bytes": 2048
+    },
+    "hbm": {
+      "scope": "chip",
+      "usable_bytes": 34359738368,
+      "logical_footprint_bytes": 2048
+    }
+  },
+  "hardware_derived": {
+    "mac_ops": 2,
+    "mxu_int8_macs_per_cycle": 16384,
+    "mxu_int8_peak_tops": 34.4064,
+    "core_int8_macs_per_cycle": 65536,
+    "core_int8_peak_tops": 137.6256,
+    "chip_int8_macs_per_cycle": 131072,
+    "chip_int8_peak_tops": 275.2512,
+    "nominal_chip_int8_tops": 275,
+    "bandwidth_gbit_per_second": {
+      "vmem_bandwidth_bytes_per_second": null,
+      "cmem_bandwidth_bytes_per_second": null,
+      "hbm_bandwidth_bytes_per_second": 9600.0,
+      "ici_link_reported_bytes_per_second": 400.0,
+      "ici_link_one_way_bytes_per_second": null
+    },
+    "status": "specification_arithmetic_only; assumed_inputs_remain_assumed",
+    "assumed_inputs": [
+      "int8_macs_per_cell_cycle",
+      "vmem_usable_bytes",
+      "hbm_usable_bytes"
+    ]
+  },
+  "hardware_hierarchy": {
+    "mxu": {
+      "scope": "mxu",
+      "rows": 128,
+      "columns": 128,
+      "cells": 16384,
+      "int8_macs_per_cycle": 16384,
+      "int8_peak_tops": 34.4064
+    },
+    "tensorcore": {
+      "scope": "tensorcore",
+      "mxus_per_tensorcore": 4,
+      "int8_macs_per_cycle": 65536,
+      "int8_peak_tops": 137.6256
+    },
+    "chip": {
+      "scope": "chip",
+      "tensorcores_per_chip": 2,
+      "mxus_per_chip": 8,
+      "int8_macs_per_cycle": 131072,
+      "int8_peak_tops": 275.2512
+    },
+    "status": "specification_only; no_execution_mapping",
+    "peak_status": "specification_arithmetic_only; assumed_inputs_remain_assumed",
+    "peak_assumed_inputs": [
+      "int8_macs_per_cell_cycle"
+    ]
+  },
+  "hardware_inventory": {
+    "per_tensorcore": {
+      "scope": "tensorcore",
+      "mxus": 4,
+      "vpus": 1,
+      "vpu_alus": 2048,
+      "scalar_units": 1,
+      "sfu_units": null,
+      "private_vmem_bytes": 16777216,
+      "private_smem_bytes": null,
+      "private_register_file_bytes": null,
+      "status": "partial_physical_inventory; no_unknown_components_treated_as_zero"
+    },
+    "chip": {
+      "scope": "chip",
+      "tensorcores": 2,
+      "mxus": 8,
+      "vpus": 2,
+      "vpu_alus": 4096,
+      "scalar_units": 2,
+      "sfu_units": null,
+      "private_vmem_bytes": 33554432,
+      "private_smem_bytes": null,
+      "private_register_file_bytes": null,
+      "sparsecores": 4,
+      "shared_cmem_bytes": 134217728,
+      "sparse_spmem_bytes": 10485760,
+      "external_hbm_bytes": 34359738368,
+      "ici_links": 6,
+      "die_area_upper_bound_mm2": 600,
+      "die_area_bound_operator": "<",
+      "total_area_mm2": null,
+      "status": "partial_physical_inventory; no_unknown_components_treated_as_zero"
+    }
+  },
+  "interconnect_specification": {
+    "topology": "3D mesh; full cubes can form 3D torus or supported twisted torus slices",
+    "source": "https://docs.cloud.google.com/tpu/docs/v4",
+    "version": "TPU v4 documentation; accessed 2026-11-15",
+    "conditions": "Specification only; no links, routing or collectives are executed. Link direction and effective payload bandwidth remain unverified."
+  },
+  "parameter_provenance": {
+    "clock_hz": {
+      "value": 1050000000,
+      "unit": "Hz",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Reference clock; not an effective instruction rate."
+    },
+    "tensorcores_per_chip": {
+      "value": 2,
+      "unit": "unit",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Architectural inventory; the counter uses one TensorCore."
+    },
+    "mxus_per_tensorcore": {
+      "value": 4,
+      "unit": "unit",
+      "scope": "tensorcore",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Inventory only; no assignment to individual MXUs."
+    },
+    "mxu_rows": {
+      "value": 128,
+      "unit": "element",
+      "scope": "mxu",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Physical matrix geometry, not a logical-block alignment rule."
+    },
+    "mxu_columns": {
+      "value": 128,
+      "unit": "element",
+      "scope": "mxu",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Physical matrix geometry, not a logical-block alignment rule."
+    },
+    "int8_macs_per_cell_cycle": {
+      "value": 1,
+      "unit": "MAC/cycle",
+      "scope": "mxu_cell",
+      "status": "assumed",
+      "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "Geometry-based peak assumption consistent with published approximately 275 TOPS; not an effective rate or cycle model."
+    },
+    "nominal_int8_tops": {
+      "value": 275,
+      "unit": "TOPS",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Official table labels bf16 or int8 as 275 teraflops; INT8 is reported here as TOPS with 2 operations per MAC."
+    },
+    "vpus_per_tensorcore": {
+      "value": 1,
+      "unit": "unit",
+      "scope": "tensorcore",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Vector unit inventory, not executed by the counter."
+    },
+    "vpu_lanes": {
+      "value": 128,
+      "unit": "lane",
+      "scope": "vpu",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "ALU inventory does not specify operation throughput."
+    },
+    "vpu_alus_per_lane": {
+      "value": 16,
+      "unit": "unit",
+      "scope": "lane",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Do not convert ALU count to a per-op effective rate."
+    },
+    "vector_int32_adds_per_cycle": {
+      "value": null,
+      "unit": "op/cycle",
+      "scope": "tensorcore",
+      "status": "unknown",
+      "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "Operation-specific INT32 add rate has not been established."
+    },
+    "vector_fp32_ops_per_cycle": {
+      "value": null,
+      "unit": "op/cycle",
+      "scope": "tensorcore",
+      "status": "unknown",
+      "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "FP32 instruction mix and throughput have not been established."
+    },
+    "scalar_units_per_tensorcore": {
+      "value": 1,
+      "unit": "unit",
+      "scope": "tensorcore",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Scalar/control unit inventory."
+    },
+    "scalar_ops_per_cycle": {
+      "value": null,
+      "unit": "op/cycle",
+      "scope": "tensorcore",
+      "status": "unknown",
+      "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "Scalar instruction throughput has not been established."
+    },
+    "sfu_units_per_tensorcore": {
+      "value": null,
+      "unit": "unit",
+      "scope": "tensorcore",
+      "status": "unknown",
+      "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "Presence and inventory of a separate nonlinear/SFU unit have not been established; unknown is not not-applicable or zero."
+    },
+    "sfu_fp32_ops_per_cycle": {
+      "value": null,
+      "unit": "op/cycle",
+      "scope": "tensorcore",
+      "status": "unknown",
+      "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "Nonlinear operation-specific throughput has not been established."
+    },
+    "vmem_physical_bytes": {
+      "value": 16777216,
+      "unit": "byte",
+      "scope": "tensorcore",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "16 MiB per TensorCore; binary capacity."
+    },
+    "vmem_usable_bytes": {
+      "value": 16777216,
+      "unit": "byte",
+      "scope": "tensorcore",
+      "status": "assumed",
+      "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "Logical scenario allows the full reference VMEM for A/B/C; runtime reservations, packing and spills are not modeled. Not a measured allocatable capacity."
+    },
+    "vmem_bandwidth_bytes_per_second": {
+      "value": null,
+      "unit": "byte/s",
+      "scope": "tensorcore",
+      "status": "unknown",
+      "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "Effective read/write service and port sharing have not been established."
+    },
+    "cmem_physical_bytes": {
+      "value": 134217728,
+      "unit": "byte",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs; PDF p7, Table 4)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Shared scratchpad counted once per chip, not a transparent cache."
+    },
+    "cmem_usable_bytes": {
+      "value": null,
+      "unit": "byte",
+      "scope": "chip",
+      "status": "unknown",
+      "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "No CMEM allocation or execution in this counter; usable capacity not established."
+    },
+    "cmem_bandwidth_bytes_per_second": {
+      "value": null,
+      "unit": "byte/s",
+      "scope": "chip",
+      "status": "unknown",
+      "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "CMEM effective service bandwidth has not been established."
+    },
+    "smem_physical_bytes": {
+      "value": null,
+      "unit": "byte",
+      "scope": "tensorcore",
+      "status": "unknown",
+      "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "A target-specific scalar-memory physical capacity has not been established from the selected references."
+    },
+    "register_file_physical_bytes": {
+      "value": null,
+      "unit": "byte",
+      "scope": "tensorcore",
+      "status": "unknown",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4; PDF p10, section 7.5)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Table 4 and section 7.5 identify 0.25 MiB register file per chip. Distribution/ownership per TensorCore is not established; do not divide chip inventory by two. Chip total is recorded in calibration/parameter_source_audit.json."
+    },
+    "sparsecores_per_chip": {
+      "value": 4,
+      "unit": "unit",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Inventory only; sparse/embedding execution excluded."
+    },
+    "spmem_physical_bytes": {
+      "value": 10485760,
+      "unit": "byte",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Aggregate SparseCore memory; unavailable to dense GEMM working blocks."
+    },
+    "hbm_physical_bytes": {
+      "value": 34359738368,
+      "unit": "byte",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Unified physical HBM2 capacity; 32 GiB, not 32 decimal GB."
+    },
+    "hbm_usable_bytes": {
+      "value": 34359738368,
+      "unit": "byte",
+      "scope": "chip",
+      "status": "assumed",
+      "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "Logical scenario allocates up to physical HBM; real runtime reserves memory. A/B/C coexist, no host offload. Not a measured runtime limit."
+    },
+    "hbm_bandwidth_bytes_per_second": {
+      "value": 1200000000000,
+      "unit": "byte/s",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Published aggregate bandwidth, decimal GB/s; no inference of single-TensorCore effective bandwidth."
+    },
+    "ici_links_per_chip": {
+      "value": 6,
+      "unit": "link",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Inventory only; mesh/torus selection depends on the slice."
+    },
+    "ici_link_reported_bytes_per_second": {
+      "value": 50000000000,
+      "unit": "byte/s",
+      "scope": "link",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Reported 50 GB/s/link; directional interpretation is unresolved in this profile. Do not use as one-way payload bandwidth."
+    },
+    "ici_link_one_way_bytes_per_second": {
+      "value": null,
+      "unit": "byte/s",
+      "scope": "link",
+      "status": "unknown",
+      "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "One-way effective payload bandwidth is not established; no aggregate bidirectional throughput is derived."
+    },
+    "process_node_nm": {
+      "value": 7,
+      "unit": "nm",
+      "scope": "die",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Reported process node; no technology scaling model."
+    },
+    "die_area_upper_bound_mm2": {
+      "value": 600,
+      "unit": "mm2",
+      "scope": "die",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Strict upper bound: die area <600 mm2; neither exact area nor a component area coefficient."
+    }
+  },
+  "missing_parameters": [
+    "vector_int32_adds_per_cycle",
+    "vector_fp32_ops_per_cycle",
+    "scalar_ops_per_cycle",
+    "sfu_units_per_tensorcore",
+    "sfu_fp32_ops_per_cycle",
+    "vmem_bandwidth_bytes_per_second",
+    "cmem_usable_bytes",
+    "cmem_bandwidth_bytes_per_second",
+    "smem_physical_bytes",
+    "register_file_physical_bytes",
+    "ici_link_one_way_bytes_per_second"
+  ],
+  "timing": {
+    "status": "not_evaluated",
+    "total_cycles": null,
+    "time_ns": null,
+    "throughput_gops": null
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null
+  },
+  "area": {
+    "status": "not_evaluated",
+    "total_mm2": null
+  },
+  "limitations": [
+    "Chip hardware hierarchy and inventory; single-TensorCore logical counts only.",
+    "Private VMEM totals are inventory, not pooled usable capacity; shared resources are counted once.",
+    "Chip peaks are specification arithmetic; no multi-TensorCore scheduling or count scaling.",
+    "No hardware padding, physical transactions, numerical simulation or compiler mapping.",
+    "No MXU placement, weight residency, CMEM execution, VPU/SFU execution or timing.",
+    "Action coverage is partial; unknown internal activity is not treated as zero.",
+    "Transfer summaries overlap endpoint actions; do not charge both in an energy model."
+  ]
+}

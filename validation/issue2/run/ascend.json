@@ -1,0 +1,494 @@
+{
+  "schema_version": 3,
+  "model": "ascend910_analytical",
+  "mode": "count",
+  "workload": {
+    "operation": "gemm",
+    "M": 16,
+    "K": 32,
+    "N": 16,
+    "data_format": "INT8",
+    "accumulation_dtype": "INT32",
+    "output_dtype": "INT32",
+    "declared_data_format": "INT8",
+    "format_overridden": false,
+    "useful_ops": 16384
+  },
+  "boundary": {
+    "scope": "single_core",
+    "simulated_cores": 1,
+    "start": "prepacked_padded_A_B_in_GM",
+    "end": "packed_padded_INT32_C_in_GM",
+    "input_preparation_included": false,
+    "output_padding_trim_included": false,
+    "numeric_values_simulated": false
+  },
+  "strategy": {
+    "name": "output_stationary",
+    "loop_order": "MNK",
+    "selected": {
+      "m": 16,
+      "k": 32,
+      "n": 16,
+      "l1_k": 32,
+      "ub_chunk_bytes": 1024
+    },
+    "cross_output_tile_local_reuse": false,
+    "overlap": "none"
+  },
+  "counts": {
+    "useful_ops": 16384,
+    "executed_padded_ops": 16384,
+    "cube_mac": 8192,
+    "compute_blocks": 1,
+    "int8_fractals": 1,
+    "output_tiles": 1,
+    "logical_output_bytes": 1024
+  },
+  "stages": {
+    "gm_l1": {
+      "bytes": 1024,
+      "transfers": 2,
+      "cycles": null
+    },
+    "l1_l0a": {
+      "bytes": 512,
+      "transfers": 1,
+      "cycles": null
+    },
+    "l1_l0b": {
+      "bytes": 512,
+      "transfers": 1,
+      "cycles": null
+    },
+    "l0c_ub": {
+      "bytes": 1024,
+      "transfers": 1,
+      "cycles": null
+    },
+    "ub_gm": {
+      "bytes": 1024,
+      "transfers": 1,
+      "cycles": null
+    }
+  },
+  "memory": {
+    "L1": {
+      "scope": "core",
+      "capacity_bytes": 1048576,
+      "peak_bytes": 1024
+    },
+    "L0A": {
+      "scope": "core",
+      "capacity_bytes": 65536,
+      "peak_bytes": 512
+    },
+    "L0B": {
+      "scope": "core",
+      "capacity_bytes": 65536,
+      "peak_bytes": 512
+    },
+    "L0C": {
+      "scope": "core",
+      "capacity_bytes": 262144,
+      "peak_bytes": 1024
+    },
+    "UB": {
+      "scope": "core",
+      "capacity_bytes": 262144,
+      "peak_bytes": 1024
+    }
+  },
+  "timing": {
+    "status": "not_computed",
+    "policy": "serial_stage_sum",
+    "compute_cycles": null,
+    "total_cycles": null,
+    "time_ns": null,
+    "throughput_gops": null,
+    "missing_parameters": [
+      "cube.macs_per_cycle",
+      "transfers.gm_l1",
+      "transfers.l1_l0a",
+      "transfers.l1_l0b",
+      "transfers.l0c_ub",
+      "transfers.ub_gm"
+    ]
+  },
+  "action_counts": {
+    "gm_l1": {
+      "count": 1024,
+      "unit": "byte",
+      "scope": "core"
+    },
+    "l1_l0a": {
+      "count": 512,
+      "unit": "byte",
+      "scope": "core"
+    },
+    "l1_l0b": {
+      "count": 512,
+      "unit": "byte",
+      "scope": "core"
+    },
+    "l0c_ub": {
+      "count": 1024,
+      "unit": "byte",
+      "scope": "core"
+    },
+    "ub_gm": {
+      "count": 1024,
+      "unit": "byte",
+      "scope": "core"
+    },
+    "cube_mac": {
+      "count": 8192,
+      "unit": "MAC",
+      "scope": "core"
+    }
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null,
+    "reason": "Issue 2 supplies action inputs; coefficients and energy evaluation are separate work."
+  },
+  "hardware_derived": {
+    "mac_ops": 2,
+    "int8_fractal_macs": 8192,
+    "core_int8_ops_per_cycle": null,
+    "core_int8_peak_tops": null,
+    "chip_int8_peak_tops": null,
+    "vector_fp32_peak_gops_per_core": null,
+    "sfu_fp32_peak_gops_per_core": null,
+    "route_bandwidth_gbps": {
+      "gm_l1": null,
+      "l1_l0a": null,
+      "l1_l0b": null,
+      "l0c_ub": null,
+      "ub_gm": null
+    },
+    "area_inventory": {
+      "scope": "chip",
+      "core_count": 32,
+      "compute_units": {
+        "cube": 32,
+        "vector": 32,
+        "sfu": null
+      },
+      "core_sram_bytes_by_level": {
+        "L1": 33554432,
+        "L0A": 2097152,
+        "L0B": 2097152,
+        "L0C": 8388608,
+        "UB": 8388608
+      },
+      "shared_l2_bytes": 33554432,
+      "external_hbm_bytes": null,
+      "area_mm2": null
+    },
+    "status": "derived_from_declared_parameters; assumed_inputs_remain_assumed"
+  },
+  "parameter_provenance": {
+    "clock_freq_ghz": {
+      "value": 1,
+      "unit": "GHz",
+      "scope": "core",
+      "status": "documented",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5, printed p109)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Published Ascend-Max reference frequency, 1 GHz; not measured target-SKU DVFS. NoC link clock is separately 2 GHz."
+    },
+    "memory.L1.physical_bytes": {
+      "value": 1048576,
+      "unit": "byte",
+      "scope": "core",
+      "status": "assumed",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Original Ascend-Max diagram reports 1 MB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+    },
+    "memory.L1.usable_bytes": {
+      "value": 1048576,
+      "unit": "byte",
+      "scope": "core",
+      "status": "assumed",
+      "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+      "version": "Original Ascend 910; reference revision 2026-11-14",
+      "conditions": "Reduce to actual available capacity for a compiled kernel"
+    },
+    "memory.L0A.physical_bytes": {
+      "value": 65536,
+      "unit": "byte",
+      "scope": "core",
+      "status": "assumed",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Original Ascend-Max diagram reports 64 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+    },
+    "memory.L0A.usable_bytes": {
+      "value": 65536,
+      "unit": "byte",
+      "scope": "core",
+      "status": "assumed",
+      "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+      "version": "Original Ascend 910; reference revision 2026-11-14",
+      "conditions": "Reduce to actual available capacity for a compiled kernel"
+    },
+    "memory.L0B.physical_bytes": {
+      "value": 65536,
+      "unit": "byte",
+      "scope": "core",
+      "status": "assumed",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Original Ascend-Max diagram reports 64 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+    },
+    "memory.L0B.usable_bytes": {
+      "value": 65536,
+      "unit": "byte",
+      "scope": "core",
+      "status": "assumed",
+      "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+      "version": "Original Ascend 910; reference revision 2026-11-14",
+      "conditions": "Reduce to actual available capacity for a compiled kernel"
+    },
+    "memory.L0C.physical_bytes": {
+      "value": 262144,
+      "unit": "byte",
+      "scope": "core",
+      "status": "assumed",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Original Ascend-Max diagram reports 256 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+    },
+    "memory.L0C.usable_bytes": {
+      "value": 262144,
+      "unit": "byte",
+      "scope": "core",
+      "status": "assumed",
+      "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+      "version": "Original Ascend 910; reference revision 2026-11-14",
+      "conditions": "Reduce to actual available capacity for a compiled kernel"
+    },
+    "memory.UB.physical_bytes": {
+      "value": 262144,
+      "unit": "byte",
+      "scope": "core",
+      "status": "assumed",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Original Ascend-Max diagram reports 256 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+    },
+    "memory.UB.usable_bytes": {
+      "value": 262144,
+      "unit": "byte",
+      "scope": "core",
+      "status": "assumed",
+      "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+      "version": "Original Ascend 910; reference revision 2026-11-14",
+      "conditions": "Reduce to actual available capacity for a compiled kernel"
+    },
+    "cube.m": {
+      "value": 16,
+      "unit": "element",
+      "scope": "core",
+      "status": "documented",
+      "source": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/800alpha003/apiref/ascendcopapi/atlasascendc_api_07_0249.html",
+      "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "INT8 input fractal; INT8 x INT8 -> INT32 support for Atlas training series; geometry is not a cycles-per-fractal guarantee."
+    },
+    "cube.k": {
+      "value": 32,
+      "unit": "element",
+      "scope": "core",
+      "status": "documented",
+      "source": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/800alpha003/apiref/ascendcopapi/atlasascendc_api_07_0249.html",
+      "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "INT8 input fractal; INT8 x INT8 -> INT32 support for Atlas training series; geometry is not a cycles-per-fractal guarantee."
+    },
+    "cube.n": {
+      "value": 16,
+      "unit": "element",
+      "scope": "core",
+      "status": "documented",
+      "source": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/800alpha003/apiref/ascendcopapi/atlasascendc_api_07_0249.html",
+      "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "INT32 result fractal; INT8 x INT8 -> INT32 support for Atlas training series; geometry is not a cycles-per-fractal guarantee."
+    },
+    "cube.units_per_core": {
+      "value": 1,
+      "unit": "unit",
+      "scope": "core",
+      "status": "documented",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "One Cube unit in the published Ascend-Max core diagram; not a claim about later 910B/910C architectures."
+    },
+    "cube.macs_per_cycle": {
+      "value": null,
+      "unit": "MAC/cycle",
+      "scope": "core",
+      "status": "unknown",
+      "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=7; https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Slides list 8192 INT8 MACs as Cube geometry; Table 5 reports 8192 floating-point operations/cycle, not INT8 MAC/cycle. Neither directly validates the modeled sustained INT8 accumulation service; not inferred from geometry or rounded chip TOPS."
+    },
+    "vector.units_per_core": {
+      "value": 1,
+      "unit": "unit",
+      "scope": "core",
+      "status": "documented",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "One Vector unit in the published Ascend-Max core diagram; not a claim about later 910B/910C architectures."
+    },
+    "vector.fp32_ops_per_cycle": {
+      "value": null,
+      "unit": "op/cycle",
+      "scope": "core",
+      "status": "unknown",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5); https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=8",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Table 5 reports 256-byte vector width; older slides list 256 ops/cycle without an unambiguous FP32 operation convention. Width and mixed-precision peak do not establish this FP32 service rate."
+    },
+    "sfu.units_per_core": {
+      "value": null,
+      "unit": "unit",
+      "scope": "core",
+      "status": "unknown",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9); https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=7",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Dedicated vs shared SFU organization not confirmed; vector special-function support is documented, but separate SFU inventory and operation-specific service are not specified."
+    },
+    "sfu.fp32_ops_per_cycle": {
+      "value": null,
+      "unit": "op/cycle",
+      "scope": "core",
+      "status": "unknown",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9); https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=7",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "No SFU operator model in this GEMM entry; vector special-function support is documented, but separate SFU inventory and operation-specific service are not specified."
+    },
+    "transfers.gm_l1": {
+      "value": null,
+      "unit": "byte/cycle",
+      "scope": "core",
+      "status": "unknown",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Integrated effective GM-to-core path, including external memory effects; no additional HBM/NoC time is added; published port widths and nominal chip bandwidths do not establish this path's sustained payload rate."
+    },
+    "transfers.l1_l0a": {
+      "value": null,
+      "unit": "byte/cycle",
+      "scope": "core",
+      "status": "unknown",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Effective payload bandwidth of this core-local stage; published port widths and nominal chip bandwidths do not establish this path's sustained payload rate."
+    },
+    "transfers.l1_l0b": {
+      "value": null,
+      "unit": "byte/cycle",
+      "scope": "core",
+      "status": "unknown",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Effective payload bandwidth of this core-local stage; published port widths and nominal chip bandwidths do not establish this path's sustained payload rate."
+    },
+    "transfers.l0c_ub": {
+      "value": null,
+      "unit": "byte/cycle",
+      "scope": "core",
+      "status": "unknown",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Effective payload bandwidth of this core-local stage; published port widths and nominal chip bandwidths do not establish this path's sustained payload rate."
+    },
+    "transfers.ub_gm": {
+      "value": null,
+      "unit": "byte/cycle",
+      "scope": "core",
+      "status": "unknown",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Integrated effective GM-to-core path, including external memory effects; no additional HBM/NoC time is added; published port widths and nominal chip bandwidths do not establish this path's sustained payload rate."
+    },
+    "chip.architectural_cores": {
+      "value": 32,
+      "unit": "core",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (section 4.1.1, printed p109)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "32 Ascend-Max cores in original Ascend 910 compute die; architectural inventory, not available cores for every SKU."
+    },
+    "chip.l2_bytes": {
+      "value": 33554432,
+      "unit": "byte",
+      "scope": "chip",
+      "status": "assumed",
+      "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=19 (On-chip Buffer 32MB)",
+      "version": "Huawei DaVinci presentation, 2020, PDF p19; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Source labels on-chip buffer 32 MB. Mapping it to shared L2 and interpreting MB as MiB remain assumptions; no cache behavior is modeled."
+    },
+    "chip.hbm_bytes": {
+      "value": null,
+      "unit": "byte",
+      "scope": "chip",
+      "status": "unknown",
+      "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=20 (Memory Interface)",
+      "version": "Huawei DaVinci presentation, 2020, PDF p20; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Source reports 32 GB HBM Gen2. Exact GB/GiB normalization for the modeled product is unresolved; raw published capacity is preserved in calibration/parameter_source_audit.json."
+    },
+    "chip.l2_bytes_per_cycle": {
+      "value": null,
+      "unit": "byte/cycle",
+      "scope": "chip",
+      "status": "unknown",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5) and #page=114 (section 4.1.3); https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=8",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Conflicting published LLC totals: 94 GB/s per core in Table 5 (~3 TB/s for 32 cores), 4 TB/s total in section 4.1.3; 2020 slides report 3 TB/s. Unresolved accounting; no single normalized L2 rate selected."
+    },
+    "chip.hbm_bytes_per_cycle": {
+      "value": 1200,
+      "unit": "byte/cycle",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (section 4.1.1; also p114, section 4.1.3)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Derived normalization of published aggregate HBM bandwidth: 1.2e12 byte/s / 1e9 reference core cycles/s = 1200 byte/cycle. Decimal TB/s; chip aggregate nominal inventory only. Not an HBM clock or a per-core GM transfer service rate."
+    },
+    "chip.noc_bytes_per_cycle": {
+      "value": null,
+      "unit": "byte/cycle",
+      "scope": "chip",
+      "status": "unknown",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (section 4.1.2)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "4x6 mesh; each adjacent-node link is 1024 bit at 2 GHz, reported 256 GB/s. This is a link rate, not the chip aggregate rate required by this field."
+    },
+    "chip.interconnect_bytes_per_second": {
+      "value": null,
+      "unit": "byte/s",
+      "scope": "chip",
+      "status": "unknown",
+      "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=20 (System Interface)",
+      "version": "Huawei DaVinci presentation, 2020, PDF p20; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "PCIe 3.0 x16, HCCS and 100G RoCE interfaces are listed; they do not establish one chip-aggregate effective payload bandwidth."
+    }
+  },
+  "output_path": {
+    "status": "assumed",
+    "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=110 (section 3.2, printed p106)",
+    "description": "Model a packed INT32 L0C->UB->GM export service. Source supports L0C/vector/UB dataflow, but exact raw INT32 export instruction sequence and service still require target/CANN validation."
+  },
+  "limitations": [
+    "Single-core coarse analytical estimate; chip peak is specification arithmetic only.",
+    "No core mapping, pipeline overlap, events, cache behavior, bank/NoC/DRAM contention.",
+    "GM routes are integrated effective services; requests are not measured HBM transactions.",
+    "Cube throughput includes MAC accumulation; there is no extra fixed Accumulate cycle.",
+    "INT32 export path and assumed capacities require target validation.",
+    "No host launch, layout conversion, full-model execution, energy or area prediction."
+  ]
+}
