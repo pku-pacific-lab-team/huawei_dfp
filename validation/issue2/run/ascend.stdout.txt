@@ -1,7 +1,0 @@
-[Workload] {"operation": "gemm", "M": 16, "K": 32, "N": 16, "data_format": "INT8", "accumulation_dtype": "INT32", "output_dtype": "INT32", "declared_data_format": "INT8", "format_overridden": false, "useful_ops": 16384}
-[Scope] Single Ascend core; chip specification peak is not simulated chip throughput
-[Counts] {"useful_ops": 16384, "executed_padded_ops": 16384, "cube_mac": 8192, "compute_blocks": 1, "int8_fractals": 1, "output_tiles": 1, "logical_output_bytes": 1024}
-[Timing] {"status": "not_computed", "policy": "serial_stage_sum", "compute_cycles": null, "total_cycles": null, "time_ns": null, "throughput_gops": null, "missing_parameters": ["cube.macs_per_cycle", "transfers.gm_l1", "transfers.l1_l0a", "transfers.l1_l0b", "transfers.l0c_ub", "transfers.ub_gm"]}
-[Actions] {"gm_l1": {"count": 1024, "unit": "byte", "scope": "core"}, "l1_l0a": {"count": 512, "unit": "byte", "scope": "core"}, "l1_l0b": {"count": 512, "unit": "byte", "scope": "core"}, "l0c_ub": {"count": 1024, "unit": "byte", "scope": "core"}, "ub_gm": {"count": 1024, "unit": "byte", "scope": "core"}, "cube_mac": {"count": 8192, "unit": "MAC", "scope": "core"}}
-[Energy/area] Not evaluated; action counts and hardware inventory are provided
-[Report] C:\Users\86152\AppData\Local\Temp\issue2-6b1eb03n\report.json

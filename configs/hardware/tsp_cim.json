@@ -1,183 +1,46 @@
 {
-  "schema_version": 2,
-  "model": "tsp_cim_cluster_reference",
-  "profile_id": "tsp-cim-core-cluster-plane-int8-v1",
-  "description": "Project Core/Cluster/Plane topology; single Cluster task domain counting, chip inventory separate.",
-  "supported_formats": [
-    "INT8"
-  ],
-  "native_reference": "tsp.json",
-  "macro_reference": "cim_macro.json",
-  "parameters": {
-    "macros_per_core": {
-      "value": 4,
-      "unit": "count",
-      "scope": "core",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2; lines 184-200",
-      "conditions": "Four Macros per Core implement N shards; INT8 Core has K=16,N=128,256 MAC/cycle.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "cores_per_cluster": {
-      "value": 5,
-      "unit": "count",
-      "scope": "cluster_slice",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2.6; lines 301-322",
-      "conditions": "Five Cores per Cluster slice in one SuperLane. One task across20SL has K=320,N=640; 20SL extend K and do not multiply N.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "clusters_per_superlane": {
-      "value": 4,
-      "unit": "count",
-      "scope": "superlane_in_plane",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2.6; lines 301-322",
-      "conditions": "Four independent Cluster task domains in each SuperLane of each Plane.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "superlanes_per_plane": {
-      "value": 20,
-      "unit": "count",
-      "scope": "plane",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2; lines 184-202",
-      "conditions": "20 SuperLanes per Plane, chained along K. One Plane has400Cores/1600Macros.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "planes_per_hemisphere": {
-      "value": 2,
-      "unit": "count",
-      "scope": "hemisphere",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2; lines 184-202",
-      "conditions": "Two CIM Planes per hemisphere/MXM, preserving baseline plane organization.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "hemispheres": {
-      "value": 2,
-      "unit": "count",
-      "scope": "chip",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2;5.1; lines 184-202,744-759",
-      "conditions": "Full chip has four Planes; together with two Planes per hemisphere this means two hemispheres. The early section3.1 comparison of400Macros/hemisphere is not the finalized section3.2 topology; do not apply it to the final6400Macros/chip profile.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "nim_units_per_plane": {
-      "value": 1,
-      "unit": "count",
-      "scope": "plane",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.1; lines 465-476",
-      "conditions": "One physical NIM per Plane, shared by four logical Cluster channels.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "nim_tiles_per_plane": {
-      "value": 20,
-      "unit": "count",
-      "scope": "plane",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.1; lines 465-469",
-      "conditions": "NIM is spatially partitioned into20tiles, one per SuperLane; each serves20Cores/80Macros.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "nim_channels_per_tile": {
-      "value": 4,
-      "unit": "count",
-      "scope": "nim_tile",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.1-3.4.2; lines 467-485",
-      "conditions": "Four logical Cluster channels per tile share physical NIM resources; four is not four replicated physical NIMs.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "nim_conversion_lanes": {
-      "value": 64,
-      "unit": "count",
-      "scope": "plane",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.2;3.4.5; lines 491-492,545-553",
-      "conditions": "64 FP32 conversion lanes in the Plane NIM output service, one FP32/lane/cycle. Design target for terminal result conversion; do not multiply by20NIMtiles to infer terminal writer throughput.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "nim_output_bpc": {
-      "value": 256,
-      "unit": "byte/cycle",
-      "scope": "plane",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.2;3.4.5; lines 491-492,545-553",
-      "conditions": "The documented Plane NIM terminal writer target is64lanes*4B=256B/cycle=16local streams*16B. Two Plane writers produce512B/cycle at a SuperLane interface. This is distinct from distributed LW capture, and is not calibrated INT8 timing.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "streams_per_plane": {
-      "value": 16,
-      "unit": "count",
-      "scope": "superlane_plane_direction",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.3.2-3.3.4; lines 351-390,430-439",
-      "conditions": "16 stream IDs allocated to each Plane within one direction/SuperLane; two Planes share the native32-ID budget.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "lw_cores_per_cycle": {
-      "value": 2,
-      "unit": "core/cycle",
-      "scope": "superlane_plane",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.3.4 final LW rotation; lines 430-439",
-      "conditions": "Per SuperLane and Plane, two Cores/cycle*four Macros/Core*32B/wordline=256B/cycle distributed LW capture. Across20SL the width is5120B/cycle/Plane; this is not the256B/cycle terminal NIM writer.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "core_stagger_cycles": {
-      "value": 1,
-      "unit": "cycle",
-      "scope": "cluster_slice",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2.5-3.2.6; lines 290-322",
-      "conditions": "Adjacent Cores within a Cluster start one cycle apart, creating a five-cycle local staircase; project schedule target, not calibrated ASIC latency.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
-    "physical_sram_bytes": {
-      "value": null,
-      "unit": "byte",
-      "scope": "chip",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.4;3.5.1; lines 530-543,629-637",
-      "conditions": "Source specifies Macro context SRAM (2KiB/Macro) and buffer examples (e.g.2*768B input double-buffer, precision-dependent EW/Core), but does not establish complete physical SRAM inventory or the exact replicated/allocated collector total for this INT8 profile. Preserve null; do not infer32MiB or zero overhead.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
-    },
-    "additional_local_sram_bytes": {
-      "value": null,
-      "unit": "byte",
-      "scope": "chip",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.4;3.5.1; lines 530-543,629-637",
-      "conditions": "Source specifies Macro context SRAM (2KiB/Macro) and buffer examples (e.g.2*768B input double-buffer, precision-dependent EW/Core), but does not establish complete physical SRAM inventory or the exact replicated/allocated collector total for this INT8 profile. Preserve null; do not infer32MiB or zero overhead.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
-    },
-    "collector_buffer_bytes": {
-      "value": null,
-      "unit": "byte",
-      "scope": "plane",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.4;3.5.1; lines 530-543,629-637",
-      "conditions": "Source specifies Macro context SRAM (2KiB/Macro) and buffer examples (e.g.2*768B input double-buffer, precision-dependent EW/Core), but does not establish complete physical SRAM inventory or the exact replicated/allocated collector total for this INT8 profile. Preserve null; do not infer32MiB or zero overhead.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
-    }
-  }
+  "description": "TSP-CIM配置 V2（Groq TSP架构 + CIM Macro替换MXM，含物理布局）",
+  "superlane": {
+    "n_superlanes": 20,
+    "n_lanes_per_superlane": 16,
+    "n_macros_per_superlane": 80
+  },
+  "macro": {
+    "n_banks_internal": 32,
+    "n_subarrays_per_bank": 32,
+    "n_loc_per_subarray": 4,
+    "n_cols_per_bank": 8,
+    "p_input": 8
+  },
+  "mem": {
+    "total_bytes": 335544320,
+    "n_slices": 88,
+    "bw_tbps": 80.0,
+    "stream_bw_tbps": 20.0
+  },
+  "sram": {
+    "physical_total_bytes": 369098752,
+    "global_mem_bytes": 335544320,
+    "local_reserved_bytes": 33554432
+  },
+  "vxm": {
+    "alus_per_lane": 16
+  },
+  "layout": {
+    "n_mem_slices_per_hemisphere": 44,
+    "n_hemispheres": 2,
+    "act_mem_start_slice": 0,
+    "wt_mem_start_slice": 28
+  },
+  "cim_fabric": {
+    "macro_arrangement": "grid_broadcast_reduce",
+    "macro_link_hops": 1,
+    "macro_k_groups_per_superlane": 40
+  },
+  "streams": {
+    "n_streams_per_direction": 32,
+    "stream_width_bytes": 320
+  },
+  "clock_freq_ghz": 0.9,
+  "weight_prog_bw_gbps": 512.0
 }

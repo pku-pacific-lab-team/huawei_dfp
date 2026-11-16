@@ -1,1 +1,0 @@
-"""Ascend reference model tests."""

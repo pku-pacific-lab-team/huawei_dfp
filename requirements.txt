@@ -1,3 +1,0 @@
-# Verified on Windows with Python 3.12.10.
-# Runtime, tests and issue #2 verification use only the Python standard library.
-# No third-party packages are required.

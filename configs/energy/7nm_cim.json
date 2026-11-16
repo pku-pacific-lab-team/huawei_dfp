@@ -1,0 +1,20 @@
+{
+  "description": "7nm CIM能量参数 (原始数据单位nJ, 已转换为pJ)",
+  "unit": "pJ",
+  "parameters": {
+    "tpu_flop_power": 0.03305,
+    "vect_flop_power": 0.077,
+    "sram_write_power": 0.88,
+    "sram_read_power": 0.88,
+    "l1_sram_write_power": 1.40,
+    "l1_sram_read_power": 1.12,
+    "l0_sram_write_power": 0.28,
+    "l0_sram_read_power": 0.28,
+    "cim_local_read_power": 0.123,
+    "dram_read_power": 32.0,
+    "dram_write_power": 32.0,
+    "noc_hop_power": 0.5676,
+    "weight_prog_power": 0.88,
+    "weight_prog_bw_gbps": 512.0
+  }
+}

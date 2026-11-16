@@ -1,0 +1,30 @@
+{
+  "description": "7nm native TSP baseline energy parameters (pJ)",
+  "unit": "pJ",
+  "parameters": {
+    "sram_read_power": 0.28,
+    "sram_write_power": 0.32,
+    "weight_install_power": 0.34,
+    "mxm_int8_op_power": 0.17,
+    "mxm_fp16_op_power": 0.34,
+    "vxm_op_power": 0.085,
+    "stream_hop_external_power": 0.013,
+    "sxm_permute_power": 0.005,
+    "global_sram_standby_power_per_mib": 20.0,
+    "local_sram_standby_power_per_mib": 30.0,
+    "mxm_array_logic_leak_power": 4200.0,
+    "mem_slice_ctrl_power": 8.0,
+    "sxm_logic_leak_power": 1700.0,
+    "vxm_logic_leak_power": 1200.0,
+    "clock_backbone_power": 4000.0,
+    "clock_domain_power": 120.0,
+    "control_backbone_power": 1200.0,
+    "control_domain_power": 60.0,
+    "mxm_plane_leak_power": 3600.0,
+    "mem_slice_leak_power": 60.0,
+    "sxm_leak_power": 2600.0,
+    "vxm_leak_power": 3000.0,
+    "clock_tree_power": 18000.0,
+    "control_plane_power": 7200.0
+  }
+}

@@ -1,1 +1,0 @@
-[ERROR] Only a GEMM workload object is supported
