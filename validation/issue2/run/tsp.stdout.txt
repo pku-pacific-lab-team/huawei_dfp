@@ -1,0 +1,10 @@
+[Effective workload] {"operation": "gemm", "M": 16, "K": 32, "N": 16, "data_format": "INT8", "accumulation_dtype": "INT32", "output_dtype": "INT32", "declared_data_format": "INT8", "format_overridden": false, "useful_ops": 16384}
+[TSP reference] tsp_issue2_reference:49910a9f163760ac
+[Scope] single hemisphere; chip inventory/peak reported separately
+[Counts] useful_ops=16384 padded_ops=16384 weight_installs=1 PSUM_adds=0
+[Memory] 2112 / 115343360 local bytes
+[Chip peak] geometric=737.28 TOPS; nominal=750 TOPS
+[Timing] not_computed; single_hem_cycles=None; chip_cycles=not modeled
+[Missing timing] install_bpc, install_first_cycles, mxm_first_cycles, mxm_row_ii, row_io_latency_cycles
+[Energy/area] not evaluated; action counts and inventory available
+[Report] C:\Users\86152\AppData\Local\Temp\issue2-ih3mwe_7\report.json

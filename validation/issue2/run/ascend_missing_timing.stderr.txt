@@ -1,0 +1,1 @@
+[ERROR] Ascend timing proxy requires chip.hbm_bytes_per_cycle for missing GM routes

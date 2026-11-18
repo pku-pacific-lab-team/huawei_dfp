@@ -1,0 +1,404 @@
+{
+  "tests_run": 132,
+  "status_counts": {
+    "passed": 132
+  },
+  "tests": {
+    "tests.ascend.test_config.ConfigTest.test_capacity_and_fractal_constraints": {
+      "status": "passed"
+    },
+    "tests.ascend.test_config.ConfigTest.test_derived_compute_bandwidth_and_area_inventory": {
+      "status": "passed"
+    },
+    "tests.ascend.test_config.ConfigTest.test_every_parameter_has_explicit_scope_and_version": {
+      "status": "passed"
+    },
+    "tests.ascend.test_config.ConfigTest.test_frequency_is_required_only_for_time_and_peak_conversion": {
+      "status": "passed"
+    },
+    "tests.ascend.test_config.ConfigTest.test_missing_parameters_do_not_get_silent_defaults": {
+      "status": "passed"
+    },
+    "tests.ascend.test_config.ConfigTest.test_old_event_schema_is_rejected": {
+      "status": "passed"
+    },
+    "tests.ascend.test_config.ConfigTest.test_units_scopes_status_and_numeric_values_are_checked": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_bandwidth_changes_only_the_corresponding_serial_stage": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_cli_default_timing_and_explicit_format": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_cli_missing_timing_does_not_write_success_report": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_cli_proxy_timing_runs_reference_profile": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_configured_service_wins_and_only_needed_proxy_bases_required": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_hand_calculated_minimum_tile_has_no_extra_accumulate_cycle": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_k_reduction_keeps_output_local_and_exports_once": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_proxy_chip_share_tail_and_unknown_clock": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_proxy_hand_calculation_and_count_fields_are_preserved": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_removed_experiment_and_scheduling_flags_fail_explicitly": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_tail_padding_is_distinct_from_useful_work": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_tiny_action_counts_and_missing_metrics": {
+      "status": "passed"
+    },
+    "tests.ascend.test_single_core.SingleCoreTest.test_unknown_timing_and_unsupported_precision_fail": {
+      "status": "passed"
+    },
+    "tests.ascend.test_tiling.TilingTest.test_baseline_footprint": {
+      "status": "passed"
+    },
+    "tests.ascend.test_tiling.TilingTest.test_each_capacity_is_enforced": {
+      "status": "passed"
+    },
+    "tests.ascend.test_tiling.TilingTest.test_invalid_tiles_and_too_small_buffers": {
+      "status": "passed"
+    },
+    "tests.ascend.test_tiling.TilingTest.test_unaligned_tail_is_allocated_as_fractals": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroActionTest.test_context_boundary_constraints": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroActionTest.test_context_residency_switching_and_eviction": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroActionTest.test_first_latency_is_not_ii": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroActionTest.test_full_macro_actions_by_hand": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroActionTest.test_invalid_operands_and_unsupported_formats": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroActionTest.test_program_is_full_context_and_unknown_timing_is_not_zero": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroActionTest.test_tail_has_useful_and_full_physical_counts": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroIntegrationTest.test_all_loop_orders_conserve_work_and_reduction": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroIntegrationTest.test_four_context_reuse_and_five_context_replacement": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroIntegrationTest.test_impossible_macro_mapping_is_rejected": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroIntegrationTest.test_m_reuse_and_repeat_runs_start_empty": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroIntegrationTest.test_tsp_cim_uses_macro_profile_counts_and_unknown_costs": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroIntegrationTest.test_two_k_and_n_tails_and_external_reduction": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroSpecificationTest.test_geometry_peak_and_resident_storage": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroSpecificationTest.test_invalid_and_inconsistent_timing": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroSpecificationTest.test_metadata_units_scope_and_fixed_shape_are_validated": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroSpecificationTest.test_no_implicit_defaults_or_old_geometry": {
+      "status": "passed"
+    },
+    "tests.cim.test_model.MacroSpecificationTest.test_reference_is_stable_and_configuration_is_defensively_copied": {
+      "status": "passed"
+    },
+    "tests.common.test_hardware_inventory.HardwareInventoryTest.test_reference_outputs_inventory_without_area_estimate": {
+      "status": "passed"
+    },
+    "tests.common.test_output.OutputPathTest.test_defaults_create_project_results_from_another_directory": {
+      "status": "passed"
+    },
+    "tests.common.test_output.OutputPathTest.test_explicit_relative_and_absolute_paths_override_defaults": {
+      "status": "passed"
+    },
+    "tests.common.test_output.OutputPathTest.test_failed_runs_do_not_create_or_replace_default_reports": {
+      "status": "passed"
+    },
+    "tests.common.test_parameter_source_audit.ParameterSourceAuditTest.test_audit_covers_current_config_and_resolvable_evidence": {
+      "status": "passed"
+    },
+    "tests.common.test_parameter_source_audit.ParameterSourceAuditTest.test_nominal_chip_hbm_does_not_enable_core_timing": {
+      "status": "passed"
+    },
+    "tests.common.test_parameter_source_audit.ParameterSourceAuditTest.test_tsp_stream_coordinates_and_cross_section_are_distinct": {
+      "status": "passed"
+    },
+    "tests.common.test_workload.WorkloadTest.test_all_loaders_share_shape_and_validation": {
+      "status": "passed"
+    },
+    "tests.common.test_workload.WorkloadTest.test_declaration_and_override": {
+      "status": "passed"
+    },
+    "tests.common.test_workload.WorkloadTest.test_invalid_or_unsupported_semantics_are_rejected": {
+      "status": "passed"
+    },
+    "tests.common.test_workload.WorkloadTest.test_override_is_not_reparsed_as_declared_precision": {
+      "status": "passed"
+    },
+    "tests.common.test_workload.WorkloadTest.test_single_int8_preset_and_loader_defaults": {
+      "status": "passed"
+    },
+    "tests.common.test_workload.WorkloadTest.test_tsp_cim_entry_rejects_unsupported_precision_and_counts_explicit_int8": {
+      "status": "passed"
+    },
+    "tests.common.test_workload.WorkloadTest.test_tsp_entries_use_shared_precision_and_print_effective_task": {
+      "status": "passed"
+    },
+    "tests.tpu.test_config.TPUConfigTest.test_bad_parameter_values_and_metadata_are_rejected": {
+      "status": "passed"
+    },
+    "tests.tpu.test_config.TPUConfigTest.test_chip_inventory_scales_private_resources_only": {
+      "status": "passed"
+    },
+    "tests.tpu.test_config.TPUConfigTest.test_every_parameter_has_provenance_and_assumptions_remain_visible": {
+      "status": "passed"
+    },
+    "tests.tpu.test_config.TPUConfigTest.test_hierarchy_peaks_and_local_inventory": {
+      "status": "passed"
+    },
+    "tests.tpu.test_config.TPUConfigTest.test_hierarchy_unknowns_preserve_independent_levels": {
+      "status": "passed"
+    },
+    "tests.tpu.test_config.TPUConfigTest.test_missing_required_capacity_is_not_defaulted": {
+      "status": "passed"
+    },
+    "tests.tpu.test_config.TPUConfigTest.test_peak_units_and_physical_inventory": {
+      "status": "passed"
+    },
+    "tests.tpu.test_config.TPUConfigTest.test_unknown_inputs_propagate_and_do_not_block_independent_counts": {
+      "status": "passed"
+    },
+    "tests.tpu.test_config.TPUConfigTest.test_usable_memory_cannot_exceed_physical": {
+      "status": "passed"
+    },
+    "tests.tpu.test_config.TPUConfigTest.test_wrong_version_missing_and_unexpected_fields_fail": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_capacity_fallback_and_full_hbm_footprint": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_chip_geometry_does_not_scale_single_tensorcore_counts": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_chip_vmem_total_is_not_usable_by_one_tensorcore": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_cli_public_workloads_and_format_override": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_cli_unsupported_precision_and_missing_parameters_fail_without_output": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_effective_capacity_changes_counts_but_not_inventory": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_entry_works_from_another_directory_with_explicit_workload": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_excluded_features_are_not_cli_options": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_hand_calculated_single_block": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_hand_calculated_tails_and_k_accumulation": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_k_blocking_changes_psum_actions_only": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_no_timing_numeric_or_physical_execution_claims": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_output_blocking_changes_input_reloads_without_changing_arithmetic": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUCountTest.test_unsupported_precision_rejected": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUTimingTest.test_chip_core_count_changes_bandwidth_share_not_compute_resources": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUTimingTest.test_cli_timing_and_missing_clock_protect_existing_output": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUTimingTest.test_four_mxus_run_one_wave_and_fifth_tile_needs_another": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUTimingTest.test_k_accumulation_stays_in_vmem_and_final_export_is_once": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUTimingTest.test_large_block_count_is_aggregated_without_event_expansion": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUTimingTest.test_required_unknowns_reject_timing_but_preserve_count_mode": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUTimingTest.test_single_mxu_and_tiny_tail_match_hand_calculations": {
+      "status": "passed"
+    },
+    "tests.tpu.test_count.TPUTimingTest.test_vmem_proxy_is_explicit_and_configured_service_is_respected": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_cim_reference_conflicts_cannot_be_overridden": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_cli_count_and_missing_timing": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_clock_unknown_and_coordinate_validation": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_count_is_useful_without_cycles_or_costs": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_custom_timing_file_cli_and_inconsistent_service": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_geometry_capacity_and_unknown_physical_inventory": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_hand_computed_timing_and_no_hemisphere_division": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_install_uses_parallel_stream_groups": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_invalid_shapes_scopes_allocations_and_capacity": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_k_boundaries_and_weight_reuse": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_native_comparison_uses_identical_runner": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_proxy_cross_k_stream_budget_and_configured_precedence": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_proxy_full_plane_loading_and_weight_reuse": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_proxy_hand_calculation_and_hardware_unknowns_remain": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_proxy_unknown_clock_and_missing_base": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_schema_and_value_failures": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_shared_supply_and_only_used_parameters_required": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_supercell_description_remains_geometry_only": {
+      "status": "passed"
+    },
+    "tests.tsp.test_baseline.TSPReferenceTest.test_tail_counts_and_all_loop_orders": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_config.TSPCIMConfigTest.test_legacy_overlay_and_inline_macro_are_not_accepted": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_config.TSPCIMConfigTest.test_metadata_and_fixed_geometry_are_required": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_config.TSPCIMConfigTest.test_physical_sram_cannot_be_smaller_than_known_subtotal": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_config.TSPCIMConfigTest.test_references_resolve_from_owner_path_not_working_directory": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_config.TSPCIMConfigTest.test_shared_geometry_cannot_drift_from_native_reference": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_config.TSPCIMConfigTest.test_unknown_clock_propagates_to_peak_and_provenance_is_copied": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMCountTest.test_cli_scope_export_and_native_reference": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMCountTest.test_context_reuse_and_eviction_on_the_same_physical_domain": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMCountTest.test_documented_acc_occupancy_keeps_tails_and_is_not_elapsed_time": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMCountTest.test_domains_remain_independent_and_runs_start_empty": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMCountTest.test_full_domain_uses_400_macros_with_independent_n_shards": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMCountTest.test_loop_orders_conserve_work_and_reduction": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMCountTest.test_n_shards_are_concatenated_not_reduced": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMCountTest.test_two_dimensional_tails_preserve_work_and_separate_reduction_levels": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMCountTest.test_unsupported_execution_and_invalid_sizes_fail": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMTimingTest.test_assumptions_do_not_fill_unknown_macro_timing_or_clock": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMTimingTest.test_cross_k_segments_charge_read_add_and_single_write": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMTimingTest.test_full_domain_and_tail_have_hand_calculated_total_times": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMTimingTest.test_residency_changes_load_time_and_each_run_starts_empty": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_count.TSPCIMTimingTest.test_timing_preserves_actions_for_all_loop_orders_and_row_groupings": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_topology.TSPCIMTopologyTest.test_all_physical_macro_ids_are_unique_and_n_shards_are_disjoint": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_topology.TSPCIMTopologyTest.test_bad_coordinates_are_rejected": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_topology.TSPCIMTopologyTest.test_core_slice_domain_plane_and_chip_have_distinct_counts": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_topology.TSPCIMTopologyTest.test_peaks_and_bandwidth_scopes_are_hand_calculated": {
+      "status": "passed"
+    },
+    "tests.tsp_cim.test_topology.TSPCIMTopologyTest.test_sram_inventory_is_subtotal_not_complete_physical_area": {
+      "status": "passed"
+    }
+  }
+}
