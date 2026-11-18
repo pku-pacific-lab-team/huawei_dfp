@@ -19,8 +19,11 @@ def parse_args(argv=None):
     parser.add_argument("--format", default=None, help="Explicit precision override; supports INT8")
     parser.add_argument("--mode", choices=["count", "timing"], default="timing",
                         help="count: operations/traffic only; timing (default): counts and task time with explicit assumptions")
-    parser.add_argument("--tile", nargs=3, type=int, default=(64, 128, 64), metavar=("M", "K", "N"))
-    parser.add_argument("--l1-k", type=int, default=256)
+    parser.add_argument("--tile", nargs=3, type=int, default=None, metavar=("M", "K", "N"))
+    parser.add_argument("--l1-k", type=int, default=None)
+    parser.add_argument("--buffers", type=int, choices=[1, 2], default=None,
+                        help="Maximum slots per local buffer; falls back to one where two do not fit")
+    parser.add_argument("--trace", action="store_true", help="Include task and buffer-lifetime trace (timing only)")
     parser.add_argument("--output", default=str(Path(__file__).resolve().parent / "results" / "ascend.json"),
                         help="JSON report path (default: %(default)s; overwrites on success)")
     return parser.parse_args(argv)
@@ -34,7 +37,8 @@ def main(argv=None):
         config = load_workload_config(args.workload, loader.config_dir)
         workload = parse_workloads(config, args.format)[0]
         # --format 是显式覆盖，未指定时保留 workload 声明，不自动转成 INT8。
-        result = simulator.simulate(workload, args.mode, tuple(args.tile), args.l1_k)
+        result = simulator.simulate(workload, args.mode, tuple(args.tile) if args.tile is not None else None, args.l1_k,
+                                    buffers=args.buffers, trace=args.trace)
         print_report(result)
         if args.output:
             write_report(result, args.output)
@@ -46,4 +50,6 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
     raise SystemExit(main())

@@ -9,7 +9,7 @@
       "--mode",
       "count",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-6b1eb03n\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-dvgu6c8a\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -23,7 +23,19 @@
       "count_mode": true,
       "actions": true,
       "provenance": true,
-      "no_invented_time": true
+      "no_invented_time": true,
+      "timing_breakdowns": true,
+      "report_schema": true,
+      "shared_vector": true,
+      "no_retired_parameters": true,
+      "no_generic_vector_sfu_peaks": true,
+      "compute_inventory_archived": true,
+      "no_unknown_hardware_parameters": true,
+      "explicit_l2_assumption": true,
+      "l2_cold": true,
+      "hbm_boundary": true,
+      "hbm_capacity": true,
+      "hbm_actions": true
     },
     "passed": true,
     "stdout": "ascend.stdout.txt",
@@ -42,7 +54,7 @@
       "--mode",
       "count",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-jsmtzbv1\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-tp4jba7t\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -57,7 +69,19 @@
       "actions": true,
       "provenance": true,
       "no_invented_time": true,
+      "timing_breakdowns": true,
       "report_schema": true,
+      "vpu_inventory_archived": true,
+      "scalar_inventory_retired": true,
+      "sparse_inventory_retired": true,
+      "sparse_parameters_retired": true,
+      "archived_inventory_removed": true,
+      "reserved_shared_vector": true,
+      "shared_nonlinear_proxy": true,
+      "no_unknown_hardware_parameters": true,
+      "cmem_tiled": true,
+      "cmem_cold_fill": true,
+      "cmem_proxy": true,
       "chip_hardware_scope": true,
       "local_counting_scope": true,
       "no_chip_execution": true,
@@ -82,7 +106,7 @@
       "--mode",
       "count",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-ih3mwe_7\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-sme7ctgt\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -96,7 +120,8 @@
       "count_mode": true,
       "actions": true,
       "provenance": true,
-      "no_invented_time": true
+      "no_invented_time": true,
+      "timing_breakdowns": true
     },
     "passed": true,
     "stdout": "tsp.stdout.txt",
@@ -115,7 +140,7 @@
       "--mode",
       "count",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-1fs4a32k\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-4cbt_xk6\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -129,14 +154,25 @@
       "count_mode": true,
       "actions": true,
       "provenance": true,
-      "no_invented_time": true
+      "no_invented_time": true,
+      "timing_breakdowns": true,
+      "report_schema": true,
+      "nim_inventory_archived": true,
+      "retired_inventory_absent": true,
+      "known_storage_subtotal": true,
+      "no_gemm_missing_parameters": true,
+      "vxm_costs_preserved": true,
+      "resident_capacity_checked": true,
+      "eight_domains": true,
+      "local_capacity": true,
+      "collector_limit_explicit": true
     },
     "passed": true,
     "stdout": "tsp_cim.stdout.txt",
     "stderr": "tsp_cim.stderr.txt",
     "report": "tsp_cim.json",
     "useful_ops": 16384,
-    "scope": "single_cluster"
+    "scope": "single_hem"
   },
   "ascend_missing_timing": {
     "entry": "ascend.py",
@@ -150,7 +186,7 @@
       "--hardware",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\ascend_missing_timing.hardware.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-_e6hmb0m\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-4djht19j\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -162,6 +198,31 @@
     "passed": true,
     "stdout": "ascend_missing_timing.stdout.txt",
     "stderr": "ascend_missing_timing.stderr.txt"
+  },
+  "ascend_missing_capacity": {
+    "entry": "ascend.py",
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\ascend.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\workload.json",
+      "--mode",
+      "count",
+      "--hardware",
+      "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\ascend_missing_capacity.hardware.json",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-vcclfngd\\report.json"
+    ],
+    "exit_code": 2,
+    "expected_exit_code": 2,
+    "checks": {
+      "exit_code": true,
+      "no_success_report": true,
+      "explicit_error": true
+    },
+    "passed": true,
+    "stdout": "ascend_missing_capacity.stdout.txt",
+    "stderr": "ascend_missing_capacity.stderr.txt"
   },
   "tsp_missing_timing": {
     "entry": "tsp.py",
@@ -175,7 +236,7 @@
       "--hardware",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\tsp_missing_timing.hardware.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-a0zk0p_m\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-h1k2lm7z\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -196,7 +257,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-jj8tnt_r\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-lf7epwk3\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -209,14 +270,33 @@
       "scope": true,
       "actions": true,
       "provenance": true,
+      "timing_breakdowns": true,
+      "report_schema": true,
+      "shared_vector": true,
+      "no_retired_parameters": true,
+      "no_generic_vector_sfu_peaks": true,
+      "compute_inventory_archived": true,
+      "no_unknown_hardware_parameters": true,
+      "explicit_l2_assumption": true,
+      "l2_cold": true,
+      "hbm_boundary": true,
+      "hbm_capacity": true,
+      "hbm_actions": true,
       "timing_mode": true,
       "analytical_estimate": true,
       "expected_cycles": true,
       "expected_ns": true,
-      "stage_sum": true,
       "explicit_assumptions": true,
-      "unknowns_preserved": true,
-      "no_chip_time": true
+      "explicit_config_service": true,
+      "no_chip_time": true,
+      "hbm_derived_service": true,
+      "hbm_source": true,
+      "pipeline_policy": true,
+      "service_work": true,
+      "scheduled_time": true,
+      "l2_service": true,
+      "shared_hbm": true,
+      "bounded_overlap": true
     },
     "passed": true,
     "stdout": "ascend_system_timing.stdout.txt",
@@ -233,7 +313,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-np6esddc\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-d41z42pv\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -246,14 +326,18 @@
       "scope": true,
       "actions": true,
       "provenance": true,
+      "timing_breakdowns": true,
       "timing_mode": true,
       "analytical_estimate": true,
       "expected_cycles": true,
       "expected_ns": true,
-      "stage_sum": true,
       "explicit_assumptions": true,
-      "unknowns_preserved": true,
-      "no_chip_time": true
+      "explicit_config_service": true,
+      "no_chip_time": true,
+      "fixed_service_schema": true,
+      "fixed_install_parameters": true,
+      "separate_derived_service": true,
+      "no_dynamic_parameters": true
     },
     "passed": true,
     "stdout": "tsp_system_timing.stdout.txt",
@@ -272,7 +356,7 @@
       "--hardware",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\tpu_missing_capacity.hardware.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-d_6ws81l\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-5fy6um7d\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -297,7 +381,7 @@
       "--hardware",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\tpu_missing_timing.hardware.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-y32t6js9\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-tbjcb7x1\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -318,7 +402,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-kkuuzr3k\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-nqwo5bhn\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -331,7 +415,19 @@
       "scope": true,
       "actions": true,
       "provenance": true,
+      "timing_breakdowns": true,
       "report_schema": true,
+      "vpu_inventory_archived": true,
+      "scalar_inventory_retired": true,
+      "sparse_inventory_retired": true,
+      "sparse_parameters_retired": true,
+      "archived_inventory_removed": true,
+      "reserved_shared_vector": true,
+      "shared_nonlinear_proxy": true,
+      "no_unknown_hardware_parameters": true,
+      "cmem_tiled": true,
+      "cmem_cold_fill": true,
+      "cmem_proxy": true,
       "chip_hardware_scope": true,
       "local_counting_scope": true,
       "no_chip_execution": true,
@@ -342,9 +438,8 @@
       "analytical_estimate": true,
       "expected_cycles": true,
       "expected_ns": true,
-      "stage_sum": true,
       "explicit_assumptions": true,
-      "unknowns_preserved": true,
+      "explicit_config_service": true,
       "no_chip_time": true
     },
     "passed": true,
@@ -362,7 +457,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-zmtimvdc\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-qw19wc_o\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -375,13 +470,23 @@
       "scope": true,
       "actions": true,
       "provenance": true,
+      "timing_breakdowns": true,
+      "report_schema": true,
+      "nim_inventory_archived": true,
+      "retired_inventory_absent": true,
+      "known_storage_subtotal": true,
+      "no_gemm_missing_parameters": true,
+      "vxm_costs_preserved": true,
+      "resident_capacity_checked": true,
+      "eight_domains": true,
+      "local_capacity": true,
+      "collector_limit_explicit": true,
       "timing_mode": true,
       "analytical_estimate": true,
       "expected_cycles": true,
       "expected_ns": true,
-      "stage_sum": true,
       "explicit_assumptions": true,
-      "unknowns_preserved": true,
+      "no_standalone_macro_timing": true,
       "no_chip_time": true
     },
     "passed": true,
@@ -389,7 +494,7 @@
     "stderr": "cim_system_timing.stderr.txt",
     "report": "cim_system_timing.json",
     "useful_ops": 16384,
-    "scope": "single_cluster"
+    "scope": "single_hem"
   },
   "ascend_non_gemm": {
     "entry": "ascend.py",
@@ -401,7 +506,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\non_gemm.workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-qemjuk8d\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-9qn4s56o\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -424,7 +529,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\non_gemm.workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-750me1w2\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-ebm83j0x\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -447,7 +552,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\non_gemm.workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-gw5skfn9\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-9v91trtw\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -470,7 +575,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\non_gemm.workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-mgct5s67\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-vrfmbia6\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,

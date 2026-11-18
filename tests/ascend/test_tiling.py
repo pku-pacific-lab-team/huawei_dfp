@@ -6,7 +6,7 @@ from tests.ascend.support import spec, workload
 
 class TilingTest(unittest.TestCase):
     def test_baseline_footprint(self):
-        plan = make_plan(workload(64, 256, 64), spec().capacities)
+        plan = make_plan(workload(64, 256, 64), spec().capacities, 32000000000)
         self.assertEqual((plan.m, plan.k, plan.n, plan.l1_k), (64, 128, 64, 256))
         self.assertEqual(plan.m * plan.k, 8192)
         self.assertEqual((plan.m + plan.n) * plan.l1_k, 32768)
@@ -17,7 +17,7 @@ class TilingTest(unittest.TestCase):
             capacities = spec().capacities.copy()
             capacities[name] = limit
             with self.subTest(buffer=name):
-                p = make_plan(workload(127, 513, 99), capacities)
+                p = make_plan(workload(127, 513, 99), capacities, 32000000000)
                 self.assertLessEqual(p.m * p.k, capacities["L0A"])
                 self.assertLessEqual(p.k * p.n, capacities["L0B"])
                 self.assertLessEqual(4 * p.m * p.n, capacities["L0C"])
@@ -25,15 +25,15 @@ class TilingTest(unittest.TestCase):
                 self.assertLessEqual(p.ub_chunk_bytes, capacities["UB"])
 
     def test_unaligned_tail_is_allocated_as_fractals(self):
-        p = make_plan(workload(17, 33, 15), spec().capacities)
+        p = make_plan(workload(17, 33, 15), spec().capacities, 32000000000)
         self.assertEqual((p.m, p.k, p.n), (32, 64, 16))
 
     def test_invalid_tiles_and_too_small_buffers(self):
         for tile in ((15, 32, 16), (16, 16, 16), (0, 32, 16)):
             with self.assertRaises(ValueError):
-                make_plan(workload(), spec().capacities, tile)
+                make_plan(workload(), spec().capacities, 32000000000, tile)
         for name in spec().capacities:
             capacities = spec().capacities.copy()
             capacities[name] = 1
             with self.assertRaises(ValueError):
-                make_plan(workload(), capacities)
+                make_plan(workload(), capacities, 32000000000)

@@ -7,7 +7,16 @@ def print_report(report):
     print("[Workload] " + json.dumps(report["workload"], ensure_ascii=False))
     print("[Scope] Single Ascend core; chip specification peak is not simulated chip throughput")
     print("[Counts] " + json.dumps(report["counts"]))
-    print("[Timing] " + json.dumps(report["timing"]))
+    print("[HBM] " + json.dumps(report["memory"]["hbm"]))
+    print("[L2] " + json.dumps({**report["memory"]["l2"], **report["cache"]}))
+    print("[Vector service; not invoked by GEMM] " + json.dumps(report["hardware_derived"]["vector_service"]))
+    timing = dict(report["timing"])
+    if "schedule" in timing:
+        timing["schedule"] = {k: v for k, v in timing["schedule"].items()
+                              if k not in {"events", "buffer_lifetimes"}}
+    print("[Timing] " + json.dumps(timing))
+    if "events" in report["timing"].get("schedule", {}):
+        print("[Trace] Task events and buffer lifetimes are included in the JSON report")
     print("[Actions] " + json.dumps(report["action_counts"]))
     print("[Energy/area] Not evaluated; action counts and hardware inventory are provided")
 

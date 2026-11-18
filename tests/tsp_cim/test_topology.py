@@ -1,4 +1,4 @@
-"""Reviewed topology arithmetic and physical placement contracts."""
+"""Reviewed topology arithmetic and inventory contracts."""
 import unittest
 
 from src.utils.tsp_cim_config import TSPCIMConfigLoader
@@ -17,39 +17,16 @@ class TSPCIMTopologyTest(unittest.TestCase):
         self.assertEqual((h["plane"]["cores"], h["plane"]["macros"], h["plane"]["cluster_domains"]), (400, 1600, 4))
         self.assertEqual((h["chip"]["planes"], h["chip"]["cores"], h["chip"]["macros"], h["chip"]["cluster_domains"]), (4, 1600, 6400, 16))
 
-    def test_all_physical_macro_ids_are_unique_and_n_shards_are_disjoint(self):
-        ids = set()
-        for hem in range(2):
-            for plane in range(2):
-                for cluster in range(4):
-                    for sl in range(20):
-                        for core in range(5):
-                            for macro in range(4):
-                                p = self.spec.placement(sl, core, macro, hemisphere=hem, plane=plane, cluster=cluster)
-                                ids.add(p.chip_macro_id)
-                                self.assertEqual(p.slot, sl * 20 + core * 4 + macro)
-                                self.assertEqual((p.k_start, p.k_stop), (sl * 16, (sl + 1) * 16))
-                                self.assertEqual((p.n_start, p.n_stop), ((core * 4 + macro) * 32, (core * 4 + macro + 1) * 32))
-        self.assertEqual(ids, set(range(6400)))
-        self.assertEqual(self.spec.placement(0, 0, 0).n_start, self.spec.placement(19, 0, 0).n_start)
-
-    def test_bad_coordinates_are_rejected(self):
-        for coordinates in ((-1, 0, 0), (2, 0, 0), (0, 2, 0), (0, 0, 4), (True, 0, 0)):
-            with self.subTest(coordinates=coordinates), self.assertRaises(ValueError):
-                self.spec.validate_domain(*coordinates)
-        for coordinates in ((20, 0, 0), (0, 5, 0), (0, 0, 4), (0, 0, False)):
-            with self.subTest(coordinates=coordinates), self.assertRaises(ValueError):
-                self.spec.placement(*coordinates)
-
     def test_sram_inventory_is_subtotal_not_complete_physical_area(self):
         i = self.spec.inventory()
         self.assertEqual(i["macro_weight_active_context_bytes"], 6400 * 512)
         self.assertEqual(i["macro_weight_resident_bytes"], 6400 * 2048)
         self.assertEqual(i["known_mem_plus_macro_bytes"], int(232.5 * 2**20))
-        self.assertIsNone(i["physical_sram_bytes"])
-        self.assertIsNone(i["additional_local_sram_bytes"])
-        self.assertIsNone(i["collector_buffer_bytes_per_plane"])
-        self.assertEqual((i["nim_units"], i["nim_tiles"], i["nim_conversion_lanes"]), (4, 80, 256))
+        for name in ("physical_sram_bytes", "additional_local_sram_bytes", "collector_buffer_bytes_per_plane",
+                     "sxm_physical_units", "stream_physical_endpoints", "clock_domains", "control_domains"):
+            self.assertNotIn(name, i)
+        for name in ("nim_units", "nim_tiles", "nim_logical_channels_per_tile", "nim_conversion_lanes"):
+            self.assertNotIn(name, i)
         self.assertEqual((i["vxm_alus"], i["mem_slices"], i["memory_tiles"]), (5120, 88, 1760))
 
     def test_peaks_and_bandwidth_scopes_are_hand_calculated(self):
@@ -69,5 +46,5 @@ class TSPCIMTopologyTest(unittest.TestCase):
         # 整片装满一套权重的容量/分布式捕获宽度也应得到 160 拍；不是单域尾块耗时。
         self.assertEqual(self.spec.inventory()["macro_weight_active_context_bytes"] //
                          d["lw_capture_bpc_per_chip"]["value"], 160)
-        self.assertEqual(d["nim_output_bpc_per_plane"]["value"], 256)
+        self.assertEqual(d["int32_writer_bpc_per_writer_superlane_plane"]["value"], 256)
         self.assertEqual(d["lw_capture_bpc_per_plane"]["value"] * 2, d["stream_bpc_per_direction"]["value"])

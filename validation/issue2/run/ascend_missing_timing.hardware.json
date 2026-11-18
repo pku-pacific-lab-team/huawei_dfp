@@ -1,7 +1,59 @@
 {
-  "schema_version": 3,
+  "_documentation": {
+    "purpose": "维护注释，采用合法 JSON 字段代替 // 注释。前三节区分硬件数值、执行策略、说明依据；configuration_control 单列会参与身份/格式校验或依赖加载的字段。此 _documentation 块为可选，只供阅读，解析时整体剔除，不进入计算、报告或运行时 reference_id；完整文件仍纳入来源台账校验。",
+    "hardware_parameters": {
+      "clock_freq_ghz": "硬件数值参数：参考时钟，参与周期/纳秒换算及带宽派生。",
+      "memory": "硬件数值参数：各本地缓冲的 physical_bytes 用于库存与容量一致性检查，usable_bytes 用于分块和驻留容量校验；两者不可互相替代。",
+      "cube": "硬件数值参数：INT8 分形几何与计算服务率；几何不自动等于每周期吞吐。Cube 单元数量仅作库存，已移入归档。",
+      "vector": "硬件数值参数：共享 Vector 服务预算与操作代价；独立服务 API 消费这些值，当前 GEMM 不额外计 Vector 算术。Vector 单元数量已归档。",
+      "transfers": "硬件数值参数：三条核内路径的固定 byte/cycle 服务率；不是路径选择开关。",
+      "chip": "硬件数值参数：芯片核数、HBM/L2 容量和带宽；按当前单核分配规则派生服务，不代表已经模拟整片执行。"
+    },
+    "execution_policy": {
+      "execution": "执行策略及其依据：约束/控制仿真行为，内部数值如槽数、分块和固定延迟也属于本类；其中 status/source/version/conditions 是说明与依据，详见 execution_fields。"
+    },
+    "descriptive_metadata": {
+      "description": "说明与依据：模型范围和局限的文字摘要，不控制实际执行。 已归档的规格/库存值见 configs/archive/ascend910_reference.json，运行时不读取或合并归档。",
+      "output_path": "说明与依据：INT32 L0C→UB→HBM 路径的来源及假设；会校验来源状态并写入报告，但修改 description 不会重连数据通路，也不是报告输出文件路径。实际动作由模拟器实现，资源映射见 execution.rules.route_resources。"
+    },
+    "configuration_control": {
+      "schema_version": "配置控制：解析器校验版本；不是硬件数值或自由说明，不能仅改版本来迁移字段。",
+      "model": "配置控制：模型身份，必须匹配 Ascend 解析器支持的名称。"
+    },
+    "parameter_fields": [
+      "value: 硬件数值输入：固定能力、容量、数量、服务率或延迟；包括 status=assumed 的显式代理，不是自动求值的公式。",
+      "unit: 单位约束：随 value 一起校验；不能仅改单位标签而不换算数值。",
+      "scope: 作用域约束：区分 chip/core/plane 等；随参数校验，不能只改标签来缩放硬件。",
+      "status: 说明与依据并附校验：documented/measured/assumed/unknown；描述证据强度，不是开关。null 必须显式为 unknown，不触发隐藏默认值。",
+      "source: 说明与依据：原始来源或模型政策，文字不会自动执行或改写 value。",
+      "version: 说明与依据：参数依据的文档/配置版本，不是本文件 schema_version。",
+      "conditions: 说明与依据：数值取法、适用条件及消费边界；改变公式文字不会自动重算 value，应同步更新数值和实现。"
+    ],
+    "execution_fields": {
+      "scope": "执行约束：允许的局部仿真范围；不能通过改字符串获得整片调度。",
+      "resident_boundary": "执行约束：任务的输入/输出驻留边界，解析器校验支持的边界。",
+      "schedule": "执行策略：选择解析器支持的调度模型。",
+      "default_tile_mkn": "执行策略：默认 M/K/N 分块；不是物理阵列尺寸。支持的 CLI/API 参数可覆盖。",
+      "buffer_slots": "执行策略：允许的缓冲槽数；容量仍由硬件数值约束，实际分配以报告为准。",
+      "weight_load_overlap": "执行策略/约束：权重准备是否允许重叠，取值必须属于本架构支持的实现。",
+      "fixed_latency_cycles": "执行策略：显式建模的固定周期开销，虽为数值仍属于执行策略；0 表示忽略该项开销，空对象表示没有此类配置项。",
+      "rules": "执行规则：资源共享、屏障或映射约束；只支持已实现的值，修改说明文字不能增加新规则。",
+      "status": "说明与依据并附校验：执行模型必须标为 assumed，不冒充硬件实测行为。",
+      "source": "说明与依据：策略的设计依据；不会执行此字符串或访问其 URL 来决定调度。",
+      "version": "说明与依据：策略依据的版本，不是 schema_version。",
+      "conditions": "说明与依据：策略的适用条件和局限；用于追溯，不作为可执行表达式。",
+      "l2": "执行策略：冷启动、完整面板 LRU、均分容量/带宽、输出及超大块绕过等规则；容量和速率仍取自 chip 数值。"
+    },
+    "maintenance_rules": [
+      "新增或移动真实字段时同步更新本注释的分类；不要只修改注释来改变模型行为。",
+      "硬件参数的 value、unit、scope 与来源元数据一起维护；是否参与当前 GEMM 以该参数的 conditions 和实际消费路径为准。",
+      "执行策略仅可使用解析器已有实现；修改策略后检查容量、动作计数和时间报告，不用库存数量直接缩放任务耗时。",
+      "说明文字仍可能接受完整性校验或出现在来源报告中；只有 _documentation 是完全独立的阅读注释。",
+      "注释只放在根层 _documentation 中；其他未知字段及参数/策略内部的额外字段仍严格拒绝。"
+    ]
+  },
+  "schema_version": 9,
   "model": "ascend910_analytical",
-  "description": "Original Ascend 910 hardware inventory plus single-core coarse analytical GEMM; no validated target SKU or event scheduling.",
   "clock_freq_ghz": {
     "value": 1,
     "unit": "GHz",
@@ -141,116 +193,91 @@
       "scope": "core",
       "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles"
     },
-    "units_per_core": {
-      "value": 1,
-      "unit": "unit",
-      "scope": "core",
-      "status": "documented",
-      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "One Cube unit in the published Ascend-Max core diagram; not a claim about later 910B/910C architectures."
-    },
     "macs_per_cycle": {
-      "value": null,
+      "value": 8192,
       "unit": "MAC/cycle",
       "scope": "core",
-      "status": "unknown",
+      "status": "assumed",
       "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=7; https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5)",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "Slides list 8192 INT8 MACs as Cube geometry; Table 5 reports 8192 floating-point operations/cycle, not INT8 MAC/cycle. Neither directly validates the modeled sustained INT8 accumulation service; not inferred from geometry or rounded chip TOPS."
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+      "conditions": "Method: 16 * 32 * 16 * 1 Cube = 8192 MAC/cycle. Assume one INT8 fractal including accumulation per Cube per cycle; omit fixed startup/fill latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
     }
   },
   "vector": {
-    "units_per_core": {
+    "base_ops_per_cycle": {
+      "value": 64,
+      "unit": "op/cycle",
+      "scope": "core",
+      "status": "assumed",
+      "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5); ARCHITECTURE.md#ascend-vector-service",
+      "conditions": "Published vector width is 256 bytes. Assume one 256-byte group of 32-bit scalar-element basic operations per cycle: 256/4=64. Width alone does not establish throughput; one group/cycle is an uncalibrated model assumption, not native instruction latency or measured sustained performance. All supported operations share this fixed per-core budget; do not multiply it by Vector units or architectural core count. Transfers and instruction/tail overhead are omitted."
+    },
+    "int32_add_cost": {
       "value": 1,
-      "unit": "unit",
+      "unit": "equivalent_op/op",
       "scope": "core",
-      "status": "documented",
-      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "One Vector unit in the published Ascend-Max core diagram; not a claim about later 910B/910C architectures."
+      "status": "assumed",
+      "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+      "source": "model-policy; ARCHITECTURE.md#ascend-vector-service",
+      "conditions": "One scalar-element INT32 add consumes one equivalent basic operation. Standalone service only: GEMM K accumulation is already included in Cube MACs and does not execute a separate Vector add."
     },
-    "fp32_ops_per_cycle": {
-      "value": null,
-      "unit": "op/cycle",
+    "fp32_basic_op_cost": {
+      "value": 1,
+      "unit": "equivalent_op/op",
       "scope": "core",
-      "status": "unknown",
-      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5); https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=8",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "Table 5 reports 256-byte vector width; older slides list 256 ops/cycle without an unambiguous FP32 operation convention. Width and mixed-precision peak do not establish this FP32 service rate."
-    }
-  },
-  "sfu": {
-    "units_per_core": {
-      "value": null,
-      "unit": "unit",
-      "scope": "core",
-      "status": "unknown",
-      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9); https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=7",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "Dedicated vs shared SFU organization not confirmed; vector special-function support is documented, but separate SFU inventory and operation-specific service are not specified."
+      "status": "assumed",
+      "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+      "source": "model-policy; ARCHITECTURE.md#ascend-vector-service",
+      "conditions": "One scalar-element FP32 ADD or MUL consumes one equivalent operation. Same work convention as TSP; not measured parity with INT32. FMA, DIV, casts, reductions and complete activation operators are not implicitly supported."
     },
-    "fp32_ops_per_cycle": {
-      "value": null,
-      "unit": "op/cycle",
+    "fp32_exp_cost": {
+      "value": 15,
+      "unit": "equivalent_op/op",
       "scope": "core",
-      "status": "unknown",
-      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9); https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=7",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "No SFU operator model in this GEMM entry; vector special-function support is documented, but separate SFU inventory and operation-specific service are not specified."
+      "status": "assumed",
+      "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+      "source": "model-policy; ARCHITECTURE.md#ascend-vector-service; ARCHITECTURE.md#tsp-vxm-service",
+      "conditions": "TSP-compatible algorithmic proxy: k=round(x*log2(e)), r=x-k*ln(2) costs 4 equivalent operations; degree-5 Taylor polynomial in Horner form costs 5 MUL + 5 ADD; exponent scaling costs 1, total 15. Round/scaling each count as one equivalent operation; no FMA discount. Reference domain finite x in [-80,0]. Work accounting only, no numerical evaluation or correctly-rounded FP32 accuracy claim. Not native Ascend Exp instruction throughput/latency. Shares Vector budget; no independent SFU."
+    },
+    "fp32_rsqrt_cost": {
+      "value": 12,
+      "unit": "equivalent_op/op",
+      "scope": "core",
+      "status": "assumed",
+      "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+      "source": "model-policy; ARCHITECTURE.md#ascend-vector-service; ARCHITECTURE.md#tsp-vxm-service",
+      "conditions": "Positive-normal FP32 approximation work proxy: bit seed bits(y)=0x5f3759df-(bits(x)>>1) costs 2 (shift and subtraction; bit reinterpretation costs 0), then two iterations y=(0.5*y)*(3-x*y*y), each 4 MUL + 1 SUB, total 12. No fused-operation discount. No correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate rsqrt numerically, and is not native Ascend RSqrt instruction throughput or latency. Shares the Vector budget; memory and dependencies are separate. No independent SFU."
     }
   },
   "transfers": {
-    "gm_l1": {
-      "value": null,
-      "unit": "byte/cycle",
-      "scope": "core",
-      "status": "unknown",
-      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "Integrated effective GM-to-core path, including external memory effects; no additional HBM/NoC time is added; published port widths and nominal chip bandwidths do not establish this path's sustained payload rate."
-    },
     "l1_l0a": {
-      "value": null,
+      "value": 512,
       "unit": "byte/cycle",
       "scope": "core",
-      "status": "unknown",
+      "status": "assumed",
       "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "Effective payload bandwidth of this core-local stage; published port widths and nominal chip bandwidths do not establish this path's sustained payload rate."
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+      "conditions": "Method: 16 * 32 = 512 INT8 bytes/cycle. One input fractal per cycle; omit fixed DMA latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
     },
     "l1_l0b": {
-      "value": null,
+      "value": 512,
       "unit": "byte/cycle",
       "scope": "core",
-      "status": "unknown",
+      "status": "assumed",
       "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "Effective payload bandwidth of this core-local stage; published port widths and nominal chip bandwidths do not establish this path's sustained payload rate."
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+      "conditions": "Method: 32 * 16 = 512 INT8 bytes/cycle. One input fractal per cycle; omit fixed DMA latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
     },
     "l0c_ub": {
-      "value": null,
+      "value": 1024,
       "unit": "byte/cycle",
       "scope": "core",
-      "status": "unknown",
+      "status": "assumed",
       "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "Effective payload bandwidth of this core-local stage; published port widths and nominal chip bandwidths do not establish this path's sustained payload rate."
-    },
-    "ub_gm": {
-      "value": null,
-      "unit": "byte/cycle",
-      "scope": "core",
-      "status": "unknown",
-      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "Integrated effective GM-to-core path, including external memory effects; no additional HBM/NoC time is added; published port widths and nominal chip bandwidths do not establish this path's sustained payload rate."
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+      "conditions": "Method: 16 * 16 * 4 = 1024 INT32 bytes/cycle. One output fractal per cycle; omit fixed DMA latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
     }
-  },
-  "output_path": {
-    "status": "assumed",
-    "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=110 (section 3.2, printed p106)",
-    "description": "Model a packed INT32 L0C->UB->GM export service. Source supports L0C/vector/UB dataflow, but exact raw INT32 export instruction sequence and service still require target/CANN validation."
   },
   "chip": {
     "architectural_cores": {
@@ -267,54 +294,118 @@
       "unit": "byte",
       "status": "assumed",
       "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=19 (On-chip Buffer 32MB)",
-      "conditions": "Source labels on-chip buffer 32 MB. Mapping it to shared L2 and interpreting MB as MiB remain assumptions; no cache behavior is modeled.",
+      "conditions": "Source labels on-chip buffer 32 MB. Mapping it to shared L2 and interpreting MB as MiB remain assumptions. Execution uses all capacity, equally partitioned by architectural core count, for complete padded input panels; no runtime-reservation calibration.",
       "scope": "chip",
       "version": "Huawei DaVinci presentation, 2020, PDF p19; audited 2026-11-14 America/Los_Angeles"
     },
-    "hbm_bytes": {
-      "value": null,
+    "l2_bytes_per_cycle": {
+      "value": 3000,
+      "unit": "byte/cycle",
+      "scope": "chip",
+      "status": "assumed",
+      "source": "https://www.old.hotchips.org/hc31/HC31_1.11_Huawei.Davinci.HengLiao_v4.0.pdf#page=10 (3 TB/s divided by 32 cores), #page=38 (per-core NoC ports) and #page=39 (4 TB/s L2 access); https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=8; ARCHITECTURE.md#ascend-l2-bandwidth",
+      "version": "Original Ascend 910; Huawei Hot Chips 2019 and DaVinci 2020 presentations; model assumption selected 2026-11-18 America/Los_Angeles",
+      "conditions": "User-selected whole-chip L2 bandwidth assumption: 3 TB/s = 3e12 byte/s (decimal), normalized by the 1 GHz reference core/model clock to 3000 byte/cycle. Not per-core, not normalized by the 2 GHz NoC clock, and not measured sustained throughput. The same 2019 presentation also reports 4 TB/s L2 access bandwidth; its relationship to 3 TB/s, including read/write accounting, is unresolved. No measured 75% efficiency is inferred. This fixed value must be explicitly renormalized if the reference clock changes while retaining 3 TB/s. Execution divides this chip rate equally by architectural core count. Input fills and reads share one L2 service; cold panel-LRU, output/oversize bypass and serial miss fetch/fill/read are explicit model policies, not measured cache behavior."
+    },
+    "hbm_physical_bytes": {
+      "value": 32000000000,
       "unit": "byte",
       "scope": "chip",
-      "status": "unknown",
+      "status": "assumed",
       "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=20 (Memory Interface)",
-      "version": "Huawei DaVinci presentation, 2020, PDF p20; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "Source reports 32 GB HBM Gen2. Exact GB/GiB normalization for the modeled product is unresolved; raw published capacity is preserved in calibration/parameter_source_audit.json."
+      "version": "Huawei DaVinci presentation, 2020, PDF p20; audited 2026-11-14 America/Los_Angeles; explicit decimal capacity assumption 2026-11-17",
+      "conditions": "Published 32 GB HBM Gen2 is interpreted as 32 * 10^9 bytes for this reference scenario. Explicit unit-normalization assumption, not a verified exact SKU capacity; not 32 GiB."
     },
-    "l2_bytes_per_cycle": {
-      "value": null,
-      "unit": "byte/cycle",
+    "hbm_usable_bytes": {
+      "value": 32000000000,
+      "unit": "byte",
       "scope": "chip",
-      "status": "unknown",
-      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5) and #page=114 (section 4.1.3); https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=8",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "Conflicting published LLC totals: 94 GB/s per core in Table 5 (~3 TB/s for 32 cores), 4 TB/s total in section 4.1.3; 2020 slides report 3 TB/s. Unresolved accounting; no single normalized L2 rate selected."
+      "status": "assumed",
+      "source": "Model assumption: full reference HBM capacity available to prepacked padded A/B/C",
+      "version": "Huawei DaVinci presentation, 2020, PDF p20; audited 2026-11-14 America/Los_Angeles; explicit decimal capacity assumption 2026-11-17",
+      "conditions": "Assume usable HBM equals the configured physical capacity, with no runtime reservation, packing workspace or host offload. Reduce for a real runtime; padded A/B/C must coexist. Capacity is shared chip storage, not divided or multiplied by core count."
     },
-    "hbm_bytes_per_cycle": {
-      "value": null,
-      "unit": "byte/cycle",
-      "scope": "chip",
-      "status": "unknown",
-      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (section 4.1.1; also p114, section 4.1.3)",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "Derived normalization of published aggregate HBM bandwidth: 1.2e12 byte/s / 1e9 reference core cycles/s = 1200 byte/cycle. Decimal TB/s; chip aggregate nominal inventory only. Not an HBM clock or a per-core GM transfer service rate."
-    },
-    "noc_bytes_per_cycle": {
-      "value": null,
-      "unit": "byte/cycle",
-      "scope": "chip",
-      "status": "unknown",
-      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (section 4.1.2)",
-      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "4x6 mesh; each adjacent-node link is 1024 bit at 2 GHz, reported 256 GB/s. This is a link rate, not the chip aggregate rate required by this field."
-    },
-    "interconnect_bytes_per_second": {
+    "hbm_bandwidth_bytes_per_second": {
       "value": null,
       "unit": "byte/s",
       "scope": "chip",
       "status": "unknown",
-      "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=20 (System Interface)",
-      "version": "Huawei DaVinci presentation, 2020, PDF p20; audited 2026-11-14 America/Los_Angeles",
-      "conditions": "PCIe 3.0 x16, HCCS and 100G RoCE interfaces are listed; they do not establish one chip-aggregate effective payload bandwidth."
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (section 4.1.1; also p114, section 4.1.3)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "Published nominal aggregate HBM bandwidth, 1.2 TB/s decimal. Single-core payload service is equally partitioned by architectural core count. L2 misses and oversize bypass reads plus C output writes consume this shared service; controller and local DMA-port details are omitted."
     }
+  },
+  "execution": {
+    "scope": "single_core",
+    "resident_boundary": "HBM",
+    "schedule": "resource_pipeline",
+    "default_tile_mkn": [
+      64,
+      128,
+      64
+    ],
+    "buffer_slots": 2,
+    "weight_load_overlap": "serialized",
+    "fixed_latency_cycles": {
+      "compute_startup": 0,
+      "transfer_startup": 0
+    },
+    "rules": {
+      "default_l1_k": 256,
+      "route_resources": {
+        "hbm_to_l2": [
+          "mte2",
+          "hbm"
+        ],
+        "l2_fill": [
+          "mte2",
+          "l2"
+        ],
+        "l2_to_l1": [
+          "mte2",
+          "l2"
+        ],
+        "hbm_to_l1": [
+          "mte2",
+          "hbm"
+        ],
+        "l1_l0a": [
+          "mte1"
+        ],
+        "l1_l0b": [
+          "mte1"
+        ],
+        "compute": [
+          "cube"
+        ],
+        "l0c_ub": [
+          "l0c_export"
+        ],
+        "ub_to_hbm": [
+          "mte3",
+          "hbm"
+        ]
+      }
+    },
+    "status": "assumed",
+    "source": "Project analytical execution policy; ARCHITECTURE.md execution contract",
+    "version": "2026-11-18 explicit cold panel-LRU L2 execution",
+    "conditions": "Explicit software modeling assumptions, not measured hardware behavior. Byte/cycle service budgets are allocated separately from chip inventory. CLI/API overrides are recorded in the effective execution contract. Fixed latencies use cycles; zero omits an uncalibrated allowance. Output-block/wave barriers and ideal input sharing remain declared approximations. L2 input panels use cold LRU, all chip capacity equally partitioned, no idle share borrowing. L2 fills and reads share the allocated bandwidth. Requests complete in program order; misses fetch/fill/read serially; C and oversize inputs bypass L2. No cache-line, bank, associativity or cross-core contention model.",
+    "l2": {
+      "mode": "panel_lru",
+      "initial_state": "cold",
+      "capacity_policy": "equal_partition_all_capacity",
+      "bandwidth_policy": "equal_partition_no_borrow",
+      "output_policy": "bypass",
+      "oversized_read_policy": "bypass_no_allocate",
+      "miss_pipeline": "fetch_fill_read_serial",
+      "request_order": "program_order"
+    }
+  },
+  "description": "Original Ascend 910 single-core INT8 GEMM: cold, equally partitioned panel-LRU L2 plus resource-constrained core pipeline. Explicit model assumptions, not calibrated silicon performance. Standalone shared Vector/Nonlinear compute services use explicit algorithmic work proxies; GEMM remains Cube-only arithmetic. Display-only specifications are preserved in configs/archive/ascend910_reference.json; the runtime does not load this archive.",
+  "output_path": {
+    "status": "assumed",
+    "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=110 (section 3.2, printed p106)",
+    "description": "Model a packed INT32 L0C->UB->HBM export service. Source supports L0C/vector/UB dataflow, but exact raw INT32 export instruction sequence and service still require target/CANN validation."
   }
 }

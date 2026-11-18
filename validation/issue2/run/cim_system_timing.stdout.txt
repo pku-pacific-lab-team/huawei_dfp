@@ -1,9 +1,11 @@
 [Effective workload] {"operation": "gemm", "M": 16, "K": 32, "N": 16, "data_format": "INT8", "accumulation_dtype": "INT32", "output_dtype": "INT32", "declared_data_format": "INT8", "format_overridden": false, "useful_ops": 16384}
 {
-  "schema_version": 3,
-  "model": "tsp_cim_cluster_reference",
+  "schema_version": 10,
+  "model": "tsp_cim_hemisphere_reference",
   "mode": "timing",
-  "reference_id": "tsp-cim-core-cluster-plane-int8-v1:82ddc0cc3262657a6057c0403f9b9bd848d90447ba58429b60f91c8d3c4b6aaf",
+  "reference_id": "tsp-cim-core-cluster-plane-int8-v1:5901cf2926a353ad8d0aaa3dfef1df1b11eb54a9765739c6e92ff044224c455d",
+  "macro_reference_id": "tsp-cim-int8-macro-v1:ff939e2334f000db95981a1573ebfb4e9be044ba3ee6a10cca229efff28be79c",
+  "native_reference_id": "tsp_issue2_reference:a877aeadb6b9634c",
   "workload": {
     "operation": "gemm",
     "M": 16,
@@ -17,22 +19,19 @@
     "useful_ops": 16384
   },
   "boundary": {
-    "scope": "single_cluster",
-    "start": "packed_INT8_A_B_in_local_MEM",
-    "end": "logical_INT32_C_in_local_MEM",
-    "numeric_values_simulated": false,
-    "transport_included": true,
-    "cross_macro_reduction_timed": true,
-    "selected_domain": {
-      "hemisphere": 0,
-      "plane": 0,
-      "cluster": 0
-    },
-    "simulated_cluster_domains": 1,
+    "scope": "single_hem",
+    "active_hemispheres": 1,
+    "selected_hemisphere": 0,
+    "start": "packed_A_B_in_local_MEM",
+    "end": "INT32_C_in_local_MEM",
+    "simulated_cluster_domains": 8,
     "chip_execution_included": false,
-    "mem_allocation_included": false,
+    "mem_allocation_included": true,
+    "collector_capacity_validated": false,
     "nim_conversion_included": false,
-    "timing_resolution": "serialized_task_stages_with_explicit_assumptions"
+    "numeric_values_simulated": false,
+    "host_transfer_included": false,
+    "packing_included": false
   },
   "policy": {
     "loop_order": "KNM",
@@ -41,23 +40,112 @@
       320,
       640
     ],
-    "context_replacement": "round_robin_inactive",
+    "mem_slices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "streams_per_direction": 32,
+    "mapping": "domain=(K_tile*N_tiles+N_tile) modulo 8; independent K/N shards; no M replication",
+    "wave_policy": "flush on repeated domain or new M group; no padding to eight tasks",
     "context_initial_state": "empty_per_simulate",
-    "task_boundaries": "drained_serialized",
-    "tail_policy": "zero_pad_full_macro; no free gating savings",
-    "upper_model_status": "simplified_single_cluster_timing",
-    "row_grouping": "single_cluster_domain; logical row grouping; no MEM capacity claim",
-    "physical_slot_order": "SuperLane * 20 + Core * 4 + Macro",
-    "domain_context_policy": "independent Macro tags; calls drained before switching; no rolling IW"
+    "context_replacement": "round_robin_inactive",
+    "row_pipeline": "compressed shared-resource pipeline; serialized wave boundaries",
+    "lw_policy": "wordline outer/Core-pair inner; idle slots retained",
+    "weight_load_overlap": "background",
+    "writer_mapping": "(plane, core) -> (plane, writer_SL=19-(5*cluster+core)); fixed slots",
+    "tail_policy": "full K16/N32 Macro actions; valid INT32 output columns"
+  },
+  "memory": {
+    "scope": "single_hem",
+    "capacity_bytes": 115343360,
+    "resident_bytes": 3652,
+    "ranges": {
+      "A": {
+        "bytes": 512,
+        "per_slice_bytes": 12,
+        "start_per_slice": 0,
+        "end_per_slice": 12
+      },
+      "B": {
+        "bytes": 1024,
+        "per_slice_bytes": 24,
+        "start_per_slice": 12,
+        "end_per_slice": 36
+      },
+      "C_PSUM": {
+        "bytes": 2048,
+        "per_slice_bytes": 47,
+        "start_per_slice": 36,
+        "end_per_slice": 83
+      },
+      "reserved": {
+        "bytes": 0,
+        "per_slice_bytes": 0,
+        "start_per_slice": 83,
+        "end_per_slice": 83
+      }
+    },
+    "layout": "disjoint uniformly striped logical packed ranges; not an ISA memory ABI",
+    "tile_capacity_includes_banks": true
   },
   "counts": {
     "tiles": 1,
-    "cross_macro_k_adds": 256,
-    "cross_tile_k_adds": 0,
     "program_bytes": 1024,
-    "program_wordlines": 32,
     "context_programs": 2,
     "context_switches": 2,
+    "program_wordlines": 32,
+    "cross_macro_k_adds": 256,
+    "cross_tile_k_adds": 0,
+    "mem_read_weight_bytes": 1024,
+    "mem_read_activation_bytes": 512,
+    "mem_read_psum_bytes": 0,
+    "mem_write_psum_bytes": 0,
+    "mem_write_final_bytes": 1024,
+    "activation_stream_bytes": 5120,
+    "psum_stream_bytes": 0,
+    "write_stream_bytes": 1024,
     "useful_mac": 8192,
     "issued_mac": 16384,
     "launches": 32,
@@ -79,177 +167,360 @@
     "program_bytes": {
       "count": 1024,
       "unit": "byte",
-      "scope": "sum_of_macro_actions"
-    },
-    "program_wordlines": {
-      "count": 32,
-      "unit": "wordline",
-      "scope": "sum_of_macro_actions"
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
     },
     "context_programs": {
       "count": 2,
       "unit": "context",
-      "scope": "sum_of_macro_actions"
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
     },
     "context_switches": {
       "count": 2,
       "unit": "switch",
-      "scope": "sum_of_macro_actions"
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
+    },
+    "program_wordlines": {
+      "count": 32,
+      "unit": "wordline",
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
+    },
+    "cross_macro_k_adds": {
+      "count": 256,
+      "unit": "add",
+      "scope": "logical_gemm",
+      "basis": "logical requirement; aliases must not be charged twice"
+    },
+    "cross_tile_k_adds": {
+      "count": 0,
+      "unit": "add",
+      "scope": "logical_gemm",
+      "basis": "logical requirement; aliases must not be charged twice"
+    },
+    "mem_read_weight_bytes": {
+      "count": 1024,
+      "unit": "byte",
+      "scope": "single_hem",
+      "basis": "padded payload; not bank transactions"
+    },
+    "mem_read_activation_bytes": {
+      "count": 512,
+      "unit": "byte",
+      "scope": "single_hem",
+      "basis": "padded payload; not bank transactions"
+    },
+    "mem_read_psum_bytes": {
+      "count": 0,
+      "unit": "byte",
+      "scope": "single_hem",
+      "basis": "padded payload; not bank transactions"
+    },
+    "mem_write_psum_bytes": {
+      "count": 0,
+      "unit": "byte",
+      "scope": "single_hem",
+      "basis": "padded payload; not bank transactions"
+    },
+    "mem_write_final_bytes": {
+      "count": 1024,
+      "unit": "byte",
+      "scope": "single_hem",
+      "basis": "padded payload; not bank transactions"
+    },
+    "activation_stream_bytes": {
+      "count": 5120,
+      "unit": "byte",
+      "scope": "single_hem",
+      "basis": "padded payload; not bank transactions"
+    },
+    "psum_stream_bytes": {
+      "count": 0,
+      "unit": "byte",
+      "scope": "single_hem",
+      "basis": "padded payload; not bank transactions"
+    },
+    "write_stream_bytes": {
+      "count": 1024,
+      "unit": "byte",
+      "scope": "single_hem",
+      "basis": "padded payload; not bank transactions"
     },
     "useful_mac": {
       "count": 8192,
       "unit": "MAC",
-      "scope": "sum_of_macro_actions"
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
     },
     "issued_mac": {
       "count": 16384,
       "unit": "MAC",
-      "scope": "sum_of_macro_actions"
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
     },
     "launches": {
       "count": 32,
       "unit": "launch",
-      "scope": "sum_of_macro_actions"
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
     },
     "bit_serial_cycles": {
       "count": 256,
       "unit": "macro_cycle",
-      "scope": "sum_of_macro_actions"
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
     },
     "activation_capture_bytes": {
       "count": 512,
       "unit": "byte",
-      "scope": "sum_of_macro_actions"
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
     },
     "result_bytes": {
       "count": 4096,
       "unit": "byte",
-      "scope": "sum_of_macro_actions"
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
     },
     "weight_word_bit_products": {
       "count": 131072,
       "unit": "word_bit_product",
-      "scope": "sum_of_macro_actions"
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
     },
     "local_tree_adds": {
       "count": 122880,
       "unit": "add",
-      "scope": "sum_of_macro_actions"
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
     },
     "shift_accumulates": {
       "count": 8192,
       "unit": "shift_accumulate",
-      "scope": "sum_of_macro_actions"
+      "scope": "sum_of_macro_actions",
+      "basis": "action count; not switching energy"
     },
     "logical_activation_broadcast_bytes": {
       "count": 512,
       "unit": "byte",
-      "scope": "cluster_domain_input",
-      "basis": "logical requirement only; not physical traffic, switching or scheduled execution"
+      "scope": "logical_gemm",
+      "basis": "logical requirement; aliases must not be charged twice"
     },
     "logical_inter_superlane_adds": {
       "count": 256,
       "unit": "add",
-      "scope": "same_N_shard_across_SuperLanes",
-      "basis": "logical requirement only; not physical traffic, switching or scheduled execution"
+      "scope": "logical_gemm",
+      "basis": "logical requirement; aliases must not be charged twice"
     },
     "logical_inter_k_tile_adds": {
       "count": 0,
       "unit": "add",
-      "scope": "outside_cluster_K_segments",
-      "basis": "logical requirement only; not physical traffic, switching or scheduled execution"
+      "scope": "logical_gemm",
+      "basis": "logical requirement; aliases must not be charged twice"
     },
     "logical_cluster_partial_bytes": {
       "count": 1024,
       "unit": "byte",
-      "scope": "valid_cluster_K_segment_results",
-      "basis": "logical requirement only; not physical traffic, switching or scheduled execution"
+      "scope": "logical_gemm",
+      "basis": "logical requirement; aliases must not be charged twice"
     }
+  },
+  "schedule": {
+    "wave_count": 1,
+    "waves": [
+      {
+        "wave": 0,
+        "tasks": [
+          {
+            "ms": 0,
+            "ks": 0,
+            "ns": 0,
+            "m": 16,
+            "k": 32,
+            "n": 16,
+            "domain": 0,
+            "psum_predecessor": null
+          }
+        ],
+        "active_domains": 1,
+        "programmed_macros": 2,
+        "context_switches": 2,
+        "release_after_waves": [],
+        "load_start": 0,
+        "load_end": 160,
+        "pipeline_start": 160,
+        "pipeline_end": 296,
+        "first_row_cycles": 16,
+        "row_interval_cycles": 8,
+        "rows": 16,
+        "load_wait_for_context_until": 0,
+        "pipeline_cycles": 136,
+        "row_payload_bytes": {
+          "mem_read": 32,
+          "mem_write": 64,
+          "stream_in": 320,
+          "stream_out": 64
+        },
+        "writer_slots": [
+          {
+            "plane": 0,
+            "cluster": 0,
+            "core": 0,
+            "writer_superlane": 19
+          }
+        ]
+      }
+    ],
+    "domains": [
+      {
+        "hemisphere": 0,
+        "plane": 0,
+        "cluster": 0,
+        "tasks": 1,
+        "counts": {
+          "tiles": 1,
+          "program_bytes": 1024,
+          "context_programs": 2,
+          "context_switches": 2,
+          "program_wordlines": 32,
+          "cross_macro_k_adds": 256,
+          "mem_read_weight_bytes": 1024,
+          "mem_read_activation_bytes": 512,
+          "mem_write_final_bytes": 1024,
+          "activation_stream_bytes": 5120,
+          "write_stream_bytes": 1024,
+          "useful_mac": 8192,
+          "issued_mac": 16384,
+          "launches": 32,
+          "bit_serial_cycles": 256,
+          "activation_capture_bytes": 512,
+          "result_bytes": 4096,
+          "weight_word_bit_products": 131072,
+          "local_tree_adds": 122880,
+          "shift_accumulates": 8192
+        }
+      },
+      {
+        "hemisphere": 0,
+        "plane": 0,
+        "cluster": 1,
+        "tasks": 0,
+        "counts": {}
+      },
+      {
+        "hemisphere": 0,
+        "plane": 0,
+        "cluster": 2,
+        "tasks": 0,
+        "counts": {}
+      },
+      {
+        "hemisphere": 0,
+        "plane": 0,
+        "cluster": 3,
+        "tasks": 0,
+        "counts": {}
+      },
+      {
+        "hemisphere": 0,
+        "plane": 1,
+        "cluster": 0,
+        "tasks": 0,
+        "counts": {}
+      },
+      {
+        "hemisphere": 0,
+        "plane": 1,
+        "cluster": 1,
+        "tasks": 0,
+        "counts": {}
+      },
+      {
+        "hemisphere": 0,
+        "plane": 1,
+        "cluster": 2,
+        "tasks": 0,
+        "counts": {}
+      },
+      {
+        "hemisphere": 0,
+        "plane": 1,
+        "cluster": 3,
+        "tasks": 0,
+        "counts": {}
+      }
+    ]
   },
   "timing": {
     "status": "analytical_estimate",
-    "model": "single_cluster_serial_v1",
-    "scope": "single_cluster",
-    "policy": "serial_stage_sum_no_overlap",
-    "total_cycles": 306,
+    "model": "single_hem_static_waves_v2",
+    "scope": "single_hem",
+    "weight_load_overlap": "background",
+    "total_cycles": 296,
     "chip_cycles": null,
-    "time_ns": 340.0,
-    "throughput_gops": 48.188235294117646,
-    "stages_cycles": {
-      "load": 160,
-      "switch": 1,
-      "compute": 128,
-      "drain": 13,
-      "partial_read": 0,
-      "partial_add": 0,
-      "write": 4
-    },
-    "scheduled_tiles": 1,
-    "load_batches": 1,
-    "switch_batches": 1,
+    "time_ns": 328.88888888888886,
+    "throughput_gops": 49.81621621621622,
+    "load_elapsed_cycles_sum": 160,
     "parameters": {
-      "load_scan_cycles": {
-        "value": 160,
-        "unit": "cycle",
-        "scope": "single_cluster",
-        "status": "assumed",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/docs/legacy/patent-idea-review.md#L430-L439",
-        "source_version": "commit c641844c1d213d02a7d961d889838cae9b9dc8aa",
-        "conditions": "Reserve one documented full 160-cycle row scan whenever any Macro needs programming; unused slots idle. Reused weights cost zero load cycles; no separate physical write penalty."
+      "mem_read_bpc": {
+        "value": 320,
+        "unit": "byte/cycle",
+        "scope": "slice",
+        "status": "documented",
+        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/1db5a44ec36b6d3c7359f283fdd7d06908b212f4/docs/reference/papers/Think_Fast_A_Tensor_Streaming_Processor_TSP_for_Accelerating_Deep_Learning_Workloads.pdf",
+        "source_version": "commit 1db5a44ec36b6d3c7359f283fdd7d06908b212f4; git-blob de8ebc2b25c212b9c409cc88adc629b17b2af2c5; II-B Memory model (PDF pages 5-6, printed 149-150), Eq.2; III-B MEM (PDF page 8, printed 152); lines 431-470,699-713",
+        "conditions": "Native 14nm TSP memory geometry matches the project reference: 88 slices, 20 tiles/slice, 220 MiB total. The 320-byte vector uses staggered per-SL execution. Aggregate TB/s figures in the ISCA example assume 1 GHz and must not be reused unchanged at 900 MHz.",
+        "verification": "primary_paper_checked_geometry_matches_project_reference",
+        "selection": "configured"
       },
-      "input_ii_cycles": {
+      "mem_write_bpc": {
+        "value": 320,
+        "unit": "byte/cycle",
+        "scope": "slice",
+        "status": "documented",
+        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/1db5a44ec36b6d3c7359f283fdd7d06908b212f4/docs/reference/papers/Think_Fast_A_Tensor_Streaming_Processor_TSP_for_Accelerating_Deep_Learning_Workloads.pdf",
+        "source_version": "commit 1db5a44ec36b6d3c7359f283fdd7d06908b212f4; git-blob de8ebc2b25c212b9c409cc88adc629b17b2af2c5; II-B Memory model (PDF pages 5-6, printed 149-150), Eq.2; III-B MEM (PDF page 8, printed 152); lines 431-470,699-713",
+        "conditions": "Native 14nm TSP memory geometry matches the project reference: 88 slices, 20 tiles/slice, 220 MiB total. The 320-byte vector uses staggered per-SL execution. Aggregate TB/s figures in the ISCA example assume 1 GHz and must not be reused unchanged at 900 MHz.",
+        "verification": "primary_paper_checked_geometry_matches_project_reference",
+        "selection": "configured"
+      },
+      "int8_input_ii": {
         "value": 8,
         "unit": "cycle",
-        "scope": "single_cluster",
+        "scope": "cluster_domain",
         "status": "documented",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/docs/legacy/patent-idea-review.md#L744-L750",
-        "source_version": "commit c641844c1d213d02a7d961d889838cae9b9dc8aa",
-        "conditions": "INT8 Cluster ACC occupancy is rows * II, including tails."
+        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/docs/legacy/patent-idea-review.md",
+        "source_version": "c641844c1d213d02a7d961d889838cae9b9dc8aa",
+        "conditions": "INT8 ACC occupancy; §5.1."
       },
       "local_pipeline_cycles": {
         "value": 3,
         "unit": "cycle",
-        "scope": "single_cluster",
+        "scope": "core",
         "status": "assumed",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/tools/qwen3_ffn_cim_eval/latency_model.py#L26-L30",
-        "source_version": "commit c641844c1d213d02a7d961d889838cae9b9dc8aa",
-        "conditions": "Reuse the external analytical model's local pipeline allowance; not measured Macro first latency."
+        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/docs/legacy/patent-idea-review.md",
+        "source_version": "c641844c1d213d02a7d961d889838cae9b9dc8aa",
+        "conditions": "Analytical allowance inherited from source latency model, not physical calibration."
       },
-      "reduction_hop_cycles": {
-        "value": 1,
-        "unit": "cycle",
-        "scope": "single_cluster",
+      "writer_bpc_per_superlane_plane": {
+        "value": 256,
+        "unit": "byte/cycle",
+        "scope": "writer_superlane_plane",
         "status": "assumed",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/tools/qwen3_ffn_cim_eval/latency_model.py#L200-L207",
-        "source_version": "commit c641844c1d213d02a7d961d889838cae9b9dc8aa",
-        "conditions": "Drain allowance is II + local_pipeline + ceil(k/16) * hop; includes a capture step. Core stagger is absorbed into this coarse allowance, not separately scheduled."
+        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/docs/legacy/patent-idea-review.md",
+        "source_version": "c641844c1d213d02a7d961d889838cae9b9dc8aa",
+        "conditions": "INT32 bypass uses §3.4.5-3.4.6 distributed writer target; 20 distinct writers/Plane, constrained by shared MEM/stream."
       },
       "switch_cycles": {
         "value": 1,
         "unit": "cycle",
-        "scope": "single_cluster",
+        "scope": "cluster_domain",
         "status": "assumed",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/docs/legacy/patent-idea-review.md#L649-L669",
-        "source_version": "commit c641844c1d213d02a7d961d889838cae9b9dc8aa",
-        "conditions": "One serialized Cluster-wide switch stage if any Macro changes active context, including initial activation; simplifies the documented per-Core rolling switch."
-      },
-      "writer_bpc": {
-        "value": 256,
-        "unit": "byte/cycle",
-        "scope": "single_cluster",
-        "status": "assumed",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/docs/legacy/patent-idea-review.md#L545-L584",
-        "source_version": "commit c641844c1d213d02a7d961d889838cae9b9dc8aa",
-        "conditions": "Use the existing 256 B/cycle writer target as one dedicated INT32 result/partial-read service for the selected Cluster. Do not multiply by NIM tiles or use whole-chip bandwidth."
-      },
-      "external_adds_per_cycle": {
-        "value": 64,
-        "unit": "add/cycle",
-        "scope": "single_cluster",
-        "status": "assumed",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/docs/legacy/patent-idea-review.md#L568",
-        "source_version": "commit c641844c1d213d02a7d961d889838cae9b9dc8aa",
-        "conditions": "For K segments after the first, assume one INT32 add per writer-width element (64/cycle). This is a service proxy, not calibrated VXM throughput or added hardware inventory."
+        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/docs/legacy/patent-idea-review.md",
+        "source_version": "c641844c1d213d02a7d961d889838cae9b9dc8aa",
+        "conditions": "Conservative drained wave switch; exact rolling per-Core IW not simulated."
       }
     },
     "clock": {
@@ -262,41 +533,63 @@
       "conditions": "TSP LPU 14nm baseline clock is 900 MHz = 0.9 GHz. This is the nominal project reference, not a measured CIM ASIC clock.",
       "verification": "source_checked_project_spec_not_silicon"
     },
+    "resources": {
+      "mem_read": {
+        "capacity_bpc": 14080.0,
+        "peak_reserved_bpc": 64.0
+      },
+      "mem_write": {
+        "capacity_bpc": 14080.0,
+        "peak_reserved_bpc": 8.0
+      },
+      "stream_in": {
+        "capacity_bpc": 10240.0,
+        "peak_reserved_bpc": 64.0
+      },
+      "stream_out": {
+        "capacity_bpc": 10240.0,
+        "peak_reserved_bpc": 8.0
+      }
+    },
     "assumptions": [
-      "A/B already reside in local MEM; activation delivery is hidden within ACC row service.",
-      "Tiles and stages are serialized; no LW/ACC overlap, bank/stream contention or routing simulation.",
-      "Full-row LW slots may idle; no claim that a partial Cluster physically requires all 160 cycles.",
-      "Writer emits valid INT32 columns; partial sums remain in MEM until their next K segment.",
-      "Physical Macro timing remains uncalibrated; this upper-level estimator does not fill or use those null parameters.",
-      "No host transfer, packing, memory-capacity scheduling, energy, area or calibrated cross-architecture speedup."
+      "Up to eight independent K/N tasks per wave; no fabricated eightfold acceleration for a short wave.",
+      "Shared resident MEM allocation follows native TSP policy with CIM K16/N32 padding.",
+      "Conflict-free bank layout is assumed: MEM reads and writes overlap on independent budgets; bank placement and capacity per bank are not checked.",
+      "LW scans wordline/Core-pair order; inactive slots idle. Selected load overlap: background; background transfers use residual MEM/input-stream bandwidth.",
+      "Compressed row pipeline uses max shared-resource demand; per-row fill/drain reservations conservatively retain that demand.",
+      "Distinct transposed writer SuperLanes use the 256 B/cycle INT32 bypass target; not one serial writer per Plane.",
+      "K segments accumulate via shared MEM/VXM; no direct inter-domain reduction or FP conversion.",
+      "Wave-level drain and context release are conservative; exact Core rolling IW and collector occupancy are not simulated.",
+      "Design-source analytical estimate, not calibrated hardware speedup or a guaranteed latency bound."
     ],
+    "service_cycles": {
+      "status": "not_decomposed",
+      "by_stage": null,
+      "total_cycles": null,
+      "semantics": "Sum of modeled stage service work; stages may overlap. Not elapsed time or a sum of resource busy cycles.",
+      "reason": "Compressed row windows and load intervals do not provide separate component service work; load intervals may include waiting."
+    },
+    "elapsed_cycles": {
+      "status": "available",
+      "by_stage": {
+        "load_wait": 160,
+        "row_pipeline": 136
+      },
+      "total_cycles": 296,
+      "semantics": "Disjoint elapsed-time partition; available stages sum to timing.total_cycles. No overlap is charged twice."
+    },
     "compute_occupancy": {
       "value": 128,
       "unit": "cycle",
-      "scope": "single_cluster",
-      "status": "documented_schedule",
-      "kn_tiles": 1,
-      "input_ii_cycles": 8,
-      "formula": "M * ceil(K / domain_k) * ceil(N / domain_n) * input_ii_cycles",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/docs/legacy/patent-idea-review.md#L744-L750",
-      "source_version": "git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; section 5.1",
-      "conditions": "Sum of INT8 Cluster ACC occupancy only; tails retain a full II. Excludes LW/IW waits, first-result/drain latency, reduction and writer service; not elapsed time or an additional Macro energy action."
-    }
-  },
-  "energy": {
-    "status": "not_evaluated",
-    "total_pj": null,
-    "tops_per_watt": null
-  },
-  "area": {
-    "status": "not_evaluated",
-    "total_mm2": null,
-    "tops_per_mm2": null
+      "scope": "single_hem_static_waves",
+      "domain_cycles_sum": 128,
+      "status": "derived_schedule",
+      "formula": "sum(max(rows in wave) * INT8 II); not sum of domain times",
+      "conditions": "Compute occupancy only; excludes load, supply, drain and output constraints."
+    },
+    "missing_parameters": []
   },
   "hardware_inventory": {
-    "allocated_macros": 400,
-    "used_macro_slots": 2,
-    "resident_macro_weight_bytes": 819200,
     "chip": {
       "scope": "chip",
       "hemispheres": 2,
@@ -308,23 +601,15 @@
       "macro_weight_resident_bytes": 13107200,
       "global_mem_bytes": 230686720,
       "known_mem_plus_macro_bytes": 243793920,
-      "additional_local_sram_bytes": null,
-      "physical_sram_bytes": null,
-      "collector_buffer_bytes_per_plane": null,
       "vxm_alus": 5120,
       "mem_slices": 88,
-      "memory_tiles": 1760,
-      "nim_units": 4,
-      "nim_tiles": 80,
-      "nim_logical_channels_per_tile": 4,
-      "nim_conversion_lanes": 256,
-      "sxm_physical_units": null,
-      "stream_physical_endpoints": null,
-      "clock_domains": null,
-      "control_domains": null
+      "memory_tiles": 1760
     },
-    "allocated_cores": 100,
-    "allocated_cluster_domains": 1
+    "allocated_macros": 3200,
+    "allocated_cores": 800,
+    "allocated_cluster_domains": 8,
+    "used_macro_slots": 2,
+    "resident_macro_weight_bytes": 6553600
   },
   "hardware_derived": {
     "macro": {
@@ -471,12 +756,99 @@
       "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
       "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.3.4 final LW rotation; lines 430-439"
     },
-    "nim_output_bpc_per_plane": {
+    "int32_writer_bpc_per_writer_superlane_plane": {
       "value": 256,
       "unit": "byte/cycle",
-      "scope": "plane",
-      "formula": "documented NIM writer target; distinct from distributed LW capture width",
+      "scope": "writer_superlane_plane",
+      "formula": "distributed writer target; shared MEM/stream limits still apply",
       "basis": "architecture arithmetic; not simulated throughput or calibrated service"
+    },
+    "nim_output_target_bpc_per_hemisphere": {
+      "value": 10240,
+      "unit": "byte/cycle",
+      "scope": "hemisphere",
+      "formula": "per-writer target * 20 transposed writer SuperLanes * 2 Planes; not effective bandwidth",
+      "basis": "architecture arithmetic; not simulated throughput or calibrated service"
+    },
+    "vxm_service": {
+      "scope": "single_hem",
+      "status": "analytical_compute_service",
+      "resource_policy": "one_shared_vxm_service",
+      "base_ops_per_cycle": 320,
+      "operation_costs": {
+        "int32_add": 1,
+        "fp32_add": 1,
+        "fp32_mul": 1,
+        "fp32_exp": 15,
+        "fp32_rsqrt": 12
+      },
+      "operation_rates_per_cycle": {
+        "int32_add": 320.0,
+        "fp32_add": 320.0,
+        "fp32_mul": 320.0,
+        "fp32_exp": 21.333333333333332,
+        "fp32_rsqrt": 26.666666666666668
+      },
+      "gemm_operations": [
+        "int32_add"
+      ],
+      "nonlinear_included_in_gemm": false,
+      "special_function_model": "algorithmic_work_proxy_not_native_instruction_timing",
+      "assumed_inputs": [
+        "vxm_base_ops_per_cycle",
+        "vxm_int32_add_cost",
+        "vxm_fp32_basic_op_cost",
+        "vxm_fp32_exp_cost",
+        "vxm_fp32_rsqrt_cost"
+      ],
+      "missing_parameters": [],
+      "conditions": "One task allocation from the central VXM, not replicated per hemisphere. Rates share one budget and cannot be added. Compute occupancy only: no transfers, reduction, dependency scheduling or special-function startup latency. FP32 denotes operand format, not correctly rounded exp/rsqrt accuracy. Only INT32 add is consumed by current GEMM; other operations are standalone services."
+    }
+  },
+  "topology": {
+    "macro": {
+      "k": 16,
+      "n": 32
+    },
+    "core": {
+      "macros": 4,
+      "k": 16,
+      "n": 128,
+      "organization": "disjoint N shards; no inter-Macro N reduction"
+    },
+    "cluster_slice": {
+      "cores": 5,
+      "macros": 20,
+      "k": 16,
+      "n": 640,
+      "scope": "one_superlane"
+    },
+    "cluster_domain": {
+      "superlanes": 20,
+      "cores": 100,
+      "macros": 400,
+      "k": 320,
+      "n": 640,
+      "reduction": "same N shard across SuperLanes; no reduction across Cluster domains"
+    },
+    "plane": {
+      "cluster_domains": 4,
+      "cluster_slices": 80,
+      "cores": 400,
+      "macros": 1600
+    },
+    "hemisphere": {
+      "planes": 2,
+      "cluster_domains": 8,
+      "cores": 800,
+      "macros": 3200
+    },
+    "chip": {
+      "hemispheres": 2,
+      "planes": 4,
+      "cluster_domains": 16,
+      "cores": 1600,
+      "macros": 6400
     }
   },
   "parameter_provenance": {
@@ -541,55 +913,15 @@
         "conditions": "Full chip has four Planes; together with two Planes per hemisphere this means two hemispheres. The early section3.1 comparison of400Macros/hemisphere is not the finalized section3.2 topology; do not apply it to the final6400Macros/chip profile.",
         "verification": "source_checked_project_spec_not_silicon"
       },
-      "nim_units_per_plane": {
-        "value": 1,
-        "unit": "count",
-        "scope": "plane",
-        "status": "documented",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-        "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.1; lines 465-476",
-        "conditions": "One physical NIM per Plane, shared by four logical Cluster channels.",
-        "verification": "source_checked_project_spec_not_silicon"
-      },
-      "nim_tiles_per_plane": {
-        "value": 20,
-        "unit": "count",
-        "scope": "plane",
-        "status": "documented",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-        "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.1; lines 465-469",
-        "conditions": "NIM is spatially partitioned into20tiles, one per SuperLane; each serves20Cores/80Macros.",
-        "verification": "source_checked_project_spec_not_silicon"
-      },
-      "nim_channels_per_tile": {
-        "value": 4,
-        "unit": "count",
-        "scope": "nim_tile",
-        "status": "documented",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-        "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.1-3.4.2; lines 467-485",
-        "conditions": "Four logical Cluster channels per tile share physical NIM resources; four is not four replicated physical NIMs.",
-        "verification": "source_checked_project_spec_not_silicon"
-      },
-      "nim_conversion_lanes": {
-        "value": 64,
-        "unit": "count",
-        "scope": "plane",
-        "status": "documented",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-        "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.2;3.4.5; lines 491-492,545-553",
-        "conditions": "64 FP32 conversion lanes in the Plane NIM output service, one FP32/lane/cycle. Design target for terminal result conversion; do not multiply by20NIMtiles to infer terminal writer throughput.",
-        "verification": "source_checked_project_spec_not_silicon"
-      },
-      "nim_output_bpc": {
+      "int32_writer_bpc": {
         "value": 256,
         "unit": "byte/cycle",
-        "scope": "plane",
-        "status": "documented",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-        "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.2;3.4.5; lines 491-492,545-553",
-        "conditions": "The documented Plane NIM terminal writer target is64lanes*4B=256B/cycle=16local streams*16B. Two Plane writers produce512B/cycle at a SuperLane interface. This is distinct from distributed LW capture, and is not calibrated INT8 timing.",
-        "verification": "source_checked_project_spec_not_silicon"
+        "scope": "writer_superlane_plane",
+        "status": "assumed",
+        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/docs/legacy/patent-idea-review.md",
+        "source_version": "commit c641844c1d213d02a7d961d889838cae9b9dc8aa; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; sections 3.2.5, 3.4.5-3.4.6",
+        "conditions": "256 B/cycle per transposed writer SuperLane per Plane. Section 3.4.6 permits distinct Core/Cluster results on distinct writer SuperLanes, not one serial Plane-wide writer. INT32 bypass service is an explicit model assumption; aggregate traffic remains constrained by MEM and directional streams. This does not multiply FP conversion-lane inventory. Runtime INT32 bypass is reported separately as an assumed service; this is not the Plane-wide FP conversion capacity.",
+        "verification": "explicit_INT32_bypass_service_assumption"
       },
       "streams_per_plane": {
         "value": 16,
@@ -608,7 +940,7 @@
         "status": "documented",
         "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
         "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.3.4 final LW rotation; lines 430-439",
-        "conditions": "Per SuperLane and Plane, two Cores/cycle*four Macros/Core*32B/wordline=256B/cycle distributed LW capture. Across20SL the width is5120B/cycle/Plane; this is not the256B/cycle terminal NIM writer.",
+        "conditions": "Per SuperLane and Plane, two Cores/cycle*four Macros/Core*32B/wordline=256B/cycle distributed LW capture. Across20SL the width is5120B/cycle/Plane; this is not the256B/cycle individual transposed writer SuperLane service.",
         "verification": "source_checked_project_spec_not_silicon"
       },
       "core_stagger_cycles": {
@@ -620,40 +952,10 @@
         "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2.5-3.2.6; lines 290-322",
         "conditions": "Adjacent Cores within a Cluster start one cycle apart, creating a five-cycle local staircase; project schedule target, not calibrated ASIC latency.",
         "verification": "source_checked_project_spec_not_silicon"
-      },
-      "physical_sram_bytes": {
-        "value": null,
-        "unit": "byte",
-        "scope": "chip",
-        "status": "unknown",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-        "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.4;3.5.1; lines 530-543,629-637",
-        "conditions": "Source specifies Macro context SRAM (2KiB/Macro) and buffer examples (e.g.2*768B input double-buffer, precision-dependent EW/Core), but does not establish complete physical SRAM inventory or the exact replicated/allocated collector total for this INT8 profile. Preserve null; do not infer32MiB or zero overhead.",
-        "verification": "source_reviewed_parameter_or_scope_unresolved"
-      },
-      "additional_local_sram_bytes": {
-        "value": null,
-        "unit": "byte",
-        "scope": "chip",
-        "status": "unknown",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-        "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.4;3.5.1; lines 530-543,629-637",
-        "conditions": "Source specifies Macro context SRAM (2KiB/Macro) and buffer examples (e.g.2*768B input double-buffer, precision-dependent EW/Core), but does not establish complete physical SRAM inventory or the exact replicated/allocated collector total for this INT8 profile. Preserve null; do not infer32MiB or zero overhead.",
-        "verification": "source_reviewed_parameter_or_scope_unresolved"
-      },
-      "collector_buffer_bytes": {
-        "value": null,
-        "unit": "byte",
-        "scope": "plane",
-        "status": "unknown",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-        "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.4;3.5.1; lines 530-543,629-637",
-        "conditions": "Source specifies Macro context SRAM (2KiB/Macro) and buffer examples (e.g.2*768B input double-buffer, precision-dependent EW/Core), but does not establish complete physical SRAM inventory or the exact replicated/allocated collector total for this INT8 profile. Preserve null; do not infer32MiB or zero overhead.",
-        "verification": "source_reviewed_parameter_or_scope_unresolved"
       }
     },
     "macro": {
-      "schema_version": 1,
+      "schema_version": 2,
       "profile_id": "tsp-cim-int8-macro-v1",
       "description": "Project K16xN32 INT8 Macro, four resident weight contexts. II is not first-result latency.",
       "parameters": {
@@ -746,46 +1048,6 @@
           "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.3.4 final LW rotation; lines 421-439",
           "conditions": "The L=16 write organization explicitly sets 32 bytes per Macro wordline; final LW schedule writes one wordline to each Macro in two Cores per Plane per SL. This is a documented project design choice, not silicon-verified write timing.",
           "verification": "source_checked_project_spec_not_silicon"
-        },
-        "compute_first_cycles": {
-          "value": null,
-          "unit": "cycle",
-          "scope": "macro",
-          "status": "unknown",
-          "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-          "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.1; lines 149-155",
-          "conditions": "II=8 is the steady-state initiation interval, not the pipelined first-result latency. No calibrated Macro first-result latency supplied.",
-          "verification": "source_reviewed_parameter_or_scope_unresolved"
-        },
-        "write_first_cycles": {
-          "value": null,
-          "unit": "cycle",
-          "scope": "macro",
-          "status": "unknown",
-          "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-          "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.3.4; lines 421-439",
-          "conditions": "Wordline width and architectural LW issue pattern are documented; macro SRAM programming first-result latency is not supplied.",
-          "verification": "source_reviewed_parameter_or_scope_unresolved"
-        },
-        "write_wordline_ii_cycles": {
-          "value": null,
-          "unit": "cycle",
-          "scope": "macro",
-          "status": "unknown",
-          "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-          "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.3.4; lines 421-439",
-          "conditions": "The schedule revisits each Macro once per 10-cycle rotation; neither that service interval nor per-cycle system issue proves the physical per-Macro write initiation interval.",
-          "verification": "source_reviewed_parameter_or_scope_unresolved"
-        },
-        "context_switch_cycles": {
-          "value": null,
-          "unit": "cycle",
-          "scope": "macro",
-          "status": "unknown",
-          "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-          "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.5.3; lines 649-659",
-          "conditions": "Core active-context selection occurs one cycle after its final old-context ACC drains. This scheduling relation is not an independently calibrated isolated-Macro switch latency.",
-          "verification": "source_reviewed_parameter_or_scope_unresolved"
         }
       }
     },
@@ -950,134 +1212,144 @@
         "conditions": "Native 14nm TSP memory geometry matches the project reference: 88 slices, 20 tiles/slice, 220 MiB total. The 320-byte vector uses staggered per-SL execution. Aggregate TB/s figures in the ISCA example assume 1 GHz and must not be reused unchanged at 900 MHz.",
         "verification": "primary_paper_checked_geometry_matches_project_reference"
       },
-      "mem_shared_bpc": {
+      "vxm_base_ops_per_cycle": {
         "value": 320,
-        "unit": "byte/cycle",
-        "scope": "slice",
+        "unit": "op/cycle",
+        "scope": "hemisphere",
         "status": "assumed",
-        "source": "model-policy",
-        "source_version": "tsp-reference-v2",
-        "conditions": "Conservative software policy caps combined reads+writes at 320 B/cycle/slice. Primary papers permit 320 read + 320 write concurrently on opposite banks; model has no bank-level concurrency. This is not a measured or architectural shared-port limit.",
-        "verification": "explicit_model_policy_not_hardware_fact"
-      },
-      "vxm_add_ops_per_cycle": {
-        "value": null,
-        "unit": "op/cycle",
-        "scope": "allocation",
-        "status": "unknown",
         "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-        "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 7.2;7.5-7.7; lines 436-448,471-543",
-        "conditions": "5120 physical ALUs do not specify the allocation/task-effective INT32 addition budget. Operator lane mapping and allocation are unresolved.",
-        "verification": "source_reviewed_parameter_or_scope_unresolved"
+        "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
+        "conditions": "Shared single-task VXM budget of 320 equivalent basic operations/cycle. With int32_add_cost=1 this preserves the prior 320 INT32 add/cycle service. Hemisphere scope denotes the active task allocation from the central VXM, not a replicated unit per hemisphere. All operation types share this budget; rates are alternatives, not additive. MEM/stream supply is charged separately. Fixed analytical assumption, not hardware calibration or the full 5120-ALU chip peak.",
+        "verification": "model_assumption_explicit_in_config_not_hardware_calibrated"
       },
-      "nonlinear_ops_per_cycle": {
-        "value": null,
-        "unit": "op/cycle",
-        "scope": "chip",
-        "status": "unknown",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-        "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 7.5-7.7; lines 471-543",
-        "conditions": "Nonlinear operations have operation-specific and multi-cycle behavior; no single chip-wide nonlinear rate is supported.",
-        "verification": "source_reviewed_parameter_or_scope_unresolved"
+      "vxm_int32_add_cost": {
+        "value": 1,
+        "unit": "equivalent_op/op",
+        "scope": "hemisphere",
+        "status": "assumed",
+        "source": "model-policy; ARCHITECTURE.md#tsp-vxm-service",
+        "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
+        "conditions": "One scalar-element INT32 addition consumes one equivalent operation on the shared single-task VXM service. Together with base=320 this preserves the existing GEMM cross-K add rate. No independent add resource is introduced.",
+        "verification": "explicit_algorithmic_assumption_not_hardware_calibrated"
       },
-      "offchip_capacity_bytes": {
-        "value": null,
-        "unit": "byte",
-        "scope": "chip",
-        "status": "unknown",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-        "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 1 overview;8.2; lines 9-34,563-575",
-        "conditions": "No external-memory capacity for this reference board/system configuration has been supplied.",
-        "verification": "source_reviewed_parameter_or_scope_unresolved"
+      "vxm_fp32_basic_op_cost": {
+        "value": 1,
+        "unit": "equivalent_op/op",
+        "scope": "hemisphere",
+        "status": "assumed",
+        "source": "model-policy; ARCHITECTURE.md#tsp-vxm-service",
+        "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
+        "conditions": "One scalar-element FP32 ADD or MUL consumes one equivalent operation on the shared VXM budget. Explicit new arithmetic-cost assumption, not measured parity with INT32. FMA, DIV, conversions, reductions and complete activation operators are not implicitly supported. Current GEMM does not execute FP32 operations.",
+        "verification": "explicit_algorithmic_assumption_not_hardware_calibrated"
       },
-      "offchip_bandwidth_bpc": {
-        "value": null,
-        "unit": "byte/cycle",
-        "scope": "chip",
-        "status": "unknown",
-        "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-        "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 1 overview;8.2; lines 9-34,563-575",
-        "conditions": "No sustained off-chip memory payload bandwidth for the reference configuration has been supplied.",
-        "verification": "source_reviewed_parameter_or_scope_unresolved"
+      "vxm_fp32_exp_cost": {
+        "value": 15,
+        "unit": "equivalent_op/op",
+        "scope": "hemisphere",
+        "status": "assumed",
+        "source": "model-policy; ARCHITECTURE.md#tsp-vxm-service",
+        "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
+        "conditions": "FP32 approximation work proxy: k=round(x*log2(e)), r=x-k*ln(2) costs 4; degree-5 Taylor polynomial in Horner form costs 5 MUL + 5 ADD; exponent scaling costs 1, total 15. Round and exponent scaling each count as one equivalent operation. No fused-operation discount. Reference domain is finite x in [-80,0]; no correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate exp numerically, and is not native TSP Exp instruction throughput or latency. Shares the VXM budget; memory and dependencies are separate.",
+        "verification": "explicit_algorithmic_assumption_not_hardware_calibrated"
       },
-      "interchip_bandwidth_bpc": {
-        "value": null,
-        "unit": "byte/cycle",
-        "scope": "chip",
-        "status": "unknown",
+      "vxm_fp32_rsqrt_cost": {
+        "value": 12,
+        "unit": "equivalent_op/op",
+        "scope": "hemisphere",
+        "status": "assumed",
+        "source": "model-policy; ARCHITECTURE.md#tsp-vxm-service",
+        "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
+        "conditions": "Positive-normal FP32 approximation work proxy: bit seed bits(y)=0x5f3759df-(bits(x)>>1) costs 2 (shift and subtraction; bit reinterpretation costs 0), then two iterations y=(0.5*y)*(3-x*y*y), each 4 MUL + 1 SUB, total 12. No fused-operation discount. No correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate rsqrt numerically, and is not native TSP RSqrt instruction throughput or latency. Shares the VXM budget; memory and dependencies are separate.",
+        "verification": "explicit_algorithmic_assumption_not_hardware_calibrated"
+      },
+      "vxm_add_latency_cycles": {
+        "value": 0,
+        "unit": "cycle",
+        "scope": "hemisphere",
+        "status": "assumed",
         "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-        "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 1 overview; lines 9-34",
-        "conditions": "ISCA 2020 provides a 3.84 Tb/s two-direction pin-rate example, not a calibrated one-direction payload budget for this reference. Link allocation and protocol efficiency remain unspecified.",
-        "verification": "source_reviewed_parameter_or_scope_unresolved"
+        "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
+        "conditions": "Explicitly omit additional fixed INT32-add pipeline latency. Runtime first-row add time is ceil(actual padded tile N * vxm_int32_add_cost / vxm_base_ops_per_cycle) plus this value. This latency applies only to GEMM INT32 addition, not to FP32 special functions. Payload transport is charged separately. Zero is a model assumption, not measured zero hardware latency.",
+        "verification": "model_assumption_explicit_in_config_not_hardware_calibrated"
       }
     },
-    "native_reference_id": "tsp_issue2_reference:49910a9f163760ac",
-    "topology_reference_id": "tsp-cim-core-cluster-plane-int8-v1:82ddc0cc3262657a6057c0403f9b9bd848d90447ba58429b60f91c8d3c4b6aaf"
+    "native_reference_id": "tsp_issue2_reference:a877aeadb6b9634c",
+    "topology_reference_id": "tsp-cim-core-cluster-plane-int8-v1:5901cf2926a353ad8d0aaa3dfef1df1b11eb54a9765739c6e92ff044224c455d"
+  },
+  "missing_parameters": [],
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null,
+    "tops_per_watt": null
+  },
+  "area": {
+    "status": "not_evaluated",
+    "total_mm2": null,
+    "tops_per_mm2": null
   },
   "limitations": [
-    "One Cluster domain runs all K/N tiles serially; no multi-domain or chip task scheduler.",
-    "Four N-sharded Macros per Core; K reduction links equal N shards across SuperLanes only.",
-    "Macro cycles and captures are local action sums, not elapsed time or MEM traffic.",
-    "Logical reduction/broadcast obligations are not a cycle or route-level implementation.",
-    "No MEM placement, stream contention, collector/NIM scheduling, rolling IW or overlapping LW/ACC.",
-    "NIM counts and service targets describe hardware; FP/BFP conversion and SFU execution are not modeled.",
-    "Known MEM plus Macro SRAM is a subtotal; additional buffers and physical total remain unknown."
+    "Static hemisphere waves, not asynchronous domain refill, chip execution or an ISA scheduler.",
+    "Shared bandwidth reservations are fluid analytical service, not individual stream slots or bank conflicts.",
+    "Independent MEM read/write services assume a conflict-free bank layout; all reads still share one read budget.",
+    "Row pipeline and distributed INT32 writers are explicit assumptions, not measured hardware timing.",
+    "K segments merge through MEM and one shared VXM service; no inter-Cluster PSUM link is invented.",
+    "MEM resident capacity is checked; collector capacity and exact rolling per-Core IW timing are not validated.",
+    "Known MEM plus Macro SRAM is a subtotal; energy, area and FP/BFP conversion are not evaluated."
   ],
-  "macro_reference_id": "tsp-cim-int8-macro-v1:bfa82c4dcb1f551da057fa85010fc7110267d4c8857b4ddc89ef6244c5af6403",
-  "native_reference_id": "tsp_issue2_reference:49910a9f163760ac",
-  "topology": {
-    "macro": {
-      "k": 16,
-      "n": 32
+  "execution_contract": {
+    "scope": "single_hem",
+    "resident_boundary": "local_MEM",
+    "schedule": "static_wave_pipeline",
+    "default_tile_mkn": [
+      16,
+      320,
+      640
+    ],
+    "buffer_slots": 1,
+    "weight_load_overlap": "background",
+    "fixed_latency_cycles": {
+      "local_pipeline": 3,
+      "context_switch": 1
     },
-    "core": {
-      "macros": 4,
-      "k": 16,
-      "n": 128,
-      "organization": "disjoint N shards; no inter-Macro N reduction"
+    "rules": {
+      "mapping": "kn_round_robin_no_m_replication",
+      "wave_barrier": "drain",
+      "mem_read_write": "independent_assumed_conflict_free"
     },
-    "cluster_slice": {
-      "cores": 5,
-      "macros": 20,
-      "k": 16,
-      "n": 640,
-      "scope": "one_superlane"
-    },
-    "cluster_domain": {
-      "superlanes": 20,
-      "cores": 100,
-      "macros": 400,
-      "k": 320,
-      "n": 640,
-      "reduction": "same N shard across SuperLanes; no reduction across Cluster domains"
-    },
-    "plane": {
-      "cluster_domains": 4,
-      "cluster_slices": 80,
-      "cores": 400,
-      "macros": 1600
-    },
-    "chip": {
-      "hemispheres": 2,
-      "planes": 4,
-      "cluster_domains": 16,
-      "cores": 1600,
-      "macros": 6400
-    }
+    "status": "assumed",
+    "source": "Project analytical execution policy; ARCHITECTURE.md execution contract; ARCHITECTURE.md#tsp-mem-concurrency",
+    "version": "2026-11-18 independent MEM read/write services v1; background LW default",
+    "conditions": "Explicit software modeling assumptions, not measured hardware behavior. Byte/cycle service budgets are allocated separately from chip inventory. CLI/API overrides are recorded in the effective execution contract. Fixed latencies use cycles; zero omits an uncalibrated allowance. Output-block/wave barriers and ideal input sharing remain declared approximations. MEM reads and writes use independent directional budgets under an assumed conflict-free bank layout. Activation, partial-sum and weight reads share the read budget. Bank placement, per-bank capacity and conflicts are not simulated; data dependencies and stream constraints still apply."
   },
-  "missing_parameters": [
-    "topology.physical_sram_bytes",
-    "topology.additional_local_sram_bytes",
-    "topology.collector_buffer_bytes",
-    "shared_system.vxm_add_ops_per_cycle",
-    "shared_system.nonlinear_ops_per_cycle",
-    "shared_system.offchip_capacity_bytes",
-    "shared_system.offchip_bandwidth_bpc",
-    "shared_system.interchip_bandwidth_bpc",
-    "macro.compute_first_cycles",
-    "macro.write_first_cycles",
-    "macro.write_wordline_ii_cycles",
-    "macro.context_switch_cycles"
-  ]
+  "work_counts": {
+    "logical": {
+      "operations": 16384,
+      "output_bytes": 1024
+    },
+    "issued": {
+      "operations": 32768,
+      "basis": "padded arithmetic; 2 operations per MAC; excludes inactive unused arrays",
+      "status": "derived"
+    },
+    "internal": {
+      "status": "partial_macro_actions",
+      "action_references": [
+        "program_bytes",
+        "context_programs",
+        "context_switches",
+        "program_wordlines",
+        "useful_mac",
+        "issued_mac",
+        "launches",
+        "bit_serial_cycles",
+        "activation_capture_bytes",
+        "result_bytes",
+        "weight_word_bit_products",
+        "local_tree_adds",
+        "shift_accumulates"
+      ]
+    },
+    "semantics": "Views of existing counts, not additional additive actions. Logical payload is not a physical memory transaction. Unknown internal activity is not zero."
+  }
 }
-[Report] C:\Users\86152\AppData\Local\Temp\issue2-zmtimvdc\report.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue2-qw19wc_o\report.json

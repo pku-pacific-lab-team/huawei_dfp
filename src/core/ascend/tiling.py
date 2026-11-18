@@ -1,4 +1,4 @@
-"""Bounded single-buffer tiling; the output stays in L0C across all K panels."""
+"""Bounded tiling and capacity-aware slots; C stays in L0C across all K panels."""
 # m/k/n 是 L0 计算块；l1_k 是 L1 搬入的 K 面板长度，两者不可混用。
 from dataclasses import asdict, dataclass
 
@@ -14,16 +14,26 @@ class TilePlan:
     n: int
     l1_k: int
     ub_chunk_bytes: int
+    hbm_logical_footprint_bytes: int
+    hbm_padded_footprint_bytes: int
 
     def to_dict(self):
         return asdict(self)
 
 
-def make_plan(workload, capacities, tile=(64, 128, 64), l1_k=256):
+def make_plan(workload, capacities, hbm_bytes, tile=(64, 128, 64), l1_k=256):
     if len(tile) != 3 or any(type(v) is not int or v <= 0 or v % a for v, a in zip(tile, (16, 32, 16))):
         raise ValueError("tile must be positive aligned M K N (multiples of 16 32 16)")
     if type(l1_k) is not int or l1_k <= 0 or l1_k % 32:
         raise ValueError("l1_k must be a positive multiple of 32")
+    if type(hbm_bytes) is not int or hbm_bytes <= 0:
+        raise ValueError("usable HBM capacity must be a positive integer")
+    M, K, N = workload.shape
+    logical = M * K + K * N + 4 * M * N
+    mp, kp, np = align_up(M, 16), align_up(K, 32), align_up(N, 16)
+    padded = mp * kp + kp * np + 4 * mp * np
+    if padded > hbm_bytes:
+        raise ValueError("Padded A/B/C footprint exceeds usable HBM capacity")
     if any(capacities[x] < minimum for x, minimum in {"L1": 1024, "L0A": 512, "L0B": 512, "L0C": 1024, "UB": 1024}.items()):
         raise ValueError("Capacity cannot hold the minimum INT8/INT32 fractals")
     m, k, n = (min(v, align_up(dim, a)) for v, dim, a in zip(tile, workload.shape, (16, 32, 16)))
@@ -62,4 +72,17 @@ def make_plan(workload, capacities, tile=(64, 128, 64), l1_k=256):
         else:
             break
     # UB 可以分段承接最终 C，所以只需给出不超容量、按 1024 byte 对齐的导出块。
-    return TilePlan(m, k, n, k1, min(4 * m * n, capacities["UB"] // 1024 * 1024))
+    return TilePlan(m, k, n, k1, min(4 * m * n, capacities["UB"] // 1024 * 1024), logical, padded)
+
+
+def buffer_slots(plan, capacities, requested=2):
+    """Keep the selected tile; use two slots only where both fit in usable SRAM."""
+    if type(requested) is not int or requested not in (1, 2):
+        raise ValueError("buffers must be 1 or 2")
+    sizes = {"L1": (plan.m + plan.n) * plan.l1_k,
+             "L0A": plan.m * plan.k, "L0B": plan.k * plan.n,
+             "L0C": 4 * plan.m * plan.n, "UB": plan.ub_chunk_bytes}
+    return {name: {"slots": min(requested, capacities[name] // size),
+                   "slot_bytes": size,
+                   "allocated_bytes": min(requested, capacities[name] // size) * size}
+            for name, size in sizes.items()}

@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "profile_id": "tsp-cim-int8-macro-v1",
   "description": "Project K16xN32 INT8 Macro, four resident weight contexts. II is not first-result latency.",
   "parameters": {
@@ -92,46 +92,6 @@
       "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.3.4 final LW rotation; lines 421-439",
       "conditions": "The L=16 write organization explicitly sets 32 bytes per Macro wordline; final LW schedule writes one wordline to each Macro in two Cores per Plane per SL. This is a documented project design choice, not silicon-verified write timing.",
       "verification": "source_checked_project_spec_not_silicon"
-    },
-    "compute_first_cycles": {
-      "value": null,
-      "unit": "cycle",
-      "scope": "macro",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.1; lines 149-155",
-      "conditions": "II=8 is the steady-state initiation interval, not the pipelined first-result latency. No calibrated Macro first-result latency supplied.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
-    },
-    "write_first_cycles": {
-      "value": null,
-      "unit": "cycle",
-      "scope": "macro",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.3.4; lines 421-439",
-      "conditions": "Wordline width and architectural LW issue pattern are documented; macro SRAM programming first-result latency is not supplied.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
-    },
-    "write_wordline_ii_cycles": {
-      "value": null,
-      "unit": "cycle",
-      "scope": "macro",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.3.4; lines 421-439",
-      "conditions": "The schedule revisits each Macro once per 10-cycle rotation; neither that service interval nor per-cycle system issue proves the physical per-Macro write initiation interval.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
-    },
-    "context_switch_cycles": {
-      "value": null,
-      "unit": "cycle",
-      "scope": "macro",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
-      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.5.3; lines 649-659",
-      "conditions": "Core active-context selection occurs one cycle after its final old-context ACC drains. This scheduling relation is not an independently calibrated isolated-Macro switch latency.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
     }
   }
 }

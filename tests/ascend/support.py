@@ -12,6 +12,8 @@ def hardware_config(timed=True):
     config = json.loads((ROOT / "configs/hardware/ascend910_reference.json").read_text(encoding="utf-8"))
     if timed:
         config["cube"]["macs_per_cycle"].update(value=8192, status="assumed", source="Synthetic arithmetic test")
+        config["chip"]["hbm_bandwidth_bytes_per_second"].update(value=512 * 32 * 10**9, status="assumed", source="Synthetic arithmetic test")
+        config["chip"]["l2_bytes_per_cycle"].update(value=512 * 32, status="assumed", source="Synthetic arithmetic test")
         for route in config["transfers"].values():
             route.update(value=512, status="assumed", source="Synthetic arithmetic test")
     return config

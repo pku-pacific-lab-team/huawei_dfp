@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""TSP-CIM single Cluster counts/timing and separate whole-chip specifications."""
-# 装配单 domain 仿真；循环顺序对比和 M 扫描都重新运行模型，不继承前次 context 状态。
+"""TSP-CIM hemisphere execution and separate whole-chip specifications."""
+# 默认装配半片执行；循环顺序对比和 M 扫描不继承前次 context 状态。
 import argparse
 import json
 from pathlib import Path
@@ -12,7 +12,7 @@ from src.utils.workload import parse_workloads
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="TSP-CIM INT8 single Cluster count or simplified serial timing")
+    parser = argparse.ArgumentParser(description="TSP-CIM INT8 hemisphere counts and analytical scheduling")
     parser.add_argument("--hardware", default="tsp_cim.json")
     parser.add_argument("--workload", default="tiny_gemm.json")
     parser.add_argument("--config-dir")
@@ -20,15 +20,16 @@ def parse_args():
     parser.add_argument("--loop-order", default="KNM")
     parser.add_argument("--mode", choices=["count", "timing"], default="timing",
                         help="count: actions only; timing (default): counts and task time with explicit assumptions")
-    parser.add_argument("--scope", choices=["single_cluster", "chip"], default="single_cluster",
-                        help="Execution scope; chip execution is unavailable, inventory is always reported")
-    parser.add_argument("--cluster", nargs=3, type=int, default=(0, 0, 0), metavar=("HEMISPHERE", "PLANE", "CLUSTER"))
-    parser.add_argument("--tile-m", type=int, help="Logical row grouping for reuse experiments; default is all M rows")
+    parser.add_argument("--hemisphere", type=int, default=0)
+    parser.add_argument("--tile-m", type=int, help="Row grouping; hemisphere default is min(M,320)")
+    parser.add_argument("--mem-slices", nargs="+", type=int)
+    parser.add_argument("--streams", type=int)
+    parser.add_argument("--reserved-bytes", type=int, default=0)
+    parser.add_argument("--load-overlap", choices=["serialized", "background"])
+    parser.add_argument("--compare-load-policies", action="store_true")
     parser.add_argument("--compare-mxm", action="store_true")
     parser.add_argument("--compare-loops", action="store_true")
     parser.add_argument("--sweep-m", nargs="+", type=int)
-    parser.add_argument("--energy", help="Unavailable until new-model calibration")
-    parser.add_argument("--area", help="Unavailable until new-model calibration")
     parser.add_argument("--output", default=str(Path(__file__).resolve().parent / "results" / "tsp_cim.json"),
                         help="JSON report path (default: %(default)s; overwrites on success)")
     return parser.parse_args()
@@ -41,20 +42,19 @@ def main():
         workloads = parse_workloads(loader.load_workload_config(args.workload), args.formats)
         for workload in workloads:
             print("[Effective workload] " + json.dumps(workload.to_dict(), ensure_ascii=False))
-        if args.energy or args.area:
-            raise ValueError("New CIM Macro energy/area unavailable; legacy coefficients are unsupported")
         spec = loader.create_tsp_spec(loader.load_hardware_config(args.hardware))
         results = []
         for workload in workloads:
             sim = TSPCIMSimulator(spec, data_format=workload.data_format)
-            # 三个 cluster 参数依次选择半片、Plane、domain，不表示一次运行三个层级。
-            policy = dict(mode=args.mode, scope=args.scope, hemisphere=args.cluster[0],
-                          plane=args.cluster[1], cluster=args.cluster[2], tile_m=args.tile_m)
+            policy = dict(mode=args.mode, hemisphere=args.hemisphere, tile_m=args.tile_m,
+                          mem_slices=args.mem_slices, streams=args.streams, reserved_bytes=args.reserved_bytes, load_overlap=args.load_overlap)
             result = sim.simulate(*workload.shape, args.loop_order, **policy)
             # 保留公共任务解析器记录的声明精度、覆盖标记和累加/输出类型。
             result["workload"] = workload.to_dict()
+            if args.compare_load_policies:
+                result["load_policy_comparison"] = sim.compare_load_policies(*workload.shape, args.loop_order, **policy)
             if args.compare_mxm:
-                result["comparison"] = sim.compare_mxm(*workload.shape, args.loop_order, workload)
+                result["comparison"] = sim.compare_mxm(*workload.shape, args.loop_order, workload, result=result)
             if args.compare_loops:
                 result["loop_order_counts"] = sim.compare_loop_orders(*workload.shape, **policy)
             if args.sweep_m:
@@ -74,4 +74,6 @@ def main():
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
     raise SystemExit(main())

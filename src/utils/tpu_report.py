@@ -8,14 +8,18 @@ def print_report(report):
     print("[Scope] Hardware: chip; counting: single TensorCore; chip execution: not included")
     print("[Hierarchy] " + json.dumps(report["hardware_hierarchy"]))
     print("[Counts] " + json.dumps(report["counts"]))
+    print("[CMEM] " + json.dumps(report["memory"]["cmem"]))
     print("[Inventory per TensorCore] " + json.dumps(report["hardware_inventory"]["per_tensorcore"]))
     print("[Inventory chip] " + json.dumps(report["hardware_inventory"]["chip"]))
-    print("[Missing parameters] " + ", ".join(report["missing_parameters"]))
+    print("[Missing parameters] " + (", ".join(report["missing_parameters"]) or "none"))
     print("[Assumptions] " + ", ".join(report["hardware_derived"]["assumed_inputs"]))
     if report["mode"] == "timing":
         timing = report["timing"]
         print("[Timing] " + json.dumps({k: timing[k] for k in
-              ("status", "total_cycles", "time_ns", "throughput_gops", "stages_cycles")}))
+              ("status", "total_cycles", "time_ns", "throughput_gops", "service_cycles", "elapsed_cycles")}))
+        if "cmem_outer_overlap_saved_cycles" in timing:
+            print("[CMEM overlap] " + json.dumps({k: timing[k] for k in
+                  ("serialized_cmem_outer_cycles", "cmem_outer_overlap_saved_cycles")}))
         print("[Timing assumptions] " + "; ".join(timing["assumptions"]))
         print("[Energy/area] Not evaluated; chip peak is specification arithmetic")
     else:

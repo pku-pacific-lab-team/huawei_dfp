@@ -31,7 +31,7 @@ class TPUCountTest(unittest.TestCase):
         self.assertEqual(r["counts"]["psum_write_bytes"], 0)
         self.assertEqual(r["memory"]["vmem"]["peak_logical_bytes"], 2048)
         self.assertEqual(r["boundary"]["scope"], "single_tensorcore")
-        self.assertEqual(r["schema_version"], 2)
+        self.assertEqual(r["schema_version"], 13)
         self.assertEqual(r["boundary"]["hardware_scope"], "chip")
         self.assertEqual(r["boundary"]["counting_scope"], "single_tensorcore")
         self.assertEqual(r["boundary"]["simulated_tensorcores"], 1)
@@ -56,7 +56,7 @@ class TPUCountTest(unittest.TestCase):
             self.assertEqual(a[name]["count"], 84, name)
         self.assertEqual(r["memory"]["vmem"]["peak_logical_bytes"], 50)
         self.assertEqual(r["memory"]["hbm"]["logical_footprint_bytes"], 134)
-        self.assertIsNone(c["executed_padded_ops"])
+        self.assertEqual(c["executed_padded_ops"], 2 * 5 * 256 * 256)
 
     def test_k_blocking_changes_psum_actions_only(self):
         sim = TPUSimulator(spec())
@@ -119,8 +119,11 @@ class TPUCountTest(unittest.TestCase):
             config["parameters"]["mxus_per_tensorcore"].update(value=mxus, status="assumed")
             report = TPUSimulator(TPUSpec(config)).simulate(workload(3, 5, 7), tile=(2, 3, 4))
             with self.subTest(cores=cores, mxus=mxus):
-                for name in ("counts", "action_counts", "counting_policy", "memory", "boundary", "timing"):
+                for name in ("counts", "action_counts", "counting_policy", "boundary", "timing"):
                     self.assertEqual(report[name], baseline[name], name)
+                for memory in ("vmem", "hbm"):
+                    self.assertEqual(report["memory"][memory], baseline["memory"][memory])
+                self.assertEqual(report["memory"]["cmem"]["allocated_bytes"], 0)
                 self.assertEqual(report["hardware_inventory"]["chip"]["mxus"], cores * mxus)
                 self.assertAlmostEqual(report["hardware_derived"]["chip_int8_peak_tops"], cores * mxus * 34.4064)
 
@@ -162,7 +165,7 @@ class TPUCountTest(unittest.TestCase):
                 self.assertEqual(r["workload"]["format_overridden"], overridden)
                 self.assertEqual(r["mode"], "timing")
                 self.assertGreater(r["timing"]["total_cycles"], 0)
-                self.assertEqual(r["schema_version"], 2)
+                self.assertEqual(r["schema_version"], 13)
                 self.assertFalse(r["boundary"]["chip_execution_included"])
                 self.assertEqual(r["hardware_hierarchy"]["chip"]["tensorcores_per_chip"], 2)
                 self.assertEqual(r["hardware_inventory"]["chip"]["mxus"], 8)
@@ -188,7 +191,7 @@ class TPUCountTest(unittest.TestCase):
 
     def test_excluded_features_are_not_cli_options(self):
         for args in (["--mode", "invalid"], ["--scope", "chip"], ["--loop-order", "KNM"],
-                     ["--buffers", "2"], ["--energy", "coefficients.json"], ["--format", "INT8", "BF16"]):
+                     ["--buffers", "3"], ["--energy", "coefficients.json"], ["--format", "INT8", "BF16"]):
             with self.subTest(args=args), redirect_stderr(StringIO()), self.assertRaises(SystemExit) as raised:
                 tpu.parse_args(args)
             self.assertEqual(raised.exception.code, 2)
@@ -211,7 +214,7 @@ class TPUTimingTest(unittest.TestCase):
         sim = TPUSimulator(spec())
         r = sim.simulate(workload(128, 128, 128), mode="timing")
         t = r["timing"]
-        self.assertEqual(t["stages_cycles"], {
+        self.assertEqual(t["service_cycles"]["by_stage"], {
             "hbm_to_vmem": 58, "vmem_to_mxu": 32, "psum_read": 0,
             "matrix_compute": 128, "matrix_fill_drain": 254,
             "result_to_vmem": 64, "vmem_to_hbm": 115})
@@ -221,26 +224,26 @@ class TPUTimingTest(unittest.TestCase):
         self.assertEqual(t["max_parallel_mxus_used"], 1)
         tail = sim.simulate(workload(1, 1, 1), mode="timing")
         self.assertEqual(tail["timing"]["total_cycles"], 259)
-        self.assertEqual(tail["timing"]["stages_cycles"]["matrix_fill_drain"], 254)
+        self.assertEqual(tail["timing"]["service_cycles"]["by_stage"]["matrix_fill_drain"], 254)
         self.assertIsNone(tail["timing"]["chip_cycles"])
-        self.assertIsNone(tail["counts"]["executed_padded_ops"])
+        self.assertEqual(tail["counts"]["executed_padded_ops"], 2 * 128 * 128)
 
     def test_four_mxus_run_one_wave_and_fifth_tile_needs_another(self):
         sim = TPUSimulator(spec())
         four = sim.simulate(workload(256, 128, 256), tile=(256, 128, 256), mode="timing")["timing"]
         self.assertEqual((four["mxu_output_tiles"], four["matrix_waves"], four["max_parallel_mxus_used"]), (4, 1, 4))
-        self.assertEqual(four["stages_cycles"]["matrix_compute"], 128)
+        self.assertEqual(four["service_cycles"]["by_stage"]["matrix_compute"], 128)
         self.assertEqual(four["total_cycles"], 1276)
         five = sim.simulate(workload(513, 128, 128), tile=(1024, 128, 128), mode="timing")["timing"]
         self.assertEqual((five["mxu_output_tiles"], five["matrix_waves"], five["max_parallel_mxus_used"]), (5, 2, 4))
-        self.assertEqual(five["stages_cycles"]["matrix_compute"], 256)
-        self.assertEqual(five["stages_cycles"]["matrix_fill_drain"], 508)
+        self.assertEqual(five["service_cycles"]["by_stage"]["matrix_compute"], 256)
+        self.assertEqual(five["service_cycles"]["by_stage"]["matrix_fill_drain"], 508)
 
     def test_k_accumulation_stays_in_vmem_and_final_export_is_once(self):
         sim = TPUSimulator(spec())
         counted = sim.simulate(workload(3, 5, 7), tile=(2, 3, 4))
-        timed = sim.simulate(workload(3, 5, 7), tile=(2, 3, 4), mode="timing")
-        self.assertEqual(timed["timing"]["stages_cycles"], {
+        timed = sim.simulate(workload(3, 5, 7), tile=(2, 3, 4), mode="timing", schedule="serial")
+        self.assertEqual(timed["timing"]["service_cycles"]["by_stage"], {
             "hbm_to_vmem": 8, "vmem_to_mxu": 8, "psum_read": 4,
             "matrix_compute": 20, "matrix_fill_drain": 2032,
             "result_to_vmem": 8, "vmem_to_hbm": 4})
@@ -255,14 +258,14 @@ class TPUTimingTest(unittest.TestCase):
         config["parameters"]["tensorcores_per_chip"].update(value=4, status="assumed")
         other = TPUSimulator(TPUSpec(config)).simulate(workload(), mode="timing")
         self.assertEqual(other["counts"], baseline["counts"])
-        self.assertEqual(other["timing"]["stages_cycles"]["matrix_compute"], 32)
+        self.assertEqual(other["timing"]["service_cycles"]["by_stage"]["matrix_compute"], 32)
         self.assertEqual(other["timing"]["parameters"]["hbm_share_bytes_per_second"]["value"], 300e9)
         self.assertEqual(other["timing"]["total_cycles"], 296)
         self.assertFalse(other["boundary"]["chip_execution_included"])
 
     def test_required_unknowns_reject_timing_but_preserve_count_mode(self):
         for name in ("clock_hz", "hbm_bandwidth_bytes_per_second", "mxus_per_tensorcore",
-                     "mxu_rows", "mxu_columns", "int8_macs_per_cell_cycle"):
+                     "mxu_rows", "mxu_columns", "int8_macs_per_cell_cycle", "vmem_bandwidth_bytes_per_second"):
             config = hardware_config()
             config["parameters"][name].update(value=None, status="unknown")
             sim = TPUSimulator(TPUSpec(config))
@@ -275,7 +278,8 @@ class TPUTimingTest(unittest.TestCase):
 
     def test_vmem_proxy_is_explicit_and_configured_service_is_respected(self):
         r = TPUSimulator(spec()).simulate(workload(), mode="timing")
-        self.assertIn("vmem_bandwidth_bytes_per_second", r["missing_parameters"])
+        self.assertNotIn("vmem_bandwidth_bytes_per_second", r["missing_parameters"])
+        self.assertEqual(r["parameter_provenance"]["vmem_bandwidth_bytes_per_second"]["value"], 1075200000000)
         params = r["timing"]["parameters"]
         self.assertEqual(params["vmem_service_bytes_per_cycle"]["value"], 1024)
         self.assertEqual(params["vmem_service_bytes_per_cycle"]["status"], "assumed")
@@ -311,7 +315,8 @@ class TPUTimingTest(unittest.TestCase):
             before = target.read_bytes()
             r = json.loads(before)
             self.assertEqual(r["mode"], "timing")
-            self.assertEqual(r["timing"]["total_cycles"], 20016)
+            self.assertEqual(r["timing"]["total_cycles"], 9244)
+            self.assertEqual(r["timing"]["max_parallel_mxus_used"], 4)
             self.assertIn("[Timing]", output.getvalue())
             config = hardware_config()
             config["parameters"]["clock_hz"].update(value=None, status="unknown")

@@ -22,7 +22,7 @@ def parse_args(argv=None):
     p.add_argument("--mode", choices=["count","timing"], default="timing",
                    help="count: operations/traffic only; timing (default): counts and task time with explicit assumptions")
     p.add_argument("--scope", choices=["single_hem","chip"], default="single_hem")
-    p.add_argument("--tile", type=int, nargs=3, default=(320,320,640), metavar=("M","K","N"))
+    p.add_argument("--tile", type=int, nargs=3, default=None, metavar=("M","K","N"))
     p.add_argument("--mem-slices", type=int, nargs="+")
     p.add_argument("--streams", type=int)
     p.add_argument("--reserved-bytes", type=int, default=0)
@@ -42,7 +42,7 @@ def main(argv=None):
             # 每个精度任务独立运行；打印实际任务，便于确认是否使用了显式精度覆盖。
             print("[Effective workload] " + json.dumps(w.to_dict(), ensure_ascii=False))
             result = run_reference(w, hardware=args.hardware,config_dir=args.config_dir,
-                mode=args.mode,loop_order=args.loop_order,scope=args.scope,tile=tuple(args.tile),
+                mode=args.mode,loop_order=args.loop_order,scope=args.scope,tile=tuple(args.tile) if args.tile is not None else None,
                 mem_slices=args.mem_slices,streams=args.streams,reserved_bytes=args.reserved_bytes)
             print_report(result)
             if args.verbose:
@@ -58,4 +58,6 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
     raise SystemExit(main())

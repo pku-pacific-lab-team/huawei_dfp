@@ -1,8 +1,61 @@
 {
-  "schema_version": 2,
+  "_documentation": {
+    "purpose": "维护注释，采用合法 JSON 字段代替 // 注释。前三节区分硬件数值、执行策略、说明依据；configuration_control 单列会参与身份/格式校验或依赖加载的字段。此 _documentation 块为可选，只供阅读，解析时整体剔除，不进入计算、报告或运行时 reference_id；完整文件仍纳入来源台账校验。",
+    "hardware_parameters": {
+      "parameters": "硬件数值参数：拓扑、MEM/stream 容量与服务、MXM/IW 延迟、共享 VXM 服务和有限权重缓冲。含明确 assumed 的模型代理；数值用途可能为计算、校验、派生规格或库存。weight_buffer_bytes 是待用权重缓冲容量假设，不是缓冲槽数，也不额外并入物理 SRAM 库存。"
+    },
+    "execution_policy": {
+      "execution": "执行策略及其依据：约束/控制仿真行为，内部数值如槽数、分块和固定延迟也属于本类；其中 status/source/version/conditions 是说明与依据，详见 execution_fields。"
+    },
+    "descriptive_metadata": {
+      "description": "说明与依据：原生 TSP 模型范围与假设的文字摘要，不控制实际执行。 已归档的规格/库存值见 configs/archive/tsp.json，运行时不读取或合并归档。"
+    },
+    "configuration_control": {
+      "schema_version": "配置控制：解析器校验版本；旧配置需显式迁移数值与策略字段。",
+      "model": "配置控制：模型身份，必须匹配原生 TSP 解析器。",
+      "profile_id": "配置控制：参考配置标识，参与 reference_id 命名，不作为计算系数。",
+      "memory_tile_capacity": "配置控制：强制校验 includes_both_banks，声明每个 memory_tile_bytes 已包含两个 bank；不是可忽略的文字，不能再乘 bank 数。",
+      "supported_formats": "配置控制：支持格式约束，当前必须为 INT8；添加名称不会自动实现新精度。"
+    },
+    "parameter_fields": [
+      "value: 硬件数值输入：固定能力、容量、数量、服务率或延迟；包括 status=assumed 的显式代理，不是自动求值的公式。",
+      "unit: 单位约束：随 value 一起校验；不能仅改单位标签而不换算数值。",
+      "scope: 作用域约束：区分 chip/core/plane 等；随参数校验，不能只改标签来缩放硬件。",
+      "status: 说明与依据并附校验：documented/measured/assumed/unknown；描述证据强度，不是开关。null 必须显式为 unknown，不触发隐藏默认值。",
+      "source: 说明与依据：原始来源或模型政策，文字不会自动执行或改写 value。",
+      "source_version: 说明与依据：参数依据的文档/配置版本，不是本文件 schema_version。",
+      "conditions: 说明与依据：数值取法、适用条件及消费边界；改变公式文字不会自动重算 value，应同步更新数值和实现。",
+      "verification: 说明与依据：核验范围与限制；项目设计材料核验不等于硅片测量。"
+    ],
+    "execution_fields": {
+      "scope": "执行约束：允许的局部仿真范围；不能通过改字符串获得整片调度。",
+      "resident_boundary": "执行约束：任务的输入/输出驻留边界，解析器校验支持的边界。",
+      "schedule": "执行策略：选择解析器支持的调度模型。",
+      "default_tile_mkn": "执行策略：默认 M/K/N 分块；不是物理阵列尺寸。支持的 CLI/API 参数可覆盖。",
+      "buffer_slots": "执行约束：当前必须为 1，表示一份 resident A/B/C 分配；待用权重缓冲另由 parameters.weight_buffer_bytes 限制。",
+      "weight_load_overlap": "执行策略/约束：权重准备是否允许重叠，取值必须属于本架构支持的实现。",
+      "fixed_latency_cycles": "执行策略：显式建模的固定周期开销，虽为数值仍属于执行策略；0 表示忽略该项开销，空对象表示没有此类配置项。",
+      "rules": "执行规则：资源共享、屏障或映射约束；只支持已实现的值，修改说明文字不能增加新规则。",
+      "status": "说明与依据并附校验：执行模型必须标为 assumed，不冒充硬件实测行为。",
+      "source": "说明与依据：策略的设计依据；不会执行此字符串或访问其 URL 来决定调度。",
+      "version": "说明与依据：策略依据的版本，不是 schema_version。",
+      "conditions": "说明与依据：策略的适用条件和局限；用于追溯，不作为可执行表达式。"
+    },
+    "maintenance_rules": [
+      "新增或移动真实字段时同步更新本注释的分类；不要只修改注释来改变模型行为。",
+      "硬件参数的 value、unit、scope 与来源元数据一起维护；是否参与当前 GEMM 以该参数的 conditions 和实际消费路径为准。",
+      "执行策略仅可使用解析器已有实现；修改策略后检查容量、动作计数和时间报告，不用库存数量直接缩放任务耗时。",
+      "说明文字仍可能接受完整性校验或出现在来源报告中；只有 _documentation 是完全独立的阅读注释。",
+      "注释只放在根层 _documentation 中；其他未知字段及参数/策略内部的额外字段仍严格拒绝。"
+    ]
+  },
+  "schema_version": 9,
   "model": "tsp_analytical_reference",
   "profile_id": "tsp_issue2_reference",
-  "description": "Issue #2 structural reference; INT8 single-hemisphere analytical execution. Timing intentionally incomplete.",
+  "memory_tile_capacity": "includes_both_banks",
+  "supported_formats": [
+    "INT8"
+  ],
   "parameters": {
     "superlanes": {
       "value": 20,
@@ -23,16 +76,6 @@
       "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 2.2; lines 66",
       "conditions": "16 lanes in one SuperLane.",
       "verification": "source_checked_project_spec_not_silicon"
-    },
-    "spare_superlanes": {
-      "value": null,
-      "unit": "count",
-      "scope": "chip",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 2.2; lines 65",
-      "conditions": "The designated project profile exposes 20 programmable SL but does not specify physical redundancy. HotChips 2022 slide 54 documents 21 physical/one spare for the scale-out TSP; exact applicability to this 14nm baseline has not been established. Retain null, not zero.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
     },
     "hemispheres": {
       "value": 2,
@@ -134,26 +177,6 @@
       "conditions": "2 hemispheres*44 slices*20 tiles*128 KiB=220 MiB=230686720 bytes of data MEM. Do not multiply again by bank count; not a full physical SRAM inventory.",
       "verification": "source_checked_project_spec_not_silicon"
     },
-    "physical_sram_bytes": {
-      "value": null,
-      "unit": "byte",
-      "scope": "chip",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 8.2;6.3; lines 563-575,332-336",
-      "conditions": "220 MiB is data MEM capacity. Sources do not establish complete physical SRAM including redundancy, local memories and buffers for this profile.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
-    },
-    "local_sram_bytes": {
-      "value": null,
-      "unit": "byte",
-      "scope": "chip",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 6.3;8.2; lines 332-336,563-575",
-      "conditions": "Known local weight/activation registers are not a complete local SRAM inventory; no supported 32 MiB default.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
-    },
     "sr_coordinates": {
       "value": 45,
       "unit": "count",
@@ -194,16 +217,6 @@
       "conditions": "TSP LPU 14nm baseline clock is 900 MHz = 0.9 GHz. This is the nominal project reference, not a measured CIM ASIC clock.",
       "verification": "source_checked_project_spec_not_silicon"
     },
-    "nominal_int8_tops": {
-      "value": 750,
-      "unit": "TOPS",
-      "scope": "chip",
-      "status": "documented",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/071573763db09594a85f2371e7abfc7615cfe509/docs/reference/SOW-Summary.md",
-      "source_version": "commit 071573763db09594a85f2371e7abfc7615cfe509; git-blob b77cbdf8eb55ba46c990dd89060c193445cb81b2; Table 1 architecture comparison; lines 33-45",
-      "conditions": "Nominal INT8 rating is 750 TOPS. Geometry at 900 MHz and two operations/MAC gives 737.28 TOPS; source does not explain the 12.72 TOPS gap, so preserve distinct nominal and derived fields.",
-      "verification": "source_checked_project_spec_not_silicon"
-    },
     "mem_read_bpc": {
       "value": null,
       "unit": "byte/cycle",
@@ -224,129 +237,147 @@
       "conditions": "Native 14nm TSP memory geometry matches the project reference: 88 slices, 20 tiles/slice, 220 MiB total. The 320-byte vector uses staggered per-SL execution. Aggregate TB/s figures in the ISCA example assume 1 GHz and must not be reused unchanged at 900 MHz.",
       "verification": "primary_paper_checked_geometry_matches_project_reference"
     },
-    "mem_shared_bpc": {
-      "value": 320,
-      "unit": "byte/cycle",
-      "scope": "slice",
-      "status": "assumed",
-      "source": "model-policy",
-      "source_version": "tsp-reference-v2",
-      "conditions": "Conservative software policy caps combined reads+writes at 320 B/cycle/slice. Primary papers permit 320 read + 320 write concurrently on opposite banks; model has no bank-level concurrency. This is not a measured or architectural shared-port limit.",
-      "verification": "explicit_model_policy_not_hardware_fact"
-    },
     "install_bpc": {
-      "value": null,
+      "value": 10240,
       "unit": "byte/cycle",
       "scope": "hemisphere",
-      "status": "unknown",
+      "status": "assumed",
       "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 6.5-6.6; lines 372-385",
-      "conditions": "LW wave/rough full-plane loading schedule is documented, but a calibrated install-only throughput for the model hemisphere allocation is not specified.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
+      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 6.5-6.6; lines 372-385; model assumption made explicit in configuration 2026-11-16; fixed-service model schema 3, 2026-11-16; schema 8 split LW/IW, 2026-11-18",
+      "conditions": "Internal weight-buffer-to-array IW service: 10240 B/cycle per hemisphere, independent of allocated MEM and stream bandwidth. Assumed port limit, not measured. LW separately reads the weights into the buffer; IW does not read MEM again.",
+      "verification": "model_assumption_explicit_in_config_not_hardware_calibrated"
     },
-    "install_first_cycles": {
-      "value": null,
+    "install_propagation_cycles": {
+      "value": 19,
       "unit": "cycle",
       "scope": "hemisphere",
-      "status": "unknown",
+      "status": "assumed",
       "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 6.5-6.6; lines 372-385",
-      "conditions": "A roughly 40-cycle full loading wave includes propagation and is not the model install first-result parameter.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
+      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 6.5-6.6; lines 372-385; model assumption made explicit in configuration 2026-11-16; fixed-service model schema 3, 2026-11-16; schema 8 split LW/IW, 2026-11-18",
+      "conditions": "Assumed fixed IW propagation allowance of 19 cycles per changed weight block, in addition to ceil(payload/install_bpc). IW conservatively waits for the previous row window to drain. Public BERT results can hide installation latency; this model does not claim exact rolling IW timing.",
+      "verification": "model_assumption_explicit_in_config_not_hardware_calibrated"
     },
     "mxm_first_cycles": {
-      "value": null,
+      "value": 20,
       "unit": "cycle",
       "scope": "hemisphere",
-      "status": "unknown",
+      "status": "assumed",
       "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 6.6-6.7; lines 381-411",
-      "conditions": "A 20-SL reduction chain and issue staggering are documented; no matching calibrated end-to-end first-result latency is supplied.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
+      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 6.6-6.7; lines 381-411; model assumption made explicit in configuration 2026-11-16",
+      "conditions": "Method: 20 SuperLanes, one local ACC step each; reserve the full chain for tails and omit additional uncalibrated pipeline delays. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis.",
+      "verification": "model_assumption_explicit_in_config_not_hardware_calibrated"
     },
     "mxm_row_ii": {
-      "value": null,
+      "value": 1,
       "unit": "cycle",
       "scope": "hemisphere",
-      "status": "unknown",
+      "status": "assumed",
       "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 6.5-6.7; lines 372-411",
-      "conditions": "Papers/spec describe native continuous matrix operation and baseline II=1, but the calibrated single-hemisphere execution contract in this model has not been mapped to that per-plane result stream. Retain null pending metric/scope mapping, not because no throughput fact exists.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
+      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 6.5-6.7; lines 372-411; model assumption made explicit in configuration 2026-11-16",
+      "conditions": "Method: Resident-weight ideal compute service: one row per cycle. MEM/stream/VXM still constrain the actual task row interval. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis.",
+      "verification": "model_assumption_explicit_in_config_not_hardware_calibrated"
     },
     "row_io_latency_cycles": {
-      "value": null,
+      "value": 0,
       "unit": "cycle",
       "scope": "hemisphere",
-      "status": "unknown",
+      "status": "assumed",
       "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 6.6-6.7; lines 381-411",
-      "conditions": "SR traversal is spatially dependent; no fixed latency matching this aggregate model field is established.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
+      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 6.6-6.7; lines 381-411; model assumption made explicit in configuration 2026-11-16",
+      "conditions": "Method: Explicitly omit additional fixed MEM/SR route latency. Payload services are still charged; zero is an assumption, not a measured physical latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis.",
+      "verification": "model_assumption_explicit_in_config_not_hardware_calibrated"
     },
-    "vxm_add_ops_per_cycle": {
-      "value": null,
+    "vxm_base_ops_per_cycle": {
+      "value": 320,
       "unit": "op/cycle",
-      "scope": "allocation",
-      "status": "unknown",
+      "scope": "hemisphere",
+      "status": "assumed",
       "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 7.2;7.5-7.7; lines 436-448,471-543",
-      "conditions": "5120 physical ALUs do not specify the allocation/task-effective INT32 addition budget. Operator lane mapping and allocation are unresolved.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
+      "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
+      "conditions": "Shared single-task VXM budget of 320 equivalent basic operations/cycle. With int32_add_cost=1 this preserves the prior 320 INT32 add/cycle service. Hemisphere scope denotes the active task allocation from the central VXM, not a replicated unit per hemisphere. All operation types share this budget; rates are alternatives, not additive. MEM/stream supply is charged separately. Fixed analytical assumption, not hardware calibration or the full 5120-ALU chip peak.",
+      "verification": "model_assumption_explicit_in_config_not_hardware_calibrated"
     },
-    "vxm_add_first_cycles": {
-      "value": null,
+    "vxm_int32_add_cost": {
+      "value": 1,
+      "unit": "equivalent_op/op",
+      "scope": "hemisphere",
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#tsp-vxm-service",
+      "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
+      "conditions": "One scalar-element INT32 addition consumes one equivalent operation on the shared single-task VXM service. Together with base=320 this preserves the existing GEMM cross-K add rate. No independent add resource is introduced.",
+      "verification": "explicit_algorithmic_assumption_not_hardware_calibrated"
+    },
+    "vxm_fp32_basic_op_cost": {
+      "value": 1,
+      "unit": "equivalent_op/op",
+      "scope": "hemisphere",
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#tsp-vxm-service",
+      "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
+      "conditions": "One scalar-element FP32 ADD or MUL consumes one equivalent operation on the shared VXM budget. Explicit new arithmetic-cost assumption, not measured parity with INT32. FMA, DIV, conversions, reductions and complete activation operators are not implicitly supported. Current GEMM does not execute FP32 operations.",
+      "verification": "explicit_algorithmic_assumption_not_hardware_calibrated"
+    },
+    "vxm_fp32_exp_cost": {
+      "value": 15,
+      "unit": "equivalent_op/op",
+      "scope": "hemisphere",
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#tsp-vxm-service",
+      "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
+      "conditions": "FP32 approximation work proxy: k=round(x*log2(e)), r=x-k*ln(2) costs 4; degree-5 Taylor polynomial in Horner form costs 5 MUL + 5 ADD; exponent scaling costs 1, total 15. Round and exponent scaling each count as one equivalent operation. No fused-operation discount. Reference domain is finite x in [-80,0]; no correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate exp numerically, and is not native TSP Exp instruction throughput or latency. Shares the VXM budget; memory and dependencies are separate.",
+      "verification": "explicit_algorithmic_assumption_not_hardware_calibrated"
+    },
+    "vxm_fp32_rsqrt_cost": {
+      "value": 12,
+      "unit": "equivalent_op/op",
+      "scope": "hemisphere",
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#tsp-vxm-service",
+      "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
+      "conditions": "Positive-normal FP32 approximation work proxy: bit seed bits(y)=0x5f3759df-(bits(x)>>1) costs 2 (shift and subtraction; bit reinterpretation costs 0), then two iterations y=(0.5*y)*(3-x*y*y), each 4 MUL + 1 SUB, total 12. No fused-operation discount. No correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate rsqrt numerically, and is not native TSP RSqrt instruction throughput or latency. Shares the VXM budget; memory and dependencies are separate.",
+      "verification": "explicit_algorithmic_assumption_not_hardware_calibrated"
+    },
+    "vxm_add_latency_cycles": {
+      "value": 0,
       "unit": "cycle",
-      "scope": "allocation",
-      "status": "unknown",
+      "scope": "hemisphere",
+      "status": "assumed",
       "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 7.5-7.7; lines 471-543",
-      "conditions": "Operation support and pipeline organization do not supply a calibrated first-result delay for this allocation.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
+      "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
+      "conditions": "Explicitly omit additional fixed INT32-add pipeline latency. Runtime first-row add time is ceil(actual padded tile N * vxm_int32_add_cost / vxm_base_ops_per_cycle) plus this value. This latency applies only to GEMM INT32 addition, not to FP32 special functions. Payload transport is charged separately. Zero is a model assumption, not measured zero hardware latency.",
+      "verification": "model_assumption_explicit_in_config_not_hardware_calibrated"
     },
-    "nonlinear_ops_per_cycle": {
-      "value": null,
-      "unit": "op/cycle",
-      "scope": "chip",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 7.5-7.7; lines 471-543",
-      "conditions": "Nonlinear operations have operation-specific and multi-cycle behavior; no single chip-wide nonlinear rate is supported.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
-    },
-    "offchip_capacity_bytes": {
-      "value": null,
+    "weight_buffer_bytes": {
+      "value": 204800,
       "unit": "byte",
-      "scope": "chip",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 1 overview;8.2; lines 9-34,563-575",
-      "conditions": "No external-memory capacity for this reference board/system configuration has been supplied.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
-    },
-    "offchip_bandwidth_bpc": {
-      "value": null,
-      "unit": "byte/cycle",
-      "scope": "chip",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 1 overview;8.2; lines 9-34,563-575",
-      "conditions": "No sustained off-chip memory payload bandwidth for the reference configuration has been supplied.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
-    },
-    "interchip_bandwidth_bpc": {
-      "value": null,
-      "unit": "byte/cycle",
-      "scope": "chip",
-      "status": "unknown",
-      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "commit 700b6e6509b1742878091382df0d0df3e92732e1; git-blob a1c88357c7a14ea54da7d107cd22b6b89ad0cd8e; 1 overview; lines 9-34",
-      "conditions": "ISCA 2020 provides a 3.84 Tb/s two-direction pin-rate example, not a calibrated one-direction payload budget for this reference. Link allocation and protocol efficiency remain unspecified.",
-      "verification": "source_reviewed_parameter_or_scope_unresolved"
+      "scope": "hemisphere",
+      "status": "assumed",
+      "source": "Answer Fast (ASAP 2022), III-C; Hot Chips 34 Groq ISA slide 25; project finite-buffer approximation",
+      "source_version": "https://arxiv.org/pdf/2206.11062#page=5; https://hc34.hotchips.org/assets/program/conference/day2/Machine%20Learning/HotChips34%20-%20Groq%20-%20Abts%20-%20final.pdf#page=25; model 2026-11-18",
+      "conditions": "One pending INT8 weight block per hemisphere: 2 planes * 320 * 320 bytes = 204800 bytes (200 KiB). Buffer existence and overlapping weight preparation are documented; capacity is a modeling assumption, not a published SRAM size. Separate from resident A/B/C MEM allocation and not added to physical SRAM inventory. No extra LW capture-port limit beyond allocated MEM/stream service.",
+      "verification": "public_mechanism_verified_capacity_assumed"
     }
   },
-  "memory_tile_capacity": "includes_both_banks",
-  "supported_formats": [
-    "INT8"
-  ]
+  "execution": {
+    "scope": "single_hem",
+    "resident_boundary": "local_MEM",
+    "schedule": "row_pipeline",
+    "default_tile_mkn": [
+      320,
+      320,
+      640
+    ],
+    "buffer_slots": 1,
+    "weight_load_overlap": "background",
+    "fixed_latency_cycles": {},
+    "rules": {
+      "inter_tile_overlap": "weight_prefetch",
+      "mem_read_write": "independent_assumed_conflict_free"
+    },
+    "status": "assumed",
+    "source": "Answer Fast III-C (https://arxiv.org/pdf/2206.11062#page=5); Hot Chips 34 ISA; ARCHITECTURE.md#tsp-weight-prefetch",
+    "version": "2026-11-18 finite one-block weight prefetch v1",
+    "conditions": "One resident A/B/C allocation (buffer_slots=1), plus one pending weight block bounded by weight_buffer_bytes. LW uses residual MEM-read and stream-to-MXM service while rows execute; all reads contend. Writes have an independent budget under assumed conflict-free bank placement. Current rows have priority; row demand/II is reserved across fill and drain as well as steady state. IW consumes only internal install service after prior tile drain and LW completion; the pending slot releases at IW end. One-block capacity, fluid bandwidth reservations, no extra LW capture-port bottleneck and drained IW are explicit analytical assumptions, not measured hardware timing."
+  },
+  "description": "INT8 single-hemisphere analytical reference with shared VXM compute service and explicit FP32 exp/rsqrt algorithmic cost assumptions; full nonlinear operators remain outside GEMM. Independent MEM read/write services assume conflict-free bank placement. Display-only specifications are preserved in configs/archive/tsp.json; the runtime does not load this archive."
 }

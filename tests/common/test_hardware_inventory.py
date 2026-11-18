@@ -13,7 +13,7 @@ class HardwareInventoryTest(unittest.TestCase):
         self.assertEqual(result["area"]["status"],"not_evaluated")
         self.assertIsNone(result["area"]["total_mm2"])
         self.assertEqual(result["hardware_inventory"]["global_mem_sram_mib"],220)
-        self.assertIsNone(result["hardware_inventory"]["physical_sram_mib"])
+        self.assertNotIn("physical_sram_mib", result["hardware_inventory"])
         cim_loader=TSPCIMConfigLoader()
         cim=cim_loader.create_tsp_spec(cim_loader.load_hardware_config())
         self.assertEqual(cim.mem_total_bytes,spec.mem_total_bytes)

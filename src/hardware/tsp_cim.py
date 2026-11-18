@@ -1,4 +1,6 @@
 """Reviewed Core/Cluster/Plane topology; task domains and chip inventory are distinct."""
+from .execution import read_execution
+from .documentation import without_documentation
 # 阅读层级：Macro → Core → 单 SuperLane 上的 Cluster slice → 跨 SuperLane 的 domain。
 # 同一 slice 沿 N 拼接，沿 SuperLane 方向的 K 贡献相加；一个 Plane 内有多个独立域。
 from copy import deepcopy
@@ -8,7 +10,7 @@ import json
 from types import MappingProxyType
 
 from .macro import CIMMacroSpec
-from .tsp import TSPSpec
+from .tsp import TSPSpec, VXM_SERVICE_PARAMETERS, VXM_OPERATION_COSTS
 from .parameters import read_parameter
 
 
@@ -21,24 +23,17 @@ FIXED = {
     "superlanes_per_plane": (20, "count", "plane"),
     "planes_per_hemisphere": (2, "count", "hemisphere"),
     "hemispheres": (2, "count", "chip"),
-    "nim_units_per_plane": (1, "count", "plane"),
-    "nim_tiles_per_plane": (20, "count", "plane"),
-    "nim_channels_per_tile": (4, "count", "nim_tile"),
-    "nim_conversion_lanes": (64, "count", "plane"),
-    "nim_output_bpc": (256, "byte/cycle", "plane"),
+    "int32_writer_bpc": (256, "byte/cycle", "writer_superlane_plane"),
     "streams_per_plane": (16, "count", "superlane_plane_direction"),
     "lw_cores_per_cycle": (2, "core/cycle", "superlane_plane"),
     "core_stagger_cycles": (1, "cycle", "cluster_slice"),
 }
-UNKNOWN = {"physical_sram_bytes": "chip", "additional_local_sram_bytes": "chip",
-           "collector_buffer_bytes": "plane"}
 SHARED_PARAMETERS = (
     "superlanes", "lanes_per_superlane", "hemispheres", "planes_per_hemisphere",
     "vxm_alus_per_lane", "mem_slices_per_hemisphere", "mem_tiles_per_slice",
     "memory_tile_bytes", "banks_per_memory_tile", "usable_mem_bytes", "sr_coordinates",
     "streams_per_direction", "stream_width_bytes", "clock_ghz", "mem_read_bpc",
-    "mem_write_bpc", "mem_shared_bpc", "vxm_add_ops_per_cycle", "nonlinear_ops_per_cycle",
-    "offchip_capacity_bytes", "offchip_bandwidth_bpc", "interchip_bandwidth_bpc",
+    "mem_write_bpc", *VXM_SERVICE_PARAMETERS, "vxm_add_latency_cycles",
 )
 
 
@@ -92,53 +87,31 @@ class CIMPlaneSpec:
         return self.clusters_per_superlane * self.domain_macros
 
 
-@dataclass(frozen=True)
-class MacroPlacement:
-    hemisphere: int
-    plane: int
-    cluster: int
-    superlane: int
-    core: int
-    macro: int
-    slot: int
-    chip_macro_id: int
-    k_start: int
-    k_stop: int
-    n_start: int
-    n_stop: int
-
-
-def check_index(value, limit, name):
-    if type(value) is not int or not 0 <= value < limit:
-        raise ValueError(f"{name} outside topology: expected integer in [0, {limit})")
-    return value
-
-
 class TSPCIMSpec:
     def __init__(self, config):
-        required = {"schema_version", "model", "profile_id", "description", "supported_formats",
+        config = without_documentation(config)
+        self.execution = read_execution(config.get("execution"), "tsp_cim")
+        required = {"execution", "schema_version", "model", "profile_id", "description", "supported_formats",
                     "native_reference", "macro_reference", "parameters",
                     "_native_reference_config", "_macro_profile"}
         if not isinstance(config, dict) or set(config) != required:
-            raise ValueError("CIM schema 2 requires resolved profiles; legacy fields conflict with Core/Cluster/Plane topology")
-        if type(config["schema_version"]) is not int or config["schema_version"] != 2:
-            raise ValueError("CIM schema_version must be 2")
+            raise ValueError("CIM schema 7 requires resolved profiles; legacy fields conflict with Core/Cluster/Plane topology")
+        config["_native_reference_config"] = without_documentation(config["_native_reference_config"])
+        if type(config["schema_version"]) is not int or config["schema_version"] != 7:
+            raise ValueError("CIM schema_version must be 7; archive the four NIM inventory parameters from schema 6")
         if config["model"] != "tsp_cim_cluster_reference" or config["supported_formats"] != ["INT8"]:
             raise ValueError("CIM Core/Cluster/Plane reference supports INT8 only")
         for key in ("profile_id", "description", "native_reference", "macro_reference"):
             if not isinstance(config[key], str) or not config[key].strip():
                 raise ValueError(f"{key} is required")
         params = config["parameters"]
-        if not isinstance(params, dict) or set(params) != set(FIXED) | set(UNKNOWN):
-            raise ValueError("CIM parameters must explicitly declare topology and unknown inventory")
+        if not isinstance(params, dict) or set(params) != set(FIXED):
+            raise ValueError("CIM parameters must explicitly declare the supported topology only")
         values = {}
         for name, (expected, unit, scope) in FIXED.items():
             values[name] = read_parameter(params[name], name, unit, scope, integer=True)
             if values[name] != expected:
                 raise ValueError(f"{name}: reviewed profile requires {expected}")
-        for name, scope in UNKNOWN.items():
-            values[name] = read_parameter(params[name], name, "byte", scope,
-                                          integer=True, required=False, zero=True)
         self.values = MappingProxyType(values)
         self._config = deepcopy(config)
         self.macro_spec = CIMMacroSpec(config["_macro_profile"])
@@ -166,11 +139,6 @@ class TSPCIMSpec:
             raise ValueError("Plane stream allocation exceeds shared native direction budget")
         if self.lw_bpc_per_superlane_plane > values["streams_per_plane"] * native.n_lanes_per_superlane:
             raise ValueError("LW design target exceeds allocated stream capture width")
-        known = self.mem_total_bytes + self.total_macros_chip * self.macro_spec.resident_weight_bytes
-        # 已知 MEM+Macro 是容量下界，collector 等未知部件不能因此视为零容量。
-        physical = values["physical_sram_bytes"]
-        if physical is not None and physical < known + (values["additional_local_sram_bytes"] or 0):
-            raise ValueError("Physical SRAM is smaller than known MEM + Macro + additional local inventory")
 
     @classmethod
     def from_config(cls, config):
@@ -200,29 +168,6 @@ class TSPCIMSpec:
     def lw_bpc_per_superlane_plane(self):
         return self.values["lw_cores_per_cycle"] * self.core.macros * self.macro_spec.values["write_wordline_bytes"]
 
-    def validate_domain(self, hemisphere=0, plane=0, cluster=0):
-        for value, limit, name in ((hemisphere, self.values["hemispheres"], "hemisphere"),
-                                   (plane, self.values["planes_per_hemisphere"], "plane"),
-                                   (cluster, self.plane.clusters_per_superlane, "cluster")):
-            check_index(value, limit, name)
-        return {"hemisphere": hemisphere, "plane": plane, "cluster": cluster}
-
-    def placement(self, superlane, core, macro, *, hemisphere=0, plane=0, cluster=0):
-        # slot 是单任务域内编号，chip_macro_id 是全片物理编号；后者还需包含 Plane/domain。
-        self.validate_domain(hemisphere, plane, cluster)
-        check_index(superlane, self.plane.superlanes, "superlane")
-        check_index(core, self.cluster.cores, "core")
-        check_index(macro, self.core.macros, "macro")
-        n_slot = core * self.core.macros + macro
-        # N 由 Core/Macro 位置决定，K 由 SuperLane 决定，对应矩阵片段采用左闭右开区间。
-        slot = superlane * self.cluster.macros + n_slot
-        plane_id = hemisphere * self.values["planes_per_hemisphere"] + plane
-        physical = (plane_id * self.plane.macros +
-                    (superlane * self.plane.clusters_per_superlane + cluster) * self.cluster.macros + n_slot)
-        return MacroPlacement(hemisphere, plane, cluster, superlane, core, macro, slot, physical,
-                              superlane * self.core.k, (superlane + 1) * self.core.k,
-                              n_slot * self.macro_spec.block_n_dim, (n_slot + 1) * self.macro_spec.block_n_dim)
-
     def hierarchy(self):
         return {
             "macro": {"k": self.core.k, "n": self.macro_spec.block_n_dim},
@@ -236,6 +181,10 @@ class TSPCIMSpec:
             "plane": {"cluster_domains": self.plane.clusters_per_superlane,
                       "cluster_slices": self.plane.superlanes * self.plane.clusters_per_superlane,
                       "cores": self.plane.macros // self.core.macros, "macros": self.plane.macros},
+            "hemisphere": {"planes": self.values["planes_per_hemisphere"],
+                           "cluster_domains": self.values["planes_per_hemisphere"] * self.plane.clusters_per_superlane,
+                           "cores": self.plane.macros * self.values["planes_per_hemisphere"] // self.core.macros,
+                           "macros": self.plane.macros * self.values["planes_per_hemisphere"]},
             "chip": {"hemispheres": self.values["hemispheres"], "planes": self.total_planes_chip,
                      "cluster_domains": self.total_planes_chip * self.plane.clusters_per_superlane,
                      "cores": self.total_macros_chip // self.core.macros, "macros": self.total_macros_chip},
@@ -251,17 +200,8 @@ class TSPCIMSpec:
             "macro_weight_resident_bytes": resident,
             "global_mem_bytes": self.mem_total_bytes,
             "known_mem_plus_macro_bytes": self.mem_total_bytes + resident,
-            "additional_local_sram_bytes": self.values["additional_local_sram_bytes"],
-            "physical_sram_bytes": self.values["physical_sram_bytes"],
-            "collector_buffer_bytes_per_plane": self.values["collector_buffer_bytes"],
             "vxm_alus": native.total_vxm_alus, "mem_slices": native.mem_n_slices,
             "memory_tiles": native.mem_n_slices * native.values["mem_tiles_per_slice"],
-            "nim_units": self.total_planes_chip * self.values["nim_units_per_plane"],
-            "nim_tiles": self.total_planes_chip * self.values["nim_tiles_per_plane"],
-            "nim_logical_channels_per_tile": self.values["nim_channels_per_tile"],
-            "nim_conversion_lanes": self.total_planes_chip * self.values["nim_conversion_lanes"],
-            "sxm_physical_units": None, "stream_physical_endpoints": None,
-            "clock_domains": None, "control_domains": None,
         }
 
     def derived(self):
@@ -302,9 +242,13 @@ class TSPCIMSpec:
         for name in ("lw_capture_bpc_per_chip", "lw_scan_cycles_per_wordline", "lw_full_context_scan_cycles"):
             result[name].update(source=lw_source["source"], source_version=lw_source["source_version"],
                                 basis="documented LW schedule arithmetic; excludes transport stalls and physical write latency")
-        # NIM 是 Plane 级结果写出目标，与分布式 LW 装权重捕获预算属于不同路径。
-        result["nim_output_bpc_per_plane"] = quantity(self.values["nim_output_bpc"],
-                "byte/cycle", "plane", "documented NIM writer target; distinct from distributed LW capture width")
+        # 按 §3.4.6 区分每个 writer SuperLane 的目标与 Plane/半片聚合服务。
+        result["int32_writer_bpc_per_writer_superlane_plane"] = quantity(self.values["int32_writer_bpc"],
+                "byte/cycle", "writer_superlane_plane", "distributed writer target; shared MEM/stream limits still apply")
+        result["nim_output_target_bpc_per_hemisphere"] = quantity(
+                self.values["int32_writer_bpc"] * self.plane.superlanes * self.values["planes_per_hemisphere"],
+                "byte/cycle", "hemisphere", "per-writer target * 20 transposed writer SuperLanes * 2 Planes; not effective bandwidth")
+        result["vxm_service"] = self.native_reference_spec.vxm_service()
         return result
 
     def provenance(self):
@@ -317,8 +261,11 @@ class TSPCIMSpec:
         }
 
     def missing_parameters(self):
+        # FP32 operation costs are visible in provenance/service, not required by INT8 GEMM.
+        unused_costs = {name for op, name in VXM_OPERATION_COSTS.items() if op != "int32_add"}
         provenance = self.provenance()
         return ([f"{group}.{name}" for group in ("topology", "shared_system")
-                 for name, item in provenance[group].items() if item["value"] is None]
+                 for name, item in provenance[group].items()
+                 if item["value"] is None and name not in unused_costs]
                 + [f"macro.{name}" for name, item in provenance["macro"]["parameters"].items()
                    if item["value"] is None])

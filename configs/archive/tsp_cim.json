@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "model": "tsp_cim_archived_specifications",
+  "description": "Reference-only specifications archived from the active execution profile. Not a simulation configuration; the runtime does not load or merge this file.",
+  "archived_at": "2026-11-18 America/Los_Angeles",
+  "archived_from": {
+    "path": "configs/hardware/tsp_cim.json",
+    "schema_version": 6
+  },
+  "parameters": {
+    "nim_units_per_plane": {
+      "value": 1,
+      "unit": "count",
+      "scope": "plane",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.1; lines 465-476",
+      "conditions": "One physical NIM per Plane, shared by four logical Cluster channels.",
+      "verification": "source_checked_project_spec_not_silicon"
+    },
+    "nim_tiles_per_plane": {
+      "value": 20,
+      "unit": "count",
+      "scope": "plane",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.1; lines 465-469",
+      "conditions": "NIM is spatially partitioned into20tiles, one per SuperLane; each serves20Cores/80Macros.",
+      "verification": "source_checked_project_spec_not_silicon"
+    },
+    "nim_channels_per_tile": {
+      "value": 4,
+      "unit": "count",
+      "scope": "nim_tile",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.1-3.4.2; lines 467-485",
+      "conditions": "Four logical Cluster channels per tile share physical NIM resources; four is not four replicated physical NIMs.",
+      "verification": "source_checked_project_spec_not_silicon"
+    },
+    "nim_conversion_lanes": {
+      "value": 64,
+      "unit": "count",
+      "scope": "plane",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.4.2;3.4.5; lines 491-492,545-553",
+      "conditions": "64 FP32 conversion lanes in the Plane NIM output service, one FP32/lane/cycle. Design target for terminal result conversion; do not multiply by20NIMtiles to infer terminal writer throughput.",
+      "verification": "source_checked_project_spec_not_silicon"
+    }
+  },
+  "archival_reasons": {
+    "nim_units_per_plane": "NIM unit count was inventory only; no NIM unit allocator or FP conversion execution exists in the INT32 GEMM path.",
+    "nim_tiles_per_plane": "NIM tile count was inventory only; current INT32 writer timing uses the separate explicit int32_writer_bpc service.",
+    "nim_channels_per_tile": "Logical NIM channel count was inventory only; it does not allocate independent physical writers or schedule channels.",
+    "nim_conversion_lanes": "FP conversion-lane count was inventory only. Current GEMM outputs INT32 through an explicit bypass service and performs no FP conversion."
+  },
+  "archival_history": [
+    {
+      "archived_at": "2026-11-18 America/Los_Angeles",
+      "from_schema": 6,
+      "active_schema_after": 7,
+      "report_schema_after": 10,
+      "parameters": [
+        "nim_units_per_plane",
+        "nim_tiles_per_plane",
+        "nim_channels_per_tile",
+        "nim_conversion_lanes"
+      ]
+    }
+  ]
+}

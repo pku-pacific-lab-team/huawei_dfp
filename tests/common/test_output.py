@@ -51,7 +51,17 @@ class OutputPathTest(unittest.TestCase):
                         timing = report["timing"]
                         self.assertGreater(timing["total_cycles"], 0)
                         self.assertGreater(timing["time_ns"], 0)
-                        self.assertEqual(timing["total_cycles"], sum(timing["stages_cycles"].values()))
+                        if entry == "ascend":
+                            self.assertEqual(timing["total_cycles"], timing["schedule"]["total_cycles"])
+                        for name in ("service_cycles", "elapsed_cycles"):
+                            view = timing[name]
+                            if view["status"] == "available":
+                                self.assertEqual(view["total_cycles"], sum(view["by_stage"].values()))
+                            else:
+                                self.assertEqual(view["status"], "not_decomposed")
+                                self.assertIsNone(view["by_stage"])
+                        self.assertEqual(timing["elapsed_cycles"]["total_cycles"], timing["total_cycles"])
+                        self.assertNotIn("stages_cycles", timing)
                         self.assertTrue(timing["parameters"])
                         self.assertTrue(timing["assumptions"])
                     else:

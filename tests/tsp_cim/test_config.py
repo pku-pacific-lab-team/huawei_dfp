@@ -39,7 +39,7 @@ class TSPCIMConfigTest(unittest.TestCase):
             with self.subTest(field=field, value=value), self.assertRaises(ValueError):
                 self.loader.create_tsp_spec(config)
         config = copy.deepcopy(self.config)
-        del config['parameters']['collector_buffer_bytes']
+        del config['parameters']['macros_per_core']
         with self.assertRaises(ValueError):
             self.loader.create_tsp_spec(config)
 
@@ -53,6 +53,11 @@ class TSPCIMConfigTest(unittest.TestCase):
             self.loader.create_tsp_spec({'macro': {}})
 
     def test_shared_geometry_cannot_drift_from_native_reference(self):
+        shared = self.loader.create_tsp_spec(self.config).provenance()['shared_system']
+        self.assertEqual(shared['vxm_fp32_exp_cost']['value'], 15)
+        self.assertNotIn('nonlinear_ops_per_cycle', shared)
+        for name in ('offchip_capacity_bytes', 'offchip_bandwidth_bpc', 'interchip_bandwidth_bpc'):
+            self.assertNotIn(name, shared)
         config = copy.deepcopy(self.config)
         config['_native_reference_config']['parameters']['planes_per_hemisphere']['value'] = 3
         with self.assertRaisesRegex(ValueError, 'conflicts'):
@@ -75,8 +80,35 @@ class TSPCIMConfigTest(unittest.TestCase):
         self.assertEqual(spec.reference_id, reference_id)
         self.assertEqual(spec.cluster.cores, 5)
 
-    def test_physical_sram_cannot_be_smaller_than_known_subtotal(self):
+    def test_retired_inventory_fields_and_old_schema_are_rejected(self):
+        for name in ('physical_sram_bytes', 'additional_local_sram_bytes', 'collector_buffer_bytes'):
+            config = copy.deepcopy(self.config)
+            config['parameters'][name] = {'value': None}
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                self.loader.create_tsp_spec(config)
         config = copy.deepcopy(self.config)
-        config['parameters']['physical_sram_bytes'].update(value=220 * 2**20, status='assumed')
-        with self.assertRaisesRegex(ValueError, 'Physical SRAM'):
+        config['schema_version'] = 2
+        with self.assertRaises(ValueError):
             self.loader.create_tsp_spec(config)
+
+    def test_fp32_service_is_visible_but_not_a_gemm_missing_parameter(self):
+        spec = self.loader.create_tsp_spec(self.config)
+        self.assertEqual(spec.provenance()['shared_system']['vxm_fp32_rsqrt_cost']['value'], 12)
+        self.assertEqual(spec.derived()['vxm_service'], spec.native_reference_spec.vxm_service())
+        self.config['_native_reference_config']['parameters']['vxm_fp32_exp_cost'].update(value=None, status='unknown')
+        spec = self.loader.create_tsp_spec(self.config)
+        self.assertIn('vxm_fp32_exp_cost', spec.derived()['vxm_service']['missing_parameters'])
+        self.assertEqual(spec.missing_parameters(), [])
+
+    def test_writer_scope_migration_is_explicit(self):
+        for change in ('old_schema', 'old_scope'):
+            config = copy.deepcopy(self.config)
+            if change == 'old_schema':
+                config['schema_version'] = 3
+            else:
+                config['parameters']['int32_writer_bpc']['scope'] = 'plane'
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.loader.create_tsp_spec(config)
+        spec = self.loader.create_tsp_spec(self.config)
+        self.assertEqual(spec.provenance()['topology']['int32_writer_bpc']['scope'], 'writer_superlane_plane')
+        self.assertEqual(spec.derived()['nim_output_target_bpc_per_hemisphere']['value'], 10240)

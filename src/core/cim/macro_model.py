@@ -1,7 +1,7 @@
 """Analytical Macro actions, separate from transport and cross-Macro reduction.
 
 Counts are physical full-Macro actions (tails are zero padded). They are not
-switching activity or measured circuit energy. Timing is optional and local.
+switching activity or measured circuit energy. Task timing belongs to the hemisphere scheduler.
 """
 from ...hardware.macro import CIMMacroSpec
 
@@ -15,17 +15,11 @@ def positive_integer(value, name):
     return value
 
 
-def check_mode(mode):
-    if mode not in {"count", "timing"}:
-        raise ValueError("mode must be count or timing")
-
-
 class CIMMacroModel:
     def __init__(self, spec: CIMMacroSpec):
         self.spec = spec
 
-    def compute(self, rows, k=16, n=32, *, mode="count", data_format="INT8"):
-        check_mode(mode)
+    def compute(self, rows, k=16, n=32, *, data_format="INT8"):
         if data_format != "INT8":
             raise ValueError("CIM Macro supports INT8 operands and INT32 results only")
         for name, value in (("rows", rows), ("k", k), ("n", n)):
@@ -47,31 +41,17 @@ class CIMMacroModel:
             "local_tree_adds": rows * spec.block_n_dim * (spec.block_k_dim - 1) * bits,
             "shift_accumulates": rows * spec.block_n_dim * bits,
         }
-        cycles = None
-        if mode == "timing":
-            first, = spec.require_timing("compute_first_cycles")
-            # 第一行经历完整首结果延迟，后续行按输入启动间隔 II 连续到达。
-            cycles = first + (rows - 1) * spec.values["input_ii_cycles"]
-        return {"counts": counts, "cycles": cycles, "energy_pj": None, "area_mm2": None}
+        return {"counts": counts, "cycles": None, "energy_pj": None, "area_mm2": None}
 
-    def program_context(self, *, mode="count"):
-        check_mode(mode)
+    def program_context(self):
         spec = self.spec
         # 编程一套完整权重：512 byte / 每组 32 byte = 16 组 wordline 动作。
         words = spec.context_bytes // spec.values["write_wordline_bytes"]
-        cycles = None
-        if mode == "timing":
-            first, ii = spec.require_timing("write_first_cycles", "write_wordline_ii_cycles")
-            cycles = first + (words - 1) * ii
         return {"counts": {"program_bytes": spec.context_bytes, "program_wordlines": words},
-                "cycles": cycles, "energy_pj": None, "area_mm2": None}
+                "cycles": None, "energy_pj": None, "area_mm2": None}
 
-    def switch_context(self, *, mode="count"):
-        check_mode(mode)
-        cycles = None
-        if mode == "timing":
-            cycles, = self.spec.require_timing("context_switch_cycles")
-        return {"counts": {"context_switches": 1}, "cycles": cycles,
+    def switch_context(self):
+        return {"counts": {"context_switches": 1}, "cycles": None,
                 "energy_pj": None, "area_mm2": None}
 
 

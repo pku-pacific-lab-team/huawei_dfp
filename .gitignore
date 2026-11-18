@@ -86,6 +86,8 @@ output/
 results/
 results.txt
 tmp/
+# Local recovery copies retained during cleanup; portable evidence.zip and manifests remain versionable.
+/validation/archive/*/originals/
 pdf/
 ppt/
 docs/

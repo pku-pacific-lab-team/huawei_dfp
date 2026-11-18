@@ -99,7 +99,7 @@ class WorkloadTest(unittest.TestCase):
                     self.assertIn("INT8", err.getvalue())
                 else:
                     self.assertIn('"issued_mac"', out.getvalue())
-                    self.assertIn('"total_cycles": 306', out.getvalue())
+                    self.assertIn('"total_cycles": 296', out.getvalue())
 
     def test_override_is_not_reparsed_as_declared_precision(self):
         config = self.config("FP16")

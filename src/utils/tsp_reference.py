@@ -18,17 +18,3 @@ def simulate_reference(spec, workload, *, mode="count", loop_order="KNM", **poli
     # 补回声明精度和覆盖标记，避免内核仅由 M/K/N 构造的任务摘要丢失这些信息。
     result["workload"] = workload.to_dict()
     return result
-
-
-def compare_native(spec, workload, *, loop_order="KNM"):
-    # 参考计数有助于核对工作量，但两边执行边界和时序未闭合，不能据此填加速比。
-    # Macro migration does not provide a calibrated system timing comparison.
-    try:
-        reference = simulate_reference(spec, workload, loop_order=loop_order)
-    except ValueError as exc:
-        return {"status": "not_comparable", "native_reference": None, "speedup": None,
-                "energy_ratio": None, "reasons": [str(exc)]}
-    return {"status": "not_comparable", "native_reference": reference, "speedup": None,
-            "energy_ratio": None, "reasons": [
-                "CIM and native reference do not share calibrated execution timing.",
-                "Native timing coefficients and energy are not calibrated; reference comparison uses count mode."]}

@@ -10,7 +10,7 @@ from .parameters import read_parameter
 
 class CIMMacroSpec:
     """One Macro: four 512-byte contexts, K16 x N32, bit-serial INT8."""
-    # FIXED 是当前 INT8 profile 必须匹配的结构约束；可选首延迟另列在 TIMING 中。
+    # Macro 只定义几何、动作和启动间隔；任务时间由 Cluster 层计算。
     FIXED = {
         "banks_per_context": (16, "count", "context"),
         "subarrays_per_bank": (16, "count", "bank"),
@@ -22,37 +22,25 @@ class CIMMacroSpec:
         "input_ii_cycles": (8, "cycle", "macro"),
         "write_wordline_bytes": (32, "byte", "macro"),
     }
-    TIMING = ("compute_first_cycles", "write_first_cycles",
-              "write_wordline_ii_cycles", "context_switch_cycles")
 
     def __init__(self, config):
         if not isinstance(config, dict) or set(config) - {
             "schema_version", "profile_id", "description", "parameters"
         }:
             raise ValueError("Macro requires a versioned profile; legacy geometry is unsupported")
-        if type(config.get("schema_version")) is not int or config["schema_version"] != 1:
-            raise ValueError("Macro schema_version must be 1")
+        if type(config.get("schema_version")) is not int or config["schema_version"] != 2:
+            raise ValueError("Macro schema_version must be 2; remove retired local timing parameters")
         if not isinstance(config.get("profile_id"), str) or not config["profile_id"].strip():
             raise ValueError("Macro profile_id is required")
         params = config.get("parameters")
-        if not isinstance(params, dict) or set(params) != set(self.FIXED) | set(self.TIMING):
-            raise ValueError("Macro parameters must explicitly specify geometry and optional timing")
+        if not isinstance(params, dict) or set(params) != set(self.FIXED):
+            raise ValueError("Macro parameters must explicitly specify geometry and action contracts only")
         values = {}
         for name, (expected, unit, scope) in self.FIXED.items():
             value = read_parameter(params[name], name, unit, scope, integer=True)
             if value != expected:
                 raise ValueError(f"{name}: this INT8 profile requires {expected}")
             values[name] = value
-        for name in self.TIMING:
-            values[name] = read_parameter(
-                params[name], name, "cycle", "macro", integer=True,
-                zero=name == "context_switch_cycles", required=False)
-        first = values["compute_first_cycles"]
-        if first is not None and first < values["input_ii_cycles"]:
-            raise ValueError("compute_first_cycles must cover all eight activation bits")
-        first, ii = values["write_first_cycles"], values["write_wordline_ii_cycles"]
-        if first is not None and ii is not None and first < ii:
-            raise ValueError("write_first_cycles must be >= write_wordline_ii_cycles")
         self.values = MappingProxyType(values)
         # 冻结运行时数值并保存配置副本，避免调用方修改配置后悄悄改变规格或来源标识。
         self._config = deepcopy(config)
@@ -98,12 +86,6 @@ class CIMMacroSpec:
     def peak_mac_per_cycle_int8(self):
         # 512 MAC/次除以 8 cycle 的启动间隔得到稳态规格值，不能当作首结果延迟。
         return self.macs_per_launch // self.values["input_ii_cycles"]
-
-    def require_timing(self, *names):
-        missing = [name for name in names if self.values[name] is None]
-        if missing:
-            raise ValueError("Macro timing unavailable: " + ", ".join(missing))
-        return tuple(self.values[name] for name in names)
 
     def derived(self):
         return {

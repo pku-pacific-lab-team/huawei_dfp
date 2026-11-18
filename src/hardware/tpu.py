@@ -1,6 +1,9 @@
 """TPU v4 MXU/TensorCore/chip specification, inventory and input validation."""
-# 规格层负责参数校验、层级和库存派生；任务计数在 src/core/tpu，不在此处执行。
+from .execution import read_execution
+from .documentation import without_documentation
+# 规格层负责参数校验、库存派生和预留服务占用估算；GEMM 调度/计数在 src/core/tpu。
 from dataclasses import asdict, dataclass
+from fractions import Fraction
 import math
 
 
@@ -12,35 +15,32 @@ PARAMETERS = {
     "mxu_rows": ("element", "mxu", True),
     "mxu_columns": ("element", "mxu", True),
     "int8_macs_per_cell_cycle": ("MAC/cycle", "mxu_cell", False),
-    "nominal_int8_tops": ("TOPS", "chip", False),
-    "vpus_per_tensorcore": ("unit", "tensorcore", True),
-    "vpu_lanes": ("lane", "vpu", True),
-    "vpu_alus_per_lane": ("unit", "lane", True),
-    "vector_int32_adds_per_cycle": ("op/cycle", "tensorcore", False),
-    "vector_fp32_ops_per_cycle": ("op/cycle", "tensorcore", False),
-    "scalar_units_per_tensorcore": ("unit", "tensorcore", True),
-    "scalar_ops_per_cycle": ("op/cycle", "tensorcore", False),
-    "sfu_units_per_tensorcore": ("unit", "tensorcore", True),
-    "sfu_fp32_ops_per_cycle": ("op/cycle", "tensorcore", False),
+    "vector_base_ops_per_cycle": ("op/cycle", "tensorcore", False),
+    "vector_int32_add_cost": ("equivalent_op/op", "tensorcore", False),
+    "vector_fp32_basic_op_cost": ("equivalent_op/op", "tensorcore", False),
+    "vector_fp32_exp_cost": ("equivalent_op/op", "tensorcore", False),
+    "vector_fp32_rsqrt_cost": ("equivalent_op/op", "tensorcore", False),
     "vmem_physical_bytes": ("byte", "tensorcore", True),
     "vmem_usable_bytes": ("byte", "tensorcore", True),
     "vmem_bandwidth_bytes_per_second": ("byte/s", "tensorcore", False),
     "cmem_physical_bytes": ("byte", "chip", True),
     "cmem_usable_bytes": ("byte", "chip", True),
-    "cmem_bandwidth_bytes_per_second": ("byte/s", "chip", False),
-    "smem_physical_bytes": ("byte", "tensorcore", True),
-    "register_file_physical_bytes": ("byte", "tensorcore", True),
-    "sparsecores_per_chip": ("unit", "chip", True),
-    "spmem_physical_bytes": ("byte", "chip", True),
+    "cmem_read_bandwidth_bytes_per_second": ("byte/s", "chip", False),
+    "cmem_write_bandwidth_bytes_per_second": ("byte/s", "chip", False),
     "hbm_physical_bytes": ("byte", "chip", True),
     "hbm_usable_bytes": ("byte", "chip", True),
     "hbm_bandwidth_bytes_per_second": ("byte/s", "chip", False),
-    "ici_links_per_chip": ("link", "chip", True),
-    "ici_link_reported_bytes_per_second": ("byte/s", "link", False),
-    "ici_link_one_way_bytes_per_second": ("byte/s", "link", False),
-    "process_node_nm": ("nm", "die", False),
-    "die_area_upper_bound_mm2": ("mm2", "die", False),
 }
+
+
+VECTOR_OPERATION_COSTS = {
+    "int32_add": "vector_int32_add_cost",
+    "fp32_add": "vector_fp32_basic_op_cost",
+    "fp32_mul": "vector_fp32_basic_op_cost",
+    "fp32_exp": "vector_fp32_exp_cost",
+    "fp32_rsqrt": "vector_fp32_rsqrt_cost",
+}
+VECTOR_SERVICE_PARAMETERS = ("vector_base_ops_per_cycle", *dict.fromkeys(VECTOR_OPERATION_COSTS.values()))
 
 
 def require_fields(raw, fields, name):
@@ -85,9 +85,11 @@ class Parameter:
 
 class TPUSpec:
     def __init__(self, config):
-        require_fields(config, ("schema_version", "model", "description", "parameters", "interconnect"), "hardware")
-        if type(config["schema_version"]) is not int or config["schema_version"] != 1 or config["model"] != "tpu_v4_count":
-            raise ValueError("Expected schema 1, model tpu_v4_count")
+        config = without_documentation(config)
+        require_fields(config, ("execution", "schema_version", "model", "description", "parameters"), "hardware")
+        if type(config["schema_version"]) is not int or config["schema_version"] != 12 or config["model"] != "tpu_v4_count":
+            raise ValueError("Expected schema 12, model tpu_v4_count; archive nominal_int8_tops and the three VPU inventory parameters from schema 11")
+        self.execution = read_execution(config.get("execution"), "tpu")
         if not isinstance(config["description"], str) or not config["description"].strip():
             raise ValueError("description is required")
         require_fields(config["parameters"], PARAMETERS, "parameters")
@@ -98,11 +100,6 @@ class TPUSpec:
             physical, usable = (self.values[f"{memory}_{kind}_bytes"] for kind in ("physical", "usable"))
             if usable is not None and (physical is None or usable > physical):
                 raise ValueError(f"{memory}: usable capacity requires physical capacity and cannot exceed it")
-        interconnect = config["interconnect"]
-        require_fields(interconnect, ("topology", "source", "version", "conditions"), "interconnect")
-        if any(not isinstance(v, str) or not v.strip() for v in interconnect.values()):
-            raise ValueError("interconnect metadata must be nonempty strings")
-        self.interconnect = dict(interconnect)
 
     def require_count_capacities(self):
         # count 不要求所有吞吐参数已知，但必须知道所用 VMEM/HBM 的可用容量。
@@ -117,13 +114,58 @@ class TPUSpec:
     def require_timing_inputs(self):
         # HBM 是 byte/s，换成周期需要时钟；内部端口细节由上层显式近似，不在这里补值。
         needed = ("clock_hz", "tensorcores_per_chip", "mxus_per_tensorcore", "mxu_rows", "mxu_columns",
-                  "int8_macs_per_cell_cycle", "hbm_bandwidth_bytes_per_second")
+                  "int8_macs_per_cell_cycle", "hbm_bandwidth_bytes_per_second", "vmem_bandwidth_bytes_per_second")
         missing = [name for name in needed if self.values[name] is None]
         if missing:
             raise ValueError("TPU timing parameters missing: " + ", ".join(missing))
 
     def provenance(self):
         return {name: asdict(p) for name, p in self.parameters.items()}
+
+    def vector_service(self):
+        """One compute service; operation rates are alternatives, not additive."""
+        v = self.values
+        base = v["vector_base_ops_per_cycle"]
+        inputs = VECTOR_SERVICE_PARAMETERS
+        return {
+            "scope": "tensorcore", "status": "analytical_compute_service",
+            "included_in_gemm": False, "resource_policy": "one_shared_vector_service",
+            "gemm_operations": [], "nonlinear_included_in_gemm": False,
+            "special_function_model": "algorithmic_work_proxy_not_native_instruction_timing",
+            "base_ops_per_cycle": base,
+            "operation_costs": {op: v[name] for op, name in VECTOR_OPERATION_COSTS.items()},
+            "operation_rates_per_cycle": {
+                op: None if base is None or v[name] is None else float(Fraction(str(base)) / Fraction(str(v[name])))
+                for op, name in VECTOR_OPERATION_COSTS.items()
+            },
+            "assumed_inputs": [name for name in inputs if self.parameters[name].status == "assumed"],
+            "missing_parameters": [name for name in inputs if v[name] is None],
+            "conditions": "Weighted work shares one service and rounds once. Compute-only ideal estimate; "
+                          "no memory, padding, reduction, instruction latency or dispatch model. "
+                          "EXP/RSQRT use explicit total equivalent-work costs, independently configured from basic-op cost. "
+                          "FP32 denotes operand format, not correctly rounded or exceptional-value accuracy. "
+                          "No numerical evaluation or separate SFU service. FMA, DIV and full nonlinear operators "
+                          "remain unsupported. GEMM accumulation stays in the MXU; no Vector charge is added.",
+        }
+
+    def vector_service_cycles(self, operation_counts):
+        """Ideal shared-service occupancy, separate from the GEMM simulator and wall time."""
+        if not isinstance(operation_counts, dict):
+            raise ValueError("Vector operation counts must be a dictionary")
+        unknown = set(operation_counts) - VECTOR_OPERATION_COSTS.keys()
+        if unknown:
+            raise ValueError("Unsupported Vector operations: " + ", ".join(sorted(map(str, unknown))))
+        if any(type(count) is not int or count < 0 for count in operation_counts.values()):
+            raise ValueError("Vector operation counts must be nonnegative integers")
+        active = {op: count for op, count in operation_counts.items() if count}
+        if not active:
+            return 0
+        needed = ["vector_base_ops_per_cycle", *dict.fromkeys(VECTOR_OPERATION_COSTS[op] for op in active)]
+        missing = [name for name in needed if self.values[name] is None]
+        if missing:
+            raise ValueError("Vector service parameters missing: " + ", ".join(missing))
+        work = sum(count * Fraction(str(self.values[VECTOR_OPERATION_COSTS[op]])) for op, count in active.items())
+        return math.ceil(work / Fraction(str(self.values["vector_base_ops_per_cycle"])))
 
     def derived(self):
         v = self.values
@@ -144,7 +186,7 @@ class TPUSpec:
             "core_int8_peak_tops": peak(core_macs),
             "chip_int8_macs_per_cycle": chip_macs,
             "chip_int8_peak_tops": peak(chip_macs),
-            "nominal_chip_int8_tops": v["nominal_int8_tops"],
+            "vector_service": self.vector_service(),
             "bandwidth_gbit_per_second": {
                 name: None if v[name] is None else v[name] * 8 / 1e9
                 for name in PARAMETERS if name.endswith("bytes_per_second")
@@ -188,13 +230,7 @@ class TPUSpec:
         return {
             "scope": "tensorcore",
             "mxus": v["mxus_per_tensorcore"],
-            "vpus": v["vpus_per_tensorcore"],
-            "vpu_alus": _known_product(v["vpus_per_tensorcore"], v["vpu_lanes"], v["vpu_alus_per_lane"]),
-            "scalar_units": v["scalar_units_per_tensorcore"],
-            "sfu_units": v["sfu_units_per_tensorcore"],
             "private_vmem_bytes": v["vmem_physical_bytes"],
-            "private_smem_bytes": v["smem_physical_bytes"],
-            "private_register_file_bytes": v["register_file_physical_bytes"],
             "status": "partial_physical_inventory; no_unknown_components_treated_as_zero",
         }
 
@@ -205,19 +241,13 @@ class TPUSpec:
         v = self.values
         local = self.tensorcore_inventory()
         private = {name: _known_product(local[name], v["tensorcores_per_chip"]) for name in (
-            "mxus", "vpus", "vpu_alus", "scalar_units", "sfu_units", "private_vmem_bytes",
-            "private_smem_bytes", "private_register_file_bytes")}
+            "mxus", "private_vmem_bytes")}
         return {
             "scope": "chip",
             "tensorcores": v["tensorcores_per_chip"],
             **private,
-            "sparsecores": v["sparsecores_per_chip"],
             "shared_cmem_bytes": v["cmem_physical_bytes"],
-            "sparse_spmem_bytes": v["spmem_physical_bytes"],
             "external_hbm_bytes": v["hbm_physical_bytes"],
-            "ici_links": v["ici_links_per_chip"],
-            "die_area_upper_bound_mm2": v["die_area_upper_bound_mm2"],
-            "die_area_bound_operator": "<",
             "total_area_mm2": None,
             "status": "partial_physical_inventory; no_unknown_components_treated_as_zero",
         }
