@@ -113,6 +113,27 @@ test_resident_storage_includes_disjoint_scratch_and_striping (tests.operators.te
 test_selected_rows_account_payload_without_duplicate_full_reads (tests.operators.test_mla.MLATest.test_selected_rows_account_payload_without_duplicate_full_reads) ... ok
 test_strict_workload_parsing (tests.operators.test_mla.MLATest.test_strict_workload_parsing) ... ok
 test_used_conversion_profile_and_rope_tile_failures (tests.operators.test_mla.MLATest.test_used_conversion_profile_and_rope_tile_failures) ... ok
+test_cache_append_once_and_two_latent_reads_per_head (tests.operators.test_mla_attention.MLAAttentionTest.test_cache_append_once_and_two_latent_reads_per_head) ... ok
+test_cache_capacity_shared_across_heads_and_weights_shared_across_batch (tests.operators.test_mla_attention.MLAAttentionTest.test_cache_capacity_shared_across_heads_and_weights_shared_across_batch) ... ok
+test_capacity_does_not_change_work_but_filled_length_does (tests.operators.test_mla_attention.MLAAttentionTest.test_capacity_does_not_change_work_but_filled_length_does) ... ok
+test_context_views_reserved_once_for_native_output_projection (tests.operators.test_mla_attention.MLAAttentionTest.test_context_views_reserved_once_for_native_output_projection) ... ok
+test_custom_cache_tokens_are_validated_and_aliases_rejected (tests.operators.test_mla_attention.MLAAttentionTest.test_custom_cache_tokens_are_validated_and_aliases_rejected) ... ok
+test_empty_cache_append_and_read_only_full_cache (tests.operators.test_mla_attention.MLAAttentionTest.test_empty_cache_append_and_read_only_full_cache) ... ok
+test_explicit_scale_multiplier_is_not_latent_rank_or_an_extra_multiply (tests.operators.test_mla_attention.MLAAttentionTest.test_explicit_scale_multiplier_is_not_latent_rank_or_an_extra_multiply) ... ok
+test_four_architectures_count_timing_context_and_projection (tests.operators.test_mla_attention.MLAAttentionTest.test_four_architectures_count_timing_context_and_projection) ... ok
+test_global_capacity_checked_through_final_projection (tests.operators.test_mla_attention.MLAAttentionTest.test_global_capacity_checked_through_final_projection) ... ok
+test_hand_macs_fp32_arithmetic_and_conversion_elements (tests.operators.test_mla_attention.MLAAttentionTest.test_hand_macs_fp32_arithmetic_and_conversion_elements) ... ok
+test_hand_tpu_reads_writes_and_global_peak (tests.operators.test_mla_attention.MLAAttentionTest.test_hand_tpu_reads_writes_and_global_peak) ... ok
+test_invalid_shapes_state_names_scale_and_position_rejected (tests.operators.test_mla_attention.MLAAttentionTest.test_invalid_shapes_state_names_scale_and_position_rejected) ... ok
+test_missing_conversion_cost_and_unknown_clock_propagate (tests.operators.test_mla_attention.MLAAttentionTest.test_missing_conversion_cost_and_unknown_clock_propagate) ... ok
+test_native_gemm_and_existing_output_projection_actions_reused (tests.operators.test_mla_attention.MLAAttentionTest.test_native_gemm_and_existing_output_projection_actions_reused) ... ok
+test_preprocess_binding_position_new_tokens_and_output_connections (tests.operators.test_mla_attention.MLAAttentionTest.test_preprocess_binding_position_new_tokens_and_output_connections) ... ok
+test_resident_striping_scratch_and_minimum_global_capacity (tests.operators.test_mla_attention.MLAAttentionTest.test_resident_striping_scratch_and_minimum_global_capacity) ... ok
+test_split_scores_convert_before_fp32_add_and_scale (tests.operators.test_mla_attention.MLAAttentionTest.test_split_scores_convert_before_fp32_add_and_scale) ... ok
+test_strict_workload_fields (tests.operators.test_mla_attention.MLAAttentionTest.test_strict_workload_fields) ... ok
+test_context_only_read_only_from_another_directory (tests.operators.test_mla_attention_cli.MLAAttentionCLITest.test_context_only_read_only_from_another_directory) ... ok
+test_four_entries_with_profiles_reservation_and_scaled_attention (tests.operators.test_mla_attention_cli.MLAAttentionCLITest.test_four_entries_with_profiles_reservation_and_scaled_attention) ... ok
+test_rejected_position_state_scale_and_options_preserve_files (tests.operators.test_mla_attention_cli.MLAAttentionCLITest.test_rejected_position_state_scale_and_options_preserve_files) ... ok
 test_full_cache_overflow_and_chip_execution_rejected (tests.operators.test_mla_cli.MLACLITest.test_full_cache_overflow_and_chip_execution_rejected) ... ok
 test_invalid_contracts_and_options_preserve_reports (tests.operators.test_mla_cli.MLACLITest.test_invalid_contracts_and_options_preserve_reports) ... ok
 test_profiles_other_directory_and_allocation_on_four_entries (tests.operators.test_mla_cli.MLACLITest.test_profiles_other_directory_and_allocation_on_four_entries) ... ok
@@ -194,6 +215,6 @@ test_owned_changes_and_shared_dependencies_have_distinct_snapshots (tests.valida
 test_subtest_failure_and_skips_do_not_become_success (tests.validation.test_verification.VerificationTest.test_subtest_failure_and_skips_do_not_become_success) ... ok
 
 ----------------------------------------------------------------------
-Ran 194 tests in 255.329s
+Ran 215 tests in 332.799s
 
 OK

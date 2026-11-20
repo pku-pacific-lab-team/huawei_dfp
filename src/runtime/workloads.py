@@ -6,18 +6,19 @@ from ..hardware.blocks import load_block_execution
 from ..utils.operator_workload import parse_block_workload
 from .blocks import simulate_block
 from ..hardware.attention import load_attention_execution
-from ..utils.operator_workload import parse_attention_workload
+from ..utils.operator_workload import parse_attention_workload, parse_mla_attention_workload
 from .attention import simulate_attention, simulate_kv_cache
-from .mla import simulate_mla_cache
+from .mla import simulate_mla_cache, simulate_mla_attention
 
 
 def execute_workload(config, architecture, load_spec, *, mode, execution_file=None, block_execution_file=None,
                      attention_execution_file=None, config_dir=None, **policy):
-    if isinstance(config, dict) and config.get("operation") in ("kv_cache", "decode_attention", "mla_cache"):
-        op = parse_attention_workload(config)
-        if config["operation"] == "decode_attention":
+    if isinstance(config, dict) and config.get("operation") in ("kv_cache", "decode_attention", "mla_cache", "mla_decode_attention"):
+        mla = config["operation"] == "mla_decode_attention"
+        op = parse_mla_attention_workload(config) if mla else parse_attention_workload(config)
+        if config["operation"] in ("decode_attention", "mla_decode_attention"):
             policy["block_execution"] = load_block_execution(block_execution_file, config_dir)
-            simulate = simulate_attention
+            simulate = simulate_mla_attention if mla else simulate_attention
         else:
             if block_execution_file is not None:
                 raise ValueError("KV Cache does not use a block compute profile")

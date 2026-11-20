@@ -132,6 +132,7 @@ class _AttentionStage:
     output_dtype: str
     output_name: str
     scale: float | None = None
+    scale_label: str = "scale_by_inverse_sqrt_head_dim"
 
     @property
     def inputs(self):

@@ -423,6 +423,44 @@ B=2、V=19、H=7 时，HBM完整容量155 B、读22 B、写14 B；tile=4的局�
 
 `tests/operators/test_mla*.py` 核对四架构 count/timing、上述手算、分支生命周期、native GEMM 动作、片内 scratch 缩小、容量拒绝、共享缓存和严格 CLI。`mla_rope`、`mla_compressed_cache` 可标 implemented；`mla_projections` 仍为 partial：吸收路线中 Q 内容到 latent、latent 加权输出到 V 的两次 Wkvb 使用要在第七批 B 计入。score、位置贡献、缩放策略/Softmax、加权 latent、输出集成、MoE、整片和完整模型执行继续待办。
 
+<a id="mla-attention"></a>
+
+## Absorbed MLA Attention 与输出集成（第七批 B）
+
+本节接续第七批 A 的前处理/缓存描述，使用 [DeepSeek-V3 官方 absorbed 路线](https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/model.py#L446) 的依赖关系。`MLADecodeAttention` 的输入是两路 INT8 Query、新 latent/位置 token、共享缓存和 INT8 `Wkvb[Hq,dn+dv,rk]`，可选输出权重 `Wo[Hq*dv,H]`。沿用 B/H/Hq/rk/dn/dr/dv 的定义，更新后缓存长度为 L=S+a。它不重新执行前处理，不生成 cos/sin，也不实现数值 FP8/BF16 推理。
+
+每个 query head 的完整模板含14个串行节点：
+
+| 节点 | 输入→输出与工作 |
+| --- | --- |
+| query_to_latent / query_latent_storage | `[1,dn] × [dn,rk] → INT32 [1,rk] → INT8` |
+| content_score / position_score | latent Query × latent cache，以及位置 Query × 位置 cache，各产 INT32 `[1,L]` |
+| content_to_fp32 / position_to_fp32 | 两路独立转换并物化 FP32 score |
+| score_add / scale | FP32 两路相加，再乘一次最终 scale |
+| softmax / probability_storage | FP32 Softmax → INT8 `[1,L]` 概率 |
+| weighted_latent / latent_storage | 概率 × `[L,rk]` latent cache → INT32 `[1,rk]` → INT8 |
+| latent_to_value / context_storage | latent context × `[rk,dv]` → INT32 `[1,dv]` → INT8 |
+
+模板按 B×Hq 串行重复；报告的节点 repetitions 是压缩计账，不表示将同一种节点跨 head 批量并行执行。默认不跨 head 保留原生 GEMM 的片上 cache/CMEM 状态。若提供 Wo，所有 head 完成后复用 `AttentionOutputProjection` 的两个节点，产 INT8 `[B,H]`；否则产 INT8 `[B,Hq,1,dv]`。两种情况下都返回别名到原 backing 的缓存状态输出。
+
+有效 MAC 为 `B*Hq*(dn*rk + L*rk + L*dr + L*rk + rk*dv)`，Wo 另加 `B*Hq*dv*H`。五次 head GEMM 中的第一和最后一次仍实际执行，不能把权重吸收当作免费投影。非矩阵 FP32 op 为 `B*Hq*(7L-1)`；INT32/INT8→FP32 边界为 `B*Hq*(2rk+2L+dv)` 个元素，FP32→INT8 边界为 `B*Hq*(2rk+L+dv)` 个元素，Wo 的结果转换再给两者各加 BH。
+
+scale 基础值为 `1/sqrt(dn+dr)`，不使用 rk 或 dv。`scale_multiplier` 默认为1；任何非默认值都要求非空 `scale_source`，有效值须正且有限。官方长上下文分支使用 mscale² 修正；这里由调用方显式提供已确认的倍率及来源，而不从 cache capacity、当前 length 或推测的目标模型默认配置自动生成。最终 scale 合并为一次 FP32 MUL；不同正倍率改变语义元数据，不额外增加一个乘法节点或改变解析周期。
+
+追加只执行 `MLACacheAccess(..., read_cache=False)`，每 batch 向两份共享 backing 写入一个 token；不叠加独立缓存扫描。每个 query head 通过原生 GEMM 读取 latent 两次、位置 K 一次，逻辑 cache payload 为 `B*Hq*L*(2rk+dr)` B；追加另读写各 `Ba*(rk+dr)` B。原生补齐、冷 cache、CMEM、stream 与计算动作仍由已有内核决定，payload 指标不是全部系统流量。
+
+完整 Wkvb 由每个 head 的 K/V 两段组成。K 视图 `[dn,rk]`、V 视图 `[rk,dv]` 分别按各自原生角色补齐，作为同一权重 backing 内的两个不相交区域；容量为 `Hq*(padded_K+padded_V)`，不按 B 重复。V 的转置和打包保持符号描述，不另分配全尺寸转置副本，也不声称已有物理布局变换实现。
+
+全局同时保留 Query、两段权重、共享缓存、完整 context、可选 Wo 和 reserved。latent 的 score/value 视图绑定同一 batch 的 backing；位置 cache 同样按 batch 共享。完整 context 预留 `max(所有 head 输出所需空间, 输出 GEMM 的 A 空间)`，供 head 写回与最后输出投影共用。输入/new-token/状态别名不能冲突；新 token 在追加后释放，head 中间张量按最后消费者释放，scratch workspace 在串行 head 间复用。Wo 累加与最终输出在 head 阶段完成后分配，转换时两者重叠存活。保持全局输入和 context 到块结束是明确的保守驻留策略。
+
+Ascend/TPU 校验完整 HBM 峰值并复用本地 UB/VMEM；TSP/CIM 将其它存活张量作为 reserved 传给各原生 GEMM/Softmax，计入 scratch 和条带化。每个原生 GEMM 的实际分配还与规划值逐项核对。只有单个 GEMM 能放下，不能代表整个 MLA 块能放下。
+
+`from_preprocess` 绑定前处理输出并检查 Query/新 token 的类型、形状、压缩秩与 position。追加时 position=S；只读时 position=S-1，且不传新 token。它不是自动执行器：前处理与 Attention 仍是独立算子，连接仍需物理布局和分配验证，不能把各自报告相加当作经过整体调度的完整模型报告。可选 Wo 已在 Attention 的统一容量规划内执行。
+
+独立手算样例沿用 B=2、H=17、Hq=3、rk=7、dn=3、dr=4、dv=6、S=2、C=9、a=1：每 head117 MAC，总702 MAC；Wo612 MAC，总1314 MAC。FP32 非矩阵120 op，含 Wo 的两类边界分别190/172元素。每 head TPU HBM读329 B、写199 B，追加读写各22 B，Wo与其转换读478 B、写170 B，总读2474 B、写1386 B。全局基础存储771 B，追加峰值793 B，Wo两阶段907/941 B，故最终峰值941 B；容量940 B必须拒绝。
+
+`tests/operators/test_mla_attention*.py` 验证四架构 count/timing、上述手算、源 score 到最后消费者的生命周期、缓存/权重共享、有效长度与容量的独立变化、输出 context 视图、追加/只读、显式倍率、未知时钟/成本、位置与别名拒绝及 CLI 输出保护。模型清单的 MLA projections/core/output 更新为 implemented，含义限于本节的粗粒度 absorbed 路径；MoE、整片映射、数值精度和完整模型评估继续独立推进。
+
 <a id="execution-diagrams"></a>
 
 ## 四套执行路径字符框图

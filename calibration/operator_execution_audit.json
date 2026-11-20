@@ -198,5 +198,20 @@
     "cache_profile_usage": "Uses existing attention profile append-only capacity and symbolic-view layout. Query-head scheduling/reuse fields are inactive in standalone MLA cache; read_policy explicitly specifies one stream per batch/component.",
     "cache_storage": "Reserve one maximum-size native score/value backing per batch for latent KV, one score backing for positional K. Native padding and slice striping included; no query-head replication. Physical layout compatibility and address/transpose instructions remain outside scope.",
     "excluded": "Direct Q rank-zero path, absorbed attention core and its two Wkvb projection uses, output integration, MoE, chip partition, table generation/YaRN policy and full-model assembly."
+  },
+  "mla_absorbed_attention": {
+    "status": "assumed",
+    "documentation": "ARCHITECTURE.md#mla-attention",
+    "execution_profiles": [
+      "configs/execution/blocks.json",
+      "configs/execution/vector.json",
+      "configs/execution/attention.json"
+    ],
+    "algorithm_reference": "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/model.py",
+    "precision_reference": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/1",
+    "conditions": "Serial single-token absorbed MLA on preprocessed queries. Five native INT8 GEMMs per query head, explicit conversions, FP32 score add/scale/Softmax and optional existing output projection. Shared cache appended once with no redundant standalone read; native reads repeat per head. Inputs, weights, cache and context persist; one head workspace reused, output temporaries allocate after all heads. No new measured rates or profile parameter changes.",
+    "weight_views": "One KV up weight [heads,nope_dim+v_dim,kv_rank], with disjoint native-padded K and V subranges per head. These weights are shared across batch items; transpose/packing is symbolic, with no numerical weight dequantization model.",
+    "scale": "base=1/sqrt(nope_dim+rope_dim). Workload scale_multiplier defaults to 1; a non-default multiplier needs nonempty scale_source. Caller may supply squared YaRN mscale explicitly; no inference from cache capacity or automatic context-extension policy. Scale is applied once after FP32 score addition.",
+    "excluded": "Numerical FP8/BF16 accuracy, physical repacking/transpose instructions, direct rank-zero Q preprocessing, prefill/masks/sliding-window/eviction/paging, chip execution, MoE and full-model assembly."
   }
 }

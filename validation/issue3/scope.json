@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "issue": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3",
-  "scope": "implemented_batches_1_7a_mla_preprocess_and_compressed_cache",
+  "scope": "implemented_batches_1_7b_absorbed_mla_attention",
   "reference_commit": "98e79ee5b34991f09c65efe395e1e84d58589fab",
   "requirements": {
     "I3_contracts": {
@@ -145,11 +145,21 @@
         "mla_preprocess",
         "mla_cache"
       ]
+    },
+    "I3_mla_attention": {
+      "title": "Absorbed MLA Attention：两路打分、FP32 合并/缩放/Softmax、共享缓存、权重分段、输出集成与全块容量",
+      "test_modules": [
+        "tests.operators.test_mla_attention",
+        "tests.operators.test_mla_attention_cli"
+      ],
+      "cli_operations": [
+        "mla_decode_attention"
+      ]
     }
   },
   "pending_work": [
-    "LLaMA 路线的清单内粗粒度独立块已覆盖；完整目标形状的分片、容量适配与层间执行仍需后续工作，DeepSeek MLA/MoE 尚未完成",
-    "DeepSeek-R1 MLA absorbed Attention 核心（含 Q 内容转 latent 与 latent 输出转 V 的投影）、输出集成、MoE 路由/专家调度/合并；第七批 A 已覆盖前处理和共享压缩缓存",
+    "LLaMA 清单内粗粒度独立块及 DeepSeek 的 absorbed MLA 路径已覆盖；完整目标形状的分片、容量适配与层间执行仍需后续工作",
+    "DeepSeek-R1 MoE 路由、共享/路由专家调度和加权合并；MLA 仅覆盖已声明的单 token、INT8、符号布局与显式缩放策略",
     "整片执行与 M/N 分片、跨核/半片通信模型；当前执行范围保持单核/单半片",
     "完整 Decoder/模型拼装与端到端评估属于 Issue #4；独立量化/布局/ISA 指令模型和数值精度不属于 Issue #3 解析验收"
   ]

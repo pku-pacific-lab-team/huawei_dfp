@@ -98,16 +98,19 @@ class RunAllTest(unittest.TestCase):
             command += ["-Details" if powershell and shell else "--details"]
         env = dict(os.environ, RUN_ALL_STUB_MODE=mode)
         env["PATH"] = str(Path(sys.executable).parent) + os.pathsep + env.get("PATH", "")
+        # Windows interpreter startup repeats for every fixture command; let the
+        # bounded harness budget grow with the registered simulation matrix.
+        timeout = max(90, 3 * len(run_all.build_plan(scope or "all", self.root)))
         process = subprocess.run(command, cwd=self.cwd, env=env, capture_output=True,
-                                 text=True, encoding="utf-8", timeout=90)
+                                 text=True, encoding="utf-8", timeout=timeout)
         report = self.root / "results" / f"run_all_{scope or 'all'}.json"
         self.assertTrue(report.exists(), process.stderr + process.stdout)
         return process, json.loads(report.read_text(encoding="utf-8"))
 
     def test_scope_matrix_and_default_powershell_from_another_directory(self):
         previous_native = None
-        for scope, simulations, issues in (("issue2", 4, {"issue2"}), ("issue3", 84, {"issue3"}),
-                                           (None, 88, {"issue2", "issue3"})):
+        for scope, simulations, issues in (("issue2", 4, {"issue2"}), ("issue3", 88, {"issue3"}),
+                                           (None, 92, {"issue2", "issue3"})):
             with self.subTest(scope=scope):
                 process, report = self.run_batch(scope, powershell=True)
                 self.assertEqual(process.returncode, 0, process.stderr + process.stdout)
@@ -134,7 +137,7 @@ class RunAllTest(unittest.TestCase):
         self.assertTrue(all(s["fresh_details"] for s in steps))
         with Path(report["operator_table"]).open(encoding="utf-8-sig", newline="") as stream:
             rows = list(csv.DictReader(stream))
-        self.assertEqual(len(rows), 84)
+        self.assertEqual(len(rows), 88)
         self.assertEqual({r["status"] for r in rows}, {"passed"})
         self.assertEqual({r["cycle_count"] for r in rows}, {"1"})
         self.assertEqual({r["latency_s"] for r in rows}, {"1e-09"})
@@ -146,7 +149,7 @@ class RunAllTest(unittest.TestCase):
         self.assertEqual(report["verification"]["issue2"]["status"], "needs_review")
         self.assertEqual(report["verification"]["issue3"]["status"], "passed")
         self.assertEqual(report["combined_test_coverage"]["status"], "passed")
-        self.assertEqual(len(report["steps"]), 90)
+        self.assertEqual(len(report["steps"]), 94)
         self.assertEqual(report["verification"]["issue2"]["review_context"]["github_review_status"],
                          "reviewed_and_merged")
         self.assertIn("PR #7 reviewed and merged", process.stdout)
@@ -157,7 +160,7 @@ class RunAllTest(unittest.TestCase):
         self.assertEqual(process.returncode, 1)
         self.assertEqual(report["steps"][0]["status"], "failed")
         self.assertEqual(report["steps"][-1]["status"], "passed")
-        self.assertEqual(len(report["steps"]), 90)
+        self.assertEqual(len(report["steps"]), 94)
         old = self.root / "results/ascend.json"
         old.write_text('{"mode":"timing","timing":{"total_cycles":1}}', encoding="utf-8")
         before = run_all.file_stamp(old)

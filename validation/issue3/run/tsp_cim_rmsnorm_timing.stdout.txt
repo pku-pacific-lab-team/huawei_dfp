@@ -9,5 +9,5 @@
 [Action] fp32_mul: 6152 op (logical, action)
 [Action] fp32_add: 2050 op (logical, action)
 [Action] fp32_rsqrt: 2 op (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-fyj_s8za\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-fyj_s8za\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-1c5qmb8z\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-1c5qmb8z\report.json

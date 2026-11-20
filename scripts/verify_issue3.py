@@ -21,7 +21,7 @@ ARCHITECTURES = ("ascend", "tpu", "tsp", "tsp_cim")
 VECTOR_OPS = ("int32_add", "fp32_add", "fp32_mul", "fp32_exp", "fp32_rsqrt")
 PROJECTION_OPS = ("rmsnorm_int8", "qkv_projection", "attention_output_projection")
 POSITION_VOCAB_OPS = ("rope", "embedding", "vocabulary_projection")
-MLA_OPS = ("mla_preprocess", "mla_cache")
+MLA_OPS = ("mla_preprocess", "mla_cache", "mla_decode_attention")
 OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax", "residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", *PROJECTION_OPS, *POSITION_VOCAB_OPS, *MLA_OPS)
 NEGATIVE_CASES = ("reject_null_profile", "reject_unsupported")
 MANIFEST = ROOT / "validation/issue3/scope.json"
@@ -93,7 +93,7 @@ def report_checks(report, arch, kind, mode, details):
         action["unit"] == native["action_counts"][key]["unit"] for key, action in report["action_counts"].items())
     dtype = "INT8" if kind in ("residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", "rope", "embedding", *PROJECTION_OPS, *MLA_OPS) else "INT32" if kind in ("gemm", "int32_add") else "FP32"
     checks["stored_output_dtype"] = all(t["dtype"] == dtype for t in op["outputs"])
-    if kind in ("kv_cache", "decode_attention", "mla_cache"):
+    if kind in ("kv_cache", "decode_attention", "mla_cache", "mla_decode_attention"):
         checks["lifetime_validated"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"
         checks["single_resource"] = report["boundary"]["chip_execution_included"] is False
         state = native["cache_state"]
@@ -112,6 +112,12 @@ def report_checks(report, arch, kind, mode, details):
     if kind == "mla_cache":
         checks["mla_shared_storage"] = set(native["cache_state"]["allocations"]) == {"latent", "rope"}
         checks["mla_hand_traffic"] = native["work_counts"]["logical"]["appended_bytes"] == 22 and native["work_counts"]["logical"]["cache_read_bytes"] == 66
+    if kind == "mla_decode_attention":
+        checks["mla_head_plan"] = len(native["schedule"]["steps_per_head"]) == 14 and native["schedule"]["head_repetitions"] == 6
+        checks["mla_output_projection"] = len(native["schedule"]["output_projection_steps"]) == 2 and op["outputs"][0]["shape"] == [2, 17]
+        checks["mla_hand_macs"] = native["work_counts"]["logical"]["useful_macs"] == 1314
+        checks["mla_cache_reads"] = native["work_counts"]["logical"]["cache_read_payload_bytes"] == 324
+        checks["mla_core_included"] = op["attributes"]["attention_impl"] == "absorb"
     if kind == "rope":
         checks["rotation_outputs"] = [t["shape"] for t in op["outputs"]] == [t["shape"] for t in op["inputs"][:2]]
         checks["precomputed_tables"] = op["attributes"]["table_generation_included"] is False

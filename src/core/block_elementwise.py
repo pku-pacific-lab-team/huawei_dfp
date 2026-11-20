@@ -133,7 +133,7 @@ def simulate(op, path, execution, block_execution, mode):
         if op.operation == "residual":
             step("residual_add", [4 * n, 4 * n], [4 * n], "fp32_add")
         elif op.operation == "attention_scale":
-            step("scale_by_inverse_sqrt_head_dim", [4 * n], [4 * n], "fp32_mul")
+            step(op.scale_label, [4 * n], [4 * n], "fp32_mul")
         elif op.operation == "swiglu":
             step("negate_gate", [4 * n], [4 * n], "fp32_mul")
             step("exp", [4 * n], [4 * n], "fp32_exp")

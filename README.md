@@ -56,7 +56,7 @@ Linux/macOS 对应使用 `python3 -m venv .venv` 和 `source .venv/bin/activate`
 
 ```powershell
 .\scripts\run_all.ps1 -Scope issue2  # 4 架构原生 GEMM + Issue #2 验证
-.\scripts\run_all.ps1 -Scope issue3  # 4 架构 × 21 类算子 + Issue #3 验证
+.\scripts\run_all.ps1 -Scope issue3  # 4 架构 × 22 类算子 + Issue #3 验证
 .\scripts\run_all.ps1 -Scope all     # 两组全部执行，并核对全仓库测试覆盖
 .\scripts\run_all.ps1                # 默认等同于 -Scope all
 ```
@@ -64,8 +64,8 @@ Linux/macOS 对应使用 `python3 -m venv .venv` 和 `source .venv/bin/activate`
 | 范围 | 日常 timing 报告 | 独立验证 |
 | --- | --- | --- |
 | `issue2` | 4 份原生 GEMM，`results/<架构>.json` | 原生测试及 17 项 CLI 检查，`validation/issue2/run/` |
-| `issue3` | 84 份：统一 GEMM 报告及 20 个 Vector/复合块样例 | 算子/验证工具测试及 176 项 count/timing/负例 CLI 检查，`validation/issue3/run/` |
-| `all` | 两组共 88 份，分别保存 | 两套判据分别汇总；核对单元测试集合并集覆盖全仓库且无重复 |
+| `issue3` | 88 份：统一 GEMM 报告及 21 个 Vector/复合块样例 | 算子/验证工具测试及 184 项 count/timing/负例 CLI 检查，`validation/issue3/run/` |
+| `all` | 两组共 92 份，分别保存 | 两套判据分别汇总；核对单元测试集合并集覆盖全仓库且无重复 |
 
 Issue #3 另输出每算子一行的 `results/run_all_<范围>_operators.csv`；可加 `-Details` 保留独立详细文件。Issue #3 的 GEMM 适配报告使用 `results/<架构>_gemm_operator.json`，其他算子使用 `<架构>_<算子>.json`。每个范围另生成 `results/run_all_<范围>.json` 总结和 `results/run_all/<范围>/` 命令日志，均以脚本所属工程为根目录。Python 优先使用工程 `.venv`，否则使用 PATH。Linux/macOS 可运行等价命令 `python scripts/run_all.py --scope all`。
 
@@ -122,7 +122,7 @@ report = result.to_dict()  # compact schema 2
 print(result.latency_s, result.cycle_count)
 ```
 
-第一批提供 INT8 GEMM → INT32 输出、公共类型和计数接口；第二批补充独立 Vector，第三批接入 RMSNorm/Softmax，第四批接入 Residual、SwiGLU/FFN 和粗粒度 INT8 存储边界工作量，第五批接入 Decode Attention/GQA 与 KV Cache，第六批 A 补齐 INT8 RMSNorm、Q/K/V 和 Attention 输出投影，第六批 B 补齐 RoPE、Embedding 和 FP32 词表输出边界，第七批 A 接入 MLA 低秩前处理与共享压缩缓存。Tensor 能描述 FP32 等存储类型，不表示这些 GEMM 输入格式已可执行。MLA Attention 核心、MoE 等块及整片执行仍待实现；完整模型拼装属于 Issue #4，能耗计算另行接入。容量不足和缺少必需服务继续报错；TSP/CIM 的片外流量标记为执行边界之外。接口、计数依据和已知限制见[算子契约](ARCHITECTURE.md#operator-contract)。
+第一批提供 INT8 GEMM → INT32 输出、公共类型和计数接口；第二批补充独立 Vector，第三批接入 RMSNorm/Softmax，第四批接入 Residual、SwiGLU/FFN 和粗粒度 INT8 存储边界工作量，第五批接入 Decode Attention/GQA 与 KV Cache，第六批 A 补齐 INT8 RMSNorm、Q/K/V 和 Attention 输出投影，第六批 B 补齐 RoPE、Embedding 和 FP32 词表输出边界，第七批 A 接入 MLA 低秩前处理与共享压缩缓存，第七批 B 补齐 absorbed MLA Attention 和输出投影集成。Tensor 能描述 FP32 等存储类型，不表示这些 GEMM 输入格式已可执行。MoE 等块及整片执行仍待实现；完整模型拼装属于 Issue #4，能耗计算另行接入。容量不足和缺少必需服务继续报错；TSP/CIM 的片外流量标记为执行边界之外。接口、计数依据和已知限制见[算子契约](ARCHITECTURE.md#operator-contract)。
 
 `Gemm.from_tensors()` 保留调用方的 Tensor 名称；GEMM、Vector、RMSNorm、Softmax 的 Python API 均可用 `output_name=` 指定输出。未指定时使用默认名称并避开输入名，显式输入输出重名会拒绝。Vector/复合 workload 同样接受可选 `output_name`。名称只在一次算子调用内标识张量，后续图层须用节点 ID 限定，不能以同名推断共用存储。
 
@@ -282,7 +282,7 @@ RoPE 只处理单 token、整条 head 的相邻通道对，D 必须为偶数，�
 
 Embedding 的 token 值保持符号描述，假设索引合法，不执行真实查表；同一行重复出现时按重复读取计算。完整词表、索引和输出都参加容量检查，访问量只计算本次索引与选中行。词表投影保留原生 INT32 累加，显式转换为 FP32 logits，不含最终 Softmax 或采样。这两种块使用可选 `output_name`。
 
-这些模型仍是单核/单半片的局部执行。TSP/CIM 无法驻留完整词表时明确拒绝，后续分片/片外供给不能靠缩小 tile 替代。当前 [覆盖矩阵](validation/issue3/model_coverage.json) 的 LLaMA 独立块已覆盖，MLA Attention 核心/MoE、整片调度和完整模型拼装仍待推进。详细公式、容量与假设见 [第六批 B 说明](ARCHITECTURE.md#position-vocabulary)。
+这些模型仍是单核/单半片的局部执行。TSP/CIM 无法驻留完整词表时明确拒绝，后续分片/片外供给不能靠缩小 tile 替代。当前 [覆盖矩阵](validation/issue3/model_coverage.json) 的 LLaMA 独立块已覆盖，MoE、整片调度和完整模型拼装仍待推进。详细公式、容量与假设见 [第六批 B 说明](ARCHITECTURE.md#position-vocabulary)。
 
 ### MLA 前处理与压缩缓存（第七批 A）
 
@@ -295,7 +295,20 @@ python tsp.py --workload operators/mla_cache.json --mode timing --mem-slices 0 1
 
 前处理产生 `query_nope`、旋转后的 `query_rope`、归一化后的 `latent_kv` 和旋转后的共享 `key_rope`，四者均为 INT8。Q 和 KV 投影后的分支拆分有独立读写、转换与存储分配；只对位置分支执行 RoPE。缓存以 `[B,1,C,KV_rank]` 和 `[B,1,C,RoPE_dim]` 预分配，不随 query head 数复制；追加量仅为 0/1，读取只覆盖已填充长度，输出状态描述复用原缓存。
 
-本批尚不执行 MLA Attention。下一批需计算 Q 内容到 latent 的投影、两个 score 分支、缩放/Softmax、latent 加权求和、latent 到 V 的投影及输出集成，不能将这些投影视为免费权重吸收。完整依赖、容量口径和执行假设见 [MLA 说明](ARCHITECTURE.md#mla-preprocess-cache)。
+前处理和独立缓存接口不包含 Attention 核心；第七批 B 的 `MLADecodeAttention` 接续这两者，显式计入 absorbed 路线中的投影、两路打分和输出工作。完整依赖、容量口径和执行假设见 [MLA 说明](ARCHITECTURE.md#mla-preprocess-cache)。
+
+### Absorbed MLA Attention（第七批 B）
+
+```powershell
+python tpu.py --workload operators/mla_decode_attention.json --mode timing
+python tsp_cim.py --workload operators/mla_decode_attention.json --mode timing --mem-slices 0 1 2 --streams 2 --hemisphere 1
+```
+
+`MLADecodeAttention` / `simulate_mla_attention` 接收已完成前处理的两路 Query、压缩缓存、新 token 和 `kv_up_weight[Hq,dn+dv,rk]`。每个 head 依次执行 Q→latent、内容打分、位置打分、latent 加权求和及 latent→V 五次原生 GEMM；两路 score 分别转 FP32，再合并、缩放和 Softmax。缓存追加一次；latent 缓存被每个 head 用于两次矩阵读取，位置缓存读取一次。
+
+样例提供 `output_weight[Hq*dv,H]`，因此输出 INT8 `[B,H]`；省略时输出 INT8 context `[B,Hq,1,dv]`。API `MLADecodeAttention.from_preprocess(preprocess, kv_up_weight, cache, output_weight=...)` 可绑定第七批 A 的四个输出，并核对 position 与更新后缓存的最新 token；该方法只建立描述，不隐式执行前处理或承诺跨算子驻留复用。`append_tokens=0` 读取已有缓存时不接受新 token，position 对应 `length-1`。
+
+默认缩放为 `1/sqrt(dn+dr)`。长上下文修正可通过正的 `scale_multiplier` 显式提供，非默认值必须附 `scale_source`；例如调用方可提供经过确认的 YaRN mscale²。不会根据缓存 capacity 自动推断修正。INT8 精度、串行执行和符号布局继续沿用项目假设；完整容量与手算说明见 [第七批 B](ARCHITECTURE.md#mla-attention)。
 
 ### 导出报告
 
@@ -450,7 +463,7 @@ Issue #3 已实现算子的独立验证：
 python scripts/verify_issue3.py
 ```
 
-输出到 `validation/issue3/run/`，只运行算子及验证工具测试，另执行 176 项算子 CLI 检查。范围、逐项覆盖和剩余缺口见 [Issue #3 验证说明](validation/issue3/README.md)及[覆盖清单](validation/issue3/scope.json)；退出 0 只表示已实现范围通过，不表示整个 Issue #3 已完成。
+输出到 `validation/issue3/run/`，只运行算子及验证工具测试，另执行 184 项算子 CLI 检查。范围、逐项覆盖和剩余缺口见 [Issue #3 验证说明](validation/issue3/README.md)及[覆盖清单](validation/issue3/scope.json)；退出 0 只表示已实现范围通过，不表示整个 Issue #3 已完成。
 
 按 Issue #2 的四类交付物和五条条件执行原生模型验收：
 

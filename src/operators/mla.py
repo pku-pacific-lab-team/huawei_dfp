@@ -1,8 +1,10 @@
-"""MLA preprocessing and shared compressed cache contracts (INT8 what-if)."""
+"""MLA preprocessing, shared compressed cache and absorbed Decode contracts."""
 from dataclasses import dataclass, asdict, replace
+from math import isfinite, sqrt
 
-from .blocks import checked_inputs
-from .composite import RMSNorm
+from .blocks import checked_inputs, Residual
+from .composite import RMSNorm, Softmax
+from .attention import _AttentionStage
 from .primitives import Gemm
 from .projections import _StorageBoundary
 from .rope import RoPE, _RotaryTensor
@@ -209,6 +211,8 @@ class MLACacheAccess:
     cache: MLACacheSpec
     append_tokens: int = 1
     read_cache: bool = True
+    new_latent: TensorSpec | None = None
+    new_rope: TensorSpec | None = None
     operation = "mla_cache"
 
     def __post_init__(self):
@@ -222,6 +226,17 @@ class MLACacheAccess:
             raise ValueError("MLA cache append exceeds capacity")
         if self.read_cache and self.cache_after.length == 0:
             raise ValueError("Cannot read an empty MLA cache")
+        if (self.new_latent is None) != (self.new_rope is None):
+            raise ValueError("Both MLA new-token tensors must be supplied together")
+        if not self.append_tokens and self.new_latent is not None:
+            raise ValueError("Read-only MLA cache cannot consume new tokens")
+        checked_inputs(self.inputs)
+        if self.append_tokens:
+            for tensor, width in zip(self.inputs[-2:], self.cache.widths):
+                if tensor.dtype != "INT8" or tensor.shape != (self.cache.batch, 1, 1, width):
+                    raise ValueError("MLA new tokens must match shared INT8 cache widths")
+        if {t.name for t in self.inputs} & {t.name for t in self.spec.outputs}:
+            raise ValueError("MLA inputs cannot alias state output names")
 
     @property
     def cache_after(self):
@@ -229,8 +244,11 @@ class MLACacheAccess:
 
     @property
     def inputs(self):
-        tokens = tuple(TensorSpec(self.cache.name + ".new_" + label, (self.cache.batch, 1, 1, width), "INT8")
-                       for label, width in zip(("latent", "rope"), self.cache.widths)) if self.append_tokens else ()
+        tokens = ()
+        if self.append_tokens:
+            tokens = ((self.new_latent, self.new_rope) if self.new_latent is not None else tuple(
+                TensorSpec(self.cache.name + ".new_" + label, (self.cache.batch, 1, 1, width), "INT8")
+                for label, width in zip(("latent", "rope"), self.cache.widths)))
         return self.cache.buffers + tokens
 
     @property
@@ -245,4 +263,139 @@ class MLACacheAccess:
 
 def simulate_mla_cache(operator, architecture, spec, **options):
     from ..runtime.mla import simulate_mla_cache as run
+    return run(operator, architecture, spec, **options)
+
+
+@dataclass(frozen=True)
+class MLADecodeAttention:
+    """Absorbed Decode over already projected/rotated queries and new cache tokens.
+
+    kv_up_weight follows the official head view [heads, nope_dim + v_dim, kv_rank].
+    Its K and V sections are disjoint; transpose/packing remains symbolic.
+    """
+    query_nope: TensorSpec
+    query_rope: TensorSpec
+    kv_up_weight: TensorSpec
+    dimensions: MLASpec
+    cache: MLACacheSpec
+    append_tokens: int = 1
+    output_weight: TensorSpec | None = None
+    new_latent: TensorSpec | None = None
+    new_rope: TensorSpec | None = None
+    position: int | None = None
+    scale_multiplier: float = 1.0
+    scale_source: str | None = None
+    output_name: str | None = None
+    operation = "mla_decode_attention"
+
+    def __post_init__(self):
+        if not isinstance(self.dimensions, MLASpec) or not isinstance(self.cache, MLACacheSpec):
+            raise ValueError("MLA Attention requires MLASpec and MLACacheSpec")
+        d, c = self.dimensions, self.cache
+        MLACacheAccess(c, self.append_tokens, True, self.new_latent, self.new_rope)
+        if c.widths != (d.kv_lora_rank, d.qk_rope_head_dim):
+            raise ValueError("MLA dimensions must match cache widths")
+        checked_inputs(self.inputs)
+        for t, width in ((self.query_nope, d.qk_nope_head_dim), (self.query_rope, d.qk_rope_head_dim)):
+            if t.dtype != "INT8" or t.shape != (c.batch, d.query_heads, 1, width):
+                raise ValueError("MLA query branches must match INT8 [batch, query_heads, 1, branch_dim]")
+        if self.kv_up_weight.dtype != "INT8" or self.kv_up_weight.shape != (d.query_heads, d.qk_nope_head_dim + d.v_head_dim, d.kv_lora_rank):
+            raise ValueError("MLA KV up weight must be INT8 [heads, nope_dim + v_dim, kv_rank]")
+        if self.output_weight is not None and (self.output_weight.dtype != "INT8" or
+                self.output_weight.shape != (d.query_heads * d.v_head_dim, d.hidden_size)):
+            raise ValueError("MLA output weight must be INT8 [heads * v_dim, hidden_size]")
+        expected_position = c.length if self.append_tokens else c.length - 1
+        if self.position is not None and (type(self.position) is not int or self.position != expected_position):
+            raise ValueError("MLA position must match the newest token in the updated cache")
+        object.__setattr__(self, "position", expected_position)
+        if type(self.scale_multiplier) not in (int, float) or not isfinite(self.scale_multiplier) or self.scale_multiplier <= 0:
+            raise ValueError("MLA scale_multiplier must be positive and finite")
+        if self.scale_source is None:
+            if self.scale_multiplier != 1:
+                raise ValueError("Non-default MLA scale_multiplier requires scale_source")
+            object.__setattr__(self, "scale_source", "base_qk_dimension")
+        require_text(self.scale_source, "MLA scale_source")
+        if not isfinite(self.scale) or self.scale <= 0:
+            raise ValueError("MLA effective scale must be positive and finite")
+        state_outputs = self.cache_access.spec.outputs
+        if {t.name for t in self.inputs} & {t.name for t in state_outputs}:
+            raise ValueError("MLA inputs cannot alias cache state outputs")
+        object.__setattr__(self, "output_name", output_name(self.output_name, self.inputs + state_outputs,
+                                                          "attention_output" if self.output_weight is not None else "context"))
+
+    @classmethod
+    def from_preprocess(cls, preprocess, kv_up_weight, cache, **options):
+        """Bind shape/state descriptors; execution and placement are still explicit."""
+        if not isinstance(preprocess, MLAPreprocess):
+            raise ValueError("Expected MLAPreprocess")
+        q, qp, kv, kp = preprocess.spec.outputs
+        if options.get("append_tokens", 1) == 0:
+            kv, kp = None, None
+        return cls(q, qp, kv_up_weight, preprocess.dimensions, cache,
+                   new_latent=kv, new_rope=kp, position=preprocess.position, **options)
+
+    @property
+    def scale(self):
+        return self.scale_multiplier / sqrt(self.dimensions.qk_nope_head_dim + self.dimensions.qk_rope_head_dim)
+
+    @property
+    def cache_access(self):
+        return MLACacheAccess(self.cache, self.append_tokens, not bool(self.append_tokens), self.new_latent, self.new_rope)
+
+    @property
+    def inputs(self):
+        return (self.query_nope, self.query_rope, self.kv_up_weight) + (
+            (self.output_weight,) if self.output_weight is not None else ()) + self.cache_access.inputs
+
+    @property
+    def context(self):
+        name = self.output_name if self.output_weight is None else output_name(
+            None, self.inputs + (TensorSpec(self.output_name, (1,), "INT8"),) + self.cache_access.spec.outputs, "mla.context")
+        return TensorSpec(name, (self.cache.batch, self.dimensions.query_heads, 1, self.dimensions.v_head_dim), "INT8")
+
+    @property
+    def spec(self):
+        primary = self.context if self.output_weight is None else TensorSpec(self.output_name, (self.cache.batch, self.dimensions.hidden_size), "INT8")
+        return OperatorSpec(self.operation, self.inputs, (primary,) + self.cache_access.spec.outputs, "INT32",
+                            {**self.dimensions.to_dict(), "position": self.position, "append_tokens": self.append_tokens,
+                             "length_before": self.cache.length, "length_after": self.cache_access.cache_after.length,
+                             "cache_capacity": self.cache.capacity, "attention_impl": "absorb",
+                             "scale": self.scale, "scale_multiplier": self.scale_multiplier, "scale_source": self.scale_source,
+                             "score_add_and_softmax_dtype": "FP32", "preprocessing_included": False,
+                             "output_projection_included": self.output_weight is not None})
+
+
+def mla_attention_steps(op):
+    """One head's complete serial template, bound to shared global storage by runtime."""
+    d, length = op.dimensions, op.cache_access.cache_after.length
+    def tensor(name, shape, dtype="INT8"):
+        return TensorSpec("head." + name, shape, dtype)
+    q, qp, wk, wv, ks, kp, vs = inputs = tuple(tensor(n, s) for n, s in (
+        ("query_nope", (1, d.qk_nope_head_dim)), ("query_rope", (1, d.qk_rope_head_dim)),
+        ("key_weight", (d.qk_nope_head_dim, d.kv_lora_rank)), ("value_weight", (d.kv_lora_rank, d.v_head_dim)),
+        ("latent_score_view", (d.kv_lora_rank, length)), ("position_score_view", (d.qk_rope_head_dim, length)),
+        ("latent_value_view", (length, d.kv_lora_rank))))
+    ql = Gemm.from_tensors(q, wk, output_name="head.query_latent_int32")
+    q_store = _StorageBoundary(ql.spec.outputs[0], tensor("query_latent", (1, d.kv_lora_rank)))
+    content = Gemm.from_tensors(q_store.output, ks, output_name="head.content_score")
+    position = Gemm.from_tensors(qp, kp, output_name="head.position_score")
+    cf = _StorageBoundary(content.spec.outputs[0], tensor("content_fp32", (1, length), "FP32"))
+    pf = _StorageBoundary(position.spec.outputs[0], tensor("position_fp32", (1, length), "FP32"))
+    add = Residual(cf.output, pf.output, "head.scores")
+    scale = _AttentionStage(add.spec.outputs[0], "attention_scale", "FP32", "head.scaled", op.scale,
+                            "multiply_by_configured_mla_scale")
+    softmax = Softmax(scale.spec.outputs[0], output_name="head.probabilities_fp32")
+    prob = _StorageBoundary(softmax.spec.outputs[0], tensor("probabilities", (1, length)))
+    weighted = Gemm.from_tensors(prob.output, vs, output_name="head.weighted_latent_int32")
+    latent_store = _StorageBoundary(weighted.spec.outputs[0], tensor("weighted_latent", (1, d.kv_lora_rank)))
+    value = Gemm.from_tensors(latent_store.output, wv, output_name="head.value_int32")
+    out = _StorageBoundary(value.spec.outputs[0], tensor("context", (1, d.v_head_dim)))
+    return inputs, list(zip(("query_to_latent", "query_latent_storage", "content_score", "position_score",
+        "content_to_fp32", "position_to_fp32", "score_add", "scale", "softmax", "probability_storage",
+        "weighted_latent", "latent_storage", "latent_to_value", "context_storage"),
+        (ql, q_store, content, position, cf, pf, add, scale, softmax, prob, weighted, latent_store, value, out)))
+
+
+def simulate_mla_attention(operator, architecture, spec, **options):
+    from ..runtime.mla import simulate_mla_attention as run
     return run(operator, architecture, spec, **options)

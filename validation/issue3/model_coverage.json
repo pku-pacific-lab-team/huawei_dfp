@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Coarse block inventory through batch 7A; not complete model execution, numerical validation or guaranteed fit of full model weights on one resource.",
+  "scope": "Coarse block inventory through batch 7B; not complete model execution, numerical validation or guaranteed fit of full model weights on one resource.",
   "full_target_model_coverage": false,
   "status_definitions": {
     "implemented": "The named coarse block runs on all four architectures under documented assumptions.",
@@ -232,17 +232,19 @@
         },
         {
           "id": "mla_projections",
-          "status": "partial",
+          "status": "implemented",
           "owner": "issue3",
           "implementation": [
             "src/operators/mla.py",
+            "src/runtime/mla.py",
             "src/runtime/blocks.py"
           ],
           "tests": [
-            "tests.operators.test_mla",
-            "tests.operators.test_mla_cli"
+            "tests.operators.test_mla_attention",
+            "tests.operators.test_mla_attention_cli",
+            "tests.operators.test_mla"
           ],
-          "notes": "Low-rank Q down/up and combined KV compression, two FP32 normalizations and explicit selected-channel INT8 boundaries implemented. Absorbed Q-content-to-latent and latent-context-to-V matrix work remains in batch 7B; no free weight absorption assumption. Direct Q rank-zero path not supported."
+          "notes": "Low-rank preprocessing plus native Q-content-to-latent and latent-context-to-V GEMMs. No free weight absorption; K/V sections of one KV up-weight backing are disjoint and shared across batches. INT8 boundaries explicit. Direct rank-zero Q and numeric FP8/BF16 inference are outside the declared path."
         },
         {
           "id": "mla_rope",
@@ -270,28 +272,36 @@
             "tests.operators.test_mla",
             "tests.operators.test_mla_cli"
           ],
-          "notes": "Preallocated shared latent KV and positional K, [B,1,C,rank] and [B,1,C,rope_dim]. Capacity, valid length and append amount are distinct; state outputs alias backing. Native view capacity reserved once per batch, append/read traffic explicit. Standalone read is once per component; future attention owns per-head reads."
+          "notes": "Preallocated shared latent KV and positional K, [B,1,C,rank] and [B,1,C,rope_dim]. Capacity, valid length and append amount are distinct; state outputs alias backing. Native view capacity reserved once per batch, append/read traffic explicit. Standalone read is once per component; MLA Attention owns per-head reads."
         },
         {
           "id": "mla_attention_core",
-          "status": "pending",
+          "status": "implemented",
           "owner": "issue3",
-          "implementation": [],
-          "tests": [],
-          "notes": "Absorbed MLA score, position contribution, explicit scaling policy, Softmax, weighted latent sum and latent-to-V projection remain. Existing preprocessing/cache are independently executable; no full MLA Attention claim."
+          "implementation": [
+            "src/operators/mla.py",
+            "src/runtime/mla.py"
+          ],
+          "tests": [
+            "tests.operators.test_mla_attention",
+            "tests.operators.test_mla_attention_cli"
+          ],
+          "notes": "Single-token absorbed MLA with shared compressed cache, two score GEMMs, separate INT32-to-FP32 conversions, FP32 add/scale/Softmax, INT8 probabilities and weighted latent output. Cache appended once; each query head owns native reads. Base scale uses nope+rope dimension; optional positive multiplier has explicit provenance. Preprocessing bindings validate shapes and newest-token position; physical placement remains symbolic."
         },
         {
           "id": "attention_output_projection",
-          "status": "partial",
+          "status": "implemented",
           "owner": "issue3",
           "implementation": [
-            "src/operators/projections.py",
-            "src/runtime/blocks.py"
+            "src/operators/mla.py",
+            "src/runtime/mla.py",
+            "src/operators/projections.py"
           ],
           "tests": [
-            "tests.operators.test_projections"
+            "tests.operators.test_mla_attention",
+            "tests.operators.test_mla_attention_cli"
           ],
-          "notes": "Generic per-head context projection now exists; MLA absorbed/unabsorbed output semantics and integration remain unvalidated."
+          "notes": "Existing output projection nodes execute after MLA's latent-to-V contexts, with full global storage reserved. Context is a shared symbolic head/matrix view; no duplicate context allocation. Optional context-only API also connects to standalone output projection."
         },
         {
           "id": "dense_swiglu_ffn",

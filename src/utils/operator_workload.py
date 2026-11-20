@@ -5,7 +5,34 @@ from ..operators.attention import KVCacheSpec, KVCacheAccess, DecodeAttention
 from ..operators.projections import RMSNormINT8, QKVProjection, AttentionOutputProjection, VocabularyProjection
 from ..operators.rope import RoPE
 from ..operators.embedding import Embedding
-from ..operators.mla import MLASpec, MLAPreprocess, MLACacheSpec, MLACacheAccess
+from ..operators.mla import MLASpec, MLAPreprocess, MLACacheSpec, MLACacheAccess, MLADecodeAttention
+
+
+def parse_mla_attention_workload(config):
+    required = {"schema_version", "operation", "dimensions", "cache", "query_nope", "query_rope", "kv_up_weight"}
+    optional = {"description", "append_tokens", "output_weight", "new_latent", "new_rope", "position",
+                "scale_multiplier", "scale_source", "output_name"}
+    if not isinstance(config, dict) or not required <= set(config) or set(config) - required - optional:
+        raise ValueError("MLA Attention requires dimensions, cache, query branches and KV up weight")
+    if type(config["schema_version"]) is not int or config["schema_version"] != 1 or config["operation"] != "mla_decode_attention":
+        raise ValueError("Expected MLA Attention workload schema 1")
+    if "description" in config and (not isinstance(config["description"], str) or not config["description"].strip()):
+        raise ValueError("MLA description must be nonempty text")
+    dims, cache = config["dimensions"], config["cache"]
+    if not isinstance(dims, dict) or set(dims) != set(MLASpec.__dataclass_fields__):
+        raise ValueError("MLA requires all seven independent dimensions")
+    fields = {"batch", "kv_lora_rank", "qk_rope_head_dim", "length", "capacity"}
+    if not isinstance(cache, dict) or not fields <= set(cache) or set(cache) - fields - {"name", "dtype"}:
+        raise ValueError("MLA cache requires dimensions, length and capacity")
+    tensors = {}
+    for key in ("query_nope", "query_rope", "kv_up_weight", "output_weight", "new_latent", "new_rope"):
+        if key in config:
+            t = config[key]
+            if not isinstance(t, dict) or set(t) != {"name", "shape", "dtype"}:
+                raise ValueError("MLA tensor requires exactly name, shape and dtype")
+            tensors[key] = TensorSpec(**t)
+    options = {k: config[k] for k in optional - {"description", *tensors} if k in config}
+    return MLADecodeAttention(**tensors, dimensions=MLASpec(**dims), cache=MLACacheSpec(**cache), **options)
 
 
 def parse_attention_workload(config):
