@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Initial block-level inventory after batch 5; this is not a complete model execution or a numerical accuracy claim.",
+  "scope": "Coarse block inventory through batch 6A; not complete model execution, numerical validation or guaranteed fit of full model weights on one resource.",
   "full_target_model_coverage": false,
   "status_definitions": {
     "implemented": "The named coarse block runs on all four architectures under documented assumptions.",
@@ -33,15 +33,17 @@
         },
         {
           "id": "normalization",
-          "status": "partial",
+          "status": "implemented",
           "owner": "issue3",
           "implementation": [
-            "src/operators/composite.py"
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
           ],
           "tests": [
-            "tests.operators.test_composite"
+            "tests.operators.test_projections",
+            "tests.operators.test_projections_cli"
           ],
-          "notes": "FP32 RMSNorm exists; target INT8 activation boundaries and model-specific bindings remain."
+          "notes": "INT8 activation -> FP32 RMSNorm with FP32 scale weight -> INT8 storage. Last axis, explicit boundary work; model assembly and MLA branch bindings are separate."
         },
         {
           "id": "residual",
@@ -69,15 +71,17 @@
         },
         {
           "id": "qkv_projections",
-          "status": "partial",
+          "status": "implemented",
           "owner": "issue3",
           "implementation": [
-            "src/operators/primitives.py"
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
           ],
           "tests": [
-            "tests.operators.test_gemm"
+            "tests.operators.test_projections",
+            "tests.operators.test_projections_cli"
           ],
-          "notes": "Primitive available; grouped query/KV projection wrapper and output storage boundaries remain."
+          "notes": "Three bias-free INT8 GEMMs with INT32 accumulation and INT8 Q/K/V head outputs; distinct query/KV heads, serial materialization. RoPE remains separate."
         },
         {
           "id": "rope",
@@ -117,15 +121,17 @@
         },
         {
           "id": "attention_output_projection",
-          "status": "partial",
+          "status": "implemented",
           "owner": "issue3",
           "implementation": [
-            "src/operators/primitives.py"
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
           ],
           "tests": [
-            "tests.operators.test_gemm"
+            "tests.operators.test_projections",
+            "tests.operators.test_projections_cli"
           ],
-          "notes": "Attention returns per-head context; concatenated head view, projection and output boundary wrapper remain."
+          "notes": "INT8 per-head context uses a symbolic concatenation view, native INT8 GEMM and INT8 output boundary; no physical reshape instruction model."
         },
         {
           "id": "swiglu_ffn",
@@ -159,15 +165,17 @@
         },
         {
           "id": "normalization",
-          "status": "partial",
+          "status": "implemented",
           "owner": "issue3",
           "implementation": [
-            "src/operators/composite.py"
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
           ],
           "tests": [
-            "tests.operators.test_composite"
+            "tests.operators.test_projections",
+            "tests.operators.test_projections_cli"
           ],
-          "notes": "FP32 RMSNorm exists; target INT8 activation boundaries and model-specific bindings remain."
+          "notes": "INT8 activation -> FP32 RMSNorm with FP32 scale weight -> INT8 storage. Last axis, explicit boundary work; model assembly and MLA branch bindings are separate."
         },
         {
           "id": "residual",
@@ -230,12 +238,13 @@
           "status": "partial",
           "owner": "issue3",
           "implementation": [
-            "src/operators/primitives.py"
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
           ],
           "tests": [
-            "tests.operators.test_gemm"
+            "tests.operators.test_projections"
           ],
-          "notes": "GEMM primitive available; MLA output shape/boundary wrapper remains."
+          "notes": "Generic per-head context projection now exists; MLA absorbed/unabsorbed output semantics and integration remain unvalidated."
         },
         {
           "id": "dense_swiglu_ffn",

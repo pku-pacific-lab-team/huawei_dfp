@@ -12,5 +12,5 @@
 [Action] swiglu.fp32_add: 14 op (logical, action)
 [Action] swiglu.fp32_rcp: 14 op (logical, action)
 [Action] swiglu.boundary_to_int8: 14 element (modeled_internal, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-w7tdq87k\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-w7tdq87k\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-o6k2rqnn\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-o6k2rqnn\report.json

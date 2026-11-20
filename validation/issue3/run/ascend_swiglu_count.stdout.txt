@@ -15,5 +15,5 @@
 [Action] swiglu.boundary_to_int8: 14 element (modeled_internal, action)
 [Action] swiglu.hbm_write_bytes: 14 byte (logical, action)
 [Action] swiglu.ub_dma_read_bytes: 14 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-3ufukvtz\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-3ufukvtz\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-x825gkev\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-x825gkev\report.json

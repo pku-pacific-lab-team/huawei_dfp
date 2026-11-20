@@ -20,12 +20,12 @@ def supplied_option(name, argv=None):
 
 
 def handles_operator_workload(config, args, argv=None):
-    blocks = ("residual", "swiglu", "swiglu_ffn")
+    blocks = ("residual", "swiglu", "swiglu_ffn", "rmsnorm_int8", "qkv_projection", "attention_output_projection")
     attention = ("kv_cache", "decode_attention")
     if supplied_option("--attention-config", argv) and (not isinstance(config, dict) or config.get("operation") not in attention):
         raise ValueError("--attention-config requires kv_cache/decode_attention")
     if supplied_option("--block-config", argv) and (not isinstance(config, dict) or config.get("operation") not in (*blocks, "decode_attention")):
-        raise ValueError("--block-config requires residual/swiglu/swiglu_ffn/decode_attention")
+        raise ValueError("--block-config requires a materialized block or decode_attention")
     if not isinstance(config, dict) or config.get("operation", "gemm") not in ("vector", "rmsnorm", "softmax", *blocks, *attention):
         if args.details_output and args.report_format != "operator":
             raise ValueError("--details-output requires --report-format operator for GEMM")

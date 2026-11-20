@@ -99,5 +99,5 @@
 [Action] output.output_stream_bytes: 640 byte (padded, action)
 [Action] output.boundary_to_fp32: 34 element (modeled_internal, action)
 [Action] output.boundary_to_int8: 34 element (modeled_internal, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-l3qf2paf\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-l3qf2paf\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-m_amhqdr\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-m_amhqdr\report.json

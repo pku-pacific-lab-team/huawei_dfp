@@ -2,6 +2,7 @@
 from ..operators import TensorSpec, Vector, RMSNorm, Softmax
 from ..operators.blocks import Residual, SwiGLU, SwiGLUFFN
 from ..operators.attention import KVCacheSpec, KVCacheAccess, DecodeAttention
+from ..operators.projections import RMSNormINT8, QKVProjection, AttentionOutputProjection
 
 
 def parse_attention_workload(config):
@@ -35,10 +36,16 @@ def parse_block_workload(config):
     if not isinstance(config, dict) or not required <= set(config):
         raise ValueError("Block workload requires schema_version, operation, inputs")
     operation = config["operation"]
-    factories = {"residual": (Residual, 2), "swiglu": (SwiGLU, 2), "swiglu_ffn": (SwiGLUFFN, 4)}
+    factories = {"residual": (Residual, 2), "swiglu": (SwiGLU, 2), "swiglu_ffn": (SwiGLUFFN, 4),
+                 "rmsnorm_int8": (RMSNormINT8, 2), "qkv_projection": (QKVProjection, 4),
+                 "attention_output_projection": (AttentionOutputProjection, 2)}
     if type(config["schema_version"]) is not int or config["schema_version"] != 1 or not isinstance(operation, str) or operation not in factories:
-        raise ValueError("Expected Residual/SwiGLU/FFN workload schema 1")
-    optional = {"description", "output_name"} | ({"output_dtype"} if operation == "swiglu" else set())
+        raise ValueError("Expected a supported block workload schema 1")
+    options_by_kind = {"swiglu": {"output_dtype"}, "rmsnorm_int8": {"axis", "epsilon"},
+                       "qkv_projection": {"query_heads", "kv_heads", "head_dim", "output_names"}}
+    optional = {"description"} | options_by_kind.get(operation, set())
+    if operation != "qkv_projection":
+        optional.add("output_name")
     if set(config) - required - optional:
         raise ValueError("Unknown block workload fields")
     if "description" in config and (not isinstance(config["description"], str) or not config["description"].strip()):
@@ -51,7 +58,9 @@ def parse_block_workload(config):
         if not isinstance(tensor, dict) or set(tensor) != {"name", "shape", "dtype"}:
             raise ValueError("Block input requires exactly name, shape, dtype")
         tensors.append(TensorSpec(**tensor))
-    options = {k: config[k] for k in ("output_name", "output_dtype") if k in config}
+    if operation == "qkv_projection" and not {"query_heads", "kv_heads", "head_dim"} <= set(config):
+        raise ValueError("QKV workload requires query_heads, kv_heads and head_dim")
+    options = {k: config[k] for k in optional - {"description"} if k in config}
     return factory(*tensors, **options)
 
 

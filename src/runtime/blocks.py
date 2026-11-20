@@ -12,10 +12,11 @@ from ..hardware.blocks import BlockExecution, load_block_execution
 from ..operators.actions import ActionLedger
 from ..operators.adapters import adapt_native_result
 from ..operators.blocks import block_steps
+from ..operators.composite import RMSNorm
 from ..operators.primitives import Gemm
 from ..operators.types import OpResult
 from .backends import get_backend
-from .simulation import execution_profile, simulate_gemm
+from .simulation import execution_profile, simulate_gemm, simulate_composite
 
 
 def align(size, unit):
@@ -39,11 +40,11 @@ def simulate_block(operator, architecture, spec, *, mode="count", execution=None
                    tile_elements=None, mem_slices=None, streams=None, reserved_bytes=0, hemisphere=0,
                    include_details=False):
     get_backend(architecture, spec)
-    execution = execution_profile(architecture, execution, mode)
+    steps = block_steps(operator)
+    execution = execution_profile(architecture, execution, mode, composite=any(isinstance(op, RMSNorm) for _, op in steps))
     profile = load_block_execution() if block_execution is None else block_execution
     if not isinstance(profile, BlockExecution):
         raise ValueError("Expected a BlockExecution profile")
-    steps = block_steps(operator)
     resident = architecture in {"tsp", "tsp_cim"}
     allocation = None
     if resident:
@@ -86,6 +87,14 @@ def simulate_block(operator, architecture, spec, *, mode="count", execution=None
                     policy["hemisphere"] = hemisphere
             result = simulate_gemm(op, architecture, spec, mode=mode, include_details=True, **policy)
             useful_macs += op.useful_macs
+        elif isinstance(op, RMSNorm):
+            policy = {}
+            if resident:
+                own = sum(stripe(t.nbytes) for t in (*op.inputs, *op.spec.outputs))
+                policy = dict(mem_slices=list(allocation.slices), streams=allocation.streams,
+                              reserved_bytes=live["storage_bytes"] - own, hemisphere=hemisphere)
+            result = simulate_composite(op, architecture, spec, mode=mode, execution=execution,
+                                        tile_elements=tile_elements, include_details=True, **policy)
         else:
             path = make_path(op, architecture, spec, execution, mode, live["storage_bytes"], capacity, allocation, tile_elements)
             native_result = run_elementwise(op, path, execution, profile, mode)
@@ -107,7 +116,9 @@ def simulate_block(operator, architecture, spec, *, mode="count", execution=None
         total_ops += report["work_counts"]["logical"]["operations"]
         logical_ops.update(report["work_counts"]["logical"].get("operation_counts", {}))
         boundary_elements.update(report["work_counts"]["internal"].get("boundary_elements", {}))
-        live["scratch_bytes"] = report["memory"].get("scratch_tile_bytes", 0) if resident else 0
+        live["scratch_bytes"] = report["memory"]["resident_bytes"] - live["storage_bytes"] if resident else 0
+        if live["scratch_bytes"] < 0:
+            raise ValueError("Native storage is smaller than the live block allocation")
         live["peak_bytes"] = live["storage_bytes"] + live["scratch_bytes"]
         if live["peak_bytes"] > capacity:
             raise ValueError("unsupported_capacity: live block tensors and scratch exceed local MEM")
@@ -153,7 +164,7 @@ def simulate_block(operator, architecture, spec, *, mode="count", execution=None
                                      "profile_reference_id": profile.reference_id, "vector_profile_reference_id": execution.reference_id},
               "action_counts": native_actions, "memory": memory, "timing": timing,
               "work_counts": {"logical": {"operations": total_ops, "useful_macs": useful_macs,
-                                          "operation_counts": dict(logical_ops), "output_bytes": operator.spec.outputs[0].nbytes},
+                                          "operation_counts": dict(logical_ops), "output_bytes": sum(t.nbytes for t in operator.spec.outputs)},
                               "issued": {"operations": None, "status": "per_node_only", "basis": "See native matrix counts; no SIMD issue model"},
                               "internal": {"boundary_elements": dict(boundary_elements), "status": "per_node_only"}},
               "schedule": {"steps": plan, "nodes": nodes}, "block_execution_profile": deepcopy(profile.config),
@@ -163,4 +174,7 @@ def simulate_block(operator, architecture, spec, *, mode="count", execution=None
                               "Symbolic padded views share one allocation per tensor; layout conversion instructions are not modeled.",
                               "INT8 boundaries use explicit uncalibrated work proxies, without scales, saturation values or numerical accuracy claims.",
                               "Inputs persist; intermediate storage releases after its last consumer. Local buffers are reused between nodes."]}
+    if hasattr(operator, "storage_views"):
+        report["schedule"]["storage_views"] = operator.storage_views
+        report["limitations"].append("Head/matrix shapes are symbolic views of the same backing; physical packing requires layout validation, with no standalone reshape/transpose model.")
     return OpResult.from_native(operator.spec, architecture, ActionLedger(tuple(entries)), report, include_details=include_details)

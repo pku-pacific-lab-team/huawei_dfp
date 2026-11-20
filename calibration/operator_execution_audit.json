@@ -156,5 +156,16 @@
       ],
       "precision_reference": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/1"
     }
+  },
+  "decode_projection_blocks": {
+    "status": "assumed",
+    "documentation": "ARCHITECTURE.md#decode-projections",
+    "execution_profiles": [
+      "configs/execution/blocks.json",
+      "configs/execution/vector.json"
+    ],
+    "algorithm_reference": "https://github.com/meta-llama/llama3/blob/main/llama/model.py",
+    "precision_reference": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/1",
+    "conditions": "Single-token bias-free GQA projections. INT8 activation/matrix weights and outputs; RMSNorm scale weight and internal normalization FP32. Existing to_fp32/to_int8 proxies, no new measured hardware rate. Serial materialized nodes; head/matrix views share storage symbolically and require physical layout validation. No RoPE, numeric quantization, MLA composition or chip execution."
   }
 }

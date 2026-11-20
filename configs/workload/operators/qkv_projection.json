@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "operation": "qkv_projection",
+  "description": "Bias-free Decode GQA projections before positional encoding; logical weight orientation [in, out]",
+  "inputs": [
+    {"name": "x", "shape": [2, 17], "dtype": "INT8"},
+    {"name": "wq", "shape": [17, 28], "dtype": "INT8"},
+    {"name": "wk", "shape": [17, 14], "dtype": "INT8"},
+    {"name": "wv", "shape": [17, 14], "dtype": "INT8"}
+  ],
+  "query_heads": 4,
+  "kv_heads": 2,
+  "head_dim": 7
+}

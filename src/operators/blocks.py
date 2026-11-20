@@ -114,7 +114,8 @@ def block_steps(operator):
     if isinstance(operator, (Residual, SwiGLU)):
         return [(operator.operation, operator)]
     if not isinstance(operator, SwiGLUFFN):
-        raise ValueError("Expected Residual, SwiGLU or SwiGLUFFN")
+        from .projections import projection_steps
+        return projection_steps(operator)
     taken = {t.name for t in (*operator.inputs, *operator.spec.outputs)}
     def internal(label):
         name = "ffn." + label

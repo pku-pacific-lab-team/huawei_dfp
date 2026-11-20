@@ -97,6 +97,23 @@ test_conventional_cache_is_not_claimed_as_mla (tests.operators.test_model_covera
 test_inventory_claims_have_evidence_and_all_gaps_have_owners (tests.operators.test_model_coverage.ModelCoverageTest.test_inventory_claims_have_evidence_and_all_gaps_have_owners) ... ok
 test_defaults_separate_architectures_operations_and_preserve_failed_outputs (tests.operators.test_output.OperatorOutputTest.test_defaults_separate_architectures_operations_and_preserve_failed_outputs) ... ok
 test_explicit_relative_absolute_and_empty_outputs_override_defaults (tests.operators.test_output.OperatorOutputTest.test_explicit_relative_absolute_and_empty_outputs_override_defaults) ... ok
+test_all_architectures_count_timing_and_serial_aggregation (tests.operators.test_projections.ProjectionTest.test_all_architectures_count_timing_and_serial_aggregation) ... ok
+test_connections_require_physical_layout_validation (tests.operators.test_projections.ProjectionTest.test_connections_require_physical_layout_validation) ... ok
+test_direct_fp32_conversion_uses_destination_without_extra_scratch (tests.operators.test_projections.ProjectionTest.test_direct_fp32_conversion_uses_destination_without_extra_scratch) ... ok
+test_global_hbm_capacity_rejects_qkv_even_when_native_nodes_fit (tests.operators.test_projections.ProjectionTest.test_global_hbm_capacity_rejects_qkv_even_when_native_nodes_fit) ... ok
+test_head_counts_mha_mqa_and_internal_name_collisions (tests.operators.test_projections.ProjectionTest.test_head_counts_mha_mqa_and_internal_name_collisions) ... ok
+test_native_gemm_actions_roles_and_counts_preserved (tests.operators.test_projections.ProjectionTest.test_native_gemm_actions_roles_and_counts_preserved) ... ok
+test_output_projection_concat_is_one_backing (tests.operators.test_projections.ProjectionTest.test_output_projection_concat_is_one_backing) ... ok
+test_profile_sensitivity_and_unknown_boundary_cost (tests.operators.test_projections.ProjectionTest.test_profile_sensitivity_and_unknown_boundary_cost) ... ok
+test_qkv_hand_counts_and_gqa_output_shapes (tests.operators.test_projections.ProjectionTest.test_qkv_hand_counts_and_gqa_output_shapes) ... ok
+test_qkv_persistent_outputs_and_exact_global_peak (tests.operators.test_projections.ProjectionTest.test_qkv_persistent_outputs_and_exact_global_peak) ... ok
+test_resident_norm_accounts_for_striped_scalars_and_scratch (tests.operators.test_projections.ProjectionTest.test_resident_norm_accounts_for_striped_scalars_and_scratch) ... ok
+test_resident_norm_minimum_temporary_capacity (tests.operators.test_projections.ProjectionTest.test_resident_norm_minimum_temporary_capacity) ... ok
+test_rmsnorm_fp32_arithmetic_and_boundary_counts (tests.operators.test_projections.ProjectionTest.test_rmsnorm_fp32_arithmetic_and_boundary_counts) ... ok
+test_strict_workload_fields (tests.operators.test_projections.ProjectionTest.test_strict_workload_fields) ... ok
+test_weight_dtype_axis_epsilon_and_projection_shape_rejections (tests.operators.test_projections.ProjectionTest.test_weight_dtype_axis_epsilon_and_projection_shape_rejections) ... ok
+test_four_entries_from_other_directory_with_custom_profile (tests.operators.test_projections_cli.ProjectionCLITest.test_four_entries_from_other_directory_with_custom_profile) ... ok
+test_invalid_shapes_options_and_profiles_preserve_outputs (tests.operators.test_projections_cli.ProjectionCLITest.test_invalid_shapes_options_and_profiles_preserve_outputs) ... ok
 test_actions_preserve_roles_units_and_provenance_in_separate_view (tests.operators.test_reporting.ReportingTest.test_actions_preserve_roles_units_and_provenance_in_separate_view) ... ok
 test_cli_details_are_explicit_and_bound_to_the_summary (tests.operators.test_reporting.ReportingTest.test_cli_details_are_explicit_and_bound_to_the_summary) ... ok
 test_count_and_missing_clock_keep_unknown_time (tests.operators.test_reporting.ReportingTest.test_count_and_missing_clock_keep_unknown_time) ... ok
@@ -131,6 +148,6 @@ test_owned_changes_and_shared_dependencies_have_distinct_snapshots (tests.valida
 test_subtest_failure_and_skips_do_not_become_success (tests.validation.test_verification.VerificationTest.test_subtest_failure_and_skips_do_not_become_success) ... ok
 
 ----------------------------------------------------------------------
-Ran 131 tests in 157.462s
+Ran 148 tests in 187.729s
 
 OK

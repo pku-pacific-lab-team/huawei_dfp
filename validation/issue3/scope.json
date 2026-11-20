@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "issue": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3",
-  "scope": "implemented_batches_1_5_decode_core_and_cache",
+  "scope": "implemented_batches_1_6a_decode_projections_and_int8_norm",
   "reference_commit": "98e79ee5b34991f09c65efe395e1e84d58589fab",
   "requirements": {
     "I3_contracts": {
@@ -110,10 +110,22 @@
         "tests.operators.test_model_coverage"
       ],
       "cli_operations": []
+    },
+    "I3_decode_projections": {
+      "title": "INT8 RMSNorm、Q/K/V 与 Attention 输出投影：多输出、视图、存储边界、原生内核复用和全块容量",
+      "test_modules": [
+        "tests.operators.test_projections",
+        "tests.operators.test_projections_cli"
+      ],
+      "cli_operations": [
+        "rmsnorm_int8",
+        "qkv_projection",
+        "attention_output_projection"
+      ]
     }
   },
   "pending_work": [
-    "目标模型覆盖矩阵已建立；RoPE、投影/归一化存储边界包装、embedding 等 partial/pending 块仍需补齐",
+    "目标模型覆盖矩阵已更新；第六批 B 尚需 RoPE、embedding、词表投影输出边界，后续再推进 MLA/MoE",
     "DeepSeek-R1 MLA 压缩缓存/Attention、MoE 路由、专家调度和合并块；常规 GQA/KV Cache 不代表 MLA",
     "整片执行与 M/N 分片、跨核/半片通信模型；当前执行范围保持单核/单半片",
     "完整 Decoder/模型拼装与端到端评估属于 Issue #4；独立量化/布局/ISA 指令模型和数值精度不属于 Issue #3 解析验收"

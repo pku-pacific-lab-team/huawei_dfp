@@ -19,7 +19,8 @@ from scripts.verification import (ISSUE3_TEST_DIRS, discover, fingerprints, issu
 
 ARCHITECTURES = ("ascend", "tpu", "tsp", "tsp_cim")
 VECTOR_OPS = ("int32_add", "fp32_add", "fp32_mul", "fp32_exp", "fp32_rsqrt")
-OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax", "residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention")
+PROJECTION_OPS = ("rmsnorm_int8", "qkv_projection", "attention_output_projection")
+OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax", "residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", *PROJECTION_OPS)
 NEGATIVE_CASES = ("reject_null_profile", "reject_unsupported")
 MANIFEST = ROOT / "validation/issue3/scope.json"
 
@@ -88,18 +89,25 @@ def report_checks(report, arch, kind, mode, details):
     checks["native_actions"] = set(report["action_counts"]) == set(native["action_counts"]) and all(
         action["count"] == native["action_counts"][key]["count"] and
         action["unit"] == native["action_counts"][key]["unit"] for key, action in report["action_counts"].items())
-    dtype = "INT8" if kind in ("residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention") else "INT32" if kind in ("gemm", "int32_add") else "FP32"
-    checks["stored_output_dtype"] = op["outputs"][0]["dtype"] == dtype
+    dtype = "INT8" if kind in ("residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", *PROJECTION_OPS) else "INT32" if kind in ("gemm", "int32_add") else "FP32"
+    checks["stored_output_dtype"] = all(t["dtype"] == dtype for t in op["outputs"])
     if kind in ("kv_cache", "decode_attention"):
         checks["lifetime_validated"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"
         checks["single_resource"] = report["boundary"]["chip_execution_included"] is False
         state = native["cache_state"]
         checks["append_semantics"] = state["after"]["length"] == state["before"]["length"] + 1
         checks["state_aliases"] = details["io_contract"]["state_aliases"] == state["output_aliases"]
-    if kind in ("residual", "swiglu", "swiglu_ffn"):
+    if kind in ("residual", "swiglu", "swiglu_ffn", *PROJECTION_OPS):
         checks["lifetime_validated"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"
         checks["single_resource"] = report["boundary"]["chip_execution_included"] is False
-        checks["block_plan"] = len(native["schedule"]["steps"]) == (5 if kind == "swiglu_ffn" else 1)
+        checks["block_plan"] = len(native["schedule"]["steps"]) == {
+            "swiglu_ffn": 5, "rmsnorm_int8": 3, "qkv_projection": 6, "attention_output_projection": 2}.get(kind, 1)
+    if kind == "qkv_projection":
+        attrs = op["attributes"]
+        batch = op["inputs"][0]["shape"][0]
+        checks["head_outputs"] = [t["shape"] for t in op["outputs"]] == [
+            [batch, heads, 1, attrs["head_dim"]] for heads in (attrs["query_heads"], attrs["kv_heads"], attrs["kv_heads"])]
+        checks["output_bytes"] = native["work_counts"]["logical"]["output_bytes"] == sum(t["logical_bytes"] for t in op["outputs"])
     if kind in ("rmsnorm", "softmax"):
         checks["axis_semantics"] = op["attributes"]["axis"] == len(op["inputs"][0]["shape"]) - 1
         checks["lifetime_validated"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"

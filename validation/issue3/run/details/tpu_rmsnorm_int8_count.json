@@ -1,0 +1,2580 @@
+{
+  "schema_version": 1,
+  "kind": "operator_details",
+  "result_sha256": "f20dec0e9858258f131109a1cc5d1be4997ff35d7c7577564e590e9d3c9504c3",
+  "native_report": {
+    "schema_version": 1,
+    "model": "tpu_materialized_block",
+    "mode": "count",
+    "workload": {
+      "kind": "rmsnorm_int8",
+      "inputs": [
+        {
+          "name": "x",
+          "shape": [
+            2,
+            17
+          ],
+          "dtype": "INT8",
+          "numel": 34,
+          "logical_bytes": 34
+        },
+        {
+          "name": "weight",
+          "shape": [
+            17
+          ],
+          "dtype": "FP32",
+          "numel": 17,
+          "logical_bytes": 68
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "shape": [
+            2,
+            17
+          ],
+          "dtype": "INT8",
+          "numel": 34,
+          "logical_bytes": 34
+        }
+      ],
+      "accumulation_dtype": "FP32",
+      "attributes": {
+        "axis": 1,
+        "epsilon": 1e-05,
+        "weight_storage": "FP32"
+      }
+    },
+    "boundary": {
+      "scope": "single_tensorcore",
+      "chip_execution_included": false,
+      "numeric_values_simulated": false,
+      "start": "tensors_in_HBM",
+      "end": "output_in_HBM",
+      "intermediate_storage": "HBM",
+      "offchip_supply_included": true,
+      "input_output_alias_included": false,
+      "layout": "symbolic_padded_views"
+    },
+    "execution_contract": {
+      "scope": "single_tensorcore",
+      "schedule": "serial_materialized_nodes",
+      "storage": "persistent_inputs_reused_intermediates",
+      "layout": "symbolic_padded_views",
+      "profile_reference_id": "materialized_decode_blocks_v1:a4cab24150f5fb8d",
+      "vector_profile_reference_id": "vector_and_normalization_reference_v2:85eef7e2fa110f03"
+    },
+    "action_counts": {
+      "input_storage.hbm_read_bytes": {
+        "count": 34,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "input_storage.vmem_dma_write_bytes": {
+        "count": 34,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "input_storage.vmem_read_bytes": {
+        "count": 34,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "input_storage.vmem_write_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "input_storage.boundary_to_fp32": {
+        "count": 34,
+        "unit": "element",
+        "scope": "single_tensorcore",
+        "basis": "modeled_internal"
+      },
+      "input_storage.hbm_write_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "input_storage.vmem_dma_read_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "rmsnorm.hbm_read_bytes": {
+        "count": 408,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "rmsnorm.vmem_dma_write_bytes": {
+        "count": 408,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "rmsnorm.vmem_read_bytes": {
+        "count": 840,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "rmsnorm.vmem_write_bytes": {
+        "count": 568,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "rmsnorm.fp32_mul": {
+        "count": 104,
+        "unit": "op",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "rmsnorm.fp32_add": {
+        "count": 34,
+        "unit": "op",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "rmsnorm.fp32_rsqrt": {
+        "count": 2,
+        "unit": "op",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "rmsnorm.hbm_write_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "rmsnorm.vmem_dma_read_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "output_storage.hbm_read_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "output_storage.vmem_dma_write_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "output_storage.vmem_read_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "output_storage.vmem_write_bytes": {
+        "count": 34,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "output_storage.boundary_to_int8": {
+        "count": 34,
+        "unit": "element",
+        "scope": "single_tensorcore",
+        "basis": "modeled_internal"
+      },
+      "output_storage.hbm_write_bytes": {
+        "count": 34,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      },
+      "output_storage.vmem_dma_read_bytes": {
+        "count": 34,
+        "unit": "byte",
+        "scope": "single_tensorcore",
+        "basis": "logical"
+      }
+    },
+    "memory": {
+      "vmem": {
+        "scope": "tensorcore",
+        "capacity_bytes": 16777216,
+        "peak_bytes": 170
+      },
+      "cmem": {
+        "scope": null,
+        "capacity_bytes": null,
+        "peak_bytes": 0
+      },
+      "hbm": {
+        "scope": "chip",
+        "capacity_bytes": 34359738368,
+        "peak_bytes": 374
+      },
+      "lifetime_validation": {
+        "status": "validated_symbolic_schedule",
+        "lifetimes": [
+          {
+            "tensor": "output",
+            "bytes": 34,
+            "first_step": 2,
+            "last_step": 2,
+            "persistent_input": false
+          },
+          {
+            "tensor": "rmsnorm_int8.input_fp32",
+            "bytes": 136,
+            "first_step": 0,
+            "last_step": 1,
+            "persistent_input": false
+          },
+          {
+            "tensor": "rmsnorm_int8.normalized",
+            "bytes": 136,
+            "first_step": 1,
+            "last_step": 2,
+            "persistent_input": false
+          },
+          {
+            "tensor": "weight",
+            "bytes": 68,
+            "first_step": 0,
+            "last_step": 2,
+            "persistent_input": true
+          },
+          {
+            "tensor": "x",
+            "bytes": 34,
+            "first_step": 0,
+            "last_step": 2,
+            "persistent_input": true
+          }
+        ],
+        "steps": [
+          {
+            "node": "input_storage",
+            "live_tensors": [
+              "rmsnorm_int8.input_fp32",
+              "weight",
+              "x"
+            ],
+            "storage_bytes": 238,
+            "scratch_bytes": 0,
+            "peak_bytes": 238
+          },
+          {
+            "node": "rmsnorm",
+            "live_tensors": [
+              "rmsnorm_int8.input_fp32",
+              "rmsnorm_int8.normalized",
+              "weight",
+              "x"
+            ],
+            "storage_bytes": 374,
+            "scratch_bytes": 0,
+            "peak_bytes": 374
+          },
+          {
+            "node": "output_storage",
+            "live_tensors": [
+              "output",
+              "rmsnorm_int8.normalized",
+              "weight",
+              "x"
+            ],
+            "storage_bytes": 272,
+            "scratch_bytes": 0,
+            "peak_bytes": 272
+          }
+        ],
+        "reserved_bytes": 0,
+        "peak_bytes": 374,
+        "policy": "Inputs remain allocated for the whole block; intermediates release after last consumer; output allocation overlaps its inputs."
+      }
+    },
+    "timing": {
+      "status": "not_evaluated",
+      "total_cycles": null,
+      "time_ns": null,
+      "model": "serial_materialized_nodes",
+      "service_cycles": {
+        "status": "not_evaluated",
+        "by_stage": null,
+        "total_cycles": null,
+        "semantics": "Sum of modeled stage service work; stages may overlap. Not elapsed time or a sum of resource busy cycles."
+      },
+      "elapsed_cycles": {
+        "status": "not_evaluated",
+        "by_stage": null,
+        "total_cycles": null,
+        "semantics": "Disjoint elapsed-time partition; available stages sum to timing.total_cycles. No overlap is charged twice."
+      }
+    },
+    "work_counts": {
+      "logical": {
+        "operations": 140,
+        "useful_macs": 0,
+        "operation_counts": {
+          "fp32_mul": 104,
+          "fp32_add": 34,
+          "fp32_rsqrt": 2
+        },
+        "output_bytes": 34
+      },
+      "issued": {
+        "operations": null,
+        "status": "per_node_only",
+        "basis": "See native matrix counts; no SIMD issue model"
+      },
+      "internal": {
+        "boundary_elements": {
+          "boundary_to_fp32": 34,
+          "boundary_to_int8": 34
+        },
+        "status": "per_node_only"
+      }
+    },
+    "schedule": {
+      "steps": [
+        {
+          "id": "input_storage",
+          "inputs": [
+            "x"
+          ],
+          "output": "rmsnorm_int8.input_fp32"
+        },
+        {
+          "id": "rmsnorm",
+          "inputs": [
+            "rmsnorm_int8.input_fp32",
+            "weight"
+          ],
+          "output": "rmsnorm_int8.normalized"
+        },
+        {
+          "id": "output_storage",
+          "inputs": [
+            "rmsnorm_int8.normalized"
+          ],
+          "output": "output"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "input_storage",
+          "operator": {
+            "kind": "storage_boundary",
+            "inputs": [
+              {
+                "name": "x",
+                "shape": [
+                  2,
+                  17
+                ],
+                "dtype": "INT8",
+                "numel": 34,
+                "logical_bytes": 34
+              }
+            ],
+            "outputs": [
+              {
+                "name": "rmsnorm_int8.input_fp32",
+                "shape": [
+                  2,
+                  17
+                ],
+                "dtype": "FP32",
+                "numel": 34,
+                "logical_bytes": 136
+              }
+            ],
+            "accumulation_dtype": "FP32",
+            "attributes": {}
+          },
+          "cycle_count": null,
+          "latency_s": null,
+          "native_report": {
+            "schema_version": 1,
+            "model": "block_elementwise",
+            "mode": "count",
+            "workload": {
+              "kind": "storage_boundary",
+              "inputs": [
+                {
+                  "name": "x",
+                  "shape": [
+                    2,
+                    17
+                  ],
+                  "dtype": "INT8",
+                  "numel": 34,
+                  "logical_bytes": 34
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "rmsnorm_int8.input_fp32",
+                  "shape": [
+                    2,
+                    17
+                  ],
+                  "dtype": "FP32",
+                  "numel": 34,
+                  "logical_bytes": 136
+                }
+              ],
+              "accumulation_dtype": "FP32",
+              "attributes": {}
+            },
+            "boundary": {
+              "scope": "single_tensorcore",
+              "start": "tensors_in_HBM",
+              "end": "output_in_HBM",
+              "cache_policy": "bypass_for_elementwise"
+            },
+            "execution_contract": {
+              "scope": "single_tensorcore",
+              "selected_tile_elements": 34,
+              "requested_tile_elements": 1024
+            },
+            "action_counts": {
+              "hbm_read_bytes": {
+                "count": 34,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "vmem_dma_write_bytes": {
+                "count": 34,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "vmem_read_bytes": {
+                "count": 34,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "vmem_write_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "boundary_to_fp32": {
+                "count": 34,
+                "unit": "element",
+                "scope": "single_tensorcore",
+                "basis": "modeled_internal"
+              },
+              "hbm_write_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "vmem_dma_read_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              }
+            },
+            "counts": {
+              "hbm_read_bytes": 34,
+              "vmem_dma_write_bytes": 34,
+              "vmem_read_bytes": 34,
+              "vmem_write_bytes": 136,
+              "boundary_to_fp32": 34,
+              "hbm_write_bytes": 136,
+              "vmem_dma_read_bytes": 136
+            },
+            "memory": {
+              "hbm": {
+                "scope": "chip",
+                "capacity_bytes": 34359738368,
+                "peak_bytes": 238
+              },
+              "vmem": {
+                "scope": "tensorcore",
+                "capacity_bytes": 16777216,
+                "allocated_bytes": 170,
+                "scratch_tile_bytes": 0
+              }
+            },
+            "timing": {
+              "status": "not_evaluated",
+              "total_cycles": null,
+              "time_ns": null,
+              "required_parameters": [
+                "block.to_fp32_cost",
+                "clock_hz",
+                "hbm_bandwidth_bytes_per_second",
+                "tensorcores_per_chip",
+                "vector_base_ops_per_cycle",
+                "vmem_bandwidth_bytes_per_second"
+              ],
+              "model": "serial_block_tile_stages",
+              "derived_services": {
+                "hbm_bpc": null,
+                "local_read_bpc": null,
+                "local_write_bpc": null
+              },
+              "service_cycles": {
+                "status": "not_evaluated",
+                "by_stage": null,
+                "total_cycles": null,
+                "semantics": "Sum of modeled stage service work; stages may overlap. Not elapsed time or a sum of resource busy cycles."
+              },
+              "elapsed_cycles": {
+                "status": "not_evaluated",
+                "by_stage": null,
+                "total_cycles": null,
+                "semantics": "Disjoint elapsed-time partition; available stages sum to timing.total_cycles. No overlap is charged twice."
+              }
+            },
+            "work_counts": {
+              "logical": {
+                "operations": 0,
+                "operation_counts": {},
+                "output_bytes": 136
+              },
+              "issued": {
+                "operations": null,
+                "status": "not_modeled"
+              },
+              "internal": {
+                "boundary_elements": {
+                  "boundary_to_fp32": 34
+                }
+              }
+            },
+            "schedule": {
+              "tile_groups": [
+                {
+                  "elements": 34,
+                  "repetitions": 1,
+                  "stages": [
+                    {
+                      "stage": "load_input_0",
+                      "bytes": 34,
+                      "cycles": null
+                    },
+                    {
+                      "stage": "input_0_to_fp32",
+                      "read_bytes": [
+                        34
+                      ],
+                      "write_bytes": [
+                        136
+                      ],
+                      "operation": "boundary_to_fp32",
+                      "elements": 34,
+                      "cycles": null
+                    },
+                    {
+                      "stage": "export_output",
+                      "bytes": 136,
+                      "cycles": null
+                    }
+                  ]
+                }
+              ],
+              "scratch_policy": "Disjoint cast inputs, activation workspace and result; tile buffers reused only after export."
+            },
+            "parameter_provenance": {
+              "clock_hz": {
+                "value": 1050000000,
+                "unit": "Hz",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "Reference clock; not an effective instruction rate."
+              },
+              "tensorcores_per_chip": {
+                "value": 2,
+                "unit": "unit",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://docs.cloud.google.com/tpu/docs/v4",
+                "version": "TPU v4 documentation; accessed 2026-11-15",
+                "conditions": "Architectural inventory; the counter uses one TensorCore."
+              },
+              "mxus_per_tensorcore": {
+                "value": 4,
+                "unit": "unit",
+                "scope": "tensorcore",
+                "status": "documented",
+                "source": "https://docs.cloud.google.com/tpu/docs/v4",
+                "version": "TPU v4 documentation; accessed 2026-11-15",
+                "conditions": "Physical inventory and maximum parallel MXUs per logical output block. The execution policy chooses block sizes; unused MXUs remain idle."
+              },
+              "mxu_rows": {
+                "value": 128,
+                "unit": "element",
+                "scope": "mxu",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "Physical matrix geometry, not a logical-block alignment rule."
+              },
+              "mxu_columns": {
+                "value": 128,
+                "unit": "element",
+                "scope": "mxu",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "Physical matrix geometry, not a logical-block alignment rule."
+              },
+              "int8_macs_per_cell_cycle": {
+                "value": 1,
+                "unit": "MAC/cycle",
+                "scope": "mxu_cell",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+                "version": "TPU count model v1, 2026-11-15",
+                "conditions": "Assumed ideal active-cell INT8 MAC rate, used for specification peaks and analytical MXU compute service; not calibrated instruction throughput."
+              },
+              "vector_base_ops_per_cycle": {
+                "value": 2048,
+                "unit": "op/cycle",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+                "version": "TPU hardware schema 3, 2026-11-17; not hardware calibration",
+                "conditions": "Fixed reference assumption: 1 VPU * 128 lanes * 16 ALUs/lane, assuming each ALU supplies one equivalent basic operation/cycle. Geometry does not establish operation-specific throughput. One shared service per TensorCore; dtype rates are alternatives, not independent parallel resources. Not used by current GEMM. No runtime geometry fallback; update the value explicitly when changing its basis."
+              },
+              "vector_int32_add_cost": {
+                "value": 1,
+                "unit": "equivalent_op/op",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+                "version": "TPU hardware schema 3, 2026-11-17; not hardware calibration",
+                "conditions": "One scalar-element INT32 addition costs one equivalent operation on the shared Vector service. Logical modeling assumption, not verified instruction throughput. No extra Vector charge for current MXU accumulation."
+              },
+              "vector_fp32_basic_op_cost": {
+                "value": 1,
+                "unit": "equivalent_op/op",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+                "version": "TPU Vector/Nonlinear algorithmic reference v1, 2026-11-18; not hardware calibration",
+                "conditions": "One scalar-element FP32 ADD or MUL costs one equivalent operation on the shared Vector service. EXP and RSQRT have separately configured total equivalent-work costs. FMA, DIV, conversions, reductions and full nonlinear operators have no implicit cost. Not used by current GEMM."
+              },
+              "vector_fp32_exp_cost": {
+                "value": 15,
+                "unit": "equivalent_op/op",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "Project algorithmic work proxy; ARCHITECTURE.md#tpu-vector-service; method shared with ARCHITECTURE.md#tsp-vxm-service",
+                "version": "TPU Vector/Nonlinear algorithmic reference v1, 2026-11-18; not hardware calibration",
+                "conditions": "FP32 approximation work proxy: k=round(x*log2(e)), r=x-k*ln(2) costs 4; degree-5 Taylor polynomial in Horner form costs 5 MUL + 5 ADD; exponent scaling costs 1, total 15. Round and exponent scaling each count as one equivalent operation. No fused-operation discount. Reference domain is finite x in [-80,0]; no correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate exp numerically, and is not native TPU Exp instruction throughput or latency. Shares the per-TensorCore Vector budget; memory and dependencies are separate. Fixed total equivalent-work cost, independent of vector_fp32_basic_op_cost. Adopts the project TSP algorithmic counting convention, not TSP throughput. Not used by current GEMM."
+              },
+              "vector_fp32_rsqrt_cost": {
+                "value": 12,
+                "unit": "equivalent_op/op",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "Project algorithmic work proxy; ARCHITECTURE.md#tpu-vector-service; method shared with ARCHITECTURE.md#tsp-vxm-service",
+                "version": "TPU Vector/Nonlinear algorithmic reference v1, 2026-11-18; not hardware calibration",
+                "conditions": "Positive-normal FP32 approximation work proxy: bit seed bits(y)=0x5f3759df-(bits(x)>>1) costs 2 (shift and subtraction; bit reinterpretation costs 0), then two iterations y=(0.5*y)*(3-x*y*y), each 4 MUL + 1 SUB, total 12. No fused-operation discount. No correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate rsqrt numerically, and is not native TPU RSqrt instruction throughput or latency. Shares the per-TensorCore Vector budget; memory and dependencies are separate. Fixed total equivalent-work cost, independent of vector_fp32_basic_op_cost. Adopts the project TSP algorithmic counting convention, not TSP throughput. Not used by current GEMM."
+              },
+              "vmem_physical_bytes": {
+                "value": 16777216,
+                "unit": "byte",
+                "scope": "tensorcore",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "16 MiB per TensorCore; binary capacity."
+              },
+              "vmem_usable_bytes": {
+                "value": 16777216,
+                "unit": "byte",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+                "version": "TPU count model v1, 2026-11-15",
+                "conditions": "Logical scenario allows the full reference VMEM for A/B/C; runtime reservations, packing and spills are not modeled. Not a measured allocatable capacity."
+              },
+              "vmem_bandwidth_bytes_per_second": {
+                "value": 1075200000000,
+                "unit": "byte/s",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+                "version": "TPU count model v1, 2026-11-15; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 4 MXUs * (128 rows + 128 columns) INT8 bytes/cycle * 1.05e9 Hz = 1075200000000 B/s. Assume shared read/write service; runtime divides by clock_hz. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "cmem_physical_bytes": {
+                "value": 134217728,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs; PDF p7, Table 4)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "Shared scratchpad counted once per chip, not a transparent cache."
+              },
+              "cmem_usable_bytes": {
+                "value": 134217728,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+                "version": "TPU hardware schema 3, 2026-11-17; not hardware calibration",
+                "conditions": "Assume all 128 MiB physical CMEM is usable. Single-TensorCore tiled execution gets floor(chip usable bytes / tensorcores_per_chip), with no idle-share borrowing. One or two capacity-checked cold slots hold full-K INT8 A/B panels; C remains in VMEM. This is an allocation scenario, not measured runtime capacity. Bypass allocates no CMEM."
+              },
+              "cmem_read_bandwidth_bytes_per_second": {
+                "value": 2150704873472,
+                "unit": "byte/s",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://pypi.org/project/libtpu/0.0.40/ (Pufferfish SharedMemory[CMEM].parts.bytes_per_second; verified binary decode); https://markgottscho.com/cv/papers/2021_NJouppi_ISCA.pdf (PDF p10, read/write ratio only); ARCHITECTURE.md#tpu-cmem-proxy",
+                "version": "libtpu 0.0.40 cp314 Linux x86_64, published 2026-04-14; verified 2026-11-18; CMEM directional proxy v2",
+                "conditions": "Method: read = 2150704873472 B/s. The libtpu 0.0.40 Pufferfish standard and lite SharedMemory[CMEM].parts.bytes_per_second field is 2150704873472 B/s (2003 GiB/s), identical in both variants. The field does not distinguish read and write; assigning it to the chip read service and applying the TPUv4i 2000:1000 read/write ratio are explicit model assumptions, not validated TPU v4 directional bandwidth or silicon calibration. Decimal byte/s in this configuration; preserve the decoded integer without implying measurement precision. Independent read/write directions; do not multiply by TensorCore count or sum directions. Tiled execution divides each direction equally among TensorCores with no idle borrowing. HBM-to-CMEM fill and CMEM-to-VMEM read each reserve both endpoints at their minimum bandwidth. Capacity-checked CMEM slots permit outer-fill/inner-execution overlap under resource_pipeline. Different live slots may read and write concurrently. Fills and output exports share the same HBM service; slot reuse waits for its last read. Serial mode disables overlap. No additional OCI/bank/port bottleneck beyond these effective services. Bypass consumes neither direction."
+              },
+              "cmem_write_bandwidth_bytes_per_second": {
+                "value": 1075352436736,
+                "unit": "byte/s",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://pypi.org/project/libtpu/0.0.40/ (Pufferfish SharedMemory[CMEM].parts.bytes_per_second; verified binary decode); https://markgottscho.com/cv/papers/2021_NJouppi_ISCA.pdf (PDF p10, read/write ratio only); ARCHITECTURE.md#tpu-cmem-proxy",
+                "version": "libtpu 0.0.40 cp314 Linux x86_64, published 2026-04-14; verified 2026-11-18; CMEM directional proxy v2",
+                "conditions": "Method: write = 2150704873472 * (1000 / 2000) = 1075352436736 B/s. This is not a separately decoded write-bandwidth field. The libtpu 0.0.40 Pufferfish standard and lite SharedMemory[CMEM].parts.bytes_per_second field is 2150704873472 B/s (2003 GiB/s), identical in both variants. The field does not distinguish read and write; assigning it to the chip read service and applying the TPUv4i 2000:1000 read/write ratio are explicit model assumptions, not validated TPU v4 directional bandwidth or silicon calibration. Decimal byte/s in this configuration; preserve the decoded integer without implying measurement precision. Independent read/write directions; do not multiply by TensorCore count or sum directions. Tiled execution divides each direction equally among TensorCores with no idle borrowing. HBM-to-CMEM fill and CMEM-to-VMEM read each reserve both endpoints at their minimum bandwidth. Capacity-checked CMEM slots permit outer-fill/inner-execution overlap under resource_pipeline. Different live slots may read and write concurrently. Fills and output exports share the same HBM service; slot reuse waits for its last read. Serial mode disables overlap. No additional OCI/bank/port bottleneck beyond these effective services. Bypass consumes neither direction."
+              },
+              "hbm_physical_bytes": {
+                "value": 34359738368,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://docs.cloud.google.com/tpu/docs/v4",
+                "version": "TPU v4 documentation; accessed 2026-11-15",
+                "conditions": "Unified physical HBM2 capacity; 32 GiB, not 32 decimal GB."
+              },
+              "hbm_usable_bytes": {
+                "value": 34359738368,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+                "version": "TPU count model v1, 2026-11-15",
+                "conditions": "Logical scenario allocates up to physical HBM; real runtime reserves memory. A/B/C coexist, no host offload. Not a measured runtime limit."
+              },
+              "hbm_bandwidth_bytes_per_second": {
+                "value": 1200000000000,
+                "unit": "byte/s",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://docs.cloud.google.com/tpu/docs/v4",
+                "version": "TPU v4 documentation; accessed 2026-11-15",
+                "conditions": "Published aggregate bandwidth, decimal GB/s; no inference of single-TensorCore effective bandwidth."
+              }
+            },
+            "reference_ids": {
+              "hardware": null
+            }
+          }
+        },
+        {
+          "id": "rmsnorm",
+          "operator": {
+            "kind": "rmsnorm",
+            "inputs": [
+              {
+                "name": "rmsnorm_int8.input_fp32",
+                "shape": [
+                  2,
+                  17
+                ],
+                "dtype": "FP32",
+                "numel": 34,
+                "logical_bytes": 136
+              },
+              {
+                "name": "weight",
+                "shape": [
+                  17
+                ],
+                "dtype": "FP32",
+                "numel": 17,
+                "logical_bytes": 68
+              }
+            ],
+            "outputs": [
+              {
+                "name": "rmsnorm_int8.normalized",
+                "shape": [
+                  2,
+                  17
+                ],
+                "dtype": "FP32",
+                "numel": 34,
+                "logical_bytes": 136
+              }
+            ],
+            "accumulation_dtype": "FP32",
+            "attributes": {
+              "axis": 1,
+              "epsilon": 1e-05
+            }
+          },
+          "cycle_count": null,
+          "latency_s": null,
+          "native_report": {
+            "schema_version": 1,
+            "model": "tpu_normalization_serial",
+            "mode": "count",
+            "workload": {
+              "operation": "rmsnorm",
+              "kind": "rmsnorm",
+              "inputs": [
+                {
+                  "name": "rmsnorm_int8.input_fp32",
+                  "shape": [
+                    2,
+                    17
+                  ],
+                  "dtype": "FP32",
+                  "numel": 34,
+                  "logical_bytes": 136
+                },
+                {
+                  "name": "weight",
+                  "shape": [
+                    17
+                  ],
+                  "dtype": "FP32",
+                  "numel": 17,
+                  "logical_bytes": 68
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "rmsnorm_int8.normalized",
+                  "shape": [
+                    2,
+                    17
+                  ],
+                  "dtype": "FP32",
+                  "numel": 34,
+                  "logical_bytes": 136
+                }
+              ],
+              "accumulation_dtype": "FP32",
+              "attributes": {
+                "axis": 1,
+                "epsilon": 1e-05
+              },
+              "axis": 1,
+              "rows": 2,
+              "width": 17,
+              "epsilon": 1e-05
+            },
+            "boundary": {
+              "scope": "single_tensorcore",
+              "chip_execution_included": false,
+              "numeric_values_simulated": false,
+              "input_output_alias_included": false,
+              "start": "tensors_in_HBM",
+              "end": "output_in_HBM",
+              "cmem_policy": "bypass"
+            },
+            "execution_contract": {
+              "scope": "single_tensorcore",
+              "path": "hbm_vmem_bypass_cmem",
+              "tile_elements": 1024,
+              "transfer_startup_cycles": 0,
+              "compute_startup_cycles": 0,
+              "schedule": "serial_rows_passes_tiles",
+              "composite": {
+                "schedule": "serial_rows_passes_tiles",
+                "reduction": "balanced_tile_tree_serial_merge",
+                "storage": "rmsnorm_reread_softmax_output_workspace",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                "version": "normalization-serial-v1",
+                "conditions": "Last-axis FP32. Serial rows, passes and tiles. Balanced binary reduction levels wait for predecessors; partials merge into one row state. Constants are implicit; one scalar read per tile broadcasts without extra shuffle work. RMSNorm rereads x and loads weight per row. Softmax stores exp in the output allocation, then normalizes it. No numerical accuracy or hardware-instruction claims.",
+                "parameters": {
+                  "fp32_sub_cost": {
+                    "value": 1,
+                    "unit": "equivalent_op/op",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "One scalar SUB modeled as one basic equivalent operation; shares native Vector/VXM budget, not calibrated.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  },
+                  "fp32_max_cost": {
+                    "value": 1,
+                    "unit": "equivalent_op/op",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "One pairwise MAX comparison/selection modeled as one equivalent operation; not calibrated.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  },
+                  "fp32_rcp_cost": {
+                    "value": 7,
+                    "unit": "equivalent_op/op",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "Algorithmic proxy: one seed-equivalent operation plus two Newton-style updates of two MUL and one SUB each: 1+2*3=7. Seed accuracy and numerical result are not modeled; not native reciprocal timing.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  },
+                  "reduction_round_cycles": {
+                    "value": 1,
+                    "unit": "cycle",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "Minimum compute dependency interval per tree level or cross-tile binary merge. Total compute is max(weighted-work cycles, this value); memory and startup charged separately. Not a measured shuffle or lane-network latency.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  }
+                }
+              },
+              "profile_reference_id": "vector_and_normalization_reference_v2:85eef7e2fa110f03",
+              "requested_tile_elements": 1024,
+              "selected_tile_elements": 17,
+              "row_schedule": "serial_rows_passes_tiles"
+            },
+            "counts": {
+              "hbm_read_bytes": 408,
+              "vmem_dma_write_bytes": 408,
+              "vmem_read_bytes": 840,
+              "vmem_write_bytes": 568,
+              "fp32_mul": 104,
+              "fp32_add": 34,
+              "fp32_rsqrt": 2,
+              "hbm_write_bytes": 136,
+              "vmem_dma_read_bytes": 136,
+              "useful_ops": 140,
+              "logical_output_bytes": 136
+            },
+            "action_counts": {
+              "hbm_read_bytes": {
+                "count": 408,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "vmem_dma_write_bytes": {
+                "count": 408,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "vmem_read_bytes": {
+                "count": 840,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "vmem_write_bytes": {
+                "count": 568,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "fp32_mul": {
+                "count": 104,
+                "unit": "op",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "fp32_add": {
+                "count": 34,
+                "unit": "op",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "fp32_rsqrt": {
+                "count": 2,
+                "unit": "op",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "hbm_write_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "vmem_dma_read_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              }
+            },
+            "work_counts": {
+              "logical": {
+                "operations": 140,
+                "operation_counts": {
+                  "fp32_mul": 104,
+                  "fp32_add": 34,
+                  "fp32_rsqrt": 2
+                },
+                "output_bytes": 136
+              },
+              "issued": {
+                "operations": null,
+                "status": "not_modeled",
+                "basis": "No instruction issue model"
+              },
+              "internal": {
+                "status": "not_modeled",
+                "action_references": []
+              }
+            },
+            "memory": {
+              "hbm": {
+                "scope": "chip",
+                "usable_bytes": 34359738368,
+                "logical_footprint_bytes": 340
+              },
+              "vmem": {
+                "scope": "tensorcore",
+                "usable_bytes": 16777216,
+                "tile_slots": 2,
+                "row_state_bytes": 4,
+                "allocated_bytes": 140
+              },
+              "cmem": {
+                "mode": "bypass",
+                "allocated_bytes": 0
+              },
+              "lifetime_validation": {
+                "status": "validated_symbolic_schedule",
+                "representative_tile_iterations": 3,
+                "peak_live_temporary_bytes": 140,
+                "allocated_temporary_bytes": 140,
+                "checks": [
+                  "initialized reads",
+                  "slot overwrite order",
+                  "odd tree survivors",
+                  "full-row exp before normalize",
+                  "temporary capacity"
+                ],
+                "limitations": "Symbolic slot/lifetime checks only; no physical address, bank or register proof."
+              },
+              "lifetimes": [
+                "One row state aliases sum, mean and scale; retained through output pass.",
+                "Tile scratch is reused after each reduction; input is reread for scale/weight pass.",
+                "Weight is stored once externally but read once per row; no cross-row local reuse."
+              ]
+            },
+            "timing": {
+              "status": "not_evaluated",
+              "total_cycles": null,
+              "time_ns": null,
+              "model": "normalization_serial_rows_passes_tiles_v1",
+              "required_parameters": [
+                "clock_hz",
+                "composite.reduction_round_cycles",
+                "hbm_bandwidth_bytes_per_second",
+                "tensorcores_per_chip",
+                "vector_base_ops_per_cycle",
+                "vector_fp32_basic_op_cost",
+                "vector_fp32_rsqrt_cost",
+                "vmem_bandwidth_bytes_per_second"
+              ],
+              "derived_services": {
+                "hbm_bpc": null,
+                "vmem_shared_bpc": null
+              },
+              "service_cycles": {
+                "status": "not_evaluated",
+                "by_stage": null,
+                "total_cycles": null,
+                "semantics": "Sum of modeled stage service work; stages may overlap. Not elapsed time or a sum of resource busy cycles."
+              },
+              "elapsed_cycles": {
+                "status": "not_evaluated",
+                "by_stage": null,
+                "total_cycles": null,
+                "semantics": "Disjoint elapsed-time partition; available stages sum to timing.total_cycles. No overlap is charged twice."
+              }
+            },
+            "schedule": {
+              "rows": 2,
+              "tiles_per_row": 1,
+              "groups_per_row": [
+                {
+                  "phase": "sum_squares",
+                  "elements": 17,
+                  "repetitions_per_row": 1,
+                  "stages": [
+                    {
+                      "name": "load_x",
+                      "direction": "load",
+                      "logical_bytes": 68,
+                      "counts_per_execution": {
+                        "hbm_read_bytes": 68,
+                        "vmem_dma_write_bytes": 68
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "square",
+                      "reads": [
+                        {
+                          "buffer": "x",
+                          "elements": 17
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 17
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_mul": 17
+                      },
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "vmem_read_bytes": 68,
+                        "vmem_write_bytes": 68,
+                        "fp32_mul": 17
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "reduce_fp32_add_level_0",
+                      "reads": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 16
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 8
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_add": 8
+                      },
+                      "reduction_round": true,
+                      "counts_per_execution": {
+                        "vmem_read_bytes": 64,
+                        "vmem_write_bytes": 32,
+                        "fp32_add": 8
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "reduce_fp32_add_level_1",
+                      "reads": [
+                        {
+                          "buffer": "tree_survivors",
+                          "elements": 8
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 4
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_add": 4
+                      },
+                      "reduction_round": true,
+                      "counts_per_execution": {
+                        "vmem_read_bytes": 32,
+                        "vmem_write_bytes": 16,
+                        "fp32_add": 4
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "reduce_fp32_add_level_2",
+                      "reads": [
+                        {
+                          "buffer": "tree_survivors",
+                          "elements": 4
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 2
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_add": 2
+                      },
+                      "reduction_round": true,
+                      "counts_per_execution": {
+                        "vmem_read_bytes": 16,
+                        "vmem_write_bytes": 8,
+                        "fp32_add": 2
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "reduce_fp32_add_level_3",
+                      "reads": [
+                        {
+                          "buffer": "tree_survivors",
+                          "elements": 2
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 1
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_add": 1
+                      },
+                      "reduction_round": true,
+                      "counts_per_execution": {
+                        "vmem_read_bytes": 8,
+                        "vmem_write_bytes": 4,
+                        "fp32_add": 1
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "reduce_fp32_add_level_4",
+                      "reads": [
+                        {
+                          "buffer": "tree_survivors",
+                          "elements": 2
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 1
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_add": 1
+                      },
+                      "reduction_round": true,
+                      "counts_per_execution": {
+                        "vmem_read_bytes": 8,
+                        "vmem_write_bytes": 4,
+                        "fp32_add": 1
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "initialize_row_sum",
+                      "reads": [
+                        {
+                          "buffer": "tree_partial",
+                          "elements": 1
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "row_sum",
+                          "elements": 1
+                        }
+                      ],
+                      "operation_counts": {},
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "vmem_read_bytes": 4,
+                        "vmem_write_bytes": 4
+                      },
+                      "cycles_per_execution": null
+                    }
+                  ]
+                },
+                {
+                  "phase": "normalizer",
+                  "elements": 1,
+                  "repetitions_per_row": 1,
+                  "stages": [
+                    {
+                      "name": "mean_scale_by_constant_1_over_width",
+                      "reads": [
+                        {
+                          "buffer": "row_sum",
+                          "elements": 1
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "row_scale",
+                          "elements": 1
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_mul": 1
+                      },
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "vmem_read_bytes": 4,
+                        "vmem_write_bytes": 4,
+                        "fp32_mul": 1
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "add_epsilon",
+                      "reads": [
+                        {
+                          "buffer": "row_scale",
+                          "elements": 1
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "row_scale",
+                          "elements": 1
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_add": 1
+                      },
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "vmem_read_bytes": 4,
+                        "vmem_write_bytes": 4,
+                        "fp32_add": 1
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "rsqrt",
+                      "reads": [
+                        {
+                          "buffer": "row_scale",
+                          "elements": 1
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "row_scale",
+                          "elements": 1
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_rsqrt": 1
+                      },
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "vmem_read_bytes": 4,
+                        "vmem_write_bytes": 4,
+                        "fp32_rsqrt": 1
+                      },
+                      "cycles_per_execution": null
+                    }
+                  ]
+                },
+                {
+                  "phase": "apply_scale_and_weight",
+                  "elements": 17,
+                  "repetitions_per_row": 1,
+                  "stages": [
+                    {
+                      "name": "reload_x",
+                      "direction": "load",
+                      "logical_bytes": 68,
+                      "counts_per_execution": {
+                        "hbm_read_bytes": 68,
+                        "vmem_dma_write_bytes": 68
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "load_weight",
+                      "direction": "load",
+                      "logical_bytes": 68,
+                      "counts_per_execution": {
+                        "hbm_read_bytes": 68,
+                        "vmem_dma_write_bytes": 68
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "broadcast_scale",
+                      "reads": [
+                        {
+                          "buffer": "x",
+                          "elements": 17
+                        },
+                        {
+                          "buffer": "row_scale",
+                          "elements": 1
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 17
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_mul": 17
+                      },
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "vmem_read_bytes": 72,
+                        "vmem_write_bytes": 68,
+                        "fp32_mul": 17
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "multiply_weight",
+                      "reads": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 17
+                        },
+                        {
+                          "buffer": "weight",
+                          "elements": 17
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "output",
+                          "elements": 17
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_mul": 17
+                      },
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "vmem_read_bytes": 136,
+                        "vmem_write_bytes": 68,
+                        "fp32_mul": 17
+                      },
+                      "cycles_per_execution": null
+                    },
+                    {
+                      "name": "export_output",
+                      "direction": "export",
+                      "logical_bytes": 68,
+                      "counts_per_execution": {
+                        "hbm_write_bytes": 68,
+                        "vmem_dma_read_bytes": 68
+                      },
+                      "cycles_per_execution": null
+                    }
+                  ]
+                }
+              ],
+              "policy": "Repeat the entire group sequence per row; repeat each group's entire stage sequence per tile. Serial; each tree level and cross-tile merge waits for predecessors."
+            },
+            "parameter_provenance": {
+              "clock_hz": {
+                "value": 1050000000,
+                "unit": "Hz",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "Reference clock; not an effective instruction rate."
+              },
+              "tensorcores_per_chip": {
+                "value": 2,
+                "unit": "unit",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://docs.cloud.google.com/tpu/docs/v4",
+                "version": "TPU v4 documentation; accessed 2026-11-15",
+                "conditions": "Architectural inventory; the counter uses one TensorCore."
+              },
+              "mxus_per_tensorcore": {
+                "value": 4,
+                "unit": "unit",
+                "scope": "tensorcore",
+                "status": "documented",
+                "source": "https://docs.cloud.google.com/tpu/docs/v4",
+                "version": "TPU v4 documentation; accessed 2026-11-15",
+                "conditions": "Physical inventory and maximum parallel MXUs per logical output block. The execution policy chooses block sizes; unused MXUs remain idle."
+              },
+              "mxu_rows": {
+                "value": 128,
+                "unit": "element",
+                "scope": "mxu",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "Physical matrix geometry, not a logical-block alignment rule."
+              },
+              "mxu_columns": {
+                "value": 128,
+                "unit": "element",
+                "scope": "mxu",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "Physical matrix geometry, not a logical-block alignment rule."
+              },
+              "int8_macs_per_cell_cycle": {
+                "value": 1,
+                "unit": "MAC/cycle",
+                "scope": "mxu_cell",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+                "version": "TPU count model v1, 2026-11-15",
+                "conditions": "Assumed ideal active-cell INT8 MAC rate, used for specification peaks and analytical MXU compute service; not calibrated instruction throughput."
+              },
+              "vector_base_ops_per_cycle": {
+                "value": 2048,
+                "unit": "op/cycle",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+                "version": "TPU hardware schema 3, 2026-11-17; not hardware calibration",
+                "conditions": "Fixed reference assumption: 1 VPU * 128 lanes * 16 ALUs/lane, assuming each ALU supplies one equivalent basic operation/cycle. Geometry does not establish operation-specific throughput. One shared service per TensorCore; dtype rates are alternatives, not independent parallel resources. Not used by current GEMM. No runtime geometry fallback; update the value explicitly when changing its basis."
+              },
+              "vector_int32_add_cost": {
+                "value": 1,
+                "unit": "equivalent_op/op",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+                "version": "TPU hardware schema 3, 2026-11-17; not hardware calibration",
+                "conditions": "One scalar-element INT32 addition costs one equivalent operation on the shared Vector service. Logical modeling assumption, not verified instruction throughput. No extra Vector charge for current MXU accumulation."
+              },
+              "vector_fp32_basic_op_cost": {
+                "value": 1,
+                "unit": "equivalent_op/op",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+                "version": "TPU Vector/Nonlinear algorithmic reference v1, 2026-11-18; not hardware calibration",
+                "conditions": "One scalar-element FP32 ADD or MUL costs one equivalent operation on the shared Vector service. EXP and RSQRT have separately configured total equivalent-work costs. FMA, DIV, conversions, reductions and full nonlinear operators have no implicit cost. Not used by current GEMM."
+              },
+              "vector_fp32_exp_cost": {
+                "value": 15,
+                "unit": "equivalent_op/op",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "Project algorithmic work proxy; ARCHITECTURE.md#tpu-vector-service; method shared with ARCHITECTURE.md#tsp-vxm-service",
+                "version": "TPU Vector/Nonlinear algorithmic reference v1, 2026-11-18; not hardware calibration",
+                "conditions": "FP32 approximation work proxy: k=round(x*log2(e)), r=x-k*ln(2) costs 4; degree-5 Taylor polynomial in Horner form costs 5 MUL + 5 ADD; exponent scaling costs 1, total 15. Round and exponent scaling each count as one equivalent operation. No fused-operation discount. Reference domain is finite x in [-80,0]; no correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate exp numerically, and is not native TPU Exp instruction throughput or latency. Shares the per-TensorCore Vector budget; memory and dependencies are separate. Fixed total equivalent-work cost, independent of vector_fp32_basic_op_cost. Adopts the project TSP algorithmic counting convention, not TSP throughput. Not used by current GEMM."
+              },
+              "vector_fp32_rsqrt_cost": {
+                "value": 12,
+                "unit": "equivalent_op/op",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "Project algorithmic work proxy; ARCHITECTURE.md#tpu-vector-service; method shared with ARCHITECTURE.md#tsp-vxm-service",
+                "version": "TPU Vector/Nonlinear algorithmic reference v1, 2026-11-18; not hardware calibration",
+                "conditions": "Positive-normal FP32 approximation work proxy: bit seed bits(y)=0x5f3759df-(bits(x)>>1) costs 2 (shift and subtraction; bit reinterpretation costs 0), then two iterations y=(0.5*y)*(3-x*y*y), each 4 MUL + 1 SUB, total 12. No fused-operation discount. No correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate rsqrt numerically, and is not native TPU RSqrt instruction throughput or latency. Shares the per-TensorCore Vector budget; memory and dependencies are separate. Fixed total equivalent-work cost, independent of vector_fp32_basic_op_cost. Adopts the project TSP algorithmic counting convention, not TSP throughput. Not used by current GEMM."
+              },
+              "vmem_physical_bytes": {
+                "value": 16777216,
+                "unit": "byte",
+                "scope": "tensorcore",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "16 MiB per TensorCore; binary capacity."
+              },
+              "vmem_usable_bytes": {
+                "value": 16777216,
+                "unit": "byte",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+                "version": "TPU count model v1, 2026-11-15",
+                "conditions": "Logical scenario allows the full reference VMEM for A/B/C; runtime reservations, packing and spills are not modeled. Not a measured allocatable capacity."
+              },
+              "vmem_bandwidth_bytes_per_second": {
+                "value": 1075200000000,
+                "unit": "byte/s",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+                "version": "TPU count model v1, 2026-11-15; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 4 MXUs * (128 rows + 128 columns) INT8 bytes/cycle * 1.05e9 Hz = 1075200000000 B/s. Assume shared read/write service; runtime divides by clock_hz. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "cmem_physical_bytes": {
+                "value": 134217728,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs; PDF p7, Table 4)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "Shared scratchpad counted once per chip, not a transparent cache."
+              },
+              "cmem_usable_bytes": {
+                "value": 134217728,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+                "version": "TPU hardware schema 3, 2026-11-17; not hardware calibration",
+                "conditions": "Assume all 128 MiB physical CMEM is usable. Single-TensorCore tiled execution gets floor(chip usable bytes / tensorcores_per_chip), with no idle-share borrowing. One or two capacity-checked cold slots hold full-K INT8 A/B panels; C remains in VMEM. This is an allocation scenario, not measured runtime capacity. Bypass allocates no CMEM."
+              },
+              "cmem_read_bandwidth_bytes_per_second": {
+                "value": 2150704873472,
+                "unit": "byte/s",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://pypi.org/project/libtpu/0.0.40/ (Pufferfish SharedMemory[CMEM].parts.bytes_per_second; verified binary decode); https://markgottscho.com/cv/papers/2021_NJouppi_ISCA.pdf (PDF p10, read/write ratio only); ARCHITECTURE.md#tpu-cmem-proxy",
+                "version": "libtpu 0.0.40 cp314 Linux x86_64, published 2026-04-14; verified 2026-11-18; CMEM directional proxy v2",
+                "conditions": "Method: read = 2150704873472 B/s. The libtpu 0.0.40 Pufferfish standard and lite SharedMemory[CMEM].parts.bytes_per_second field is 2150704873472 B/s (2003 GiB/s), identical in both variants. The field does not distinguish read and write; assigning it to the chip read service and applying the TPUv4i 2000:1000 read/write ratio are explicit model assumptions, not validated TPU v4 directional bandwidth or silicon calibration. Decimal byte/s in this configuration; preserve the decoded integer without implying measurement precision. Independent read/write directions; do not multiply by TensorCore count or sum directions. Tiled execution divides each direction equally among TensorCores with no idle borrowing. HBM-to-CMEM fill and CMEM-to-VMEM read each reserve both endpoints at their minimum bandwidth. Capacity-checked CMEM slots permit outer-fill/inner-execution overlap under resource_pipeline. Different live slots may read and write concurrently. Fills and output exports share the same HBM service; slot reuse waits for its last read. Serial mode disables overlap. No additional OCI/bank/port bottleneck beyond these effective services. Bypass consumes neither direction."
+              },
+              "cmem_write_bandwidth_bytes_per_second": {
+                "value": 1075352436736,
+                "unit": "byte/s",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://pypi.org/project/libtpu/0.0.40/ (Pufferfish SharedMemory[CMEM].parts.bytes_per_second; verified binary decode); https://markgottscho.com/cv/papers/2021_NJouppi_ISCA.pdf (PDF p10, read/write ratio only); ARCHITECTURE.md#tpu-cmem-proxy",
+                "version": "libtpu 0.0.40 cp314 Linux x86_64, published 2026-04-14; verified 2026-11-18; CMEM directional proxy v2",
+                "conditions": "Method: write = 2150704873472 * (1000 / 2000) = 1075352436736 B/s. This is not a separately decoded write-bandwidth field. The libtpu 0.0.40 Pufferfish standard and lite SharedMemory[CMEM].parts.bytes_per_second field is 2150704873472 B/s (2003 GiB/s), identical in both variants. The field does not distinguish read and write; assigning it to the chip read service and applying the TPUv4i 2000:1000 read/write ratio are explicit model assumptions, not validated TPU v4 directional bandwidth or silicon calibration. Decimal byte/s in this configuration; preserve the decoded integer without implying measurement precision. Independent read/write directions; do not multiply by TensorCore count or sum directions. Tiled execution divides each direction equally among TensorCores with no idle borrowing. HBM-to-CMEM fill and CMEM-to-VMEM read each reserve both endpoints at their minimum bandwidth. Capacity-checked CMEM slots permit outer-fill/inner-execution overlap under resource_pipeline. Different live slots may read and write concurrently. Fills and output exports share the same HBM service; slot reuse waits for its last read. Serial mode disables overlap. No additional OCI/bank/port bottleneck beyond these effective services. Bypass consumes neither direction."
+              },
+              "hbm_physical_bytes": {
+                "value": 34359738368,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://docs.cloud.google.com/tpu/docs/v4",
+                "version": "TPU v4 documentation; accessed 2026-11-15",
+                "conditions": "Unified physical HBM2 capacity; 32 GiB, not 32 decimal GB."
+              },
+              "hbm_usable_bytes": {
+                "value": 34359738368,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+                "version": "TPU count model v1, 2026-11-15",
+                "conditions": "Logical scenario allocates up to physical HBM; real runtime reserves memory. A/B/C coexist, no host offload. Not a measured runtime limit."
+              },
+              "hbm_bandwidth_bytes_per_second": {
+                "value": 1200000000000,
+                "unit": "byte/s",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://docs.cloud.google.com/tpu/docs/v4",
+                "version": "TPU v4 documentation; accessed 2026-11-15",
+                "conditions": "Published aggregate bandwidth, decimal GB/s; no inference of single-TensorCore effective bandwidth."
+              }
+            },
+            "vector_execution_profile": {
+              "schema_version": 2,
+              "model": "vector_serial",
+              "profile_id": "vector_and_normalization_reference_v2",
+              "policies": {
+                "ascend": {
+                  "scope": "single_core",
+                  "path": "hbm_ub_bypass_l2",
+                  "schedule": "serial_tiles_and_stages",
+                  "tile_elements": 1024,
+                  "transfer_startup_cycles": 0,
+                  "compute_startup_cycles": 0,
+                  "status": "assumed",
+                  "source": "model-policy; ARCHITECTURE.md#vector-operators",
+                  "version": "vector-serial-v1",
+                  "conditions": "HBM 与 UB 同时预约的 DMA 取两端最小服务率。输入 DMA、UB 操作数读取、计算、UB 结果写入、导出 DMA 分阶段串行，L2 bypass。每次算子调用为冷启动。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+                },
+                "tpu": {
+                  "scope": "single_tensorcore",
+                  "path": "hbm_vmem_bypass_cmem",
+                  "schedule": "serial_tiles_and_stages",
+                  "tile_elements": 1024,
+                  "transfer_startup_cycles": 0,
+                  "compute_startup_cycles": 0,
+                  "status": "assumed",
+                  "source": "model-policy; ARCHITECTURE.md#vector-operators",
+                  "version": "vector-serial-v1",
+                  "conditions": "HBM 按 TensorCore 数均分，VMEM 为单核共享服务。输入 DMA、操作数读取、计算、结果写入、导出 DMA 分阶段串行；CMEM bypass。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+                },
+                "tsp": {
+                  "scope": "single_hem",
+                  "path": "resident_mem_stream_vxm",
+                  "schedule": "serial_tiles_and_stages",
+                  "tile_elements": 1024,
+                  "transfer_startup_cycles": 0,
+                  "compute_startup_cycles": 0,
+                  "status": "assumed",
+                  "source": "model-policy; ARCHITECTURE.md#vector-operators",
+                  "version": "vector-serial-v1",
+                  "conditions": "完整输入和输出驻留所选本侧 MEM。每个输入读取受 MEM 和输入 stream 共同约束；输出写回受 MEM 和输出 stream 共同约束。FP32/INT32 每元素 4 byte，stream 每块按完整宽度补齐，MEM 只计逻辑载荷。使用一个共享 VXM 任务预算，CIM 不复制预算。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+                }
+              },
+              "parameters": {
+                "ascend_ub_read_bpc": {
+                  "value": 256,
+                  "unit": "byte/cycle",
+                  "scope": "core",
+                  "status": "assumed",
+                  "source": "model-policy; ARCHITECTURE.md#vector-operators",
+                  "source_version": "vector-serial-v1",
+                  "conditions": "每周期 64 个 32-bit 字作为独立 UB 端口服务代理：64*4=256 B/cycle。参考现有 Vector 预算量级选择，不是实测 UB 带宽；数值固定，不随 compute budget 修改。读写分阶段串行，DMA 同时预约 HBM 和 UB。",
+                  "verification": "explicit_uncalibrated_model_assumption"
+                },
+                "ascend_ub_write_bpc": {
+                  "value": 256,
+                  "unit": "byte/cycle",
+                  "scope": "core",
+                  "status": "assumed",
+                  "source": "model-policy; ARCHITECTURE.md#vector-operators",
+                  "source_version": "vector-serial-v1",
+                  "conditions": "每周期 64 个 32-bit 字作为独立 UB 端口服务代理：64*4=256 B/cycle。参考现有 Vector 预算量级选择，不是实测 UB 带宽；数值固定，不随 compute budget 修改。读写分阶段串行，DMA 同时预约 HBM 和 UB。",
+                  "verification": "explicit_uncalibrated_model_assumption"
+                }
+              },
+              "composite": {
+                "schedule": "serial_rows_passes_tiles",
+                "reduction": "balanced_tile_tree_serial_merge",
+                "storage": "rmsnorm_reread_softmax_output_workspace",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                "version": "normalization-serial-v1",
+                "conditions": "Last-axis FP32. Serial rows, passes and tiles. Balanced binary reduction levels wait for predecessors; partials merge into one row state. Constants are implicit; one scalar read per tile broadcasts without extra shuffle work. RMSNorm rereads x and loads weight per row. Softmax stores exp in the output allocation, then normalizes it. No numerical accuracy or hardware-instruction claims.",
+                "parameters": {
+                  "fp32_sub_cost": {
+                    "value": 1,
+                    "unit": "equivalent_op/op",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "One scalar SUB modeled as one basic equivalent operation; shares native Vector/VXM budget, not calibrated.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  },
+                  "fp32_max_cost": {
+                    "value": 1,
+                    "unit": "equivalent_op/op",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "One pairwise MAX comparison/selection modeled as one equivalent operation; not calibrated.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  },
+                  "fp32_rcp_cost": {
+                    "value": 7,
+                    "unit": "equivalent_op/op",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "Algorithmic proxy: one seed-equivalent operation plus two Newton-style updates of two MUL and one SUB each: 1+2*3=7. Seed accuracy and numerical result are not modeled; not native reciprocal timing.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  },
+                  "reduction_round_cycles": {
+                    "value": 1,
+                    "unit": "cycle",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "Minimum compute dependency interval per tree level or cross-tile binary merge. Total compute is max(weighted-work cycles, this value); memory and startup charged separately. Not a measured shuffle or lane-network latency.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  }
+                }
+              }
+            },
+            "reference_ids": {},
+            "energy": {
+              "status": "not_evaluated",
+              "total_pj": null
+            },
+            "limitations": [
+              "Last-axis FP32 analytical blocks; no numeric values, masking, quantization or machine instructions.",
+              "SUB/MAX/RCP and reduction round dependency are uncalibrated policy assumptions sharing the native compute budget.",
+              "Scalar constants are implicit; broadcasts read one stored row scalar per tile with no materialized broadcast tensor or extra shuffle cost.",
+              "No cross-row reuse, overlap, cache, bank-conflict or cross-operator residency model."
+            ]
+          }
+        },
+        {
+          "id": "output_storage",
+          "operator": {
+            "kind": "storage_boundary",
+            "inputs": [
+              {
+                "name": "rmsnorm_int8.normalized",
+                "shape": [
+                  2,
+                  17
+                ],
+                "dtype": "FP32",
+                "numel": 34,
+                "logical_bytes": 136
+              }
+            ],
+            "outputs": [
+              {
+                "name": "output",
+                "shape": [
+                  2,
+                  17
+                ],
+                "dtype": "INT8",
+                "numel": 34,
+                "logical_bytes": 34
+              }
+            ],
+            "accumulation_dtype": "FP32",
+            "attributes": {}
+          },
+          "cycle_count": null,
+          "latency_s": null,
+          "native_report": {
+            "schema_version": 1,
+            "model": "block_elementwise",
+            "mode": "count",
+            "workload": {
+              "kind": "storage_boundary",
+              "inputs": [
+                {
+                  "name": "rmsnorm_int8.normalized",
+                  "shape": [
+                    2,
+                    17
+                  ],
+                  "dtype": "FP32",
+                  "numel": 34,
+                  "logical_bytes": 136
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "output",
+                  "shape": [
+                    2,
+                    17
+                  ],
+                  "dtype": "INT8",
+                  "numel": 34,
+                  "logical_bytes": 34
+                }
+              ],
+              "accumulation_dtype": "FP32",
+              "attributes": {}
+            },
+            "boundary": {
+              "scope": "single_tensorcore",
+              "start": "tensors_in_HBM",
+              "end": "output_in_HBM",
+              "cache_policy": "bypass_for_elementwise"
+            },
+            "execution_contract": {
+              "scope": "single_tensorcore",
+              "selected_tile_elements": 34,
+              "requested_tile_elements": 1024
+            },
+            "action_counts": {
+              "hbm_read_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "vmem_dma_write_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "vmem_read_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "vmem_write_bytes": {
+                "count": 34,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "boundary_to_int8": {
+                "count": 34,
+                "unit": "element",
+                "scope": "single_tensorcore",
+                "basis": "modeled_internal"
+              },
+              "hbm_write_bytes": {
+                "count": 34,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              },
+              "vmem_dma_read_bytes": {
+                "count": 34,
+                "unit": "byte",
+                "scope": "single_tensorcore",
+                "basis": "logical"
+              }
+            },
+            "counts": {
+              "hbm_read_bytes": 136,
+              "vmem_dma_write_bytes": 136,
+              "vmem_read_bytes": 136,
+              "vmem_write_bytes": 34,
+              "boundary_to_int8": 34,
+              "hbm_write_bytes": 34,
+              "vmem_dma_read_bytes": 34
+            },
+            "memory": {
+              "hbm": {
+                "scope": "chip",
+                "capacity_bytes": 34359738368,
+                "peak_bytes": 272
+              },
+              "vmem": {
+                "scope": "tensorcore",
+                "capacity_bytes": 16777216,
+                "allocated_bytes": 170,
+                "scratch_tile_bytes": 0
+              }
+            },
+            "timing": {
+              "status": "not_evaluated",
+              "total_cycles": null,
+              "time_ns": null,
+              "required_parameters": [
+                "block.to_int8_cost",
+                "clock_hz",
+                "hbm_bandwidth_bytes_per_second",
+                "tensorcores_per_chip",
+                "vector_base_ops_per_cycle",
+                "vmem_bandwidth_bytes_per_second"
+              ],
+              "model": "serial_block_tile_stages",
+              "derived_services": {
+                "hbm_bpc": null,
+                "local_read_bpc": null,
+                "local_write_bpc": null
+              },
+              "service_cycles": {
+                "status": "not_evaluated",
+                "by_stage": null,
+                "total_cycles": null,
+                "semantics": "Sum of modeled stage service work; stages may overlap. Not elapsed time or a sum of resource busy cycles."
+              },
+              "elapsed_cycles": {
+                "status": "not_evaluated",
+                "by_stage": null,
+                "total_cycles": null,
+                "semantics": "Disjoint elapsed-time partition; available stages sum to timing.total_cycles. No overlap is charged twice."
+              }
+            },
+            "work_counts": {
+              "logical": {
+                "operations": 0,
+                "operation_counts": {},
+                "output_bytes": 34
+              },
+              "issued": {
+                "operations": null,
+                "status": "not_modeled"
+              },
+              "internal": {
+                "boundary_elements": {
+                  "boundary_to_int8": 34
+                }
+              }
+            },
+            "schedule": {
+              "tile_groups": [
+                {
+                  "elements": 34,
+                  "repetitions": 1,
+                  "stages": [
+                    {
+                      "stage": "load_input_0",
+                      "bytes": 136,
+                      "cycles": null
+                    },
+                    {
+                      "stage": "output_to_int8",
+                      "read_bytes": [
+                        136
+                      ],
+                      "write_bytes": [
+                        34
+                      ],
+                      "operation": "boundary_to_int8",
+                      "elements": 34,
+                      "cycles": null
+                    },
+                    {
+                      "stage": "export_output",
+                      "bytes": 34,
+                      "cycles": null
+                    }
+                  ]
+                }
+              ],
+              "scratch_policy": "Disjoint cast inputs, activation workspace and result; tile buffers reused only after export."
+            },
+            "parameter_provenance": {
+              "clock_hz": {
+                "value": 1050000000,
+                "unit": "Hz",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "Reference clock; not an effective instruction rate."
+              },
+              "tensorcores_per_chip": {
+                "value": 2,
+                "unit": "unit",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://docs.cloud.google.com/tpu/docs/v4",
+                "version": "TPU v4 documentation; accessed 2026-11-15",
+                "conditions": "Architectural inventory; the counter uses one TensorCore."
+              },
+              "mxus_per_tensorcore": {
+                "value": 4,
+                "unit": "unit",
+                "scope": "tensorcore",
+                "status": "documented",
+                "source": "https://docs.cloud.google.com/tpu/docs/v4",
+                "version": "TPU v4 documentation; accessed 2026-11-15",
+                "conditions": "Physical inventory and maximum parallel MXUs per logical output block. The execution policy chooses block sizes; unused MXUs remain idle."
+              },
+              "mxu_rows": {
+                "value": 128,
+                "unit": "element",
+                "scope": "mxu",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "Physical matrix geometry, not a logical-block alignment rule."
+              },
+              "mxu_columns": {
+                "value": 128,
+                "unit": "element",
+                "scope": "mxu",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "Physical matrix geometry, not a logical-block alignment rule."
+              },
+              "int8_macs_per_cell_cycle": {
+                "value": 1,
+                "unit": "MAC/cycle",
+                "scope": "mxu_cell",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+                "version": "TPU count model v1, 2026-11-15",
+                "conditions": "Assumed ideal active-cell INT8 MAC rate, used for specification peaks and analytical MXU compute service; not calibrated instruction throughput."
+              },
+              "vector_base_ops_per_cycle": {
+                "value": 2048,
+                "unit": "op/cycle",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+                "version": "TPU hardware schema 3, 2026-11-17; not hardware calibration",
+                "conditions": "Fixed reference assumption: 1 VPU * 128 lanes * 16 ALUs/lane, assuming each ALU supplies one equivalent basic operation/cycle. Geometry does not establish operation-specific throughput. One shared service per TensorCore; dtype rates are alternatives, not independent parallel resources. Not used by current GEMM. No runtime geometry fallback; update the value explicitly when changing its basis."
+              },
+              "vector_int32_add_cost": {
+                "value": 1,
+                "unit": "equivalent_op/op",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+                "version": "TPU hardware schema 3, 2026-11-17; not hardware calibration",
+                "conditions": "One scalar-element INT32 addition costs one equivalent operation on the shared Vector service. Logical modeling assumption, not verified instruction throughput. No extra Vector charge for current MXU accumulation."
+              },
+              "vector_fp32_basic_op_cost": {
+                "value": 1,
+                "unit": "equivalent_op/op",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+                "version": "TPU Vector/Nonlinear algorithmic reference v1, 2026-11-18; not hardware calibration",
+                "conditions": "One scalar-element FP32 ADD or MUL costs one equivalent operation on the shared Vector service. EXP and RSQRT have separately configured total equivalent-work costs. FMA, DIV, conversions, reductions and full nonlinear operators have no implicit cost. Not used by current GEMM."
+              },
+              "vector_fp32_exp_cost": {
+                "value": 15,
+                "unit": "equivalent_op/op",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "Project algorithmic work proxy; ARCHITECTURE.md#tpu-vector-service; method shared with ARCHITECTURE.md#tsp-vxm-service",
+                "version": "TPU Vector/Nonlinear algorithmic reference v1, 2026-11-18; not hardware calibration",
+                "conditions": "FP32 approximation work proxy: k=round(x*log2(e)), r=x-k*ln(2) costs 4; degree-5 Taylor polynomial in Horner form costs 5 MUL + 5 ADD; exponent scaling costs 1, total 15. Round and exponent scaling each count as one equivalent operation. No fused-operation discount. Reference domain is finite x in [-80,0]; no correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate exp numerically, and is not native TPU Exp instruction throughput or latency. Shares the per-TensorCore Vector budget; memory and dependencies are separate. Fixed total equivalent-work cost, independent of vector_fp32_basic_op_cost. Adopts the project TSP algorithmic counting convention, not TSP throughput. Not used by current GEMM."
+              },
+              "vector_fp32_rsqrt_cost": {
+                "value": 12,
+                "unit": "equivalent_op/op",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "Project algorithmic work proxy; ARCHITECTURE.md#tpu-vector-service; method shared with ARCHITECTURE.md#tsp-vxm-service",
+                "version": "TPU Vector/Nonlinear algorithmic reference v1, 2026-11-18; not hardware calibration",
+                "conditions": "Positive-normal FP32 approximation work proxy: bit seed bits(y)=0x5f3759df-(bits(x)>>1) costs 2 (shift and subtraction; bit reinterpretation costs 0), then two iterations y=(0.5*y)*(3-x*y*y), each 4 MUL + 1 SUB, total 12. No fused-operation discount. No correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate rsqrt numerically, and is not native TPU RSqrt instruction throughput or latency. Shares the per-TensorCore Vector budget; memory and dependencies are separate. Fixed total equivalent-work cost, independent of vector_fp32_basic_op_cost. Adopts the project TSP algorithmic counting convention, not TSP throughput. Not used by current GEMM."
+              },
+              "vmem_physical_bytes": {
+                "value": 16777216,
+                "unit": "byte",
+                "scope": "tensorcore",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "16 MiB per TensorCore; binary capacity."
+              },
+              "vmem_usable_bytes": {
+                "value": 16777216,
+                "unit": "byte",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+                "version": "TPU count model v1, 2026-11-15",
+                "conditions": "Logical scenario allows the full reference VMEM for A/B/C; runtime reservations, packing and spills are not modeled. Not a measured allocatable capacity."
+              },
+              "vmem_bandwidth_bytes_per_second": {
+                "value": 1075200000000,
+                "unit": "byte/s",
+                "scope": "tensorcore",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+                "version": "TPU count model v1, 2026-11-15; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 4 MXUs * (128 rows + 128 columns) INT8 bytes/cycle * 1.05e9 Hz = 1075200000000 B/s. Assume shared read/write service; runtime divides by clock_hz. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "cmem_physical_bytes": {
+                "value": 134217728,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs; PDF p7, Table 4)",
+                "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+                "conditions": "Shared scratchpad counted once per chip, not a transparent cache."
+              },
+              "cmem_usable_bytes": {
+                "value": 134217728,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+                "version": "TPU hardware schema 3, 2026-11-17; not hardware calibration",
+                "conditions": "Assume all 128 MiB physical CMEM is usable. Single-TensorCore tiled execution gets floor(chip usable bytes / tensorcores_per_chip), with no idle-share borrowing. One or two capacity-checked cold slots hold full-K INT8 A/B panels; C remains in VMEM. This is an allocation scenario, not measured runtime capacity. Bypass allocates no CMEM."
+              },
+              "cmem_read_bandwidth_bytes_per_second": {
+                "value": 2150704873472,
+                "unit": "byte/s",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://pypi.org/project/libtpu/0.0.40/ (Pufferfish SharedMemory[CMEM].parts.bytes_per_second; verified binary decode); https://markgottscho.com/cv/papers/2021_NJouppi_ISCA.pdf (PDF p10, read/write ratio only); ARCHITECTURE.md#tpu-cmem-proxy",
+                "version": "libtpu 0.0.40 cp314 Linux x86_64, published 2026-04-14; verified 2026-11-18; CMEM directional proxy v2",
+                "conditions": "Method: read = 2150704873472 B/s. The libtpu 0.0.40 Pufferfish standard and lite SharedMemory[CMEM].parts.bytes_per_second field is 2150704873472 B/s (2003 GiB/s), identical in both variants. The field does not distinguish read and write; assigning it to the chip read service and applying the TPUv4i 2000:1000 read/write ratio are explicit model assumptions, not validated TPU v4 directional bandwidth or silicon calibration. Decimal byte/s in this configuration; preserve the decoded integer without implying measurement precision. Independent read/write directions; do not multiply by TensorCore count or sum directions. Tiled execution divides each direction equally among TensorCores with no idle borrowing. HBM-to-CMEM fill and CMEM-to-VMEM read each reserve both endpoints at their minimum bandwidth. Capacity-checked CMEM slots permit outer-fill/inner-execution overlap under resource_pipeline. Different live slots may read and write concurrently. Fills and output exports share the same HBM service; slot reuse waits for its last read. Serial mode disables overlap. No additional OCI/bank/port bottleneck beyond these effective services. Bypass consumes neither direction."
+              },
+              "cmem_write_bandwidth_bytes_per_second": {
+                "value": 1075352436736,
+                "unit": "byte/s",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://pypi.org/project/libtpu/0.0.40/ (Pufferfish SharedMemory[CMEM].parts.bytes_per_second; verified binary decode); https://markgottscho.com/cv/papers/2021_NJouppi_ISCA.pdf (PDF p10, read/write ratio only); ARCHITECTURE.md#tpu-cmem-proxy",
+                "version": "libtpu 0.0.40 cp314 Linux x86_64, published 2026-04-14; verified 2026-11-18; CMEM directional proxy v2",
+                "conditions": "Method: write = 2150704873472 * (1000 / 2000) = 1075352436736 B/s. This is not a separately decoded write-bandwidth field. The libtpu 0.0.40 Pufferfish standard and lite SharedMemory[CMEM].parts.bytes_per_second field is 2150704873472 B/s (2003 GiB/s), identical in both variants. The field does not distinguish read and write; assigning it to the chip read service and applying the TPUv4i 2000:1000 read/write ratio are explicit model assumptions, not validated TPU v4 directional bandwidth or silicon calibration. Decimal byte/s in this configuration; preserve the decoded integer without implying measurement precision. Independent read/write directions; do not multiply by TensorCore count or sum directions. Tiled execution divides each direction equally among TensorCores with no idle borrowing. HBM-to-CMEM fill and CMEM-to-VMEM read each reserve both endpoints at their minimum bandwidth. Capacity-checked CMEM slots permit outer-fill/inner-execution overlap under resource_pipeline. Different live slots may read and write concurrently. Fills and output exports share the same HBM service; slot reuse waits for its last read. Serial mode disables overlap. No additional OCI/bank/port bottleneck beyond these effective services. Bypass consumes neither direction."
+              },
+              "hbm_physical_bytes": {
+                "value": 34359738368,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://docs.cloud.google.com/tpu/docs/v4",
+                "version": "TPU v4 documentation; accessed 2026-11-15",
+                "conditions": "Unified physical HBM2 capacity; 32 GiB, not 32 decimal GB."
+              },
+              "hbm_usable_bytes": {
+                "value": 34359738368,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+                "version": "TPU count model v1, 2026-11-15",
+                "conditions": "Logical scenario allocates up to physical HBM; real runtime reserves memory. A/B/C coexist, no host offload. Not a measured runtime limit."
+              },
+              "hbm_bandwidth_bytes_per_second": {
+                "value": 1200000000000,
+                "unit": "byte/s",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://docs.cloud.google.com/tpu/docs/v4",
+                "version": "TPU v4 documentation; accessed 2026-11-15",
+                "conditions": "Published aggregate bandwidth, decimal GB/s; no inference of single-TensorCore effective bandwidth."
+              }
+            },
+            "reference_ids": {
+              "hardware": null
+            }
+          }
+        }
+      ]
+    },
+    "block_execution_profile": {
+      "schema_version": 1,
+      "profile_id": "materialized_decode_blocks_v1",
+      "schedule": "serial_materialized_nodes",
+      "storage": "persistent_inputs_reused_intermediates",
+      "layout": "symbolic_padded_views",
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#decode-blocks",
+      "conditions": "Single core/TensorCore/hemisphere. Native GEMM padding views share symbolic backing allocations. INT8 storage and FP32 nonlinear work; materialized outputs. No physical layout, quantization instruction or numerical accuracy claim.",
+      "parameters": {
+        "to_fp32_cost": {
+          "value": 1,
+          "unit": "equivalent_op/element",
+          "scope": "task",
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#decode-blocks",
+          "source_version": "materialized-block-v1",
+          "conditions": "Coarse storage-boundary conversion work; no standalone instruction model.",
+          "verification": "explicit_uncalibrated_model_assumption"
+        },
+        "to_int8_cost": {
+          "value": 3,
+          "unit": "equivalent_op/element",
+          "scope": "task",
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#decode-blocks",
+          "source_version": "materialized-block-v1",
+          "conditions": "Coarse scale/round/clamp work proxy; no numerical quantization or standalone instruction model.",
+          "verification": "explicit_uncalibrated_model_assumption"
+        },
+        "fp32_rcp_cost": {
+          "value": 7,
+          "unit": "equivalent_op/element",
+          "scope": "task",
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#decode-blocks",
+          "source_version": "materialized-block-v1",
+          "conditions": "Reciprocal work proxy on the shared Vector/VXM budget.",
+          "verification": "explicit_uncalibrated_model_assumption"
+        }
+      }
+    },
+    "vector_execution_profile": {
+      "schema_version": 2,
+      "model": "vector_serial",
+      "profile_id": "vector_and_normalization_reference_v2",
+      "policies": {
+        "ascend": {
+          "scope": "single_core",
+          "path": "hbm_ub_bypass_l2",
+          "schedule": "serial_tiles_and_stages",
+          "tile_elements": 1024,
+          "transfer_startup_cycles": 0,
+          "compute_startup_cycles": 0,
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#vector-operators",
+          "version": "vector-serial-v1",
+          "conditions": "HBM 与 UB 同时预约的 DMA 取两端最小服务率。输入 DMA、UB 操作数读取、计算、UB 结果写入、导出 DMA 分阶段串行，L2 bypass。每次算子调用为冷启动。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+        },
+        "tpu": {
+          "scope": "single_tensorcore",
+          "path": "hbm_vmem_bypass_cmem",
+          "schedule": "serial_tiles_and_stages",
+          "tile_elements": 1024,
+          "transfer_startup_cycles": 0,
+          "compute_startup_cycles": 0,
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#vector-operators",
+          "version": "vector-serial-v1",
+          "conditions": "HBM 按 TensorCore 数均分，VMEM 为单核共享服务。输入 DMA、操作数读取、计算、结果写入、导出 DMA 分阶段串行；CMEM bypass。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+        },
+        "tsp": {
+          "scope": "single_hem",
+          "path": "resident_mem_stream_vxm",
+          "schedule": "serial_tiles_and_stages",
+          "tile_elements": 1024,
+          "transfer_startup_cycles": 0,
+          "compute_startup_cycles": 0,
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#vector-operators",
+          "version": "vector-serial-v1",
+          "conditions": "完整输入和输出驻留所选本侧 MEM。每个输入读取受 MEM 和输入 stream 共同约束；输出写回受 MEM 和输出 stream 共同约束。FP32/INT32 每元素 4 byte，stream 每块按完整宽度补齐，MEM 只计逻辑载荷。使用一个共享 VXM 任务预算，CIM 不复制预算。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+        }
+      },
+      "parameters": {
+        "ascend_ub_read_bpc": {
+          "value": 256,
+          "unit": "byte/cycle",
+          "scope": "core",
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#vector-operators",
+          "source_version": "vector-serial-v1",
+          "conditions": "每周期 64 个 32-bit 字作为独立 UB 端口服务代理：64*4=256 B/cycle。参考现有 Vector 预算量级选择，不是实测 UB 带宽；数值固定，不随 compute budget 修改。读写分阶段串行，DMA 同时预约 HBM 和 UB。",
+          "verification": "explicit_uncalibrated_model_assumption"
+        },
+        "ascend_ub_write_bpc": {
+          "value": 256,
+          "unit": "byte/cycle",
+          "scope": "core",
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#vector-operators",
+          "source_version": "vector-serial-v1",
+          "conditions": "每周期 64 个 32-bit 字作为独立 UB 端口服务代理：64*4=256 B/cycle。参考现有 Vector 预算量级选择，不是实测 UB 带宽；数值固定，不随 compute budget 修改。读写分阶段串行，DMA 同时预约 HBM 和 UB。",
+          "verification": "explicit_uncalibrated_model_assumption"
+        }
+      },
+      "composite": {
+        "schedule": "serial_rows_passes_tiles",
+        "reduction": "balanced_tile_tree_serial_merge",
+        "storage": "rmsnorm_reread_softmax_output_workspace",
+        "status": "assumed",
+        "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+        "version": "normalization-serial-v1",
+        "conditions": "Last-axis FP32. Serial rows, passes and tiles. Balanced binary reduction levels wait for predecessors; partials merge into one row state. Constants are implicit; one scalar read per tile broadcasts without extra shuffle work. RMSNorm rereads x and loads weight per row. Softmax stores exp in the output allocation, then normalizes it. No numerical accuracy or hardware-instruction claims.",
+        "parameters": {
+          "fp32_sub_cost": {
+            "value": 1,
+            "unit": "equivalent_op/op",
+            "scope": "task",
+            "status": "assumed",
+            "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+            "source_version": "normalization-serial-v1",
+            "conditions": "One scalar SUB modeled as one basic equivalent operation; shares native Vector/VXM budget, not calibrated.",
+            "verification": "explicit_uncalibrated_model_assumption"
+          },
+          "fp32_max_cost": {
+            "value": 1,
+            "unit": "equivalent_op/op",
+            "scope": "task",
+            "status": "assumed",
+            "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+            "source_version": "normalization-serial-v1",
+            "conditions": "One pairwise MAX comparison/selection modeled as one equivalent operation; not calibrated.",
+            "verification": "explicit_uncalibrated_model_assumption"
+          },
+          "fp32_rcp_cost": {
+            "value": 7,
+            "unit": "equivalent_op/op",
+            "scope": "task",
+            "status": "assumed",
+            "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+            "source_version": "normalization-serial-v1",
+            "conditions": "Algorithmic proxy: one seed-equivalent operation plus two Newton-style updates of two MUL and one SUB each: 1+2*3=7. Seed accuracy and numerical result are not modeled; not native reciprocal timing.",
+            "verification": "explicit_uncalibrated_model_assumption"
+          },
+          "reduction_round_cycles": {
+            "value": 1,
+            "unit": "cycle",
+            "scope": "task",
+            "status": "assumed",
+            "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+            "source_version": "normalization-serial-v1",
+            "conditions": "Minimum compute dependency interval per tree level or cross-tile binary merge. Total compute is max(weighted-work cycles, this value); memory and startup charged separately. Not a measured shuffle or lane-network latency.",
+            "verification": "explicit_uncalibrated_model_assumption"
+          }
+        }
+      }
+    },
+    "limitations": [
+      "One core/TensorCore/hemisphere; no chip partition, communication or inter-node overlap.",
+      "All nodes materialize outputs; native GEMM cold-cache policies retained; no extra edge-transfer charge.",
+      "Symbolic padded views share one allocation per tensor; layout conversion instructions are not modeled.",
+      "INT8 boundaries use explicit uncalibrated work proxies, without scales, saturation values or numerical accuracy claims.",
+      "Inputs persist; intermediate storage releases after its last consumer. Local buffers are reused between nodes."
+    ]
+  },
+  "io_contract": {
+    "schema_version": 1,
+    "inputs": [
+      {
+        "name": "x",
+        "shape": [
+          2,
+          17
+        ],
+        "dtype": "INT8",
+        "numel": 34,
+        "logical_bytes": 34,
+        "location": {
+          "memory": "HBM",
+          "architecture": "tpu",
+          "scope": "chip",
+          "hemisphere": null,
+          "physical_device": null
+        },
+        "layout": "symbolic_padded_views"
+      },
+      {
+        "name": "weight",
+        "shape": [
+          17
+        ],
+        "dtype": "FP32",
+        "numel": 17,
+        "logical_bytes": 68,
+        "location": {
+          "memory": "HBM",
+          "architecture": "tpu",
+          "scope": "chip",
+          "hemisphere": null,
+          "physical_device": null
+        },
+        "layout": "symbolic_padded_views"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "shape": [
+          2,
+          17
+        ],
+        "dtype": "INT8",
+        "numel": 34,
+        "logical_bytes": 34,
+        "location": {
+          "memory": "HBM",
+          "architecture": "tpu",
+          "scope": "chip",
+          "hemisphere": null,
+          "physical_device": null
+        },
+        "layout": "symbolic_padded_views"
+      }
+    ],
+    "name_scope": "Within one operator call; graph callers must qualify names by node identity.",
+    "intermediate_residency": "No UB/VMEM/register retention across operator calls is promised.",
+    "conversion": "No implicit cast, dequantization or requantization; stored dtype is binding.",
+    "traffic": "Standalone actions already include each block's boundary accesses; connections do not remove them."
+  },
+  "action_metadata": {
+    "input_storage.hbm_read_bytes": {
+      "source": "#/native_report/action_counts/input_storage.hbm_read_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "input_storage.vmem_dma_write_bytes": {
+      "source": "#/native_report/action_counts/input_storage.vmem_dma_write_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "input_storage.vmem_read_bytes": {
+      "source": "#/native_report/action_counts/input_storage.vmem_read_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "input_storage.vmem_write_bytes": {
+      "source": "#/native_report/action_counts/input_storage.vmem_write_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "input_storage.boundary_to_fp32": {
+      "source": "#/native_report/action_counts/input_storage.boundary_to_fp32",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "input_storage.hbm_write_bytes": {
+      "source": "#/native_report/action_counts/input_storage.hbm_write_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "input_storage.vmem_dma_read_bytes": {
+      "source": "#/native_report/action_counts/input_storage.vmem_dma_read_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "rmsnorm.hbm_read_bytes": {
+      "source": "#/native_report/action_counts/rmsnorm.hbm_read_bytes",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.vmem_dma_write_bytes": {
+      "source": "#/native_report/action_counts/rmsnorm.vmem_dma_write_bytes",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.vmem_read_bytes": {
+      "source": "#/native_report/action_counts/rmsnorm.vmem_read_bytes",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.vmem_write_bytes": {
+      "source": "#/native_report/action_counts/rmsnorm.vmem_write_bytes",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.fp32_mul": {
+      "source": "#/native_report/action_counts/rmsnorm.fp32_mul",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.fp32_add": {
+      "source": "#/native_report/action_counts/rmsnorm.fp32_add",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.fp32_rsqrt": {
+      "source": "#/native_report/action_counts/rmsnorm.fp32_rsqrt",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.hbm_write_bytes": {
+      "source": "#/native_report/action_counts/rmsnorm.hbm_write_bytes",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.vmem_dma_read_bytes": {
+      "source": "#/native_report/action_counts/rmsnorm.vmem_dma_read_bytes",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "output_storage.hbm_read_bytes": {
+      "source": "#/native_report/action_counts/output_storage.hbm_read_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "output_storage.vmem_dma_write_bytes": {
+      "source": "#/native_report/action_counts/output_storage.vmem_dma_write_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "output_storage.vmem_read_bytes": {
+      "source": "#/native_report/action_counts/output_storage.vmem_read_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "output_storage.vmem_write_bytes": {
+      "source": "#/native_report/action_counts/output_storage.vmem_write_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "output_storage.boundary_to_int8": {
+      "source": "#/native_report/action_counts/output_storage.boundary_to_int8",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "output_storage.hbm_write_bytes": {
+      "source": "#/native_report/action_counts/output_storage.hbm_write_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "output_storage.vmem_dma_read_bytes": {
+      "source": "#/native_report/action_counts/output_storage.vmem_dma_read_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    }
+  }
+}

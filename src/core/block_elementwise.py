@@ -14,6 +14,9 @@ def make_path(op, arch, spec, execution, mode, live_bytes, capacity, allocation,
     """Reserve a disjoint tile workspace; external tensor storage is owned by the graph."""
     output = op.spec.outputs[0]
     scratch_per_element = 4 * sum(t.dtype != "FP32" for t in op.inputs)
+    if op.operation == "storage_boundary" and output.dtype == "FP32":
+        # The conversion writes directly into the materialized FP32 output.
+        scratch_per_element = 0
     scratch_per_element += 4 * (op.operation == "swiglu")
     scratch_per_element += 4 * (output.dtype == "INT8" and op.operation not in {"ffn_output", "storage_boundary"})
     timed = mode == "timing"

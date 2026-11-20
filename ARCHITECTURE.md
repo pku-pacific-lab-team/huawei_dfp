@@ -12,6 +12,7 @@
 - [RMSNorm / Softmax（Issue #3 第三批）](#normalization-operators)
 - [Residual / SwiGLU / FFN（Issue #3 第四批）](#decode-blocks)
 - [Decode Attention / GQA 与 KV Cache（Issue #3 第五批）](#decode-attention)
+- [INT8 RMSNorm 与 Attention 投影（Issue #3 第六批 A）](#decode-projections)
 - [Ascend 910](#ascend)
 - [TPU v4](#tpu)
 - [原生 TSP](#tsp)与[完整参数来源表](#tsp-parameters)
@@ -334,7 +335,27 @@ Attention 总时间为一次缓存追加，加上 B*Hq 次完整 head 模板的 
 
 Cache 手算取 HBM或所选单 MEM slice=16 B/cycle、本地32 B/cycle、启动0：每个 K/V head 追加7 B读写各1 cycle，读取42 B用3 cycle，8个 K/V head 总40 cycle。测试进一步覆盖空缓存首次追加、满缓存拒绝、只读 MHA/GQA/MQA、batch/sequence/capacity 独立缩放、重复模板不展开、尾块、原生结果保真、slice 条带化、临时区容量、未知成本/时钟和四入口失败保护。
 
-`validation/issue3/model_coverage.json` 是初始目标模型块清单，区分 implemented/partial/pending，给出代码、测试和缺口归属。它没有宣称模型整体完成：RoPE、投影和归一化的完整存储边界包装、embedding、MLA、MoE 等仍需补齐。完整模型拼装属于 Issue #4，整片调度另行推进。
+`validation/issue3/model_coverage.json` 是初始目标模型块清单，区分 implemented/partial/pending，给出代码、测试和缺口归属。它没有宣称模型整体完成：RoPE、词表投影输出边界、embedding、MLA、MoE 等仍需补齐；INT8 RMSNorm 与常规 Attention 投影已在第六批 A 实现。完整模型拼装属于 Issue #4，整片调度另行推进。
+
+<a id="decode-projections"></a>
+
+## INT8 RMSNorm 与 Attention 投影（Issue #3 第六批 A）
+
+`src/operators/projections.py` 定义三个粗粒度块，`src/runtime/blocks.py` 复用已有串行生命周期调度器与原生内核。算法形状参考 [LLaMA3 官方实现](https://github.com/meta-llama/llama3/blob/main/llama/model.py)，精度是 Issue #1 的 INT8 性能 what-if。RMSNorm 的 scale weight 显式存为 FP32，矩阵权重与激活存为 INT8；不声称这是官方模型的量化格式或数值结果。
+
+- `RMSNormINT8`：INT8→FP32 输入边界、已有 FP32 RMSNorm、FP32→INT8 输出边界。设 E 个元素、R 行，逻辑 MUL=`3E+R`、ADD=`E`、RSQRT=`R`，两种类型边界各 E 元素。输入转换直接写入 FP32 目标缓冲，不再申请另一份 cast scratch；归一化本身的 tile scratch 与行标量照常保留。
+- `QKVProjection`：输入 x `[B,H]`，矩阵 Wq `[H,Hq*D]`、Wk/Wv `[H,Hkv*D]`，顺序执行 Q GEMM→Q 存储边界→K GEMM→K 边界→V GEMM→V 边界。有效 MAC=`B*H*(Hq+2Hkv)*D`。累加为 INT32，两种边界各处理 `B*(Hq+2Hkv)*D` 个元素。输出 Q `[B,Hq,1,D]` 和 K/V `[B,Hkv,1,D]` 是 INT8；Hq/Hkv 为正整数且整除，覆盖 MHA/GQA/MQA，位置处理另行实现。
+- `AttentionOutputProjection`：context `[B,Hq,1,D]` 使用 `[B,Hq*D]` 视图，与 Wo `[Hq*D,Hout]` 做原生 GEMM，INT32 结果经存储边界输出 INT8 `[B,Hout]`。有效 MAC=`B*Hq*D*Hout`，两种边界各 `B*Hout` 元素。
+
+类型边界继续使用 `blocks.json` 的 `to_fp32_cost`/`to_int8_cost`，只影响共享 Vector/VXM 预算上的代理计算占用，不把其等价操作数当作新的数学运算。没有新增硬件速率或更改已有 profile 哈希；来源与适用条件登记在 `operator_execution_audit.json.decode_projection_blocks`。
+
+输入与权重全程保留，每个最终输出保留到最后一步，中间累加/FP32 张量在最后消费者后释放。分配按同一张量所有原生 GEMM 角色所需大小取最大值，再做 slice 条带化；原生实际分配与规划不符时拒绝。Q/K/V 的 head 视图与矩阵视图、context 拼接视图均在 `schedule.storage_views` 记录，绑定同一份 backing，既不重复分配，也不自动假设跨 block 零成本连接。物理 padding/打包地址变换未建模，`io_contract` 使用 `symbolic_padded_views`，连接检查要求布局验证。
+
+Ascend/TPU 使用 HBM 物化边界和原有 UB/VMEM 服务；TSP/CIM 把同时存活的其他张量传为子块 reserved。归一化临时占用以原生 `resident_bytes` 减去已分配全局存储计算，完整包含分别条带化的 scratch 和行标量。容量按每一步真实峰值检查，局部资源按串行子块峰值复用。父块时间是各子块 elapsed 之和，GEMM 内部仍沿用原生流水与冷缓存策略。
+
+独立手算样例 B=2、H=17、Hq=4、Hkv=2、D=7：QKV 有效 MAC=1904，边界各112元素，INT8 输出总112 B。TPU 六步 HBM 存储为1210/1266/1154/1182/1182/1210 B，峰值1266 B；HBM 读1502 B、写560 B。输出投影 Hout=17 时有效 MAC=952，两步存储668/702 B，无额外 head 拼接副本。TSP 三 slice、RMSNorm `[1,7]`、reserved=17 B、tile=3 时，归一化存储117 B，条带化 scratch/行状态18 B，峰值135 B。
+
+`tests/operators/test_projections*.py` 覆盖这些手算、原生 action/role 保真、四架构 count/timing、一份 backing、多输出存活、全块容量超限、局部最小临时空间、类型/形状/别名拒绝、成本敏感性及 CLI 输出保护。该范围仍是单核/单半片；RoPE、Embedding、词表输出边界、MLA/MoE 与整片调度待后续实现，模型拼装属于 Issue #4。
 
 <a id="execution-diagrams"></a>
 

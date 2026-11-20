@@ -1,0 +1,1784 @@
+{
+  "schema_version": 2,
+  "kind": "operator_result",
+  "status": "success",
+  "architecture": "tsp_cim",
+  "mode": "count",
+  "operator": {
+    "kind": "qkv_projection",
+    "inputs": [
+      {
+        "name": "x",
+        "shape": [
+          2,
+          17
+        ],
+        "dtype": "INT8",
+        "numel": 34,
+        "logical_bytes": 34
+      },
+      {
+        "name": "wq",
+        "shape": [
+          17,
+          28
+        ],
+        "dtype": "INT8",
+        "numel": 476,
+        "logical_bytes": 476
+      },
+      {
+        "name": "wk",
+        "shape": [
+          17,
+          14
+        ],
+        "dtype": "INT8",
+        "numel": 238,
+        "logical_bytes": 238
+      },
+      {
+        "name": "wv",
+        "shape": [
+          17,
+          14
+        ],
+        "dtype": "INT8",
+        "numel": 238,
+        "logical_bytes": 238
+      }
+    ],
+    "outputs": [
+      {
+        "name": "query",
+        "shape": [
+          2,
+          4,
+          1,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 56,
+        "logical_bytes": 56
+      },
+      {
+        "name": "key",
+        "shape": [
+          2,
+          2,
+          1,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 28,
+        "logical_bytes": 28
+      },
+      {
+        "name": "value",
+        "shape": [
+          2,
+          2,
+          1,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 28,
+        "logical_bytes": 28
+      }
+    ],
+    "accumulation_dtype": "INT32",
+    "attributes": {
+      "bias": false,
+      "head_dim": 7,
+      "head_order": "batch_head_token_channel",
+      "kv_heads": 2,
+      "positional_encoding_included": false,
+      "query_heads": 4
+    }
+  },
+  "latency_s": null,
+  "cycle_count": null,
+  "timing_status": "not_evaluated",
+  "boundary": {
+    "scope": "single_hem",
+    "chip_execution_included": false,
+    "numeric_values_simulated": false,
+    "start": "tensors_in_local_MEM",
+    "end": "output_in_local_MEM",
+    "intermediate_storage": "local_MEM",
+    "offchip_supply_included": false,
+    "input_output_alias_included": false,
+    "layout": "symbolic_padded_views",
+    "selected_hemisphere": 0,
+    "mem_slices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "streams_per_direction": 32
+  },
+  "work_counts": {
+    "logical": {
+      "operations": 3808,
+      "useful_macs": 1904,
+      "operation_counts": {},
+      "output_bytes": 112
+    },
+    "issued": {
+      "operations": null,
+      "status": "per_node_only",
+      "basis": "See native matrix counts; no SIMD issue model"
+    },
+    "internal": {
+      "boundary_elements": {
+        "boundary_to_fp32": 112,
+        "boundary_to_int8": 112
+      },
+      "status": "per_node_only"
+    }
+  },
+  "resource_requirements": {
+    "mem": {
+      "scope": "single_hem",
+      "required_bytes": 3872,
+      "capacity_bytes": 115343360,
+      "requirement_basis": "peak_bytes"
+    }
+  },
+  "action_counts": {
+    "query.program_bytes": {
+      "component": "macro",
+      "name": "program_bytes",
+      "category": "cim_internal",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "program_bytes"
+      }
+    },
+    "query.context_programs": {
+      "component": "macro",
+      "name": "context_programs",
+      "category": "cim_internal",
+      "count": 2,
+      "unit": "context",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "context_programs"
+      }
+    },
+    "query.context_switches": {
+      "component": "macro",
+      "name": "context_switches",
+      "category": "cim_internal",
+      "count": 2,
+      "unit": "switch",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "context_switches"
+      }
+    },
+    "query.program_wordlines": {
+      "component": "macro",
+      "name": "program_wordlines",
+      "category": "cim_internal",
+      "count": 32,
+      "unit": "wordline",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "program_wordlines"
+      }
+    },
+    "query.cross_macro_k_adds": {
+      "component": "inter_superlane_reduction",
+      "name": "add",
+      "category": "vector",
+      "count": 56,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "cross_macro_k_adds"
+      }
+    },
+    "query.cross_tile_k_adds": {
+      "component": "vxm",
+      "name": "add",
+      "category": "vector",
+      "count": 0,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "cross_tile_k_adds"
+      }
+    },
+    "query.mem_read_weight_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "mem_read_weight_bytes"
+      }
+    },
+    "query.mem_read_activation_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 64,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "mem_read_activation_bytes"
+      }
+    },
+    "query.mem_read_psum_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "mem_read_psum_bytes"
+      }
+    },
+    "query.mem_write_psum_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "mem_write_psum_bytes"
+      }
+    },
+    "query.mem_write_final_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 224,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "mem_write_final_bytes"
+      }
+    },
+    "query.activation_stream_bytes": {
+      "component": "stream",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 640,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "activation_stream_bytes"
+      }
+    },
+    "query.psum_stream_bytes": {
+      "component": "stream",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "psum_stream_bytes"
+      }
+    },
+    "query.write_stream_bytes": {
+      "component": "stream",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 224,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "write_stream_bytes"
+      }
+    },
+    "query.useful_mac": {
+      "component": "macro",
+      "name": "mac",
+      "category": "matrix",
+      "count": 952,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "reference",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "useful_mac"
+      }
+    },
+    "query.issued_mac": {
+      "component": "macro",
+      "name": "mac",
+      "category": "matrix",
+      "count": 2048,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "sum_of_macro_actions",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "issued_mac"
+      }
+    },
+    "query.launches": {
+      "component": "macro",
+      "name": "launches",
+      "category": "cim_internal",
+      "count": 4,
+      "unit": "launch",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "launches"
+      }
+    },
+    "query.bit_serial_cycles": {
+      "component": "macro",
+      "name": "bit_serial_cycles",
+      "category": "cim_internal",
+      "count": 32,
+      "unit": "macro_cycle",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "bit_serial_cycles"
+      }
+    },
+    "query.activation_capture_bytes": {
+      "component": "macro",
+      "name": "activation_capture_bytes",
+      "category": "cim_internal",
+      "count": 64,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "activation_capture_bytes"
+      }
+    },
+    "query.result_bytes": {
+      "component": "macro",
+      "name": "result_bytes",
+      "category": "cim_internal",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "result_bytes"
+      }
+    },
+    "query.weight_word_bit_products": {
+      "component": "macro",
+      "name": "weight_word_bit_products",
+      "category": "cim_internal",
+      "count": 16384,
+      "unit": "word_bit_product",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "weight_word_bit_products"
+      }
+    },
+    "query.local_tree_adds": {
+      "component": "macro",
+      "name": "local_tree_adds",
+      "category": "cim_internal",
+      "count": 15360,
+      "unit": "add",
+      "dtype": "unspecified",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "local_tree_adds"
+      }
+    },
+    "query.shift_accumulates": {
+      "component": "macro",
+      "name": "shift_accumulates",
+      "category": "cim_internal",
+      "count": 1024,
+      "unit": "shift_accumulate",
+      "dtype": "unspecified",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "shift_accumulates"
+      }
+    },
+    "query.logical_activation_broadcast_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 64,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "logical_activation_broadcast_bytes"
+      }
+    },
+    "query.logical_inter_superlane_adds": {
+      "component": "inter_superlane_reduction",
+      "name": "add",
+      "category": "vector",
+      "count": 56,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "logical_inter_superlane_adds"
+      }
+    },
+    "query.logical_inter_k_tile_adds": {
+      "component": "vxm",
+      "name": "add",
+      "category": "vector",
+      "count": 0,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "logical_inter_k_tile_adds"
+      }
+    },
+    "query.logical_cluster_partial_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 224,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "block_node": "query",
+        "native_action": "logical_cluster_partial_bytes"
+      }
+    },
+    "query_storage.mem_read_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 448,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query_storage",
+        "native_action": "mem_read_bytes"
+      }
+    },
+    "query_storage.input_stream_bytes": {
+      "component": "stream_to_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 640,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query_storage",
+        "native_action": "input_stream_bytes"
+      }
+    },
+    "query_storage.mem_write_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 280,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query_storage",
+        "native_action": "mem_write_bytes"
+      }
+    },
+    "query_storage.output_stream_bytes": {
+      "component": "stream_from_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 640,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query_storage",
+        "native_action": "output_stream_bytes"
+      }
+    },
+    "query_storage.boundary_to_fp32": {
+      "component": "vxm",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 56,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_hem",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query_storage",
+        "native_action": "boundary_to_fp32"
+      }
+    },
+    "query_storage.boundary_to_int8": {
+      "component": "vxm",
+      "name": "boundary_to_int8",
+      "category": "vector",
+      "count": 56,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_hem",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "query_storage",
+        "native_action": "boundary_to_int8"
+      }
+    },
+    "key.program_bytes": {
+      "component": "macro",
+      "name": "program_bytes",
+      "category": "cim_internal",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "program_bytes"
+      }
+    },
+    "key.context_programs": {
+      "component": "macro",
+      "name": "context_programs",
+      "category": "cim_internal",
+      "count": 2,
+      "unit": "context",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "context_programs"
+      }
+    },
+    "key.context_switches": {
+      "component": "macro",
+      "name": "context_switches",
+      "category": "cim_internal",
+      "count": 2,
+      "unit": "switch",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "context_switches"
+      }
+    },
+    "key.program_wordlines": {
+      "component": "macro",
+      "name": "program_wordlines",
+      "category": "cim_internal",
+      "count": 32,
+      "unit": "wordline",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "program_wordlines"
+      }
+    },
+    "key.cross_macro_k_adds": {
+      "component": "inter_superlane_reduction",
+      "name": "add",
+      "category": "vector",
+      "count": 28,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "cross_macro_k_adds"
+      }
+    },
+    "key.cross_tile_k_adds": {
+      "component": "vxm",
+      "name": "add",
+      "category": "vector",
+      "count": 0,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "cross_tile_k_adds"
+      }
+    },
+    "key.mem_read_weight_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "mem_read_weight_bytes"
+      }
+    },
+    "key.mem_read_activation_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 64,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "mem_read_activation_bytes"
+      }
+    },
+    "key.mem_read_psum_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "mem_read_psum_bytes"
+      }
+    },
+    "key.mem_write_psum_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "mem_write_psum_bytes"
+      }
+    },
+    "key.mem_write_final_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 112,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "mem_write_final_bytes"
+      }
+    },
+    "key.activation_stream_bytes": {
+      "component": "stream",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 640,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "activation_stream_bytes"
+      }
+    },
+    "key.psum_stream_bytes": {
+      "component": "stream",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "psum_stream_bytes"
+      }
+    },
+    "key.write_stream_bytes": {
+      "component": "stream",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 128,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "write_stream_bytes"
+      }
+    },
+    "key.useful_mac": {
+      "component": "macro",
+      "name": "mac",
+      "category": "matrix",
+      "count": 476,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "reference",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "useful_mac"
+      }
+    },
+    "key.issued_mac": {
+      "component": "macro",
+      "name": "mac",
+      "category": "matrix",
+      "count": 2048,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "sum_of_macro_actions",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "issued_mac"
+      }
+    },
+    "key.launches": {
+      "component": "macro",
+      "name": "launches",
+      "category": "cim_internal",
+      "count": 4,
+      "unit": "launch",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "launches"
+      }
+    },
+    "key.bit_serial_cycles": {
+      "component": "macro",
+      "name": "bit_serial_cycles",
+      "category": "cim_internal",
+      "count": 32,
+      "unit": "macro_cycle",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "bit_serial_cycles"
+      }
+    },
+    "key.activation_capture_bytes": {
+      "component": "macro",
+      "name": "activation_capture_bytes",
+      "category": "cim_internal",
+      "count": 64,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "activation_capture_bytes"
+      }
+    },
+    "key.result_bytes": {
+      "component": "macro",
+      "name": "result_bytes",
+      "category": "cim_internal",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "result_bytes"
+      }
+    },
+    "key.weight_word_bit_products": {
+      "component": "macro",
+      "name": "weight_word_bit_products",
+      "category": "cim_internal",
+      "count": 16384,
+      "unit": "word_bit_product",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "weight_word_bit_products"
+      }
+    },
+    "key.local_tree_adds": {
+      "component": "macro",
+      "name": "local_tree_adds",
+      "category": "cim_internal",
+      "count": 15360,
+      "unit": "add",
+      "dtype": "unspecified",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "local_tree_adds"
+      }
+    },
+    "key.shift_accumulates": {
+      "component": "macro",
+      "name": "shift_accumulates",
+      "category": "cim_internal",
+      "count": 1024,
+      "unit": "shift_accumulate",
+      "dtype": "unspecified",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "shift_accumulates"
+      }
+    },
+    "key.logical_activation_broadcast_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 64,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "logical_activation_broadcast_bytes"
+      }
+    },
+    "key.logical_inter_superlane_adds": {
+      "component": "inter_superlane_reduction",
+      "name": "add",
+      "category": "vector",
+      "count": 28,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "logical_inter_superlane_adds"
+      }
+    },
+    "key.logical_inter_k_tile_adds": {
+      "component": "vxm",
+      "name": "add",
+      "category": "vector",
+      "count": 0,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "logical_inter_k_tile_adds"
+      }
+    },
+    "key.logical_cluster_partial_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 112,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "block_node": "key",
+        "native_action": "logical_cluster_partial_bytes"
+      }
+    },
+    "key_storage.mem_read_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 224,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key_storage",
+        "native_action": "mem_read_bytes"
+      }
+    },
+    "key_storage.input_stream_bytes": {
+      "component": "stream_to_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 640,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key_storage",
+        "native_action": "input_stream_bytes"
+      }
+    },
+    "key_storage.mem_write_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 140,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key_storage",
+        "native_action": "mem_write_bytes"
+      }
+    },
+    "key_storage.output_stream_bytes": {
+      "component": "stream_from_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 640,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key_storage",
+        "native_action": "output_stream_bytes"
+      }
+    },
+    "key_storage.boundary_to_fp32": {
+      "component": "vxm",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 28,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_hem",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key_storage",
+        "native_action": "boundary_to_fp32"
+      }
+    },
+    "key_storage.boundary_to_int8": {
+      "component": "vxm",
+      "name": "boundary_to_int8",
+      "category": "vector",
+      "count": 28,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_hem",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "key_storage",
+        "native_action": "boundary_to_int8"
+      }
+    },
+    "value.program_bytes": {
+      "component": "macro",
+      "name": "program_bytes",
+      "category": "cim_internal",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "program_bytes"
+      }
+    },
+    "value.context_programs": {
+      "component": "macro",
+      "name": "context_programs",
+      "category": "cim_internal",
+      "count": 2,
+      "unit": "context",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "context_programs"
+      }
+    },
+    "value.context_switches": {
+      "component": "macro",
+      "name": "context_switches",
+      "category": "cim_internal",
+      "count": 2,
+      "unit": "switch",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "context_switches"
+      }
+    },
+    "value.program_wordlines": {
+      "component": "macro",
+      "name": "program_wordlines",
+      "category": "cim_internal",
+      "count": 32,
+      "unit": "wordline",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "program_wordlines"
+      }
+    },
+    "value.cross_macro_k_adds": {
+      "component": "inter_superlane_reduction",
+      "name": "add",
+      "category": "vector",
+      "count": 28,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "cross_macro_k_adds"
+      }
+    },
+    "value.cross_tile_k_adds": {
+      "component": "vxm",
+      "name": "add",
+      "category": "vector",
+      "count": 0,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "cross_tile_k_adds"
+      }
+    },
+    "value.mem_read_weight_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "mem_read_weight_bytes"
+      }
+    },
+    "value.mem_read_activation_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 64,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "mem_read_activation_bytes"
+      }
+    },
+    "value.mem_read_psum_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "mem_read_psum_bytes"
+      }
+    },
+    "value.mem_write_psum_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "mem_write_psum_bytes"
+      }
+    },
+    "value.mem_write_final_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 112,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "mem_write_final_bytes"
+      }
+    },
+    "value.activation_stream_bytes": {
+      "component": "stream",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 640,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "activation_stream_bytes"
+      }
+    },
+    "value.psum_stream_bytes": {
+      "component": "stream",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "psum_stream_bytes"
+      }
+    },
+    "value.write_stream_bytes": {
+      "component": "stream",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 128,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "write_stream_bytes"
+      }
+    },
+    "value.useful_mac": {
+      "component": "macro",
+      "name": "mac",
+      "category": "matrix",
+      "count": 476,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "reference",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "useful_mac"
+      }
+    },
+    "value.issued_mac": {
+      "component": "macro",
+      "name": "mac",
+      "category": "matrix",
+      "count": 2048,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "sum_of_macro_actions",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "issued_mac"
+      }
+    },
+    "value.launches": {
+      "component": "macro",
+      "name": "launches",
+      "category": "cim_internal",
+      "count": 4,
+      "unit": "launch",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "launches"
+      }
+    },
+    "value.bit_serial_cycles": {
+      "component": "macro",
+      "name": "bit_serial_cycles",
+      "category": "cim_internal",
+      "count": 32,
+      "unit": "macro_cycle",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "bit_serial_cycles"
+      }
+    },
+    "value.activation_capture_bytes": {
+      "component": "macro",
+      "name": "activation_capture_bytes",
+      "category": "cim_internal",
+      "count": 64,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "activation_capture_bytes"
+      }
+    },
+    "value.result_bytes": {
+      "component": "macro",
+      "name": "result_bytes",
+      "category": "cim_internal",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "result_bytes"
+      }
+    },
+    "value.weight_word_bit_products": {
+      "component": "macro",
+      "name": "weight_word_bit_products",
+      "category": "cim_internal",
+      "count": 16384,
+      "unit": "word_bit_product",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "weight_word_bit_products"
+      }
+    },
+    "value.local_tree_adds": {
+      "component": "macro",
+      "name": "local_tree_adds",
+      "category": "cim_internal",
+      "count": 15360,
+      "unit": "add",
+      "dtype": "unspecified",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "local_tree_adds"
+      }
+    },
+    "value.shift_accumulates": {
+      "component": "macro",
+      "name": "shift_accumulates",
+      "category": "cim_internal",
+      "count": 1024,
+      "unit": "shift_accumulate",
+      "dtype": "unspecified",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "shift_accumulates"
+      }
+    },
+    "value.logical_activation_broadcast_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 64,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "logical_activation_broadcast_bytes"
+      }
+    },
+    "value.logical_inter_superlane_adds": {
+      "component": "inter_superlane_reduction",
+      "name": "add",
+      "category": "vector",
+      "count": 28,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "logical_inter_superlane_adds"
+      }
+    },
+    "value.logical_inter_k_tile_adds": {
+      "component": "vxm",
+      "name": "add",
+      "category": "vector",
+      "count": 0,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "logical_inter_k_tile_adds"
+      }
+    },
+    "value.logical_cluster_partial_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 112,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "block_node": "value",
+        "native_action": "logical_cluster_partial_bytes"
+      }
+    },
+    "value_storage.mem_read_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 224,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value_storage",
+        "native_action": "mem_read_bytes"
+      }
+    },
+    "value_storage.input_stream_bytes": {
+      "component": "stream_to_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 640,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value_storage",
+        "native_action": "input_stream_bytes"
+      }
+    },
+    "value_storage.mem_write_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 140,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value_storage",
+        "native_action": "mem_write_bytes"
+      }
+    },
+    "value_storage.output_stream_bytes": {
+      "component": "stream_from_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 640,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value_storage",
+        "native_action": "output_stream_bytes"
+      }
+    },
+    "value_storage.boundary_to_fp32": {
+      "component": "vxm",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 28,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_hem",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value_storage",
+        "native_action": "boundary_to_fp32"
+      }
+    },
+    "value_storage.boundary_to_int8": {
+      "component": "vxm",
+      "name": "boundary_to_int8",
+      "category": "vector",
+      "count": 28,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_hem",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "value_storage",
+        "native_action": "boundary_to_int8"
+      }
+    }
+  },
+  "coverage": {
+    "offchip_memory": "outside_native_boundary",
+    "interconnect": "onchip_streams_only",
+    "physical_memory_transactions": "not_modeled"
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null
+  }
+}

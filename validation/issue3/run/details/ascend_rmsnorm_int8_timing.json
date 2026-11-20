@@ -1,0 +1,2915 @@
+{
+  "schema_version": 1,
+  "kind": "operator_details",
+  "result_sha256": "5333ca8e6d11502f759606ec1cdedb1ccea4413f0466866f1e53faa91001003e",
+  "native_report": {
+    "schema_version": 1,
+    "model": "ascend_materialized_block",
+    "mode": "timing",
+    "workload": {
+      "kind": "rmsnorm_int8",
+      "inputs": [
+        {
+          "name": "x",
+          "shape": [
+            2,
+            17
+          ],
+          "dtype": "INT8",
+          "numel": 34,
+          "logical_bytes": 34
+        },
+        {
+          "name": "weight",
+          "shape": [
+            17
+          ],
+          "dtype": "FP32",
+          "numel": 17,
+          "logical_bytes": 68
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "shape": [
+            2,
+            17
+          ],
+          "dtype": "INT8",
+          "numel": 34,
+          "logical_bytes": 34
+        }
+      ],
+      "accumulation_dtype": "FP32",
+      "attributes": {
+        "axis": 1,
+        "epsilon": 1e-05,
+        "weight_storage": "FP32"
+      }
+    },
+    "boundary": {
+      "scope": "single_core",
+      "chip_execution_included": false,
+      "numeric_values_simulated": false,
+      "start": "tensors_in_HBM",
+      "end": "output_in_HBM",
+      "intermediate_storage": "HBM",
+      "offchip_supply_included": true,
+      "input_output_alias_included": false,
+      "layout": "symbolic_padded_views"
+    },
+    "execution_contract": {
+      "scope": "single_core",
+      "schedule": "serial_materialized_nodes",
+      "storage": "persistent_inputs_reused_intermediates",
+      "layout": "symbolic_padded_views",
+      "profile_reference_id": "materialized_decode_blocks_v1:a4cab24150f5fb8d",
+      "vector_profile_reference_id": "vector_and_normalization_reference_v2:85eef7e2fa110f03"
+    },
+    "action_counts": {
+      "input_storage.hbm_read_bytes": {
+        "count": 34,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "input_storage.ub_dma_write_bytes": {
+        "count": 34,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "input_storage.ub_read_bytes": {
+        "count": 34,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "input_storage.ub_write_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "input_storage.boundary_to_fp32": {
+        "count": 34,
+        "unit": "element",
+        "scope": "single_core",
+        "basis": "modeled_internal"
+      },
+      "input_storage.hbm_write_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "input_storage.ub_dma_read_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "rmsnorm.hbm_read_bytes": {
+        "count": 408,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "rmsnorm.ub_dma_write_bytes": {
+        "count": 408,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "rmsnorm.ub_read_bytes": {
+        "count": 840,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "rmsnorm.ub_write_bytes": {
+        "count": 568,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "rmsnorm.fp32_mul": {
+        "count": 104,
+        "unit": "op",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "rmsnorm.fp32_add": {
+        "count": 34,
+        "unit": "op",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "rmsnorm.fp32_rsqrt": {
+        "count": 2,
+        "unit": "op",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "rmsnorm.hbm_write_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "rmsnorm.ub_dma_read_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "output_storage.hbm_read_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "output_storage.ub_dma_write_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "output_storage.ub_read_bytes": {
+        "count": 136,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "output_storage.ub_write_bytes": {
+        "count": 34,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "output_storage.boundary_to_int8": {
+        "count": 34,
+        "unit": "element",
+        "scope": "single_core",
+        "basis": "modeled_internal"
+      },
+      "output_storage.hbm_write_bytes": {
+        "count": 34,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      },
+      "output_storage.ub_dma_read_bytes": {
+        "count": 34,
+        "unit": "byte",
+        "scope": "single_core",
+        "basis": "logical"
+      }
+    },
+    "memory": {
+      "ub": {
+        "scope": "core",
+        "capacity_bytes": 262144,
+        "peak_bytes": 170
+      },
+      "hbm": {
+        "scope": "chip",
+        "capacity_bytes": 32000000000,
+        "peak_bytes": 374
+      },
+      "lifetime_validation": {
+        "status": "validated_symbolic_schedule",
+        "lifetimes": [
+          {
+            "tensor": "output",
+            "bytes": 34,
+            "first_step": 2,
+            "last_step": 2,
+            "persistent_input": false
+          },
+          {
+            "tensor": "rmsnorm_int8.input_fp32",
+            "bytes": 136,
+            "first_step": 0,
+            "last_step": 1,
+            "persistent_input": false
+          },
+          {
+            "tensor": "rmsnorm_int8.normalized",
+            "bytes": 136,
+            "first_step": 1,
+            "last_step": 2,
+            "persistent_input": false
+          },
+          {
+            "tensor": "weight",
+            "bytes": 68,
+            "first_step": 0,
+            "last_step": 2,
+            "persistent_input": true
+          },
+          {
+            "tensor": "x",
+            "bytes": 34,
+            "first_step": 0,
+            "last_step": 2,
+            "persistent_input": true
+          }
+        ],
+        "steps": [
+          {
+            "node": "input_storage",
+            "live_tensors": [
+              "rmsnorm_int8.input_fp32",
+              "weight",
+              "x"
+            ],
+            "storage_bytes": 238,
+            "scratch_bytes": 0,
+            "peak_bytes": 238
+          },
+          {
+            "node": "rmsnorm",
+            "live_tensors": [
+              "rmsnorm_int8.input_fp32",
+              "rmsnorm_int8.normalized",
+              "weight",
+              "x"
+            ],
+            "storage_bytes": 374,
+            "scratch_bytes": 0,
+            "peak_bytes": 374
+          },
+          {
+            "node": "output_storage",
+            "live_tensors": [
+              "output",
+              "rmsnorm_int8.normalized",
+              "weight",
+              "x"
+            ],
+            "storage_bytes": 272,
+            "scratch_bytes": 0,
+            "peak_bytes": 272
+          }
+        ],
+        "reserved_bytes": 0,
+        "peak_bytes": 374,
+        "policy": "Inputs remain allocated for the whole block; intermediates release after last consumer; output allocation overlaps its inputs."
+      }
+    },
+    "timing": {
+      "status": "analytical_estimate",
+      "total_cycles": 103,
+      "time_ns": 103.00000000000001,
+      "model": "serial_materialized_nodes",
+      "service_cycles": {
+        "status": "available",
+        "by_stage": {
+          "input_storage.load": 1,
+          "input_storage.read": 1,
+          "input_storage.compute": 1,
+          "input_storage.write": 1,
+          "input_storage.export": 4,
+          "rmsnorm.dma": 16,
+          "rmsnorm.local_read": 24,
+          "rmsnorm.compute": 22,
+          "rmsnorm.reduction_dependency": 0,
+          "rmsnorm.local_write": 24,
+          "output_storage.load": 4,
+          "output_storage.read": 1,
+          "output_storage.compute": 2,
+          "output_storage.write": 1,
+          "output_storage.export": 1
+        },
+        "total_cycles": 103,
+        "semantics": "Sum of modeled stage service work; stages may overlap. Not elapsed time or a sum of resource busy cycles."
+      },
+      "elapsed_cycles": {
+        "status": "available",
+        "by_stage": {
+          "input_storage": 8,
+          "rmsnorm": 86,
+          "output_storage": 9
+        },
+        "total_cycles": 103,
+        "semantics": "Disjoint elapsed-time partition; available stages sum to timing.total_cycles. No overlap is charged twice."
+      }
+    },
+    "work_counts": {
+      "logical": {
+        "operations": 140,
+        "useful_macs": 0,
+        "operation_counts": {
+          "fp32_mul": 104,
+          "fp32_add": 34,
+          "fp32_rsqrt": 2
+        },
+        "output_bytes": 34
+      },
+      "issued": {
+        "operations": null,
+        "status": "per_node_only",
+        "basis": "See native matrix counts; no SIMD issue model"
+      },
+      "internal": {
+        "boundary_elements": {
+          "boundary_to_fp32": 34,
+          "boundary_to_int8": 34
+        },
+        "status": "per_node_only"
+      }
+    },
+    "schedule": {
+      "steps": [
+        {
+          "id": "input_storage",
+          "inputs": [
+            "x"
+          ],
+          "output": "rmsnorm_int8.input_fp32"
+        },
+        {
+          "id": "rmsnorm",
+          "inputs": [
+            "rmsnorm_int8.input_fp32",
+            "weight"
+          ],
+          "output": "rmsnorm_int8.normalized"
+        },
+        {
+          "id": "output_storage",
+          "inputs": [
+            "rmsnorm_int8.normalized"
+          ],
+          "output": "output"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "input_storage",
+          "operator": {
+            "kind": "storage_boundary",
+            "inputs": [
+              {
+                "name": "x",
+                "shape": [
+                  2,
+                  17
+                ],
+                "dtype": "INT8",
+                "numel": 34,
+                "logical_bytes": 34
+              }
+            ],
+            "outputs": [
+              {
+                "name": "rmsnorm_int8.input_fp32",
+                "shape": [
+                  2,
+                  17
+                ],
+                "dtype": "FP32",
+                "numel": 34,
+                "logical_bytes": 136
+              }
+            ],
+            "accumulation_dtype": "FP32",
+            "attributes": {}
+          },
+          "cycle_count": 8,
+          "latency_s": 8e-09,
+          "native_report": {
+            "schema_version": 1,
+            "model": "block_elementwise",
+            "mode": "timing",
+            "workload": {
+              "kind": "storage_boundary",
+              "inputs": [
+                {
+                  "name": "x",
+                  "shape": [
+                    2,
+                    17
+                  ],
+                  "dtype": "INT8",
+                  "numel": 34,
+                  "logical_bytes": 34
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "rmsnorm_int8.input_fp32",
+                  "shape": [
+                    2,
+                    17
+                  ],
+                  "dtype": "FP32",
+                  "numel": 34,
+                  "logical_bytes": 136
+                }
+              ],
+              "accumulation_dtype": "FP32",
+              "attributes": {}
+            },
+            "boundary": {
+              "scope": "single_core",
+              "start": "tensors_in_HBM",
+              "end": "output_in_HBM",
+              "cache_policy": "bypass_for_elementwise"
+            },
+            "execution_contract": {
+              "scope": "single_core",
+              "selected_tile_elements": 34,
+              "requested_tile_elements": 1024
+            },
+            "action_counts": {
+              "hbm_read_bytes": {
+                "count": 34,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "ub_dma_write_bytes": {
+                "count": 34,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "ub_read_bytes": {
+                "count": 34,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "ub_write_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "boundary_to_fp32": {
+                "count": 34,
+                "unit": "element",
+                "scope": "single_core",
+                "basis": "modeled_internal"
+              },
+              "hbm_write_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "ub_dma_read_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              }
+            },
+            "counts": {
+              "hbm_read_bytes": 34,
+              "ub_dma_write_bytes": 34,
+              "ub_read_bytes": 34,
+              "ub_write_bytes": 136,
+              "boundary_to_fp32": 34,
+              "hbm_write_bytes": 136,
+              "ub_dma_read_bytes": 136
+            },
+            "memory": {
+              "hbm": {
+                "scope": "chip",
+                "capacity_bytes": 32000000000,
+                "peak_bytes": 238
+              },
+              "ub": {
+                "scope": "core",
+                "capacity_bytes": 262144,
+                "allocated_bytes": 170,
+                "scratch_tile_bytes": 0
+              }
+            },
+            "timing": {
+              "status": "analytical_estimate",
+              "total_cycles": 8,
+              "time_ns": 8.0,
+              "required_parameters": [
+                "ascend_ub_read_bpc",
+                "ascend_ub_write_bpc",
+                "block.to_fp32_cost",
+                "chip.architectural_cores",
+                "chip.hbm_bandwidth_bytes_per_second",
+                "clock_freq_ghz",
+                "vector.base_ops_per_cycle"
+              ],
+              "model": "serial_block_tile_stages",
+              "derived_services": {
+                "hbm_bpc": 37.5,
+                "local_read_bpc": 256.0,
+                "local_write_bpc": 256.0
+              },
+              "service_cycles": {
+                "status": "available",
+                "by_stage": {
+                  "load": 1,
+                  "read": 1,
+                  "compute": 1,
+                  "write": 1,
+                  "export": 4
+                },
+                "total_cycles": 8,
+                "semantics": "Sum of modeled stage service work; stages may overlap. Not elapsed time or a sum of resource busy cycles."
+              },
+              "elapsed_cycles": {
+                "status": "available",
+                "by_stage": {
+                  "load": 1,
+                  "read": 1,
+                  "compute": 1,
+                  "write": 1,
+                  "export": 4
+                },
+                "total_cycles": 8,
+                "semantics": "Disjoint elapsed-time partition; available stages sum to timing.total_cycles. No overlap is charged twice."
+              }
+            },
+            "work_counts": {
+              "logical": {
+                "operations": 0,
+                "operation_counts": {},
+                "output_bytes": 136
+              },
+              "issued": {
+                "operations": null,
+                "status": "not_modeled"
+              },
+              "internal": {
+                "boundary_elements": {
+                  "boundary_to_fp32": 34
+                }
+              }
+            },
+            "schedule": {
+              "tile_groups": [
+                {
+                  "elements": 34,
+                  "repetitions": 1,
+                  "stages": [
+                    {
+                      "stage": "load_input_0",
+                      "bytes": 34,
+                      "cycles": 1
+                    },
+                    {
+                      "stage": "input_0_to_fp32",
+                      "read_bytes": [
+                        34
+                      ],
+                      "write_bytes": [
+                        136
+                      ],
+                      "operation": "boundary_to_fp32",
+                      "elements": 34,
+                      "cycles": 3
+                    },
+                    {
+                      "stage": "export_output",
+                      "bytes": 136,
+                      "cycles": 4
+                    }
+                  ]
+                }
+              ],
+              "scratch_policy": "Disjoint cast inputs, activation workspace and result; tile buffers reused only after export."
+            },
+            "parameter_provenance": {
+              "clock_freq_ghz": {
+                "value": 1,
+                "unit": "GHz",
+                "scope": "core",
+                "status": "documented",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5, printed p109)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Published Ascend-Max reference frequency, 1 GHz; not measured target-SKU DVFS. NoC link clock is separately 2 GHz."
+              },
+              "memory.L1.physical_bytes": {
+                "value": 1048576,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 1 MB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.L1.usable_bytes": {
+                "value": 1048576,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "memory.L0A.physical_bytes": {
+                "value": 65536,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 64 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.L0A.usable_bytes": {
+                "value": 65536,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "memory.L0B.physical_bytes": {
+                "value": 65536,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 64 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.L0B.usable_bytes": {
+                "value": 65536,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "memory.L0C.physical_bytes": {
+                "value": 262144,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 256 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.L0C.usable_bytes": {
+                "value": 262144,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "memory.UB.physical_bytes": {
+                "value": 262144,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 256 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.UB.usable_bytes": {
+                "value": 262144,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "cube.m": {
+                "value": 16,
+                "unit": "element",
+                "scope": "core",
+                "status": "documented",
+                "source": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/800alpha003/apiref/ascendcopapi/atlasascendc_api_07_0249.html",
+                "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "INT8 input fractal; INT8 x INT8 -> INT32 support for Atlas training series; geometry is not a cycles-per-fractal guarantee."
+              },
+              "cube.k": {
+                "value": 32,
+                "unit": "element",
+                "scope": "core",
+                "status": "documented",
+                "source": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/800alpha003/apiref/ascendcopapi/atlasascendc_api_07_0249.html",
+                "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "INT8 input fractal; INT8 x INT8 -> INT32 support for Atlas training series; geometry is not a cycles-per-fractal guarantee."
+              },
+              "cube.n": {
+                "value": 16,
+                "unit": "element",
+                "scope": "core",
+                "status": "documented",
+                "source": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/800alpha003/apiref/ascendcopapi/atlasascendc_api_07_0249.html",
+                "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "INT32 result fractal; INT8 x INT8 -> INT32 support for Atlas training series; geometry is not a cycles-per-fractal guarantee."
+              },
+              "cube.macs_per_cycle": {
+                "value": 8192,
+                "unit": "MAC/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=7; https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 16 * 32 * 16 * 1 Cube = 8192 MAC/cycle. Assume one INT8 fractal including accumulation per Cube per cycle; omit fixed startup/fill latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "vector.base_ops_per_cycle": {
+                "value": 64,
+                "unit": "op/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5); ARCHITECTURE.md#ascend-vector-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "Published vector width is 256 bytes. Assume one 256-byte group of 32-bit scalar-element basic operations per cycle: 256/4=64. Width alone does not establish throughput; one group/cycle is an uncalibrated model assumption, not native instruction latency or measured sustained performance. All supported operations share this fixed per-core budget; do not multiply it by Vector units or architectural core count. Transfers and instruction/tail overhead are omitted."
+              },
+              "vector.int32_add_cost": {
+                "value": 1,
+                "unit": "equivalent_op/op",
+                "scope": "core",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#ascend-vector-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "One scalar-element INT32 add consumes one equivalent basic operation. Standalone service only: GEMM K accumulation is already included in Cube MACs and does not execute a separate Vector add."
+              },
+              "vector.fp32_basic_op_cost": {
+                "value": 1,
+                "unit": "equivalent_op/op",
+                "scope": "core",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#ascend-vector-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "One scalar-element FP32 ADD or MUL consumes one equivalent operation. Same work convention as TSP; not measured parity with INT32. FMA, DIV, casts, reductions and complete activation operators are not implicitly supported."
+              },
+              "vector.fp32_exp_cost": {
+                "value": 15,
+                "unit": "equivalent_op/op",
+                "scope": "core",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#ascend-vector-service; ARCHITECTURE.md#tsp-vxm-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "TSP-compatible algorithmic proxy: k=round(x*log2(e)), r=x-k*ln(2) costs 4 equivalent operations; degree-5 Taylor polynomial in Horner form costs 5 MUL + 5 ADD; exponent scaling costs 1, total 15. Round/scaling each count as one equivalent operation; no FMA discount. Reference domain finite x in [-80,0]. Work accounting only, no numerical evaluation or correctly-rounded FP32 accuracy claim. Not native Ascend Exp instruction throughput/latency. Shares Vector budget; no independent SFU."
+              },
+              "vector.fp32_rsqrt_cost": {
+                "value": 12,
+                "unit": "equivalent_op/op",
+                "scope": "core",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#ascend-vector-service; ARCHITECTURE.md#tsp-vxm-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "Positive-normal FP32 approximation work proxy: bit seed bits(y)=0x5f3759df-(bits(x)>>1) costs 2 (shift and subtraction; bit reinterpretation costs 0), then two iterations y=(0.5*y)*(3-x*y*y), each 4 MUL + 1 SUB, total 12. No fused-operation discount. No correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate rsqrt numerically, and is not native Ascend RSqrt instruction throughput or latency. Shares the Vector budget; memory and dependencies are separate. No independent SFU."
+              },
+              "transfers.l1_l0a": {
+                "value": 512,
+                "unit": "byte/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 16 * 32 = 512 INT8 bytes/cycle. One input fractal per cycle; omit fixed DMA latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "transfers.l1_l0b": {
+                "value": 512,
+                "unit": "byte/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 32 * 16 = 512 INT8 bytes/cycle. One input fractal per cycle; omit fixed DMA latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "transfers.l0c_ub": {
+                "value": 1024,
+                "unit": "byte/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 16 * 16 * 4 = 1024 INT32 bytes/cycle. One output fractal per cycle; omit fixed DMA latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "chip.architectural_cores": {
+                "value": 32,
+                "unit": "core",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (section 4.1.1, printed p109)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "32 Ascend-Max cores in original Ascend 910 compute die; architectural inventory, not available cores for every SKU."
+              },
+              "chip.l2_bytes": {
+                "value": 33554432,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=19 (On-chip Buffer 32MB)",
+                "version": "Huawei DaVinci presentation, 2020, PDF p19; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Source labels on-chip buffer 32 MB. Mapping it to shared L2 and interpreting MB as MiB remain assumptions. Execution uses all capacity, equally partitioned by architectural core count, for complete padded input panels; no runtime-reservation calibration."
+              },
+              "chip.hbm_physical_bytes": {
+                "value": 32000000000,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=20 (Memory Interface)",
+                "version": "Huawei DaVinci presentation, 2020, PDF p20; audited 2026-11-14 America/Los_Angeles; explicit decimal capacity assumption 2026-11-17",
+                "conditions": "Published 32 GB HBM Gen2 is interpreted as 32 * 10^9 bytes for this reference scenario. Explicit unit-normalization assumption, not a verified exact SKU capacity; not 32 GiB."
+              },
+              "chip.hbm_usable_bytes": {
+                "value": 32000000000,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "Model assumption: full reference HBM capacity available to prepacked padded A/B/C",
+                "version": "Huawei DaVinci presentation, 2020, PDF p20; audited 2026-11-14 America/Los_Angeles; explicit decimal capacity assumption 2026-11-17",
+                "conditions": "Assume usable HBM equals the configured physical capacity, with no runtime reservation, packing workspace or host offload. Reduce for a real runtime; padded A/B/C must coexist. Capacity is shared chip storage, not divided or multiplied by core count."
+              },
+              "chip.l2_bytes_per_cycle": {
+                "value": 3000,
+                "unit": "byte/cycle",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://www.old.hotchips.org/hc31/HC31_1.11_Huawei.Davinci.HengLiao_v4.0.pdf#page=10 (3 TB/s divided by 32 cores), #page=38 (per-core NoC ports) and #page=39 (4 TB/s L2 access); https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=8; ARCHITECTURE.md#ascend-l2-bandwidth",
+                "version": "Original Ascend 910; Huawei Hot Chips 2019 and DaVinci 2020 presentations; model assumption selected 2026-11-18 America/Los_Angeles",
+                "conditions": "User-selected whole-chip L2 bandwidth assumption: 3 TB/s = 3e12 byte/s (decimal), normalized by the 1 GHz reference core/model clock to 3000 byte/cycle. Not per-core, not normalized by the 2 GHz NoC clock, and not measured sustained throughput. The same 2019 presentation also reports 4 TB/s L2 access bandwidth; its relationship to 3 TB/s, including read/write accounting, is unresolved. No measured 75% efficiency is inferred. This fixed value must be explicitly renormalized if the reference clock changes while retaining 3 TB/s. Execution divides this chip rate equally by architectural core count. Input fills and reads share one L2 service; cold panel-LRU, output/oversize bypass and serial miss fetch/fill/read are explicit model policies, not measured cache behavior."
+              },
+              "chip.hbm_bandwidth_bytes_per_second": {
+                "value": 1200000000000,
+                "unit": "byte/s",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (section 4.1.1; also p114, section 4.1.3)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Published nominal aggregate HBM bandwidth, 1.2 TB/s decimal. Single-core payload service is equally partitioned by architectural core count. L2 misses and oversize bypass reads plus C output writes consume this shared service; controller and local DMA-port details are omitted."
+              }
+            },
+            "reference_ids": {
+              "hardware": null
+            }
+          }
+        },
+        {
+          "id": "rmsnorm",
+          "operator": {
+            "kind": "rmsnorm",
+            "inputs": [
+              {
+                "name": "rmsnorm_int8.input_fp32",
+                "shape": [
+                  2,
+                  17
+                ],
+                "dtype": "FP32",
+                "numel": 34,
+                "logical_bytes": 136
+              },
+              {
+                "name": "weight",
+                "shape": [
+                  17
+                ],
+                "dtype": "FP32",
+                "numel": 17,
+                "logical_bytes": 68
+              }
+            ],
+            "outputs": [
+              {
+                "name": "rmsnorm_int8.normalized",
+                "shape": [
+                  2,
+                  17
+                ],
+                "dtype": "FP32",
+                "numel": 34,
+                "logical_bytes": 136
+              }
+            ],
+            "accumulation_dtype": "FP32",
+            "attributes": {
+              "axis": 1,
+              "epsilon": 1e-05
+            }
+          },
+          "cycle_count": 86,
+          "latency_s": 8.6e-08,
+          "native_report": {
+            "schema_version": 1,
+            "model": "ascend_normalization_serial",
+            "mode": "timing",
+            "workload": {
+              "operation": "rmsnorm",
+              "kind": "rmsnorm",
+              "inputs": [
+                {
+                  "name": "rmsnorm_int8.input_fp32",
+                  "shape": [
+                    2,
+                    17
+                  ],
+                  "dtype": "FP32",
+                  "numel": 34,
+                  "logical_bytes": 136
+                },
+                {
+                  "name": "weight",
+                  "shape": [
+                    17
+                  ],
+                  "dtype": "FP32",
+                  "numel": 17,
+                  "logical_bytes": 68
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "rmsnorm_int8.normalized",
+                  "shape": [
+                    2,
+                    17
+                  ],
+                  "dtype": "FP32",
+                  "numel": 34,
+                  "logical_bytes": 136
+                }
+              ],
+              "accumulation_dtype": "FP32",
+              "attributes": {
+                "axis": 1,
+                "epsilon": 1e-05
+              },
+              "axis": 1,
+              "rows": 2,
+              "width": 17,
+              "epsilon": 1e-05
+            },
+            "boundary": {
+              "scope": "single_core",
+              "chip_execution_included": false,
+              "numeric_values_simulated": false,
+              "input_output_alias_included": false,
+              "start": "tensors_in_HBM",
+              "end": "output_in_HBM",
+              "l2_policy": "bypass"
+            },
+            "execution_contract": {
+              "scope": "single_core",
+              "path": "hbm_ub_bypass_l2",
+              "tile_elements": 1024,
+              "transfer_startup_cycles": 0,
+              "compute_startup_cycles": 0,
+              "schedule": "serial_rows_passes_tiles",
+              "composite": {
+                "schedule": "serial_rows_passes_tiles",
+                "reduction": "balanced_tile_tree_serial_merge",
+                "storage": "rmsnorm_reread_softmax_output_workspace",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                "version": "normalization-serial-v1",
+                "conditions": "Last-axis FP32. Serial rows, passes and tiles. Balanced binary reduction levels wait for predecessors; partials merge into one row state. Constants are implicit; one scalar read per tile broadcasts without extra shuffle work. RMSNorm rereads x and loads weight per row. Softmax stores exp in the output allocation, then normalizes it. No numerical accuracy or hardware-instruction claims.",
+                "parameters": {
+                  "fp32_sub_cost": {
+                    "value": 1,
+                    "unit": "equivalent_op/op",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "One scalar SUB modeled as one basic equivalent operation; shares native Vector/VXM budget, not calibrated.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  },
+                  "fp32_max_cost": {
+                    "value": 1,
+                    "unit": "equivalent_op/op",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "One pairwise MAX comparison/selection modeled as one equivalent operation; not calibrated.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  },
+                  "fp32_rcp_cost": {
+                    "value": 7,
+                    "unit": "equivalent_op/op",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "Algorithmic proxy: one seed-equivalent operation plus two Newton-style updates of two MUL and one SUB each: 1+2*3=7. Seed accuracy and numerical result are not modeled; not native reciprocal timing.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  },
+                  "reduction_round_cycles": {
+                    "value": 1,
+                    "unit": "cycle",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "Minimum compute dependency interval per tree level or cross-tile binary merge. Total compute is max(weighted-work cycles, this value); memory and startup charged separately. Not a measured shuffle or lane-network latency.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  }
+                }
+              },
+              "profile_reference_id": "vector_and_normalization_reference_v2:85eef7e2fa110f03",
+              "requested_tile_elements": 1024,
+              "selected_tile_elements": 17,
+              "row_schedule": "serial_rows_passes_tiles"
+            },
+            "counts": {
+              "hbm_read_bytes": 408,
+              "ub_dma_write_bytes": 408,
+              "ub_read_bytes": 840,
+              "ub_write_bytes": 568,
+              "fp32_mul": 104,
+              "fp32_add": 34,
+              "fp32_rsqrt": 2,
+              "hbm_write_bytes": 136,
+              "ub_dma_read_bytes": 136,
+              "useful_ops": 140,
+              "logical_output_bytes": 136
+            },
+            "action_counts": {
+              "hbm_read_bytes": {
+                "count": 408,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "ub_dma_write_bytes": {
+                "count": 408,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "ub_read_bytes": {
+                "count": 840,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "ub_write_bytes": {
+                "count": 568,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "fp32_mul": {
+                "count": 104,
+                "unit": "op",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "fp32_add": {
+                "count": 34,
+                "unit": "op",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "fp32_rsqrt": {
+                "count": 2,
+                "unit": "op",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "hbm_write_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "ub_dma_read_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              }
+            },
+            "work_counts": {
+              "logical": {
+                "operations": 140,
+                "operation_counts": {
+                  "fp32_mul": 104,
+                  "fp32_add": 34,
+                  "fp32_rsqrt": 2
+                },
+                "output_bytes": 136
+              },
+              "issued": {
+                "operations": null,
+                "status": "not_modeled",
+                "basis": "No instruction issue model"
+              },
+              "internal": {
+                "status": "not_modeled",
+                "action_references": []
+              }
+            },
+            "memory": {
+              "hbm": {
+                "scope": "chip",
+                "usable_bytes": 32000000000,
+                "logical_footprint_bytes": 340
+              },
+              "ub": {
+                "scope": "core",
+                "usable_bytes": 262144,
+                "tile_slots": 2,
+                "row_state_bytes": 4,
+                "allocated_bytes": 140
+              },
+              "lifetime_validation": {
+                "status": "validated_symbolic_schedule",
+                "representative_tile_iterations": 3,
+                "peak_live_temporary_bytes": 140,
+                "allocated_temporary_bytes": 140,
+                "checks": [
+                  "initialized reads",
+                  "slot overwrite order",
+                  "odd tree survivors",
+                  "full-row exp before normalize",
+                  "temporary capacity"
+                ],
+                "limitations": "Symbolic slot/lifetime checks only; no physical address, bank or register proof."
+              },
+              "lifetimes": [
+                "One row state aliases sum, mean and scale; retained through output pass.",
+                "Tile scratch is reused after each reduction; input is reread for scale/weight pass.",
+                "Weight is stored once externally but read once per row; no cross-row local reuse."
+              ]
+            },
+            "timing": {
+              "status": "analytical_estimate",
+              "total_cycles": 86,
+              "time_ns": 86.0,
+              "model": "normalization_serial_rows_passes_tiles_v1",
+              "required_parameters": [
+                "ascend_ub_read_bpc",
+                "ascend_ub_write_bpc",
+                "chip.architectural_cores",
+                "chip.hbm_bandwidth_bytes_per_second",
+                "clock_freq_ghz",
+                "composite.reduction_round_cycles",
+                "vector.base_ops_per_cycle",
+                "vector.fp32_basic_op_cost",
+                "vector.fp32_rsqrt_cost"
+              ],
+              "derived_services": {
+                "hbm_bpc": 37.5,
+                "ub_read_bpc": 256.0,
+                "ub_write_bpc": 256.0
+              },
+              "service_cycles": {
+                "status": "available",
+                "by_stage": {
+                  "dma": 16,
+                  "local_read": 24,
+                  "compute": 22,
+                  "reduction_dependency": 0,
+                  "local_write": 24
+                },
+                "total_cycles": 86,
+                "semantics": "Sum of modeled stage service work; stages may overlap. Not elapsed time or a sum of resource busy cycles."
+              },
+              "elapsed_cycles": {
+                "status": "available",
+                "by_stage": {
+                  "dma": 16,
+                  "local_read": 24,
+                  "compute": 22,
+                  "reduction_dependency": 0,
+                  "local_write": 24
+                },
+                "total_cycles": 86,
+                "semantics": "Disjoint elapsed-time partition; available stages sum to timing.total_cycles. No overlap is charged twice."
+              }
+            },
+            "schedule": {
+              "rows": 2,
+              "tiles_per_row": 1,
+              "groups_per_row": [
+                {
+                  "phase": "sum_squares",
+                  "elements": 17,
+                  "repetitions_per_row": 1,
+                  "stages": [
+                    {
+                      "name": "load_x",
+                      "direction": "load",
+                      "logical_bytes": 68,
+                      "counts_per_execution": {
+                        "hbm_read_bytes": 68,
+                        "ub_dma_write_bytes": 68
+                      },
+                      "cycles_per_execution": {
+                        "dma": 2
+                      }
+                    },
+                    {
+                      "name": "square",
+                      "reads": [
+                        {
+                          "buffer": "x",
+                          "elements": 17
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 17
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_mul": 17
+                      },
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "ub_read_bytes": 68,
+                        "ub_write_bytes": 68,
+                        "fp32_mul": 17
+                      },
+                      "cycles_per_execution": {
+                        "local_read": 1,
+                        "compute": 1,
+                        "reduction_dependency": 0,
+                        "local_write": 1
+                      }
+                    },
+                    {
+                      "name": "reduce_fp32_add_level_0",
+                      "reads": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 16
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 8
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_add": 8
+                      },
+                      "reduction_round": true,
+                      "counts_per_execution": {
+                        "ub_read_bytes": 64,
+                        "ub_write_bytes": 32,
+                        "fp32_add": 8
+                      },
+                      "cycles_per_execution": {
+                        "local_read": 1,
+                        "compute": 1,
+                        "reduction_dependency": 0,
+                        "local_write": 1
+                      }
+                    },
+                    {
+                      "name": "reduce_fp32_add_level_1",
+                      "reads": [
+                        {
+                          "buffer": "tree_survivors",
+                          "elements": 8
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 4
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_add": 4
+                      },
+                      "reduction_round": true,
+                      "counts_per_execution": {
+                        "ub_read_bytes": 32,
+                        "ub_write_bytes": 16,
+                        "fp32_add": 4
+                      },
+                      "cycles_per_execution": {
+                        "local_read": 1,
+                        "compute": 1,
+                        "reduction_dependency": 0,
+                        "local_write": 1
+                      }
+                    },
+                    {
+                      "name": "reduce_fp32_add_level_2",
+                      "reads": [
+                        {
+                          "buffer": "tree_survivors",
+                          "elements": 4
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 2
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_add": 2
+                      },
+                      "reduction_round": true,
+                      "counts_per_execution": {
+                        "ub_read_bytes": 16,
+                        "ub_write_bytes": 8,
+                        "fp32_add": 2
+                      },
+                      "cycles_per_execution": {
+                        "local_read": 1,
+                        "compute": 1,
+                        "reduction_dependency": 0,
+                        "local_write": 1
+                      }
+                    },
+                    {
+                      "name": "reduce_fp32_add_level_3",
+                      "reads": [
+                        {
+                          "buffer": "tree_survivors",
+                          "elements": 2
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 1
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_add": 1
+                      },
+                      "reduction_round": true,
+                      "counts_per_execution": {
+                        "ub_read_bytes": 8,
+                        "ub_write_bytes": 4,
+                        "fp32_add": 1
+                      },
+                      "cycles_per_execution": {
+                        "local_read": 1,
+                        "compute": 1,
+                        "reduction_dependency": 0,
+                        "local_write": 1
+                      }
+                    },
+                    {
+                      "name": "reduce_fp32_add_level_4",
+                      "reads": [
+                        {
+                          "buffer": "tree_survivors",
+                          "elements": 2
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 1
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_add": 1
+                      },
+                      "reduction_round": true,
+                      "counts_per_execution": {
+                        "ub_read_bytes": 8,
+                        "ub_write_bytes": 4,
+                        "fp32_add": 1
+                      },
+                      "cycles_per_execution": {
+                        "local_read": 1,
+                        "compute": 1,
+                        "reduction_dependency": 0,
+                        "local_write": 1
+                      }
+                    },
+                    {
+                      "name": "initialize_row_sum",
+                      "reads": [
+                        {
+                          "buffer": "tree_partial",
+                          "elements": 1
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "row_sum",
+                          "elements": 1
+                        }
+                      ],
+                      "operation_counts": {},
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "ub_read_bytes": 4,
+                        "ub_write_bytes": 4
+                      },
+                      "cycles_per_execution": {
+                        "local_read": 1,
+                        "compute": 0,
+                        "reduction_dependency": 0,
+                        "local_write": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "phase": "normalizer",
+                  "elements": 1,
+                  "repetitions_per_row": 1,
+                  "stages": [
+                    {
+                      "name": "mean_scale_by_constant_1_over_width",
+                      "reads": [
+                        {
+                          "buffer": "row_sum",
+                          "elements": 1
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "row_scale",
+                          "elements": 1
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_mul": 1
+                      },
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "ub_read_bytes": 4,
+                        "ub_write_bytes": 4,
+                        "fp32_mul": 1
+                      },
+                      "cycles_per_execution": {
+                        "local_read": 1,
+                        "compute": 1,
+                        "reduction_dependency": 0,
+                        "local_write": 1
+                      }
+                    },
+                    {
+                      "name": "add_epsilon",
+                      "reads": [
+                        {
+                          "buffer": "row_scale",
+                          "elements": 1
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "row_scale",
+                          "elements": 1
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_add": 1
+                      },
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "ub_read_bytes": 4,
+                        "ub_write_bytes": 4,
+                        "fp32_add": 1
+                      },
+                      "cycles_per_execution": {
+                        "local_read": 1,
+                        "compute": 1,
+                        "reduction_dependency": 0,
+                        "local_write": 1
+                      }
+                    },
+                    {
+                      "name": "rsqrt",
+                      "reads": [
+                        {
+                          "buffer": "row_scale",
+                          "elements": 1
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "row_scale",
+                          "elements": 1
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_rsqrt": 1
+                      },
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "ub_read_bytes": 4,
+                        "ub_write_bytes": 4,
+                        "fp32_rsqrt": 1
+                      },
+                      "cycles_per_execution": {
+                        "local_read": 1,
+                        "compute": 1,
+                        "reduction_dependency": 0,
+                        "local_write": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "phase": "apply_scale_and_weight",
+                  "elements": 17,
+                  "repetitions_per_row": 1,
+                  "stages": [
+                    {
+                      "name": "reload_x",
+                      "direction": "load",
+                      "logical_bytes": 68,
+                      "counts_per_execution": {
+                        "hbm_read_bytes": 68,
+                        "ub_dma_write_bytes": 68
+                      },
+                      "cycles_per_execution": {
+                        "dma": 2
+                      }
+                    },
+                    {
+                      "name": "load_weight",
+                      "direction": "load",
+                      "logical_bytes": 68,
+                      "counts_per_execution": {
+                        "hbm_read_bytes": 68,
+                        "ub_dma_write_bytes": 68
+                      },
+                      "cycles_per_execution": {
+                        "dma": 2
+                      }
+                    },
+                    {
+                      "name": "broadcast_scale",
+                      "reads": [
+                        {
+                          "buffer": "x",
+                          "elements": 17
+                        },
+                        {
+                          "buffer": "row_scale",
+                          "elements": 1
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 17
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_mul": 17
+                      },
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "ub_read_bytes": 72,
+                        "ub_write_bytes": 68,
+                        "fp32_mul": 17
+                      },
+                      "cycles_per_execution": {
+                        "local_read": 1,
+                        "compute": 1,
+                        "reduction_dependency": 0,
+                        "local_write": 1
+                      }
+                    },
+                    {
+                      "name": "multiply_weight",
+                      "reads": [
+                        {
+                          "buffer": "tile_scratch",
+                          "elements": 17
+                        },
+                        {
+                          "buffer": "weight",
+                          "elements": 17
+                        }
+                      ],
+                      "writes": [
+                        {
+                          "buffer": "output",
+                          "elements": 17
+                        }
+                      ],
+                      "operation_counts": {
+                        "fp32_mul": 17
+                      },
+                      "reduction_round": false,
+                      "counts_per_execution": {
+                        "ub_read_bytes": 136,
+                        "ub_write_bytes": 68,
+                        "fp32_mul": 17
+                      },
+                      "cycles_per_execution": {
+                        "local_read": 1,
+                        "compute": 1,
+                        "reduction_dependency": 0,
+                        "local_write": 1
+                      }
+                    },
+                    {
+                      "name": "export_output",
+                      "direction": "export",
+                      "logical_bytes": 68,
+                      "counts_per_execution": {
+                        "hbm_write_bytes": 68,
+                        "ub_dma_read_bytes": 68
+                      },
+                      "cycles_per_execution": {
+                        "dma": 2
+                      }
+                    }
+                  ]
+                }
+              ],
+              "policy": "Repeat the entire group sequence per row; repeat each group's entire stage sequence per tile. Serial; each tree level and cross-tile merge waits for predecessors."
+            },
+            "parameter_provenance": {
+              "clock_freq_ghz": {
+                "value": 1,
+                "unit": "GHz",
+                "scope": "core",
+                "status": "documented",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5, printed p109)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Published Ascend-Max reference frequency, 1 GHz; not measured target-SKU DVFS. NoC link clock is separately 2 GHz."
+              },
+              "memory.L1.physical_bytes": {
+                "value": 1048576,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 1 MB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.L1.usable_bytes": {
+                "value": 1048576,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "memory.L0A.physical_bytes": {
+                "value": 65536,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 64 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.L0A.usable_bytes": {
+                "value": 65536,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "memory.L0B.physical_bytes": {
+                "value": 65536,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 64 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.L0B.usable_bytes": {
+                "value": 65536,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "memory.L0C.physical_bytes": {
+                "value": 262144,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 256 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.L0C.usable_bytes": {
+                "value": 262144,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "memory.UB.physical_bytes": {
+                "value": 262144,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 256 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.UB.usable_bytes": {
+                "value": 262144,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "cube.m": {
+                "value": 16,
+                "unit": "element",
+                "scope": "core",
+                "status": "documented",
+                "source": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/800alpha003/apiref/ascendcopapi/atlasascendc_api_07_0249.html",
+                "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "INT8 input fractal; INT8 x INT8 -> INT32 support for Atlas training series; geometry is not a cycles-per-fractal guarantee."
+              },
+              "cube.k": {
+                "value": 32,
+                "unit": "element",
+                "scope": "core",
+                "status": "documented",
+                "source": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/800alpha003/apiref/ascendcopapi/atlasascendc_api_07_0249.html",
+                "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "INT8 input fractal; INT8 x INT8 -> INT32 support for Atlas training series; geometry is not a cycles-per-fractal guarantee."
+              },
+              "cube.n": {
+                "value": 16,
+                "unit": "element",
+                "scope": "core",
+                "status": "documented",
+                "source": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/800alpha003/apiref/ascendcopapi/atlasascendc_api_07_0249.html",
+                "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "INT32 result fractal; INT8 x INT8 -> INT32 support for Atlas training series; geometry is not a cycles-per-fractal guarantee."
+              },
+              "cube.macs_per_cycle": {
+                "value": 8192,
+                "unit": "MAC/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=7; https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 16 * 32 * 16 * 1 Cube = 8192 MAC/cycle. Assume one INT8 fractal including accumulation per Cube per cycle; omit fixed startup/fill latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "vector.base_ops_per_cycle": {
+                "value": 64,
+                "unit": "op/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5); ARCHITECTURE.md#ascend-vector-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "Published vector width is 256 bytes. Assume one 256-byte group of 32-bit scalar-element basic operations per cycle: 256/4=64. Width alone does not establish throughput; one group/cycle is an uncalibrated model assumption, not native instruction latency or measured sustained performance. All supported operations share this fixed per-core budget; do not multiply it by Vector units or architectural core count. Transfers and instruction/tail overhead are omitted."
+              },
+              "vector.int32_add_cost": {
+                "value": 1,
+                "unit": "equivalent_op/op",
+                "scope": "core",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#ascend-vector-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "One scalar-element INT32 add consumes one equivalent basic operation. Standalone service only: GEMM K accumulation is already included in Cube MACs and does not execute a separate Vector add."
+              },
+              "vector.fp32_basic_op_cost": {
+                "value": 1,
+                "unit": "equivalent_op/op",
+                "scope": "core",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#ascend-vector-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "One scalar-element FP32 ADD or MUL consumes one equivalent operation. Same work convention as TSP; not measured parity with INT32. FMA, DIV, casts, reductions and complete activation operators are not implicitly supported."
+              },
+              "vector.fp32_exp_cost": {
+                "value": 15,
+                "unit": "equivalent_op/op",
+                "scope": "core",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#ascend-vector-service; ARCHITECTURE.md#tsp-vxm-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "TSP-compatible algorithmic proxy: k=round(x*log2(e)), r=x-k*ln(2) costs 4 equivalent operations; degree-5 Taylor polynomial in Horner form costs 5 MUL + 5 ADD; exponent scaling costs 1, total 15. Round/scaling each count as one equivalent operation; no FMA discount. Reference domain finite x in [-80,0]. Work accounting only, no numerical evaluation or correctly-rounded FP32 accuracy claim. Not native Ascend Exp instruction throughput/latency. Shares Vector budget; no independent SFU."
+              },
+              "vector.fp32_rsqrt_cost": {
+                "value": 12,
+                "unit": "equivalent_op/op",
+                "scope": "core",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#ascend-vector-service; ARCHITECTURE.md#tsp-vxm-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "Positive-normal FP32 approximation work proxy: bit seed bits(y)=0x5f3759df-(bits(x)>>1) costs 2 (shift and subtraction; bit reinterpretation costs 0), then two iterations y=(0.5*y)*(3-x*y*y), each 4 MUL + 1 SUB, total 12. No fused-operation discount. No correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate rsqrt numerically, and is not native Ascend RSqrt instruction throughput or latency. Shares the Vector budget; memory and dependencies are separate. No independent SFU."
+              },
+              "transfers.l1_l0a": {
+                "value": 512,
+                "unit": "byte/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 16 * 32 = 512 INT8 bytes/cycle. One input fractal per cycle; omit fixed DMA latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "transfers.l1_l0b": {
+                "value": 512,
+                "unit": "byte/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 32 * 16 = 512 INT8 bytes/cycle. One input fractal per cycle; omit fixed DMA latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "transfers.l0c_ub": {
+                "value": 1024,
+                "unit": "byte/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 16 * 16 * 4 = 1024 INT32 bytes/cycle. One output fractal per cycle; omit fixed DMA latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "chip.architectural_cores": {
+                "value": 32,
+                "unit": "core",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (section 4.1.1, printed p109)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "32 Ascend-Max cores in original Ascend 910 compute die; architectural inventory, not available cores for every SKU."
+              },
+              "chip.l2_bytes": {
+                "value": 33554432,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=19 (On-chip Buffer 32MB)",
+                "version": "Huawei DaVinci presentation, 2020, PDF p19; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Source labels on-chip buffer 32 MB. Mapping it to shared L2 and interpreting MB as MiB remain assumptions. Execution uses all capacity, equally partitioned by architectural core count, for complete padded input panels; no runtime-reservation calibration."
+              },
+              "chip.hbm_physical_bytes": {
+                "value": 32000000000,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=20 (Memory Interface)",
+                "version": "Huawei DaVinci presentation, 2020, PDF p20; audited 2026-11-14 America/Los_Angeles; explicit decimal capacity assumption 2026-11-17",
+                "conditions": "Published 32 GB HBM Gen2 is interpreted as 32 * 10^9 bytes for this reference scenario. Explicit unit-normalization assumption, not a verified exact SKU capacity; not 32 GiB."
+              },
+              "chip.hbm_usable_bytes": {
+                "value": 32000000000,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "Model assumption: full reference HBM capacity available to prepacked padded A/B/C",
+                "version": "Huawei DaVinci presentation, 2020, PDF p20; audited 2026-11-14 America/Los_Angeles; explicit decimal capacity assumption 2026-11-17",
+                "conditions": "Assume usable HBM equals the configured physical capacity, with no runtime reservation, packing workspace or host offload. Reduce for a real runtime; padded A/B/C must coexist. Capacity is shared chip storage, not divided or multiplied by core count."
+              },
+              "chip.l2_bytes_per_cycle": {
+                "value": 3000,
+                "unit": "byte/cycle",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://www.old.hotchips.org/hc31/HC31_1.11_Huawei.Davinci.HengLiao_v4.0.pdf#page=10 (3 TB/s divided by 32 cores), #page=38 (per-core NoC ports) and #page=39 (4 TB/s L2 access); https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=8; ARCHITECTURE.md#ascend-l2-bandwidth",
+                "version": "Original Ascend 910; Huawei Hot Chips 2019 and DaVinci 2020 presentations; model assumption selected 2026-11-18 America/Los_Angeles",
+                "conditions": "User-selected whole-chip L2 bandwidth assumption: 3 TB/s = 3e12 byte/s (decimal), normalized by the 1 GHz reference core/model clock to 3000 byte/cycle. Not per-core, not normalized by the 2 GHz NoC clock, and not measured sustained throughput. The same 2019 presentation also reports 4 TB/s L2 access bandwidth; its relationship to 3 TB/s, including read/write accounting, is unresolved. No measured 75% efficiency is inferred. This fixed value must be explicitly renormalized if the reference clock changes while retaining 3 TB/s. Execution divides this chip rate equally by architectural core count. Input fills and reads share one L2 service; cold panel-LRU, output/oversize bypass and serial miss fetch/fill/read are explicit model policies, not measured cache behavior."
+              },
+              "chip.hbm_bandwidth_bytes_per_second": {
+                "value": 1200000000000,
+                "unit": "byte/s",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (section 4.1.1; also p114, section 4.1.3)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Published nominal aggregate HBM bandwidth, 1.2 TB/s decimal. Single-core payload service is equally partitioned by architectural core count. L2 misses and oversize bypass reads plus C output writes consume this shared service; controller and local DMA-port details are omitted."
+              }
+            },
+            "vector_execution_profile": {
+              "schema_version": 2,
+              "model": "vector_serial",
+              "profile_id": "vector_and_normalization_reference_v2",
+              "policies": {
+                "ascend": {
+                  "scope": "single_core",
+                  "path": "hbm_ub_bypass_l2",
+                  "schedule": "serial_tiles_and_stages",
+                  "tile_elements": 1024,
+                  "transfer_startup_cycles": 0,
+                  "compute_startup_cycles": 0,
+                  "status": "assumed",
+                  "source": "model-policy; ARCHITECTURE.md#vector-operators",
+                  "version": "vector-serial-v1",
+                  "conditions": "HBM 与 UB 同时预约的 DMA 取两端最小服务率。输入 DMA、UB 操作数读取、计算、UB 结果写入、导出 DMA 分阶段串行，L2 bypass。每次算子调用为冷启动。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+                },
+                "tpu": {
+                  "scope": "single_tensorcore",
+                  "path": "hbm_vmem_bypass_cmem",
+                  "schedule": "serial_tiles_and_stages",
+                  "tile_elements": 1024,
+                  "transfer_startup_cycles": 0,
+                  "compute_startup_cycles": 0,
+                  "status": "assumed",
+                  "source": "model-policy; ARCHITECTURE.md#vector-operators",
+                  "version": "vector-serial-v1",
+                  "conditions": "HBM 按 TensorCore 数均分，VMEM 为单核共享服务。输入 DMA、操作数读取、计算、结果写入、导出 DMA 分阶段串行；CMEM bypass。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+                },
+                "tsp": {
+                  "scope": "single_hem",
+                  "path": "resident_mem_stream_vxm",
+                  "schedule": "serial_tiles_and_stages",
+                  "tile_elements": 1024,
+                  "transfer_startup_cycles": 0,
+                  "compute_startup_cycles": 0,
+                  "status": "assumed",
+                  "source": "model-policy; ARCHITECTURE.md#vector-operators",
+                  "version": "vector-serial-v1",
+                  "conditions": "完整输入和输出驻留所选本侧 MEM。每个输入读取受 MEM 和输入 stream 共同约束；输出写回受 MEM 和输出 stream 共同约束。FP32/INT32 每元素 4 byte，stream 每块按完整宽度补齐，MEM 只计逻辑载荷。使用一个共享 VXM 任务预算，CIM 不复制预算。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+                }
+              },
+              "parameters": {
+                "ascend_ub_read_bpc": {
+                  "value": 256,
+                  "unit": "byte/cycle",
+                  "scope": "core",
+                  "status": "assumed",
+                  "source": "model-policy; ARCHITECTURE.md#vector-operators",
+                  "source_version": "vector-serial-v1",
+                  "conditions": "每周期 64 个 32-bit 字作为独立 UB 端口服务代理：64*4=256 B/cycle。参考现有 Vector 预算量级选择，不是实测 UB 带宽；数值固定，不随 compute budget 修改。读写分阶段串行，DMA 同时预约 HBM 和 UB。",
+                  "verification": "explicit_uncalibrated_model_assumption"
+                },
+                "ascend_ub_write_bpc": {
+                  "value": 256,
+                  "unit": "byte/cycle",
+                  "scope": "core",
+                  "status": "assumed",
+                  "source": "model-policy; ARCHITECTURE.md#vector-operators",
+                  "source_version": "vector-serial-v1",
+                  "conditions": "每周期 64 个 32-bit 字作为独立 UB 端口服务代理：64*4=256 B/cycle。参考现有 Vector 预算量级选择，不是实测 UB 带宽；数值固定，不随 compute budget 修改。读写分阶段串行，DMA 同时预约 HBM 和 UB。",
+                  "verification": "explicit_uncalibrated_model_assumption"
+                }
+              },
+              "composite": {
+                "schedule": "serial_rows_passes_tiles",
+                "reduction": "balanced_tile_tree_serial_merge",
+                "storage": "rmsnorm_reread_softmax_output_workspace",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                "version": "normalization-serial-v1",
+                "conditions": "Last-axis FP32. Serial rows, passes and tiles. Balanced binary reduction levels wait for predecessors; partials merge into one row state. Constants are implicit; one scalar read per tile broadcasts without extra shuffle work. RMSNorm rereads x and loads weight per row. Softmax stores exp in the output allocation, then normalizes it. No numerical accuracy or hardware-instruction claims.",
+                "parameters": {
+                  "fp32_sub_cost": {
+                    "value": 1,
+                    "unit": "equivalent_op/op",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "One scalar SUB modeled as one basic equivalent operation; shares native Vector/VXM budget, not calibrated.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  },
+                  "fp32_max_cost": {
+                    "value": 1,
+                    "unit": "equivalent_op/op",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "One pairwise MAX comparison/selection modeled as one equivalent operation; not calibrated.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  },
+                  "fp32_rcp_cost": {
+                    "value": 7,
+                    "unit": "equivalent_op/op",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "Algorithmic proxy: one seed-equivalent operation plus two Newton-style updates of two MUL and one SUB each: 1+2*3=7. Seed accuracy and numerical result are not modeled; not native reciprocal timing.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  },
+                  "reduction_round_cycles": {
+                    "value": 1,
+                    "unit": "cycle",
+                    "scope": "task",
+                    "status": "assumed",
+                    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+                    "source_version": "normalization-serial-v1",
+                    "conditions": "Minimum compute dependency interval per tree level or cross-tile binary merge. Total compute is max(weighted-work cycles, this value); memory and startup charged separately. Not a measured shuffle or lane-network latency.",
+                    "verification": "explicit_uncalibrated_model_assumption"
+                  }
+                }
+              }
+            },
+            "reference_ids": {},
+            "energy": {
+              "status": "not_evaluated",
+              "total_pj": null
+            },
+            "limitations": [
+              "Last-axis FP32 analytical blocks; no numeric values, masking, quantization or machine instructions.",
+              "SUB/MAX/RCP and reduction round dependency are uncalibrated policy assumptions sharing the native compute budget.",
+              "Scalar constants are implicit; broadcasts read one stored row scalar per tile with no materialized broadcast tensor or extra shuffle cost.",
+              "No cross-row reuse, overlap, cache, bank-conflict or cross-operator residency model."
+            ]
+          }
+        },
+        {
+          "id": "output_storage",
+          "operator": {
+            "kind": "storage_boundary",
+            "inputs": [
+              {
+                "name": "rmsnorm_int8.normalized",
+                "shape": [
+                  2,
+                  17
+                ],
+                "dtype": "FP32",
+                "numel": 34,
+                "logical_bytes": 136
+              }
+            ],
+            "outputs": [
+              {
+                "name": "output",
+                "shape": [
+                  2,
+                  17
+                ],
+                "dtype": "INT8",
+                "numel": 34,
+                "logical_bytes": 34
+              }
+            ],
+            "accumulation_dtype": "FP32",
+            "attributes": {}
+          },
+          "cycle_count": 9,
+          "latency_s": 9e-09,
+          "native_report": {
+            "schema_version": 1,
+            "model": "block_elementwise",
+            "mode": "timing",
+            "workload": {
+              "kind": "storage_boundary",
+              "inputs": [
+                {
+                  "name": "rmsnorm_int8.normalized",
+                  "shape": [
+                    2,
+                    17
+                  ],
+                  "dtype": "FP32",
+                  "numel": 34,
+                  "logical_bytes": 136
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "output",
+                  "shape": [
+                    2,
+                    17
+                  ],
+                  "dtype": "INT8",
+                  "numel": 34,
+                  "logical_bytes": 34
+                }
+              ],
+              "accumulation_dtype": "FP32",
+              "attributes": {}
+            },
+            "boundary": {
+              "scope": "single_core",
+              "start": "tensors_in_HBM",
+              "end": "output_in_HBM",
+              "cache_policy": "bypass_for_elementwise"
+            },
+            "execution_contract": {
+              "scope": "single_core",
+              "selected_tile_elements": 34,
+              "requested_tile_elements": 1024
+            },
+            "action_counts": {
+              "hbm_read_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "ub_dma_write_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "ub_read_bytes": {
+                "count": 136,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "ub_write_bytes": {
+                "count": 34,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "boundary_to_int8": {
+                "count": 34,
+                "unit": "element",
+                "scope": "single_core",
+                "basis": "modeled_internal"
+              },
+              "hbm_write_bytes": {
+                "count": 34,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              },
+              "ub_dma_read_bytes": {
+                "count": 34,
+                "unit": "byte",
+                "scope": "single_core",
+                "basis": "logical"
+              }
+            },
+            "counts": {
+              "hbm_read_bytes": 136,
+              "ub_dma_write_bytes": 136,
+              "ub_read_bytes": 136,
+              "ub_write_bytes": 34,
+              "boundary_to_int8": 34,
+              "hbm_write_bytes": 34,
+              "ub_dma_read_bytes": 34
+            },
+            "memory": {
+              "hbm": {
+                "scope": "chip",
+                "capacity_bytes": 32000000000,
+                "peak_bytes": 272
+              },
+              "ub": {
+                "scope": "core",
+                "capacity_bytes": 262144,
+                "allocated_bytes": 170,
+                "scratch_tile_bytes": 0
+              }
+            },
+            "timing": {
+              "status": "analytical_estimate",
+              "total_cycles": 9,
+              "time_ns": 9.0,
+              "required_parameters": [
+                "ascend_ub_read_bpc",
+                "ascend_ub_write_bpc",
+                "block.to_int8_cost",
+                "chip.architectural_cores",
+                "chip.hbm_bandwidth_bytes_per_second",
+                "clock_freq_ghz",
+                "vector.base_ops_per_cycle"
+              ],
+              "model": "serial_block_tile_stages",
+              "derived_services": {
+                "hbm_bpc": 37.5,
+                "local_read_bpc": 256.0,
+                "local_write_bpc": 256.0
+              },
+              "service_cycles": {
+                "status": "available",
+                "by_stage": {
+                  "load": 4,
+                  "read": 1,
+                  "compute": 2,
+                  "write": 1,
+                  "export": 1
+                },
+                "total_cycles": 9,
+                "semantics": "Sum of modeled stage service work; stages may overlap. Not elapsed time or a sum of resource busy cycles."
+              },
+              "elapsed_cycles": {
+                "status": "available",
+                "by_stage": {
+                  "load": 4,
+                  "read": 1,
+                  "compute": 2,
+                  "write": 1,
+                  "export": 1
+                },
+                "total_cycles": 9,
+                "semantics": "Disjoint elapsed-time partition; available stages sum to timing.total_cycles. No overlap is charged twice."
+              }
+            },
+            "work_counts": {
+              "logical": {
+                "operations": 0,
+                "operation_counts": {},
+                "output_bytes": 34
+              },
+              "issued": {
+                "operations": null,
+                "status": "not_modeled"
+              },
+              "internal": {
+                "boundary_elements": {
+                  "boundary_to_int8": 34
+                }
+              }
+            },
+            "schedule": {
+              "tile_groups": [
+                {
+                  "elements": 34,
+                  "repetitions": 1,
+                  "stages": [
+                    {
+                      "stage": "load_input_0",
+                      "bytes": 136,
+                      "cycles": 4
+                    },
+                    {
+                      "stage": "output_to_int8",
+                      "read_bytes": [
+                        136
+                      ],
+                      "write_bytes": [
+                        34
+                      ],
+                      "operation": "boundary_to_int8",
+                      "elements": 34,
+                      "cycles": 4
+                    },
+                    {
+                      "stage": "export_output",
+                      "bytes": 34,
+                      "cycles": 1
+                    }
+                  ]
+                }
+              ],
+              "scratch_policy": "Disjoint cast inputs, activation workspace and result; tile buffers reused only after export."
+            },
+            "parameter_provenance": {
+              "clock_freq_ghz": {
+                "value": 1,
+                "unit": "GHz",
+                "scope": "core",
+                "status": "documented",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5, printed p109)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Published Ascend-Max reference frequency, 1 GHz; not measured target-SKU DVFS. NoC link clock is separately 2 GHz."
+              },
+              "memory.L1.physical_bytes": {
+                "value": 1048576,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 1 MB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.L1.usable_bytes": {
+                "value": 1048576,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "memory.L0A.physical_bytes": {
+                "value": 65536,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 64 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.L0A.usable_bytes": {
+                "value": 65536,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "memory.L0B.physical_bytes": {
+                "value": 65536,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 64 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.L0B.usable_bytes": {
+                "value": 65536,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "memory.L0C.physical_bytes": {
+                "value": 262144,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 256 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.L0C.usable_bytes": {
+                "value": 262144,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "memory.UB.physical_bytes": {
+                "value": 262144,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Original Ascend-Max diagram reports 256 KB per core. This profile interprets KB/MB as binary KiB/MiB; exact byte normalization remains an explicit assumption. Physical inventory, not runtime-allocatable capacity."
+              },
+              "memory.UB.usable_bytes": {
+                "value": 262144,
+                "unit": "byte",
+                "scope": "core",
+                "status": "assumed",
+                "source": "Model assumption: no compiler/runtime reservation in this reference scenario",
+                "version": "Original Ascend 910; reference revision 2026-11-14",
+                "conditions": "Reduce to actual available capacity for a compiled kernel"
+              },
+              "cube.m": {
+                "value": 16,
+                "unit": "element",
+                "scope": "core",
+                "status": "documented",
+                "source": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/800alpha003/apiref/ascendcopapi/atlasascendc_api_07_0249.html",
+                "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "INT8 input fractal; INT8 x INT8 -> INT32 support for Atlas training series; geometry is not a cycles-per-fractal guarantee."
+              },
+              "cube.k": {
+                "value": 32,
+                "unit": "element",
+                "scope": "core",
+                "status": "documented",
+                "source": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/800alpha003/apiref/ascendcopapi/atlasascendc_api_07_0249.html",
+                "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "INT8 input fractal; INT8 x INT8 -> INT32 support for Atlas training series; geometry is not a cycles-per-fractal guarantee."
+              },
+              "cube.n": {
+                "value": 16,
+                "unit": "element",
+                "scope": "core",
+                "status": "documented",
+                "source": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/800alpha003/apiref/ascendcopapi/atlasascendc_api_07_0249.html",
+                "version": "CANN Community Edition 8.0.0 alpha003, Mmad, function description and Table 3; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "INT32 result fractal; INT8 x INT8 -> INT32 support for Atlas training series; geometry is not a cycles-per-fractal guarantee."
+              },
+              "cube.macs_per_cycle": {
+                "value": 8192,
+                "unit": "MAC/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=7; https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 16 * 32 * 16 * 1 Cube = 8192 MAC/cycle. Assume one INT8 fractal including accumulation per Cube per cycle; omit fixed startup/fill latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "vector.base_ops_per_cycle": {
+                "value": 64,
+                "unit": "op/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (Table 5); ARCHITECTURE.md#ascend-vector-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "Published vector width is 256 bytes. Assume one 256-byte group of 32-bit scalar-element basic operations per cycle: 256/4=64. Width alone does not establish throughput; one group/cycle is an uncalibrated model assumption, not native instruction latency or measured sustained performance. All supported operations share this fixed per-core budget; do not multiply it by Vector units or architectural core count. Transfers and instruction/tail overhead are omitted."
+              },
+              "vector.int32_add_cost": {
+                "value": 1,
+                "unit": "equivalent_op/op",
+                "scope": "core",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#ascend-vector-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "One scalar-element INT32 add consumes one equivalent basic operation. Standalone service only: GEMM K accumulation is already included in Cube MACs and does not execute a separate Vector add."
+              },
+              "vector.fp32_basic_op_cost": {
+                "value": 1,
+                "unit": "equivalent_op/op",
+                "scope": "core",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#ascend-vector-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "One scalar-element FP32 ADD or MUL consumes one equivalent operation. Same work convention as TSP; not measured parity with INT32. FMA, DIV, casts, reductions and complete activation operators are not implicitly supported."
+              },
+              "vector.fp32_exp_cost": {
+                "value": 15,
+                "unit": "equivalent_op/op",
+                "scope": "core",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#ascend-vector-service; ARCHITECTURE.md#tsp-vxm-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "TSP-compatible algorithmic proxy: k=round(x*log2(e)), r=x-k*ln(2) costs 4 equivalent operations; degree-5 Taylor polynomial in Horner form costs 5 MUL + 5 ADD; exponent scaling costs 1, total 15. Round/scaling each count as one equivalent operation; no FMA discount. Reference domain finite x in [-80,0]. Work accounting only, no numerical evaluation or correctly-rounded FP32 accuracy claim. Not native Ascend Exp instruction throughput/latency. Shares Vector budget; no independent SFU."
+              },
+              "vector.fp32_rsqrt_cost": {
+                "value": 12,
+                "unit": "equivalent_op/op",
+                "scope": "core",
+                "status": "assumed",
+                "source": "model-policy; ARCHITECTURE.md#ascend-vector-service; ARCHITECTURE.md#tsp-vxm-service",
+                "version": "Ascend Vector algorithmic reference v1; 2026-11-18 America/Los_Angeles",
+                "conditions": "Positive-normal FP32 approximation work proxy: bit seed bits(y)=0x5f3759df-(bits(x)>>1) costs 2 (shift and subtraction; bit reinterpretation costs 0), then two iterations y=(0.5*y)*(3-x*y*y), each 4 MUL + 1 SUB, total 12. No fused-operation discount. No correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate rsqrt numerically, and is not native Ascend RSqrt instruction throughput or latency. Shares the Vector budget; memory and dependencies are separate. No independent SFU."
+              },
+              "transfers.l1_l0a": {
+                "value": 512,
+                "unit": "byte/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 16 * 32 = 512 INT8 bytes/cycle. One input fractal per cycle; omit fixed DMA latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "transfers.l1_l0b": {
+                "value": 512,
+                "unit": "byte/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 32 * 16 = 512 INT8 bytes/cycle. One input fractal per cycle; omit fixed DMA latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "transfers.l0c_ub": {
+                "value": 1024,
+                "unit": "byte/cycle",
+                "scope": "core",
+                "status": "assumed",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9), #page=113 (Table 5), #page=114 (section 4.1.3)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles; model assumption made explicit in configuration 2026-11-16",
+                "conditions": "Method: 16 * 16 * 4 = 1024 INT32 bytes/cycle. One output fractal per cycle; omit fixed DMA latency. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+              },
+              "chip.architectural_cores": {
+                "value": 32,
+                "unit": "core",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (section 4.1.1, printed p109)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "32 Ascend-Max cores in original Ascend 910 compute die; architectural inventory, not available cores for every SKU."
+              },
+              "chip.l2_bytes": {
+                "value": 33554432,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=19 (On-chip Buffer 32MB)",
+                "version": "Huawei DaVinci presentation, 2020, PDF p19; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Source labels on-chip buffer 32 MB. Mapping it to shared L2 and interpreting MB as MiB remain assumptions. Execution uses all capacity, equally partitioned by architectural core count, for complete padded input panels; no runtime-reservation calibration."
+              },
+              "chip.hbm_physical_bytes": {
+                "value": 32000000000,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=20 (Memory Interface)",
+                "version": "Huawei DaVinci presentation, 2020, PDF p20; audited 2026-11-14 America/Los_Angeles; explicit decimal capacity assumption 2026-11-17",
+                "conditions": "Published 32 GB HBM Gen2 is interpreted as 32 * 10^9 bytes for this reference scenario. Explicit unit-normalization assumption, not a verified exact SKU capacity; not 32 GiB."
+              },
+              "chip.hbm_usable_bytes": {
+                "value": 32000000000,
+                "unit": "byte",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "Model assumption: full reference HBM capacity available to prepacked padded A/B/C",
+                "version": "Huawei DaVinci presentation, 2020, PDF p20; audited 2026-11-14 America/Los_Angeles; explicit decimal capacity assumption 2026-11-17",
+                "conditions": "Assume usable HBM equals the configured physical capacity, with no runtime reservation, packing workspace or host offload. Reduce for a real runtime; padded A/B/C must coexist. Capacity is shared chip storage, not divided or multiplied by core count."
+              },
+              "chip.l2_bytes_per_cycle": {
+                "value": 3000,
+                "unit": "byte/cycle",
+                "scope": "chip",
+                "status": "assumed",
+                "source": "https://www.old.hotchips.org/hc31/HC31_1.11_Huawei.Davinci.HengLiao_v4.0.pdf#page=10 (3 TB/s divided by 32 cores), #page=38 (per-core NoC ports) and #page=39 (4 TB/s L2 access); https://www.cmc.ca/wp-content/uploads/2020/03/Zhan-Xu-Huawei.pdf#page=8; ARCHITECTURE.md#ascend-l2-bandwidth",
+                "version": "Original Ascend 910; Huawei Hot Chips 2019 and DaVinci 2020 presentations; model assumption selected 2026-11-18 America/Los_Angeles",
+                "conditions": "User-selected whole-chip L2 bandwidth assumption: 3 TB/s = 3e12 byte/s (decimal), normalized by the 1 GHz reference core/model clock to 3000 byte/cycle. Not per-core, not normalized by the 2 GHz NoC clock, and not measured sustained throughput. The same 2019 presentation also reports 4 TB/s L2 access bandwidth; its relationship to 3 TB/s, including read/write accounting, is unresolved. No measured 75% efficiency is inferred. This fixed value must be explicitly renormalized if the reference clock changes while retaining 3 TB/s. Execution divides this chip rate equally by architectural core count. Input fills and reads share one L2 service; cold panel-LRU, output/oversize bypass and serial miss fetch/fill/read are explicit model policies, not measured cache behavior."
+              },
+              "chip.hbm_bandwidth_bytes_per_second": {
+                "value": 1200000000000,
+                "unit": "byte/s",
+                "scope": "chip",
+                "status": "documented",
+                "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=113 (section 4.1.1; also p114, section 4.1.3)",
+                "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+                "conditions": "Published nominal aggregate HBM bandwidth, 1.2 TB/s decimal. Single-core payload service is equally partitioned by architectural core count. L2 misses and oversize bypass reads plus C output writes consume this shared service; controller and local DMA-port details are omitted."
+              }
+            },
+            "reference_ids": {
+              "hardware": null
+            }
+          }
+        }
+      ]
+    },
+    "block_execution_profile": {
+      "schema_version": 1,
+      "profile_id": "materialized_decode_blocks_v1",
+      "schedule": "serial_materialized_nodes",
+      "storage": "persistent_inputs_reused_intermediates",
+      "layout": "symbolic_padded_views",
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#decode-blocks",
+      "conditions": "Single core/TensorCore/hemisphere. Native GEMM padding views share symbolic backing allocations. INT8 storage and FP32 nonlinear work; materialized outputs. No physical layout, quantization instruction or numerical accuracy claim.",
+      "parameters": {
+        "to_fp32_cost": {
+          "value": 1,
+          "unit": "equivalent_op/element",
+          "scope": "task",
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#decode-blocks",
+          "source_version": "materialized-block-v1",
+          "conditions": "Coarse storage-boundary conversion work; no standalone instruction model.",
+          "verification": "explicit_uncalibrated_model_assumption"
+        },
+        "to_int8_cost": {
+          "value": 3,
+          "unit": "equivalent_op/element",
+          "scope": "task",
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#decode-blocks",
+          "source_version": "materialized-block-v1",
+          "conditions": "Coarse scale/round/clamp work proxy; no numerical quantization or standalone instruction model.",
+          "verification": "explicit_uncalibrated_model_assumption"
+        },
+        "fp32_rcp_cost": {
+          "value": 7,
+          "unit": "equivalent_op/element",
+          "scope": "task",
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#decode-blocks",
+          "source_version": "materialized-block-v1",
+          "conditions": "Reciprocal work proxy on the shared Vector/VXM budget.",
+          "verification": "explicit_uncalibrated_model_assumption"
+        }
+      }
+    },
+    "vector_execution_profile": {
+      "schema_version": 2,
+      "model": "vector_serial",
+      "profile_id": "vector_and_normalization_reference_v2",
+      "policies": {
+        "ascend": {
+          "scope": "single_core",
+          "path": "hbm_ub_bypass_l2",
+          "schedule": "serial_tiles_and_stages",
+          "tile_elements": 1024,
+          "transfer_startup_cycles": 0,
+          "compute_startup_cycles": 0,
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#vector-operators",
+          "version": "vector-serial-v1",
+          "conditions": "HBM 与 UB 同时预约的 DMA 取两端最小服务率。输入 DMA、UB 操作数读取、计算、UB 结果写入、导出 DMA 分阶段串行，L2 bypass。每次算子调用为冷启动。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+        },
+        "tpu": {
+          "scope": "single_tensorcore",
+          "path": "hbm_vmem_bypass_cmem",
+          "schedule": "serial_tiles_and_stages",
+          "tile_elements": 1024,
+          "transfer_startup_cycles": 0,
+          "compute_startup_cycles": 0,
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#vector-operators",
+          "version": "vector-serial-v1",
+          "conditions": "HBM 按 TensorCore 数均分，VMEM 为单核共享服务。输入 DMA、操作数读取、计算、结果写入、导出 DMA 分阶段串行；CMEM bypass。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+        },
+        "tsp": {
+          "scope": "single_hem",
+          "path": "resident_mem_stream_vxm",
+          "schedule": "serial_tiles_and_stages",
+          "tile_elements": 1024,
+          "transfer_startup_cycles": 0,
+          "compute_startup_cycles": 0,
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#vector-operators",
+          "version": "vector-serial-v1",
+          "conditions": "完整输入和输出驻留所选本侧 MEM。每个输入读取受 MEM 和输入 stream 共同约束；输出写回受 MEM 和输出 stream 共同约束。FP32/INT32 每元素 4 byte，stream 每块按完整宽度补齐，MEM 只计逻辑载荷。使用一个共享 VXM 任务预算，CIM 不复制预算。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+        }
+      },
+      "parameters": {
+        "ascend_ub_read_bpc": {
+          "value": 256,
+          "unit": "byte/cycle",
+          "scope": "core",
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#vector-operators",
+          "source_version": "vector-serial-v1",
+          "conditions": "每周期 64 个 32-bit 字作为独立 UB 端口服务代理：64*4=256 B/cycle。参考现有 Vector 预算量级选择，不是实测 UB 带宽；数值固定，不随 compute budget 修改。读写分阶段串行，DMA 同时预约 HBM 和 UB。",
+          "verification": "explicit_uncalibrated_model_assumption"
+        },
+        "ascend_ub_write_bpc": {
+          "value": 256,
+          "unit": "byte/cycle",
+          "scope": "core",
+          "status": "assumed",
+          "source": "model-policy; ARCHITECTURE.md#vector-operators",
+          "source_version": "vector-serial-v1",
+          "conditions": "每周期 64 个 32-bit 字作为独立 UB 端口服务代理：64*4=256 B/cycle。参考现有 Vector 预算量级选择，不是实测 UB 带宽；数值固定，不随 compute budget 修改。读写分阶段串行，DMA 同时预约 HBM 和 UB。",
+          "verification": "explicit_uncalibrated_model_assumption"
+        }
+      },
+      "composite": {
+        "schedule": "serial_rows_passes_tiles",
+        "reduction": "balanced_tile_tree_serial_merge",
+        "storage": "rmsnorm_reread_softmax_output_workspace",
+        "status": "assumed",
+        "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+        "version": "normalization-serial-v1",
+        "conditions": "Last-axis FP32. Serial rows, passes and tiles. Balanced binary reduction levels wait for predecessors; partials merge into one row state. Constants are implicit; one scalar read per tile broadcasts without extra shuffle work. RMSNorm rereads x and loads weight per row. Softmax stores exp in the output allocation, then normalizes it. No numerical accuracy or hardware-instruction claims.",
+        "parameters": {
+          "fp32_sub_cost": {
+            "value": 1,
+            "unit": "equivalent_op/op",
+            "scope": "task",
+            "status": "assumed",
+            "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+            "source_version": "normalization-serial-v1",
+            "conditions": "One scalar SUB modeled as one basic equivalent operation; shares native Vector/VXM budget, not calibrated.",
+            "verification": "explicit_uncalibrated_model_assumption"
+          },
+          "fp32_max_cost": {
+            "value": 1,
+            "unit": "equivalent_op/op",
+            "scope": "task",
+            "status": "assumed",
+            "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+            "source_version": "normalization-serial-v1",
+            "conditions": "One pairwise MAX comparison/selection modeled as one equivalent operation; not calibrated.",
+            "verification": "explicit_uncalibrated_model_assumption"
+          },
+          "fp32_rcp_cost": {
+            "value": 7,
+            "unit": "equivalent_op/op",
+            "scope": "task",
+            "status": "assumed",
+            "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+            "source_version": "normalization-serial-v1",
+            "conditions": "Algorithmic proxy: one seed-equivalent operation plus two Newton-style updates of two MUL and one SUB each: 1+2*3=7. Seed accuracy and numerical result are not modeled; not native reciprocal timing.",
+            "verification": "explicit_uncalibrated_model_assumption"
+          },
+          "reduction_round_cycles": {
+            "value": 1,
+            "unit": "cycle",
+            "scope": "task",
+            "status": "assumed",
+            "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+            "source_version": "normalization-serial-v1",
+            "conditions": "Minimum compute dependency interval per tree level or cross-tile binary merge. Total compute is max(weighted-work cycles, this value); memory and startup charged separately. Not a measured shuffle or lane-network latency.",
+            "verification": "explicit_uncalibrated_model_assumption"
+          }
+        }
+      }
+    },
+    "limitations": [
+      "One core/TensorCore/hemisphere; no chip partition, communication or inter-node overlap.",
+      "All nodes materialize outputs; native GEMM cold-cache policies retained; no extra edge-transfer charge.",
+      "Symbolic padded views share one allocation per tensor; layout conversion instructions are not modeled.",
+      "INT8 boundaries use explicit uncalibrated work proxies, without scales, saturation values or numerical accuracy claims.",
+      "Inputs persist; intermediate storage releases after its last consumer. Local buffers are reused between nodes."
+    ]
+  },
+  "io_contract": {
+    "schema_version": 1,
+    "inputs": [
+      {
+        "name": "x",
+        "shape": [
+          2,
+          17
+        ],
+        "dtype": "INT8",
+        "numel": 34,
+        "logical_bytes": 34,
+        "location": {
+          "memory": "HBM",
+          "architecture": "ascend",
+          "scope": "chip",
+          "hemisphere": null,
+          "physical_device": null
+        },
+        "layout": "symbolic_padded_views"
+      },
+      {
+        "name": "weight",
+        "shape": [
+          17
+        ],
+        "dtype": "FP32",
+        "numel": 17,
+        "logical_bytes": 68,
+        "location": {
+          "memory": "HBM",
+          "architecture": "ascend",
+          "scope": "chip",
+          "hemisphere": null,
+          "physical_device": null
+        },
+        "layout": "symbolic_padded_views"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "shape": [
+          2,
+          17
+        ],
+        "dtype": "INT8",
+        "numel": 34,
+        "logical_bytes": 34,
+        "location": {
+          "memory": "HBM",
+          "architecture": "ascend",
+          "scope": "chip",
+          "hemisphere": null,
+          "physical_device": null
+        },
+        "layout": "symbolic_padded_views"
+      }
+    ],
+    "name_scope": "Within one operator call; graph callers must qualify names by node identity.",
+    "intermediate_residency": "No UB/VMEM/register retention across operator calls is promised.",
+    "conversion": "No implicit cast, dequantization or requantization; stored dtype is binding.",
+    "traffic": "Standalone actions already include each block's boundary accesses; connections do not remove them."
+  },
+  "action_metadata": {
+    "input_storage.hbm_read_bytes": {
+      "source": "#/native_report/action_counts/input_storage.hbm_read_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "input_storage.ub_dma_write_bytes": {
+      "source": "#/native_report/action_counts/input_storage.ub_dma_write_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "input_storage.ub_read_bytes": {
+      "source": "#/native_report/action_counts/input_storage.ub_read_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "input_storage.ub_write_bytes": {
+      "source": "#/native_report/action_counts/input_storage.ub_write_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "input_storage.boundary_to_fp32": {
+      "source": "#/native_report/action_counts/input_storage.boundary_to_fp32",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "input_storage.hbm_write_bytes": {
+      "source": "#/native_report/action_counts/input_storage.hbm_write_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "input_storage.ub_dma_read_bytes": {
+      "source": "#/native_report/action_counts/input_storage.ub_dma_read_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "rmsnorm.hbm_read_bytes": {
+      "source": "#/native_report/action_counts/rmsnorm.hbm_read_bytes",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.ub_dma_write_bytes": {
+      "source": "#/native_report/action_counts/rmsnorm.ub_dma_write_bytes",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.ub_read_bytes": {
+      "source": "#/native_report/action_counts/rmsnorm.ub_read_bytes",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.ub_write_bytes": {
+      "source": "#/native_report/action_counts/rmsnorm.ub_write_bytes",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.fp32_mul": {
+      "source": "#/native_report/action_counts/rmsnorm.fp32_mul",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.fp32_add": {
+      "source": "#/native_report/action_counts/rmsnorm.fp32_add",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.fp32_rsqrt": {
+      "source": "#/native_report/action_counts/rmsnorm.fp32_rsqrt",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.hbm_write_bytes": {
+      "source": "#/native_report/action_counts/rmsnorm.hbm_write_bytes",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "rmsnorm.ub_dma_read_bytes": {
+      "source": "#/native_report/action_counts/rmsnorm.ub_dma_read_bytes",
+      "source_basis": "Logical tensor work and accesses; stream payload rounded per access; no physical transaction claim",
+      "summarizes": []
+    },
+    "output_storage.hbm_read_bytes": {
+      "source": "#/native_report/action_counts/output_storage.hbm_read_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "output_storage.ub_dma_write_bytes": {
+      "source": "#/native_report/action_counts/output_storage.ub_dma_write_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "output_storage.ub_read_bytes": {
+      "source": "#/native_report/action_counts/output_storage.ub_read_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "output_storage.ub_write_bytes": {
+      "source": "#/native_report/action_counts/output_storage.ub_write_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "output_storage.boundary_to_int8": {
+      "source": "#/native_report/action_counts/output_storage.boundary_to_int8",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "output_storage.hbm_write_bytes": {
+      "source": "#/native_report/action_counts/output_storage.hbm_write_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    },
+    "output_storage.ub_dma_read_bytes": {
+      "source": "#/native_report/action_counts/output_storage.ub_dma_read_bytes",
+      "source_basis": "Serial materialized block stages; coarse storage-boundary work, not ISA instructions",
+      "summarizes": []
+    }
+  }
+}

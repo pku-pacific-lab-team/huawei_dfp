@@ -1,0 +1,27 @@
+[Operator] tpu attention_output_projection (context[2, 4, 1, 7]:INT8, weight[28, 17]:INT8) -> INT8
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_tensorcore; mode=count
+[Memory] cmem: 532 / 67108864 B (single_tensorcore)
+[Memory] vmem: 1200 / 16777216 B (tensorcore)
+[Memory] hbm: 702 / 34359738368 B (chip)
+[Action] projection.matrix_mac: 952 MAC (logical, action)
+[Action] projection.hbm_read_bytes: 532 byte (logical, action)
+[Action] projection.hbm_write_bytes: 136 byte (logical, action)
+[Action] projection.cmem_write_bytes: 532 byte (logical, action)
+[Action] projection.cmem_read_bytes: 532 byte (logical, action)
+[Action] projection.vmem_input_write_bytes: 532 byte (logical, action)
+[Action] projection.vmem_input_read_bytes: 532 byte (logical, action)
+[Action] projection.vmem_psum_read_bytes: 0 byte (logical, action)
+[Action] projection.vmem_psum_write_bytes: 0 byte (logical, action)
+[Action] projection.vmem_final_write_bytes: 136 byte (logical, action)
+[Action] projection.vmem_export_read_bytes: 136 byte (logical, action)
+[Action] output_storage.hbm_read_bytes: 136 byte (logical, action)
+[Action] output_storage.vmem_dma_write_bytes: 136 byte (logical, action)
+[Action] output_storage.vmem_read_bytes: 272 byte (logical, action)
+[Action] output_storage.vmem_write_bytes: 170 byte (logical, action)
+[Action] output_storage.boundary_to_fp32: 34 element (modeled_internal, action)
+[Action] output_storage.boundary_to_int8: 34 element (modeled_internal, action)
+[Action] output_storage.hbm_write_bytes: 34 byte (logical, action)
+[Action] output_storage.vmem_dma_read_bytes: 34 byte (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-modxl3h_\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-modxl3h_\report.json
