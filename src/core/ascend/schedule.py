@@ -51,9 +51,8 @@ class Schedule:
         self.queue_tail[queue] = index
         return index
 
-    def hold(self, buffer, slot, size, acquire, release):
-        self.lifetimes.append({"buffer": buffer, "slot": slot, "bytes": size,
-                               "acquire_task": acquire, "release_task": release})
+    def hold(self, buffer, slot, size, acquire, *releases):
+        self.lifetimes.append((buffer, slot, size, acquire, releases))
 
     def run(self, trace=False):
         count = len(self.tasks)
@@ -96,12 +95,15 @@ class Schedule:
         total = max(ends, default=0)
         live_changes = {}
         lifetimes = []
-        for hold in self.lifetimes:
-            start, end = starts[hold["acquire_task"]], ends[hold["release_task"]]
-            changes = live_changes.setdefault(hold["buffer"], [])
-            changes.extend(((start, hold["bytes"]), (end, -hold["bytes"])))
+        for buffer, slot, size, acquire, releases in self.lifetimes:
+            release = max(releases, key=ends.__getitem__)
+            start, end = starts[acquire], ends[release]
+            changes = live_changes.setdefault(buffer, [])
+            changes.extend(((start, size), (end, -size)))
             if trace:
-                lifetimes.append({**hold, "start_cycle": start, "end_cycle": end})
+                lifetimes.append({"buffer": buffer, "slot": slot, "bytes": size,
+                                  "acquire_task": acquire, "release_task": release,
+                                  "start_cycle": start, "end_cycle": end})
         peaks = {}
         for buffer, changes in live_changes.items():
             live = peak = 0

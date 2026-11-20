@@ -62,6 +62,18 @@ class HemisphereTest(unittest.TestCase):
         self.assertIsNone(report["energy"]["total_pj"])
         self.assertIsNone(report["area"]["total_mm2"])
 
+    def test_tail_useful_macs_are_logical_not_internal_actions(self):
+        report = self.sim.simulate(1, 1, 1)
+        counts, actions, work = report["counts"], report["action_counts"], report["work_counts"]
+        self.assertEqual(counts["useful_mac"], 1)
+        self.assertEqual(counts["issued_mac"], 512)
+        self.assertEqual(work["logical"]["operations"], 2)
+        self.assertEqual(work["issued"]["operations"], 1024)
+        self.assertEqual(actions["useful_mac"]["scope"], "logical_gemm")
+        self.assertEqual(actions["issued_mac"]["scope"], "sum_of_macro_actions")
+        self.assertNotIn("useful_mac", work["internal"]["action_references"])
+        self.assertIn("issued_mac", work["internal"]["action_references"])
+
     def test_invalid_inputs_and_removed_selection_arguments_are_rejected(self):
         for kwargs in ({"scope": "single_cluster"}, {"scope": "single_hem"},
                        {"scope": "chip"}, {"plane": 0}, {"cluster": 0}):

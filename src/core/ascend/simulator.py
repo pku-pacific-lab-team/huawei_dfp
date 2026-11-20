@@ -49,7 +49,8 @@ class AscendSimulator:
         cache = PanelCache(spec.l2_capacity())
         input_tail = None
         allocation = buffer_slots(plan, spec.capacities, buffers)
-        released = {name: [None] * entry["slots"] for name, entry in allocation.items()}
+        released = {name: [None] * entry["slots"] for name, entry in allocation.items() if name != "L1"}
+        l1_readers = [()] * allocation["L1"]["slots"]
         schedule = Schedule(execution["rules"]["route_resources"]) if timed else None
         stages = {r: {"bytes": 0, "transfers": 0, "cycles": 0 if timed else None} for r in ROUTES}
         peak = dict.fromkeys(BUFFERS, 0)
@@ -65,13 +66,13 @@ class AscendSimulator:
                 stages[route]["cycles"] += service
                 return schedule.add(route, service, dependencies, bytes=size, **coordinates)
 
-        def load_input(key, size, dependency, **coordinates):
+        def load_input(key, size, slot_readers, **coordinates):
             nonlocal input_tail
             state = cache.access(key, size)
             coords = {**coordinates, "cache_status": state, "cache_key": list(key)}
             # Program-order completion makes logical LRU decisions match the
             # timed cache state, even if custom queue names are configured.
-            dependencies = [dependency, input_tail]
+            dependencies = [*slot_readers, input_tail]
             if state == "bypass":
                 loaded = transfer("hbm_to_l1", size, dependencies, **coords)
             else:
@@ -100,8 +101,8 @@ class AscendSimulator:
                     peak["L1"] = max(peak["L1"], (m + n) * panel)
                     l1_slot = panels % allocation["L1"]["slots"]
                     coords = {"tile": tile_id, "panel": panels}
-                    load_a = load_input(("A", mi, ki, m, panel), m * panel, released["L1"][l1_slot], operand="A", **coords)
-                    load_b = load_input(("B", ki, ni, panel, n), panel * n, released["L1"][l1_slot], operand="B", **coords)
+                    load_a = load_input(("A", mi, ki, m, panel), m * panel, l1_readers[l1_slot], operand="A", **coords)
+                    load_b = load_input(("B", ki, ni, panel, n), panel * n, l1_readers[l1_slot], operand="B", **coords)
                     for kk in range(0, panel, plan.k):
                         k = min(plan.k, panel - kk)
                         peak["L0A"] = max(peak["L0A"], m * k)
@@ -123,10 +124,9 @@ class AscendSimulator:
                             schedule.hold("L0B", b_slot, k * n, b, last_compute)
                         released["L0A"][a_slot] = released["L0B"][b_slot] = last_compute
                         compute_blocks += 1
-                    # MTE1 FIFO makes the last B copy the last reader of this panel.
-                    released["L1"][l1_slot] = b
                     if timed:
-                        schedule.hold("L1", l1_slot, (m + n) * panel, load_a, b)
+                        l1_readers[l1_slot] = (a, b)
+                        schedule.hold("L1", l1_slot, (m + n) * panel, load_a, *l1_readers[l1_slot])
                     panels += 1
                 for offset in range(0, 4 * m * n, plan.ub_chunk_bytes):
                     # 已完成全部 K 累加，才分段经 UB 导出；不会每个 K 块都写回 C。
@@ -236,7 +236,7 @@ class AscendSimulator:
                 assumptions=[
                     "Configured Cube/local/L2 services retain provenance. HBM rate is derived from bandwidth, core count and clock; L2 capacity and byte/cycle rate are equally partitioned. Required unknown inputs fail.",
                     "HBM fetch/output/bypass share one allocated service; L2 fill/read share another. Cold panel misses fetch, fill, then read serially. Input requests complete in program order; compute/output may overlap. Clean input eviction has no writeback; C bypasses L2.",
-                    "MTE1 serializes A/B copies. Fixed buffer slots are released after their last reader; L0C holds the entire K reduction.",
+                    "A/B copies share MTE1 by default. L1 slots are released after both operands' last reads; L0C holds the entire K reduction.",
                     "Zero configured startup allowances omit uncalibrated fixed latency; each modeled transfer charges its configured allowance. The model is not a calibrated physical upper/lower bound.",
                     "Assumed service values remain assumed in hardware provenance and derived specification peaks; missing required services fail."])
             attach_timing_breakdowns(result["timing"],

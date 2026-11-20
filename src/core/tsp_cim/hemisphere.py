@@ -132,7 +132,7 @@ def simulate_hemisphere(spec, M, K, N, order, *, mode, hemisphere, tile_m,
         if name in {"tiles", "useful_ops", "executed_padded_ops", "logical_output_bytes"}:
             continue
         shared = name.startswith(("mem_", "activation_stream", "psum_stream", "write_stream"))
-        logical = name.startswith(("logical_", "cross_"))
+        logical = name == "useful_mac" or name.startswith(("logical_", "cross_"))
         actions[name] = {"count": count, "unit": "byte" if name.endswith("bytes") else
             "MAC" if name.endswith("mac") else "add" if name.endswith("adds") else units.get(name,"count"),
             "scope": "single_hem" if shared else "logical_gemm" if logical else "sum_of_macro_actions",

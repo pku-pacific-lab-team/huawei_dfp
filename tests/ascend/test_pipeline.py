@@ -85,6 +85,30 @@ class PipelineTest(unittest.TestCase):
         for key in ("counts", "action_counts", "stages"):
             self.assertEqual(single[key], double[key])
 
+    def test_l1_slot_waits_for_both_operand_queues(self):
+        for slow_route in ("l1_l0a", "l1_l0b"):
+            with self.subTest(slow_route=slow_route):
+                cfg = hardware_config()
+                cfg["execution"]["rules"]["route_resources"]["l1_l0b"] = ["mte1_b"]
+                cfg["transfers"][slow_route]["value"] = 1
+                report = AscendSimulator(AscendSpec(cfg)).simulate(
+                    workload(16, 128, 16), "timing", (16, 32, 16), 64, buffers=1, trace=True)
+                schedule = report["timing"]["schedule"]
+                events = schedule["events"]
+                readers = [event for event in events if event.get("panel") == 0
+                           and event["stage"] in {"l1_l0a", "l1_l0b"}]
+                self.assertEqual(len(readers), 4)
+                last_read = max(readers, key=lambda event: event["end_cycle"])
+                self.assertEqual(last_read["stage"], slow_route)
+                next_writes = [event for event in events if event.get("panel") == 1
+                               and event["stage"] in {"hbm_to_l1", "l2_to_l1"}]
+                self.assertEqual(len(next_writes), 2)
+                self.assertLessEqual(last_read["end_cycle"], min(event["start_cycle"] for event in next_writes))
+                first_lifetime = next(hold for hold in schedule["buffer_lifetimes"] if hold["buffer"] == "L1")
+                self.assertEqual(first_lifetime["end_cycle"], last_read["end_cycle"])
+                self.assertEqual(events[first_lifetime["release_task"]], last_read)
+                self.check_trace(report)
+
     def test_capacity_fallback_keeps_tiles_and_counts(self):
         cfg = hardware_config()
         for name, size in {"L1": 1024, "L0A": 512, "L0B": 512, "L0C": 1024, "UB": 1024}.items():
