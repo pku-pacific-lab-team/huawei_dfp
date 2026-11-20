@@ -1,0 +1,11 @@
+[Operator] tsp fp32_add (x0[1025]:FP32, x1[1025]:FP32) -> FP32
+[Time] 11 cycles; 1.2222222222222222e-08 s (analytical_estimate)
+[Scope] single_hem; mode=timing
+[Memory] mem: 12408 / 115343360 B (single_hem)
+[Action] mem_read_bytes: 8200 byte (logical, action)
+[Action] mem_write_bytes: 4100 byte (logical, action)
+[Action] input_stream_bytes: 8960 byte (padded, action)
+[Action] output_stream_bytes: 4480 byte (padded, action)
+[Action] fp32_add: 1025 op (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-v4rri7rx\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-v4rri7rx\report.json

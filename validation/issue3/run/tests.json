@@ -1,0 +1,254 @@
+{
+  "tests_run": 82,
+  "status_counts": {
+    "passed": 82
+  },
+  "tests": {
+    "tests.operators.test_cli.OperatorReportCLITest.test_invalid_workload_does_not_replace_operator_output": {
+      "status": "passed"
+    },
+    "tests.operators.test_cli.OperatorReportCLITest.test_opt_in_report_preserves_default_report_in_both_modes": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite.CompositeTest.test_arithmetic_counts_are_width_minus_one_reductions_for_every_tiling": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite.CompositeTest.test_batch_and_head_axes_scale_rows_without_expanding_schedule": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite.CompositeTest.test_capacity_fallback_accounts_row_state_and_complete_tensors": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite.CompositeTest.test_cim_shares_vxm_and_cost_budget": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite.CompositeTest.test_external_traffic_and_capacity_do_not_materialize_all_intermediates": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite.CompositeTest.test_four_paths_do_not_call_gemm_or_standalone_vector": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite.CompositeTest.test_hand_single_element_timing_and_accesses": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite.CompositeTest.test_only_used_costs_are_required_and_count_runs_with_unknowns": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite.CompositeTest.test_reduction_dependency_is_not_flat_throughput": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite.CompositeTest.test_strict_shapes_axes_and_workloads": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite.CompositeTest.test_unknown_io_clock_and_unrelated_matrix_services": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite_cli.CompositeCLITest.test_composite_profile_sources_hash_and_validation": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite_cli.CompositeCLITest.test_explicit_profile_and_failures_preserve_output": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite_cli.CompositeCLITest.test_four_entries_both_modes_from_another_directory": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite_cli.CompositeCLITest.test_profile_v1_still_runs_vector_but_rejects_composites": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite_storage.CompositeStorageTest.test_hand_odd_tail_cross_tile_cycles_and_bytes": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite_storage.CompositeStorageTest.test_hand_startups_count_actual_transfers_and_compute_stages": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite_storage.CompositeStorageTest.test_invalid_schedule_lifetimes_are_rejected": {
+      "status": "passed"
+    },
+    "tests.operators.test_composite_storage.CompositeStorageTest.test_live_storage_covers_first_steady_tail_and_scalar_aliases": {
+      "status": "passed"
+    },
+    "tests.operators.test_contracts.ActionLedgerTest.test_duplicate_sources_and_invalid_alias_graphs_are_rejected": {
+      "status": "passed"
+    },
+    "tests.operators.test_contracts.ActionLedgerTest.test_export_is_detached": {
+      "status": "passed"
+    },
+    "tests.operators.test_contracts.ActionLedgerTest.test_summary_is_verified_and_excluded_from_grouped_counts": {
+      "status": "passed"
+    },
+    "tests.operators.test_contracts.ActionLedgerTest.test_units_components_bases_and_attributes_are_not_blended": {
+      "status": "passed"
+    },
+    "tests.operators.test_contracts.ActionLedgerTest.test_unknown_is_preserved_instead_of_counted_as_zero": {
+      "status": "passed"
+    },
+    "tests.operators.test_contracts.TensorContractTest.test_descriptors_do_not_alias_caller_lists": {
+      "status": "passed"
+    },
+    "tests.operators.test_contracts.TensorContractTest.test_invalid_shapes_dtypes_and_mismatched_inputs_fail": {
+      "status": "passed"
+    },
+    "tests.operators.test_contracts.TensorContractTest.test_storage_bytes_and_accumulation_are_separate": {
+      "status": "passed"
+    },
+    "tests.operators.test_gemm.GemmAdapterTest.test_adapter_and_export_do_not_mutate_or_alias_native_report": {
+      "status": "passed"
+    },
+    "tests.operators.test_gemm.GemmAdapterTest.test_capacity_and_missing_timing_still_fail_in_native_kernel": {
+      "status": "passed"
+    },
+    "tests.operators.test_gemm.GemmAdapterTest.test_decode_tails_and_cross_k_preserve_native_results": {
+      "status": "passed"
+    },
+    "tests.operators.test_gemm.GemmAdapterTest.test_padding_and_cim_aliases_do_not_become_extra_actions": {
+      "status": "passed"
+    },
+    "tests.operators.test_gemm.GemmAdapterTest.test_policy_overrides_stay_in_native_execution": {
+      "status": "passed"
+    },
+    "tests.operators.test_gemm.GemmAdapterTest.test_unknown_clock_preserves_cycle_only_native_estimate": {
+      "status": "passed"
+    },
+    "tests.operators.test_gemm.GemmAdapterTest.test_unknown_schema_actions_or_precision_are_rejected": {
+      "status": "passed"
+    },
+    "tests.operators.test_interface_finalization.InterfaceFinalizationTest.test_attributes_are_immutable_normalized_semantics": {
+      "status": "passed"
+    },
+    "tests.operators.test_interface_finalization.InterfaceFinalizationTest.test_cli_rejects_null_profile_before_overwriting_and_exports_attributes": {
+      "status": "passed"
+    },
+    "tests.operators.test_interface_finalization.InterfaceFinalizationTest.test_connection_requires_conversion_without_inventing_cost_or_reuse": {
+      "status": "passed"
+    },
+    "tests.operators.test_interface_finalization.InterfaceFinalizationTest.test_connections_do_not_infer_physical_device_or_cross_hemisphere_reuse": {
+      "status": "passed"
+    },
+    "tests.operators.test_interface_finalization.InterfaceFinalizationTest.test_gemm_keeps_tensor_identity_without_changing_native_results": {
+      "status": "passed"
+    },
+    "tests.operators.test_interface_finalization.InterfaceFinalizationTest.test_named_vector_composite_and_result_attributes": {
+      "status": "passed"
+    },
+    "tests.operators.test_interface_finalization.InterfaceFinalizationTest.test_schema2_null_and_malformed_policy_rejected_for_all_architectures": {
+      "status": "passed"
+    },
+    "tests.operators.test_layering.LayeringTest.test_ascend_vector_cli_does_not_construct_gemm_simulator": {
+      "status": "passed"
+    },
+    "tests.operators.test_layering.LayeringTest.test_complete_api_reports_match_pre_refactor_baseline": {
+      "status": "passed"
+    },
+    "tests.operators.test_layering.LayeringTest.test_core_has_no_dependency_on_public_operator_or_runtime_layers": {
+      "status": "passed"
+    },
+    "tests.operators.test_layering.LayeringTest.test_memory_paths_require_complete_fields_and_expose_storage_kind": {
+      "status": "passed"
+    },
+    "tests.operators.test_layering.LayeringTest.test_native_results_adapt_without_recounting_or_aliasing": {
+      "status": "passed"
+    },
+    "tests.operators.test_output.OperatorOutputTest.test_defaults_separate_architectures_operations_and_preserve_failed_outputs": {
+      "status": "passed"
+    },
+    "tests.operators.test_output.OperatorOutputTest.test_explicit_relative_absolute_and_empty_outputs_override_defaults": {
+      "status": "passed"
+    },
+    "tests.operators.test_reporting.ReportingTest.test_actions_preserve_roles_units_and_provenance_in_separate_view": {
+      "status": "passed"
+    },
+    "tests.operators.test_reporting.ReportingTest.test_cli_details_are_explicit_and_bound_to_the_summary": {
+      "status": "passed"
+    },
+    "tests.operators.test_reporting.ReportingTest.test_count_and_missing_clock_keep_unknown_time": {
+      "status": "passed"
+    },
+    "tests.operators.test_reporting.ReportingTest.test_default_result_drops_diagnostics_and_exposes_scalar_results": {
+      "status": "passed"
+    },
+    "tests.operators.test_reporting.ReportingTest.test_diagnostics_only_output_and_explicit_gemm_diagnostics": {
+      "status": "passed"
+    },
+    "tests.operators.test_reporting.ReportingTest.test_memory_scopes_and_allocation_bases_survive_compaction": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector.VectorTest.test_all_five_operations_run_without_matrix_kernels": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector.VectorTest.test_cim_and_native_share_one_vxm_even_across_hemispheres": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector.VectorTest.test_hand_schedule_includes_both_dma_endpoints_and_tail": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector.VectorTest.test_invalid_ops_shapes_aliases_and_allocations_fail": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector.VectorTest.test_local_fallback_and_full_tensor_capacity": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector.VectorTest.test_missing_io_and_clock_are_explicit": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector.VectorTest.test_only_used_services_are_required_and_count_needs_no_rates": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector.VectorTest.test_shared_budget_changes_only_compute_and_exp_cost_is_work_not_exp_count": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector.VectorTest.test_startup_policy_and_large_tile_count_are_aggregated": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector_cli.VectorCLITest.test_all_entries_run_vector_from_another_directory": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector_cli.VectorCLITest.test_explicit_profile_failure_and_tsp_resource_selection": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector_cli.VectorCLITest.test_gemm_flags_rejected_before_output_is_touched": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector_config.VectorConfigTest.test_profile_hash_assumptions_and_new_service_sources": {
+      "status": "passed"
+    },
+    "tests.operators.test_vector_config.VectorConfigTest.test_strict_profile_validation_and_detached_copy": {
+      "status": "passed"
+    },
+    "tests.validation.test_run_all.RunAllTest.test_failed_and_stale_simulations_do_not_stop_remaining_steps": {
+      "status": "passed"
+    },
+    "tests.validation.test_run_all.RunAllTest.test_optional_details_and_operator_table": {
+      "status": "passed"
+    },
+    "tests.validation.test_run_all.RunAllTest.test_pending_review_still_finishes_issue3_and_returns_distinct_exit": {
+      "status": "passed"
+    },
+    "tests.validation.test_run_all.RunAllTest.test_scope_matrix_and_default_powershell_from_another_directory": {
+      "status": "passed"
+    },
+    "tests.validation.test_run_all.RunAllTest.test_timeout_and_uncovered_or_duplicate_tests_cannot_pass": {
+      "status": "passed"
+    },
+    "tests.validation.test_verification.VerificationTest.test_cli_timeout_and_stale_reports_cannot_be_accepted": {
+      "status": "passed"
+    },
+    "tests.validation.test_verification.VerificationTest.test_cross_issue_output_is_rejected_before_writes": {
+      "status": "passed"
+    },
+    "tests.validation.test_verification.VerificationTest.test_execution_audit_is_separate_from_hardware_audit": {
+      "status": "passed"
+    },
+    "tests.validation.test_verification.VerificationTest.test_issue_suites_are_disjoint_and_scope_covers_operator_modules": {
+      "status": "passed"
+    },
+    "tests.validation.test_verification.VerificationTest.test_missing_failed_and_unmapped_evidence_cannot_pass": {
+      "status": "passed"
+    },
+    "tests.validation.test_verification.VerificationTest.test_owned_changes_and_shared_dependencies_have_distinct_snapshots": {
+      "status": "passed"
+    },
+    "tests.validation.test_verification.VerificationTest.test_subtest_failure_and_skips_do_not_become_success": {
+      "status": "passed"
+    }
+  }
+}

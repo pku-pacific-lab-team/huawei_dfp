@@ -1,0 +1,16 @@
+[Operator] tsp_cim softmax (x[2, 4, 1025]:FP32) -> FP32
+[Time] 1216 cycles; 1.351111111111111e-06 s (analytical_estimate)
+[Scope] single_hem; mode=timing
+[Memory] mem: 69828 / 115343360 B (single_hem)
+[Action] mem_read_bytes: 229696 byte (logical, action)
+[Action] input_stream_bytes: 299520 byte (padded, action)
+[Action] mem_write_bytes: 164032 byte (logical, action)
+[Action] output_stream_bytes: 222720 byte (padded, action)
+[Action] fp32_max: 8192 op (logical, action)
+[Action] fp32_sub: 8200 op (logical, action)
+[Action] fp32_exp: 8200 op (logical, action)
+[Action] fp32_add: 8192 op (logical, action)
+[Action] fp32_rcp: 8 op (logical, action)
+[Action] fp32_mul: 8200 op (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-y9j51jlo\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-y9j51jlo\report.json

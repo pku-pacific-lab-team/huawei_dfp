@@ -1,0 +1,2060 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-11-19T10:08:04.479559+00:00",
+  "status": "passed",
+  "baseline": {
+    "path": "validation/issue3/baselines/report_format.json",
+    "canonical_sha256": "67d9354bb97c877f0bc0a11058e7ca6b4990c77de45d5ba697e4ffd921efa374"
+  },
+  "command": "pwsh -NoProfile -File scripts/run_all.ps1 -Scope all -Details",
+  "run_all": {
+    "path": "results/run_all_all.json",
+    "canonical_sha256": "aaf963131fe86dec0fed711ff188f362b9b9dd9ab88b8ba5e947dd9daaccdfb2",
+    "status": "needs_review",
+    "source_snapshot_sha256": "b482c459f9f6a5b37952b831ead7f44049b9cf68df8f0800a81fcd5406ee2346",
+    "snapshot_matches_current": true
+  },
+  "issue3_acceptance": {
+    "path": "validation/issue3/run/acceptance.json",
+    "canonical_sha256": "77162aa3c27a8d71caa709c6d350123a5f7db4914f13143e703bf27ef0f77f59",
+    "implemented_scope_passed": true,
+    "full_issue_complete": false
+  },
+  "api_baseline": {
+    "case_count": 64,
+    "test": "tests.operators.test_layering.LayeringTest.test_complete_api_reports_match_pre_refactor_baseline",
+    "status": "passed"
+  },
+  "reports": {
+    "total": 100,
+    "passed": 100,
+    "items": {
+      "results/ascend.json": {
+        "checks": {
+          "native_identical": true
+        },
+        "passed": true,
+        "native_sha256": "af06ce7bb53d18df256e11a6743d4f3fdb2413f0dac530e924610ca0ac71613d",
+        "details_report": null,
+        "old_lines": 939,
+        "new_lines": 939,
+        "old_bytes": 45856,
+        "new_bytes": 45856
+      },
+      "results/tpu.json": {
+        "checks": {
+          "native_identical": true
+        },
+        "passed": true,
+        "native_sha256": "0cbe2792cee5642c1823567b0e2c62bd7e0d418d84bd4177d7571228916b9569",
+        "details_report": null,
+        "old_lines": 715,
+        "new_lines": 715,
+        "old_bytes": 39440,
+        "new_bytes": 39440
+      },
+      "results/tsp.json": {
+        "checks": {
+          "native_identical": true
+        },
+        "passed": true,
+        "native_sha256": "6a31f0e9cc130df41bee8e68ed0f148d471b88c383386dd5b56f277b277a8940",
+        "details_report": null,
+        "old_lines": 1030,
+        "new_lines": 1030,
+        "old_bytes": 52184,
+        "new_bytes": 52184
+      },
+      "results/tsp_cim.json": {
+        "checks": {
+          "native_identical": true
+        },
+        "passed": true,
+        "native_sha256": "431b34b4a38df1fb2cd26f9959821f76c27d61c9ab719b61a7fe87d77c6b4de0",
+        "details_report": null,
+        "old_lines": 1431,
+        "new_lines": 1431,
+        "old_bytes": 66528,
+        "new_bytes": 66528
+      },
+      "results/ascend_gemm_operator.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "af06ce7bb53d18df256e11a6743d4f3fdb2413f0dac530e924610ca0ac71613d",
+        "details_report": "results/details/ascend_gemm_operator.json",
+        "old_lines": 1545,
+        "new_lines": 225,
+        "old_bytes": 65467,
+        "new_bytes": 5582
+      },
+      "results/ascend_int32_add.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "05980fb903e39597d03e651b9eb94b1e73df26aad8993b9fad9b33997875034a",
+        "details_report": "results/details/ascend_int32_add.json",
+        "old_lines": 1060,
+        "new_lines": 182,
+        "old_bytes": 47156,
+        "new_bytes": 4311
+      },
+      "results/ascend_fp32_add.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "4b7444200639b29bf3e76007a381205d95f491eb4f2deef4b017d7dca0dd4366",
+        "details_report": "results/details/ascend_fp32_add.json",
+        "old_lines": 1060,
+        "new_lines": 182,
+        "old_bytes": 47123,
+        "new_bytes": 4297
+      },
+      "results/ascend_fp32_mul.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "34d65242cf1567185b537a31bfff07a54371717cf7320b41847c30408e3ea062",
+        "details_report": "results/details/ascend_fp32_mul.json",
+        "old_lines": 1060,
+        "new_lines": 182,
+        "old_bytes": 47123,
+        "new_bytes": 4297
+      },
+      "results/ascend_fp32_exp.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "6118f147a1ea627868123aa0b7cfc5fe0c2bfd6cdfaadda8fc7e6dc774833019",
+        "details_report": "results/details/ascend_fp32_exp.json",
+        "old_lines": 1025,
+        "new_lines": 173,
+        "old_bytes": 46374,
+        "new_bytes": 4130
+      },
+      "results/ascend_fp32_rsqrt.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "1d3909aa5373746274afea9f551ee35f6683a64a2673f2cfca9aede701523e1f",
+        "details_report": "results/details/ascend_fp32_rsqrt.json",
+        "old_lines": 1025,
+        "new_lines": 173,
+        "old_bytes": 46404,
+        "new_bytes": 4138
+      },
+      "results/ascend_rmsnorm.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "ac17fd4dda7d37faf4115718928d167c08fb677bdc519c7656305c8dbaca1f8b",
+        "details_report": "results/details/ascend_rmsnorm.json",
+        "old_lines": 2075,
+        "new_lines": 213,
+        "old_bytes": 79601,
+        "new_bytes": 4993
+      },
+      "results/ascend_softmax.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "dcb580a7e5fdaf6a5b99b02a3576de4b9cab9738462d9805e94714e1968d7061",
+        "details_report": "results/details/ascend_softmax.json",
+        "old_lines": 2526,
+        "new_lines": 244,
+        "old_bytes": 93183,
+        "new_bytes": 5783
+      },
+      "results/tpu_gemm_operator.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "0cbe2792cee5642c1823567b0e2c62bd7e0d418d84bd4177d7571228916b9569",
+        "details_report": "results/details/tpu_gemm_operator.json",
+        "old_lines": 1383,
+        "new_lines": 242,
+        "old_bytes": 61212,
+        "new_bytes": 6267
+      },
+      "results/tpu_int32_add.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "73c0e683f4bbfaa91b23daac1aada755244458f8ddf044b6c2486b4a04ae9fde",
+        "details_report": "results/details/tpu_int32_add.json",
+        "old_lines": 996,
+        "new_lines": 189,
+        "old_bytes": 42377,
+        "new_bytes": 4575
+      },
+      "results/tpu_fp32_add.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "2268b2f5763e7d2687882eff0fe7e6cf23ab676b1a9f1ff130839b9c9c6108c3",
+        "details_report": "results/details/tpu_fp32_add.json",
+        "old_lines": 996,
+        "new_lines": 189,
+        "old_bytes": 42344,
+        "new_bytes": 4561
+      },
+      "results/tpu_fp32_mul.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "794968e8281ae4ffce9fe32f937abc4f2c4389145c61d73f4ca97d3e9807f1b3",
+        "details_report": "results/details/tpu_fp32_mul.json",
+        "old_lines": 996,
+        "new_lines": 189,
+        "old_bytes": 42344,
+        "new_bytes": 4561
+      },
+      "results/tpu_fp32_exp.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "348f87ca221cb2d1b925f2750b36c23f644047340ba418a5fa8d88c5c8026424",
+        "details_report": "results/details/tpu_fp32_exp.json",
+        "old_lines": 961,
+        "new_lines": 180,
+        "old_bytes": 41590,
+        "new_bytes": 4390
+      },
+      "results/tpu_fp32_rsqrt.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "c20addcb86023e5f10badcef890fa24a425279b3c6c49b7445227f0c45f0281f",
+        "details_report": "results/details/tpu_fp32_rsqrt.json",
+        "old_lines": 961,
+        "new_lines": 180,
+        "old_bytes": 41622,
+        "new_bytes": 4399
+      },
+      "results/tpu_rmsnorm.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b3ea1fa8c9764153adb8975ba4867b3622d93858267a0d7bcb528365753ce9de",
+        "details_report": "results/details/tpu_rmsnorm.json",
+        "old_lines": 2009,
+        "new_lines": 220,
+        "old_bytes": 74892,
+        "new_bytes": 5250
+      },
+      "results/tpu_softmax.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "0294b50aa9a368263172e74881a8c36f41343e2defe003c54176e916083eb16e",
+        "details_report": "results/details/tpu_softmax.json",
+        "old_lines": 2460,
+        "new_lines": 251,
+        "old_bytes": 88585,
+        "new_bytes": 6073
+      },
+      "results/tsp_gemm_operator.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "6a31f0e9cc130df41bee8e68ed0f148d471b88c383386dd5b56f277b277a8940",
+        "details_report": "results/details/tsp_gemm_operator.json",
+        "old_lines": 1744,
+        "new_lines": 249,
+        "old_bytes": 75829,
+        "new_bytes": 6245
+      },
+      "results/tsp_int32_add.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "fa7d4e55eae71da154fe5bc3bc5760eea7ea0dd0feecb334518d61bcb76a2796",
+        "details_report": "results/details/tsp_int32_add.json",
+        "old_lines": 1093,
+        "new_lines": 154,
+        "old_bytes": 50358,
+        "new_bytes": 3676
+      },
+      "results/tsp_fp32_add.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b88f7501be8352dcfbe0f7eff091df91feaf3e88f5edea164a807b0e5be871b6",
+        "details_report": "results/details/tsp_fp32_add.json",
+        "old_lines": 1093,
+        "new_lines": 154,
+        "old_bytes": 50329,
+        "new_bytes": 3664
+      },
+      "results/tsp_fp32_mul.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "a605f613ba1b5aa58b3cb6f862599ff98b52f436f75d7545a1e7fde650eae905",
+        "details_report": "results/details/tsp_fp32_mul.json",
+        "old_lines": 1093,
+        "new_lines": 154,
+        "old_bytes": 50329,
+        "new_bytes": 3664
+      },
+      "results/tsp_fp32_exp.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b6106ac4aac830208cb9302d9e6a70166fc924a74db3fc05a916ecd3f5204d65",
+        "details_report": "results/details/tsp_fp32_exp.json",
+        "old_lines": 1058,
+        "new_lines": 145,
+        "old_bytes": 49571,
+        "new_bytes": 3495
+      },
+      "results/tsp_fp32_rsqrt.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "20a4449e31344f5d5b412f20445cf492f5feb5d1a0eaeba634d931a0b76c2049",
+        "details_report": "results/details/tsp_fp32_rsqrt.json",
+        "old_lines": 1058,
+        "new_lines": 145,
+        "old_bytes": 49600,
+        "new_bytes": 3502
+      },
+      "results/tsp_rmsnorm.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b4b3afe966cec34e6699489d040b175769ca4c1034989db7a8976c7617beb3df",
+        "details_report": "results/details/tsp_rmsnorm.json",
+        "old_lines": 2061,
+        "new_lines": 185,
+        "old_bytes": 82051,
+        "new_bytes": 4369
+      },
+      "results/tsp_softmax.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "7e0bb0e7d203f385b90b7aec0dca5e5c0cb971885e8c7726c75ac1ebbc6985db",
+        "details_report": "results/details/tsp_softmax.json",
+        "old_lines": 2508,
+        "new_lines": 216,
+        "old_bytes": 95729,
+        "new_bytes": 5147
+      },
+      "results/tsp_cim_gemm_operator.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "431b34b4a38df1fb2cd26f9959821f76c27d61c9ab719b61a7fe87d77c6b4de0",
+        "details_report": "results/details/tsp_cim_gemm_operator.json",
+        "old_lines": 2620,
+        "new_lines": 437,
+        "old_bytes": 105640,
+        "new_bytes": 11607
+      },
+      "results/tsp_cim_int32_add.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b2e14e8989fba587ce2544c76899a9b8b0482b42044a770fef5969b5810632fc",
+        "details_report": "results/details/tsp_cim_int32_add.json",
+        "old_lines": 1096,
+        "new_lines": 155,
+        "old_bytes": 50617,
+        "new_bytes": 3720
+      },
+      "results/tsp_cim_fp32_add.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "80b3aa48707aad10140335323a5527d0efa1e2d7f3c54bc996d0f3829aeba303",
+        "details_report": "results/details/tsp_cim_fp32_add.json",
+        "old_lines": 1096,
+        "new_lines": 155,
+        "old_bytes": 50588,
+        "new_bytes": 3708
+      },
+      "results/tsp_cim_fp32_mul.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "759dbbf1493f1849c00616b2b697235baba76b437617c74df50da7827783235f",
+        "details_report": "results/details/tsp_cim_fp32_mul.json",
+        "old_lines": 1096,
+        "new_lines": 155,
+        "old_bytes": 50588,
+        "new_bytes": 3708
+      },
+      "results/tsp_cim_fp32_exp.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "96dba61f2479a4c9f02f0bcf928eda86834c0a8f9e8c843ee0ce3048b5028111",
+        "details_report": "results/details/tsp_cim_fp32_exp.json",
+        "old_lines": 1061,
+        "new_lines": 146,
+        "old_bytes": 49826,
+        "new_bytes": 3539
+      },
+      "results/tsp_cim_fp32_rsqrt.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "57b67d95c82107340bcc917273176d9792c59bd2a87ba71110bae934aafae86b",
+        "details_report": "results/details/tsp_cim_fp32_rsqrt.json",
+        "old_lines": 1061,
+        "new_lines": 146,
+        "old_bytes": 49855,
+        "new_bytes": 3546
+      },
+      "results/tsp_cim_rmsnorm.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "6d261cd687c4f13f73b8b107739b3caacc4b2cf5a98382458acae17599d1829a",
+        "details_report": "results/details/tsp_cim_rmsnorm.json",
+        "old_lines": 2064,
+        "new_lines": 186,
+        "old_bytes": 82326,
+        "new_bytes": 4413
+      },
+      "results/tsp_cim_softmax.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "969a353fa2c8fb1b27292e59ca54d2cbf22f81339ba2ef021a20cd8a7ef5a0b8",
+        "details_report": "results/details/tsp_cim_softmax.json",
+        "old_lines": 2511,
+        "new_lines": 217,
+        "old_bytes": 96024,
+        "new_bytes": 5191
+      },
+      "validation/issue3/run/ascend_gemm_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "1743ddbb0dd1e7253e0e7ead9d5d7a991161281a411f2bf38735ac3ca4622e03",
+        "details_report": "validation/issue3/run/details/ascend_gemm_count.json",
+        "old_lines": 1320,
+        "new_lines": 225,
+        "old_bytes": 52365,
+        "new_bytes": 5485
+      },
+      "validation/issue3/run/ascend_gemm_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b238fda5ea2cf8518c8d0431c39adf03606a88dde80927f2f1a53af9be4b2031",
+        "details_report": "validation/issue3/run/details/ascend_gemm_timing.json",
+        "old_lines": 1545,
+        "new_lines": 225,
+        "old_bytes": 65022,
+        "new_bytes": 5493
+      },
+      "validation/issue3/run/ascend_int32_add_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "7927b7b3379977be913632e5e9ef8cbbfcb6d30374cac987f7b09b00f28b984c",
+        "details_report": "validation/issue3/run/details/ascend_int32_add_count.json",
+        "old_lines": 1044,
+        "new_lines": 182,
+        "old_bytes": 46724,
+        "new_bytes": 4304
+      },
+      "validation/issue3/run/ascend_int32_add_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "05980fb903e39597d03e651b9eb94b1e73df26aad8993b9fad9b33997875034a",
+        "details_report": "validation/issue3/run/details/ascend_int32_add_timing.json",
+        "old_lines": 1060,
+        "new_lines": 182,
+        "old_bytes": 47156,
+        "new_bytes": 4311
+      },
+      "validation/issue3/run/ascend_fp32_add_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "84768a39b87d54be268d5e5beb8fdcb97f4832ebd9ff8d8ef04167c34af06fbe",
+        "details_report": "validation/issue3/run/details/ascend_fp32_add_count.json",
+        "old_lines": 1044,
+        "new_lines": 182,
+        "old_bytes": 46691,
+        "new_bytes": 4290
+      },
+      "validation/issue3/run/ascend_fp32_add_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "4b7444200639b29bf3e76007a381205d95f491eb4f2deef4b017d7dca0dd4366",
+        "details_report": "validation/issue3/run/details/ascend_fp32_add_timing.json",
+        "old_lines": 1060,
+        "new_lines": 182,
+        "old_bytes": 47123,
+        "new_bytes": 4297
+      },
+      "validation/issue3/run/ascend_fp32_mul_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "4ea3a72fad5e7d6a5683de062ef4327467c9dc056806c34593f4fdd8d948fc12",
+        "details_report": "validation/issue3/run/details/ascend_fp32_mul_count.json",
+        "old_lines": 1044,
+        "new_lines": 182,
+        "old_bytes": 46691,
+        "new_bytes": 4290
+      },
+      "validation/issue3/run/ascend_fp32_mul_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "34d65242cf1567185b537a31bfff07a54371717cf7320b41847c30408e3ea062",
+        "details_report": "validation/issue3/run/details/ascend_fp32_mul_timing.json",
+        "old_lines": 1060,
+        "new_lines": 182,
+        "old_bytes": 47123,
+        "new_bytes": 4297
+      },
+      "validation/issue3/run/ascend_fp32_exp_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "3c92c151eeee8821f7ba5f52b9a3020ccb8df80457222b5a61cf9e17bc381fb5",
+        "details_report": "validation/issue3/run/details/ascend_fp32_exp_count.json",
+        "old_lines": 1009,
+        "new_lines": 173,
+        "old_bytes": 45937,
+        "new_bytes": 4120
+      },
+      "validation/issue3/run/ascend_fp32_exp_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "6118f147a1ea627868123aa0b7cfc5fe0c2bfd6cdfaadda8fc7e6dc774833019",
+        "details_report": "validation/issue3/run/details/ascend_fp32_exp_timing.json",
+        "old_lines": 1025,
+        "new_lines": 173,
+        "old_bytes": 46374,
+        "new_bytes": 4130
+      },
+      "validation/issue3/run/ascend_fp32_rsqrt_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "c816d30d3686c654ee6a3c413a106de242c559e938c1916ba0947fa34f6063d3",
+        "details_report": "validation/issue3/run/details/ascend_fp32_rsqrt_count.json",
+        "old_lines": 1009,
+        "new_lines": 173,
+        "old_bytes": 45967,
+        "new_bytes": 4128
+      },
+      "validation/issue3/run/ascend_fp32_rsqrt_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "1d3909aa5373746274afea9f551ee35f6683a64a2673f2cfca9aede701523e1f",
+        "details_report": "validation/issue3/run/details/ascend_fp32_rsqrt_timing.json",
+        "old_lines": 1025,
+        "new_lines": 173,
+        "old_bytes": 46404,
+        "new_bytes": 4138
+      },
+      "validation/issue3/run/ascend_rmsnorm_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "21294c9a899141764dc46a7feadf3ccf7d170352af8eeadef851fb413140424b",
+        "details_report": "validation/issue3/run/details/ascend_rmsnorm_count.json",
+        "old_lines": 1942,
+        "new_lines": 213,
+        "old_bytes": 75639,
+        "new_bytes": 4981
+      },
+      "validation/issue3/run/ascend_rmsnorm_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "ac17fd4dda7d37faf4115718928d167c08fb677bdc519c7656305c8dbaca1f8b",
+        "details_report": "validation/issue3/run/details/ascend_rmsnorm_timing.json",
+        "old_lines": 2075,
+        "new_lines": 213,
+        "old_bytes": 79601,
+        "new_bytes": 4993
+      },
+      "validation/issue3/run/ascend_softmax_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "dedf5bab8ffa1328f7c3678a791eb612a25680514bf8f153fc6d61d82eff16f1",
+        "details_report": "validation/issue3/run/details/ascend_softmax_count.json",
+        "old_lines": 2339,
+        "new_lines": 244,
+        "old_bytes": 87561,
+        "new_bytes": 5771
+      },
+      "validation/issue3/run/ascend_softmax_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "dcb580a7e5fdaf6a5b99b02a3576de4b9cab9738462d9805e94714e1968d7061",
+        "details_report": "validation/issue3/run/details/ascend_softmax_timing.json",
+        "old_lines": 2526,
+        "new_lines": 244,
+        "old_bytes": 93183,
+        "new_bytes": 5783
+      },
+      "validation/issue3/run/tpu_gemm_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "8eb1cf9afa11bb11c8f2c59f1749114c31f232d7172f9eaa3f8078398f2ac037",
+        "details_report": "validation/issue3/run/details/tpu_gemm_count.json",
+        "old_lines": 1239,
+        "new_lines": 241,
+        "old_bytes": 49104,
+        "new_bytes": 6068
+      },
+      "validation/issue3/run/tpu_gemm_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "de5c3d64a4addc62aa6160e49376c2e88440fa0a9f908be01f98f18fe7ab9c46",
+        "details_report": "validation/issue3/run/details/tpu_gemm_timing.json",
+        "old_lines": 1383,
+        "new_lines": 242,
+        "old_bytes": 60823,
+        "new_bytes": 6163
+      },
+      "validation/issue3/run/tpu_int32_add_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "a9b17c9ff2ee1c8ede2b5e8bd484deed78a47d65dcd891b9f5b6b1ea0f50c581",
+        "details_report": "validation/issue3/run/details/tpu_int32_add_count.json",
+        "old_lines": 980,
+        "new_lines": 189,
+        "old_bytes": 41891,
+        "new_bytes": 4552
+      },
+      "validation/issue3/run/tpu_int32_add_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "73c0e683f4bbfaa91b23daac1aada755244458f8ddf044b6c2486b4a04ae9fde",
+        "details_report": "validation/issue3/run/details/tpu_int32_add_timing.json",
+        "old_lines": 996,
+        "new_lines": 189,
+        "old_bytes": 42377,
+        "new_bytes": 4575
+      },
+      "validation/issue3/run/tpu_fp32_add_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "7323d5f2d7d2f9e94dbb055a9a73e7dbcb99cbffa94f8421357545a53f2e58dc",
+        "details_report": "validation/issue3/run/details/tpu_fp32_add_count.json",
+        "old_lines": 980,
+        "new_lines": 189,
+        "old_bytes": 41858,
+        "new_bytes": 4538
+      },
+      "validation/issue3/run/tpu_fp32_add_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "2268b2f5763e7d2687882eff0fe7e6cf23ab676b1a9f1ff130839b9c9c6108c3",
+        "details_report": "validation/issue3/run/details/tpu_fp32_add_timing.json",
+        "old_lines": 996,
+        "new_lines": 189,
+        "old_bytes": 42344,
+        "new_bytes": 4561
+      },
+      "validation/issue3/run/tpu_fp32_mul_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "72ece5b55dd8a5b8b047500948a7cfbac45d2825b5c69bf35a8d65544450547e",
+        "details_report": "validation/issue3/run/details/tpu_fp32_mul_count.json",
+        "old_lines": 980,
+        "new_lines": 189,
+        "old_bytes": 41858,
+        "new_bytes": 4538
+      },
+      "validation/issue3/run/tpu_fp32_mul_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "794968e8281ae4ffce9fe32f937abc4f2c4389145c61d73f4ca97d3e9807f1b3",
+        "details_report": "validation/issue3/run/details/tpu_fp32_mul_timing.json",
+        "old_lines": 996,
+        "new_lines": 189,
+        "old_bytes": 42344,
+        "new_bytes": 4561
+      },
+      "validation/issue3/run/tpu_fp32_exp_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "7b124664376a251a3707805bb2e3ba7cb8c337467e345996df78318478da3c9c",
+        "details_report": "validation/issue3/run/details/tpu_fp32_exp_count.json",
+        "old_lines": 945,
+        "new_lines": 180,
+        "old_bytes": 41107,
+        "new_bytes": 4368
+      },
+      "validation/issue3/run/tpu_fp32_exp_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "348f87ca221cb2d1b925f2750b36c23f644047340ba418a5fa8d88c5c8026424",
+        "details_report": "validation/issue3/run/details/tpu_fp32_exp_timing.json",
+        "old_lines": 961,
+        "new_lines": 180,
+        "old_bytes": 41590,
+        "new_bytes": 4390
+      },
+      "validation/issue3/run/tpu_fp32_rsqrt_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "26a77f35a6911debfa304b6820bb0fb48c6ad12818a60319853bd8ba1bf10c16",
+        "details_report": "validation/issue3/run/details/tpu_fp32_rsqrt_count.json",
+        "old_lines": 945,
+        "new_lines": 180,
+        "old_bytes": 41137,
+        "new_bytes": 4376
+      },
+      "validation/issue3/run/tpu_fp32_rsqrt_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "c20addcb86023e5f10badcef890fa24a425279b3c6c49b7445227f0c45f0281f",
+        "details_report": "validation/issue3/run/details/tpu_fp32_rsqrt_timing.json",
+        "old_lines": 961,
+        "new_lines": 180,
+        "old_bytes": 41622,
+        "new_bytes": 4399
+      },
+      "validation/issue3/run/tpu_rmsnorm_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "630c6cf914e6d595957c02e1c6e39b6684d42bb5a471242789aeae24e203dfcf",
+        "details_report": "validation/issue3/run/details/tpu_rmsnorm_count.json",
+        "old_lines": 1876,
+        "new_lines": 220,
+        "old_bytes": 70950,
+        "new_bytes": 5241
+      },
+      "validation/issue3/run/tpu_rmsnorm_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b3ea1fa8c9764153adb8975ba4867b3622d93858267a0d7bcb528365753ce9de",
+        "details_report": "validation/issue3/run/details/tpu_rmsnorm_timing.json",
+        "old_lines": 2009,
+        "new_lines": 220,
+        "old_bytes": 74892,
+        "new_bytes": 5250
+      },
+      "validation/issue3/run/tpu_softmax_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "d3fb2b3df158154314964b92f317e7ce0f02f151dcc1478a9ee2d06b5a05abec",
+        "details_report": "validation/issue3/run/details/tpu_softmax_count.json",
+        "old_lines": 2273,
+        "new_lines": 251,
+        "old_bytes": 82955,
+        "new_bytes": 6049
+      },
+      "validation/issue3/run/tpu_softmax_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "0294b50aa9a368263172e74881a8c36f41343e2defe003c54176e916083eb16e",
+        "details_report": "validation/issue3/run/details/tpu_softmax_timing.json",
+        "old_lines": 2460,
+        "new_lines": 251,
+        "old_bytes": 88585,
+        "new_bytes": 6073
+      },
+      "validation/issue3/run/tsp_gemm_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "385e7b35f34991e4fd31d73f48b71668db2da6969d3bc2b9463f9193200d17d7",
+        "details_report": "validation/issue3/run/details/tsp_gemm_count.json",
+        "old_lines": 1496,
+        "new_lines": 249,
+        "old_bytes": 61670,
+        "new_bytes": 6137
+      },
+      "validation/issue3/run/tsp_gemm_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "4aeb194c1a447e7ef4b3f3c9d810f359860d789b6bdb6853d80f8f7ff0a86128",
+        "details_report": "validation/issue3/run/details/tsp_gemm_timing.json",
+        "old_lines": 1709,
+        "new_lines": 249,
+        "old_bytes": 74395,
+        "new_bytes": 6143
+      },
+      "validation/issue3/run/tsp_int32_add_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "604c034ab01d0f0e01605abd2a4d5859d27595ce0c140c9fee88fa58320aedc8",
+        "details_report": "validation/issue3/run/details/tsp_int32_add_count.json",
+        "old_lines": 1081,
+        "new_lines": 154,
+        "old_bytes": 50016,
+        "new_bytes": 3653
+      },
+      "validation/issue3/run/tsp_int32_add_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "fa7d4e55eae71da154fe5bc3bc5760eea7ea0dd0feecb334518d61bcb76a2796",
+        "details_report": "validation/issue3/run/details/tsp_int32_add_timing.json",
+        "old_lines": 1093,
+        "new_lines": 154,
+        "old_bytes": 50358,
+        "new_bytes": 3676
+      },
+      "validation/issue3/run/tsp_fp32_add_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b5fb225916953abc0885b2367839101c09fd226b7e88ea899179fc394d7559da",
+        "details_report": "validation/issue3/run/details/tsp_fp32_add_count.json",
+        "old_lines": 1081,
+        "new_lines": 154,
+        "old_bytes": 49987,
+        "new_bytes": 3641
+      },
+      "validation/issue3/run/tsp_fp32_add_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b88f7501be8352dcfbe0f7eff091df91feaf3e88f5edea164a807b0e5be871b6",
+        "details_report": "validation/issue3/run/details/tsp_fp32_add_timing.json",
+        "old_lines": 1093,
+        "new_lines": 154,
+        "old_bytes": 50329,
+        "new_bytes": 3664
+      },
+      "validation/issue3/run/tsp_fp32_mul_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "d31b506e2c71717d976f1af12b488ff9c072a72bef9ebdf08f755d113eed85ac",
+        "details_report": "validation/issue3/run/details/tsp_fp32_mul_count.json",
+        "old_lines": 1081,
+        "new_lines": 154,
+        "old_bytes": 49987,
+        "new_bytes": 3641
+      },
+      "validation/issue3/run/tsp_fp32_mul_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "a605f613ba1b5aa58b3cb6f862599ff98b52f436f75d7545a1e7fde650eae905",
+        "details_report": "validation/issue3/run/details/tsp_fp32_mul_timing.json",
+        "old_lines": 1093,
+        "new_lines": 154,
+        "old_bytes": 50329,
+        "new_bytes": 3664
+      },
+      "validation/issue3/run/tsp_fp32_exp_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "614faaf78b79e627e9d2bae6777a9c1bcbe0764569faa409454b225e94116150",
+        "details_report": "validation/issue3/run/details/tsp_fp32_exp_count.json",
+        "old_lines": 1046,
+        "new_lines": 145,
+        "old_bytes": 49227,
+        "new_bytes": 3472
+      },
+      "validation/issue3/run/tsp_fp32_exp_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b6106ac4aac830208cb9302d9e6a70166fc924a74db3fc05a916ecd3f5204d65",
+        "details_report": "validation/issue3/run/details/tsp_fp32_exp_timing.json",
+        "old_lines": 1058,
+        "new_lines": 145,
+        "old_bytes": 49571,
+        "new_bytes": 3495
+      },
+      "validation/issue3/run/tsp_fp32_rsqrt_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "d78f2a396e13fd50207b0b3952158f8b5d8df3e62a9ec89b886409b3698f3336",
+        "details_report": "validation/issue3/run/details/tsp_fp32_rsqrt_count.json",
+        "old_lines": 1046,
+        "new_lines": 145,
+        "old_bytes": 49257,
+        "new_bytes": 3480
+      },
+      "validation/issue3/run/tsp_fp32_rsqrt_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "20a4449e31344f5d5b412f20445cf492f5feb5d1a0eaeba634d931a0b76c2049",
+        "details_report": "validation/issue3/run/details/tsp_fp32_rsqrt_timing.json",
+        "old_lines": 1058,
+        "new_lines": 145,
+        "old_bytes": 49600,
+        "new_bytes": 3502
+      },
+      "validation/issue3/run/tsp_rmsnorm_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "c677a7cdc34a9ffe54dc2242e6073d16f393aae92ac323582c2959bea5dddabf",
+        "details_report": "validation/issue3/run/details/tsp_rmsnorm_count.json",
+        "old_lines": 1946,
+        "new_lines": 185,
+        "old_bytes": 78451,
+        "new_bytes": 4345
+      },
+      "validation/issue3/run/tsp_rmsnorm_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b4b3afe966cec34e6699489d040b175769ca4c1034989db7a8976c7617beb3df",
+        "details_report": "validation/issue3/run/details/tsp_rmsnorm_timing.json",
+        "old_lines": 2061,
+        "new_lines": 185,
+        "old_bytes": 82051,
+        "new_bytes": 4369
+      },
+      "validation/issue3/run/tsp_softmax_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "deca215fcfdc97ddd59d9f659d40f6c58669018492eab73e42b0e8e8a748ec50",
+        "details_report": "validation/issue3/run/details/tsp_softmax_count.json",
+        "old_lines": 2343,
+        "new_lines": 216,
+        "old_bytes": 90550,
+        "new_bytes": 5123
+      },
+      "validation/issue3/run/tsp_softmax_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "7e0bb0e7d203f385b90b7aec0dca5e5c0cb971885e8c7726c75ac1ebbc6985db",
+        "details_report": "validation/issue3/run/details/tsp_softmax_timing.json",
+        "old_lines": 2508,
+        "new_lines": 216,
+        "old_bytes": 95729,
+        "new_bytes": 5147
+      },
+      "validation/issue3/run/tsp_cim_gemm_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "e2721ea4eb6bca74988106d8deeaa47ced3162464a3337fd15430a75e26310c5",
+        "details_report": "validation/issue3/run/details/tsp_cim_gemm_count.json",
+        "old_lines": 2413,
+        "new_lines": 437,
+        "old_bytes": 95415,
+        "new_bytes": 11443
+      },
+      "validation/issue3/run/tsp_cim_gemm_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "38ecae4aa4e662395c9283f77feca518a6d4dd570a3c39c813a1d5ab92748edd",
+        "details_report": "validation/issue3/run/details/tsp_cim_gemm_timing.json",
+        "old_lines": 2542,
+        "new_lines": 437,
+        "old_bytes": 102951,
+        "new_bytes": 11467
+      },
+      "validation/issue3/run/tsp_cim_int32_add_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b50816641d7c55a38ba2d15c016132ea0a874126afabf7ad64af7f7255576a35",
+        "details_report": "validation/issue3/run/details/tsp_cim_int32_add_count.json",
+        "old_lines": 1084,
+        "new_lines": 155,
+        "old_bytes": 50275,
+        "new_bytes": 3697
+      },
+      "validation/issue3/run/tsp_cim_int32_add_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "b2e14e8989fba587ce2544c76899a9b8b0482b42044a770fef5969b5810632fc",
+        "details_report": "validation/issue3/run/details/tsp_cim_int32_add_timing.json",
+        "old_lines": 1096,
+        "new_lines": 155,
+        "old_bytes": 50617,
+        "new_bytes": 3720
+      },
+      "validation/issue3/run/tsp_cim_fp32_add_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "34530e447b9f1d725dc910688dbbef921fa0d52203a6650028dab86c84e4bc32",
+        "details_report": "validation/issue3/run/details/tsp_cim_fp32_add_count.json",
+        "old_lines": 1084,
+        "new_lines": 155,
+        "old_bytes": 50246,
+        "new_bytes": 3685
+      },
+      "validation/issue3/run/tsp_cim_fp32_add_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "80b3aa48707aad10140335323a5527d0efa1e2d7f3c54bc996d0f3829aeba303",
+        "details_report": "validation/issue3/run/details/tsp_cim_fp32_add_timing.json",
+        "old_lines": 1096,
+        "new_lines": 155,
+        "old_bytes": 50588,
+        "new_bytes": 3708
+      },
+      "validation/issue3/run/tsp_cim_fp32_mul_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "7ea9c0e9de9907719cf40f6fe94a89172c626f2c4c7ca9fbf42e2b4601323db3",
+        "details_report": "validation/issue3/run/details/tsp_cim_fp32_mul_count.json",
+        "old_lines": 1084,
+        "new_lines": 155,
+        "old_bytes": 50246,
+        "new_bytes": 3685
+      },
+      "validation/issue3/run/tsp_cim_fp32_mul_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "759dbbf1493f1849c00616b2b697235baba76b437617c74df50da7827783235f",
+        "details_report": "validation/issue3/run/details/tsp_cim_fp32_mul_timing.json",
+        "old_lines": 1096,
+        "new_lines": 155,
+        "old_bytes": 50588,
+        "new_bytes": 3708
+      },
+      "validation/issue3/run/tsp_cim_fp32_exp_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "8a55c2424680a62bdfabfb2b170a786adae0cdb0d81ac6745e83c40b48d8ed5a",
+        "details_report": "validation/issue3/run/details/tsp_cim_fp32_exp_count.json",
+        "old_lines": 1049,
+        "new_lines": 146,
+        "old_bytes": 49482,
+        "new_bytes": 3516
+      },
+      "validation/issue3/run/tsp_cim_fp32_exp_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "96dba61f2479a4c9f02f0bcf928eda86834c0a8f9e8c843ee0ce3048b5028111",
+        "details_report": "validation/issue3/run/details/tsp_cim_fp32_exp_timing.json",
+        "old_lines": 1061,
+        "new_lines": 146,
+        "old_bytes": 49826,
+        "new_bytes": 3539
+      },
+      "validation/issue3/run/tsp_cim_fp32_rsqrt_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "c2ff06a409e00efb64e521490b0a3da7216bfe7c8094185e0455015964bb9c16",
+        "details_report": "validation/issue3/run/details/tsp_cim_fp32_rsqrt_count.json",
+        "old_lines": 1049,
+        "new_lines": 146,
+        "old_bytes": 49512,
+        "new_bytes": 3524
+      },
+      "validation/issue3/run/tsp_cim_fp32_rsqrt_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "57b67d95c82107340bcc917273176d9792c59bd2a87ba71110bae934aafae86b",
+        "details_report": "validation/issue3/run/details/tsp_cim_fp32_rsqrt_timing.json",
+        "old_lines": 1061,
+        "new_lines": 146,
+        "old_bytes": 49855,
+        "new_bytes": 3546
+      },
+      "validation/issue3/run/tsp_cim_rmsnorm_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "febdc372d10ae9ab3786b3de949e1cc11f0e5c37d9a7a2da9b7a51cc72bec0d1",
+        "details_report": "validation/issue3/run/details/tsp_cim_rmsnorm_count.json",
+        "old_lines": 1949,
+        "new_lines": 186,
+        "old_bytes": 78726,
+        "new_bytes": 4389
+      },
+      "validation/issue3/run/tsp_cim_rmsnorm_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "6d261cd687c4f13f73b8b107739b3caacc4b2cf5a98382458acae17599d1829a",
+        "details_report": "validation/issue3/run/details/tsp_cim_rmsnorm_timing.json",
+        "old_lines": 2064,
+        "new_lines": 186,
+        "old_bytes": 82326,
+        "new_bytes": 4413
+      },
+      "validation/issue3/run/tsp_cim_softmax_count.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "60ce08fb4491364bb64c21230334d0cea289fa20b4c7282be7679cc21767e070",
+        "details_report": "validation/issue3/run/details/tsp_cim_softmax_count.json",
+        "old_lines": 2346,
+        "new_lines": 217,
+        "old_bytes": 90845,
+        "new_bytes": 5167
+      },
+      "validation/issue3/run/tsp_cim_softmax_timing.json": {
+        "checks": {
+          "native_identical": true,
+          "schema_2": true,
+          "operator_identity": true,
+          "time_unchanged": true,
+          "boundary_unchanged": true,
+          "work_unchanged": true,
+          "details_binding": true,
+          "actions_unchanged": true,
+          "memory_unchanged": true
+        },
+        "passed": true,
+        "native_sha256": "969a353fa2c8fb1b27292e59ca54d2cbf22f81339ba2ef021a20cd8a7ef5a0b8",
+        "details_report": "validation/issue3/run/details/tsp_cim_softmax_timing.json",
+        "old_lines": 2511,
+        "new_lines": 217,
+        "old_bytes": 96024,
+        "new_bytes": 5191
+      }
+    }
+  },
+  "unchanged_kernel_hardware_config_calibration_files": 69,
+  "operator_table": {
+    "path": "D:\\PROJECT\\huawei_dfp\\results\\run_all_all_operators.csv",
+    "validated_rows": 32
+  },
+  "validation": {
+    "combined_test_coverage": {
+      "status": "passed",
+      "discovered_tests": 295,
+      "recorded_tests": 295,
+      "uncovered_tests": [],
+      "unexpected_tests": [],
+      "duplicate_tests": []
+    },
+    "verification": {
+      "issue2": {
+        "status": "needs_review",
+        "unit_tests": 213,
+        "cli_checks": 17,
+        "conditions": {
+          "A1": "needs_review",
+          "A2": "passed",
+          "A3": "passed",
+          "A4": "passed",
+          "A5": "needs_review"
+        },
+        "automatic_checks_passed": true
+      },
+      "issue3": {
+        "status": "passed",
+        "unit_tests": 82,
+        "cli_checks": 72,
+        "conditions": {
+          "I3_contracts": "passed",
+          "I3_gemm_adapter": "passed",
+          "I3_vector": "passed",
+          "I3_normalization": "passed",
+          "I3_interfaces": "passed",
+          "I3_layering": "passed",
+          "I3_evidence": "passed",
+          "I3_reporting": "passed",
+          "coverage_mapping": "passed"
+        },
+        "automatic_checks_passed": true,
+        "full_issue_complete": false,
+        "pending_work": [
+          "Attention、SwiGLU/FFN、残差、KV Cache、MoE 等其余复合块",
+          "目标模型的完整算子覆盖矩阵与整模端到端验证",
+          "跨算子 dtype 转换、布局与驻留的执行及成本模型；当前只提供连接需求描述",
+          "数值执行、精度验证及硬件标定不属于当前解析计数/时间验证"
+        ]
+      }
+    }
+  },
+  "limits": [
+    "Issue #2 native reports retain their format; A1/A5 review remains pending.",
+    "The schema-2 summary intentionally differs from schema 1. Native values, action semantics and resource allocation are compared independently."
+  ]
+}

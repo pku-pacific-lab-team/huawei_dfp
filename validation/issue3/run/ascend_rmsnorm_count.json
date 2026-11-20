@@ -1,0 +1,213 @@
+{
+  "schema_version": 2,
+  "kind": "operator_result",
+  "status": "success",
+  "architecture": "ascend",
+  "mode": "count",
+  "operator": {
+    "kind": "rmsnorm",
+    "inputs": [
+      {
+        "name": "x",
+        "shape": [
+          2,
+          1025
+        ],
+        "dtype": "FP32",
+        "numel": 2050,
+        "logical_bytes": 8200
+      },
+      {
+        "name": "weight",
+        "shape": [
+          1025
+        ],
+        "dtype": "FP32",
+        "numel": 1025,
+        "logical_bytes": 4100
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "shape": [
+          2,
+          1025
+        ],
+        "dtype": "FP32",
+        "numel": 2050,
+        "logical_bytes": 8200
+      }
+    ],
+    "accumulation_dtype": "FP32",
+    "attributes": {
+      "axis": 1,
+      "epsilon": 1e-05
+    }
+  },
+  "latency_s": null,
+  "cycle_count": null,
+  "timing_status": "not_evaluated",
+  "boundary": {
+    "scope": "single_core",
+    "chip_execution_included": false,
+    "numeric_values_simulated": false,
+    "input_output_alias_included": false,
+    "start": "tensors_in_HBM",
+    "end": "output_in_HBM",
+    "l2_policy": "bypass"
+  },
+  "work_counts": {
+    "logical": {
+      "operations": 8204,
+      "operation_counts": {
+        "fp32_mul": 6152,
+        "fp32_add": 2050,
+        "fp32_rsqrt": 2
+      },
+      "output_bytes": 8200
+    },
+    "issued": {
+      "operations": null,
+      "status": "not_modeled",
+      "basis": "No instruction issue model"
+    },
+    "internal": {
+      "status": "not_modeled",
+      "action_references": []
+    }
+  },
+  "resource_requirements": {
+    "hbm": {
+      "scope": "chip",
+      "required_bytes": 20500,
+      "capacity_bytes": 32000000000,
+      "requirement_basis": "logical_footprint_bytes"
+    },
+    "ub": {
+      "scope": "core",
+      "required_bytes": 8196,
+      "capacity_bytes": 262144,
+      "requirement_basis": "allocated_bytes"
+    }
+  },
+  "action_counts": {
+    "hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 24600,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 24600,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "ub_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 49232,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "ub_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 32824,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "fp32_mul": {
+      "component": "vector",
+      "name": "fp32_mul",
+      "category": "vector",
+      "count": 6152,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "fp32_add": {
+      "component": "vector",
+      "name": "fp32_add",
+      "category": "vector",
+      "count": 2050,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "fp32_rsqrt": {
+      "component": "vector",
+      "name": "fp32_rsqrt",
+      "category": "nonlinear",
+      "count": 2,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 8200,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 8200,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    }
+  },
+  "coverage": {
+    "offchip_memory": "native_payload_counts",
+    "interconnect": "not_modeled",
+    "physical_memory_transactions": "not_modeled"
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null
+  }
+}

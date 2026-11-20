@@ -1,0 +1,19 @@
+[Operator] tsp gemm (A[2, 17]:INT8, B[17, 7]:INT8) -> INT32
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_hem; mode=count
+[Memory] mem: 748 / 115343360 B (single_hem)
+[Action] mxm_mac: 1024 MAC (padded, action)
+[Action] mem_read_activation_bytes: 64 byte (padded, action)
+[Action] mem_read_weight_bytes: 512 byte (padded, action)
+[Action] weight_install_bytes: 512 byte (padded, action)
+[Action] weight_stream_bytes: 640 byte (padded, action)
+[Action] mem_read_psum_bytes: 0 byte (padded, action)
+[Action] mem_write_psum_bytes: 0 byte (padded, action)
+[Action] mem_write_final_bytes: 128 byte (padded, action)
+[Action] vxm_add_ops: 0 op (padded, action)
+[Action] activation_stream_bytes: 640 byte (padded, action)
+[Action] result_stream_bytes: 640 byte (padded, action)
+[Action] psum_stream_bytes: 0 byte (padded, action)
+[Action] write_stream_bytes: 640 byte (padded, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-eake059a\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-eake059a\report.json

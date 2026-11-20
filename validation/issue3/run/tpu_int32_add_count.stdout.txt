@@ -1,0 +1,15 @@
+[Operator] tpu int32_add (x0[1025]:INT32, x1[1025]:INT32) -> INT32
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_tensorcore; mode=count
+[Memory] hbm: 12300 / 34359738368 B (chip)
+[Memory] vmem: 12288 / 16777216 B (tensorcore)
+[Memory] cmem: 0 / None B (None)
+[Action] hbm_read_bytes: 8200 byte (logical, action)
+[Action] hbm_write_bytes: 4100 byte (logical, action)
+[Action] vmem_input_write_bytes: 8200 byte (logical, action)
+[Action] vmem_operand_read_bytes: 8200 byte (logical, action)
+[Action] vmem_result_write_bytes: 4100 byte (logical, action)
+[Action] vmem_export_read_bytes: 4100 byte (logical, action)
+[Action] int32_add: 1025 op (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-d4t10qmh\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-d4t10qmh\report.json

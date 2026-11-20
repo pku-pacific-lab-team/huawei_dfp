@@ -9,6 +9,9 @@ from src.core.ascend import AscendSimulator
 from src.utils.ascend_config import AscendConfigLoader
 from src.utils.ascend_report import print_report, write_report
 from src.utils.workload import load_workload_config, parse_workloads
+from src.operators import adapt_gemm_report
+from src.runtime.cli import add_vector_arguments, handles_operator_workload, operator_options, write_operator_result, write_operator_results
+from src.runtime.workloads import execute_workload
 
 
 def parse_args(argv=None):
@@ -24,8 +27,11 @@ def parse_args(argv=None):
     parser.add_argument("--buffers", type=int, choices=[1, 2], default=None,
                         help="Maximum slots per local buffer; falls back to one where two do not fit")
     parser.add_argument("--trace", action="store_true", help="Include task and buffer-lifetime trace (timing only)")
+    parser.add_argument("--report-format", choices=["legacy", "operator"], default="legacy",
+                        help="operator: unified GEMM result and action ledger; legacy (default): existing report")
     parser.add_argument("--output", default=str(Path(__file__).resolve().parent / "results" / "ascend.json"),
-                        help="JSON report path (default: %(default)s; overwrites on success)")
+                        help="JSON report path (GEMM default: %(default)s; Vector/composite: project results/<arch>_<op>.json; overwrites on success)")
+    add_vector_arguments(parser)
     return parser.parse_args(argv)
 
 
@@ -33,12 +39,22 @@ def main(argv=None):
     args = parse_args(argv)
     try:
         loader = AscendConfigLoader(args.config_dir)
-        simulator = AscendSimulator(loader.load_hardware(args.hardware))
+        spec = loader.load_hardware(args.hardware)
         config = load_workload_config(args.workload, loader.config_dir)
+        if handles_operator_workload(config, args, argv):
+            result = execute_workload(config, "ascend", lambda: spec, mode=args.mode,
+                                      execution_file=args.vector_config, config_dir=loader.config_dir,
+                                      **operator_options(args, "ascend"))
+            write_operator_result(result, args, argv)
+            return 0
         workload = parse_workloads(config, args.format)[0]
         # --format 是显式覆盖，未指定时保留 workload 声明，不自动转成 INT8。
+        simulator = AscendSimulator(spec)
         result = simulator.simulate(workload, args.mode, tuple(args.tile) if args.tile is not None else None, args.l1_k,
                                     buffers=args.buffers, trace=args.trace)
+        if args.report_format == "operator":
+            write_operator_results([adapt_gemm_report("ascend", result, include_details=bool(args.details_output))], args)
+            return 0
         print_report(result)
         if args.output:
             write_report(result, args.output)

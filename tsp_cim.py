@@ -9,6 +9,9 @@ import sys
 from src.core.tsp_cim.simulator import TSPCIMSimulator
 from src.utils.tsp_cim_config import TSPCIMConfigLoader
 from src.utils.workload import parse_workloads
+from src.operators import adapt_gemm_report
+from src.runtime.cli import add_vector_arguments, handles_operator_workload, operator_options, write_operator_result, write_operator_results
+from src.runtime.workloads import execute_workload
 
 
 def parse_args():
@@ -30,8 +33,11 @@ def parse_args():
     parser.add_argument("--compare-mxm", action="store_true")
     parser.add_argument("--compare-loops", action="store_true")
     parser.add_argument("--sweep-m", nargs="+", type=int)
+    parser.add_argument("--report-format", choices=["legacy", "operator"], default="legacy",
+                        help="operator: unified GEMM result and action ledger; legacy (default): existing report")
     parser.add_argument("--output", default=str(Path(__file__).resolve().parent / "results" / "tsp_cim.json"),
-                        help="JSON report path (default: %(default)s; overwrites on success)")
+                        help="JSON report path (GEMM default: %(default)s; Vector/composite: project results/<arch>_<op>.json; overwrites on success)")
+    add_vector_arguments(parser)
     return parser.parse_args()
 
 
@@ -39,9 +45,17 @@ def main():
     args = parse_args()
     try:
         loader = TSPCIMConfigLoader(args.config_dir)
-        workloads = parse_workloads(loader.load_workload_config(args.workload), args.formats)
-        for workload in workloads:
-            print("[Effective workload] " + json.dumps(workload.to_dict(), ensure_ascii=False))
+        config = loader.load_workload_config(args.workload)
+        if handles_operator_workload(config, args):
+            result = execute_workload(config, "tsp_cim", lambda: loader.create_tsp_spec(loader.load_hardware_config(args.hardware)), mode=args.mode,
+                                      execution_file=args.vector_config, config_dir=loader.config_dir,
+                                      **operator_options(args, "tsp_cim"))
+            write_operator_result(result, args)
+            return 0
+        workloads = parse_workloads(config, args.formats)
+        if args.report_format == "legacy":
+            for workload in workloads:
+                print("[Effective workload] " + json.dumps(workload.to_dict(), ensure_ascii=False))
         spec = loader.create_tsp_spec(loader.load_hardware_config(args.hardware))
         results = []
         for workload in workloads:
@@ -60,6 +74,9 @@ def main():
             if args.sweep_m:
                 result["m_sweep"] = sim.sweep_m(args.sweep_m, workload.K, workload.N, args.loop_order, **policy)
             results.append(result)
+        if args.report_format == "operator":
+            write_operator_results([adapt_gemm_report("tsp_cim", report, include_details=bool(args.details_output)) for report in results], args)
+            return 0
         output = results[0] if len(results) == 1 else results
         print(json.dumps(output, ensure_ascii=False, indent=2, allow_nan=False))
         if args.output:

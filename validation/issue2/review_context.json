@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-11-20",
+  "record_type": "review_context_annotation",
+  "pull_request": "https://github.com/pku-pacific-lab-team/huawei_dfp/pull/7",
+  "github_review_status": "reviewed_and_merged",
+  "reviewer": "Bwoah-Kimi",
+  "fix_commit": "d49d258bdbb5aed501ed4f55e2f296f5e01233ff",
+  "merge_commit": "7c8418707f24d8e6b7148a4990b39e88b8d4d344",
+  "merge_evidence": "https://github.com/pku-pacific-lab-team/huawei_dfp/commit/7c8418707f24d8e6b7148a4990b39e88b8d4d344",
+  "summary": "PR #7 已经师兄审阅、修复并合入 main；本地 A1/A5 的 needs_review 表示审阅证据需与当前文件对齐，不表示还在等待师兄审阅这次 PR。",
+  "local_review_record": "validation/issue2/review.json",
+  "scope": "仅说明 PR #7 已合入的 Issue #2 版本；不覆盖后续本地或未提交的 Issue #3 修改。",
+  "criterion_signoff": "合并记录未逐项声明 A1/A5 签核；本标注不代替文件快照审阅，不自动改变验收结果。",
+  "follow_up": "后续不再仅因旧 needs_review 标记重复提醒师兄审阅 PR #7；新改动、新问题和本地证据维护分别处理。"
+}

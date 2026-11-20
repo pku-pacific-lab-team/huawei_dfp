@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "operation": "rmsnorm",
+  "inputs": [
+    {
+      "name": "x",
+      "shape": [
+        2,
+        1025
+      ],
+      "dtype": "FP32"
+    },
+    {
+      "name": "weight",
+      "shape": [
+        1025
+      ],
+      "dtype": "FP32"
+    }
+  ],
+  "axis": -1,
+  "epsilon": 1e-05
+}

@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "issue": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3",
+  "scope": "Operator execution policies only; native hardware provenance remains in parameter_source_audit.json.",
+  "hash_convention": "sha256 of UTF-8 canonical JSON: ensure_ascii=False, sort_keys=True, separators=(comma, colon)",
+  "sources": {
+    "vector_serial_policy_v1": {
+      "title": "独立 Vector 串行执行与 UB 服务假设",
+      "classification": "modeling_assumption",
+      "path": "ARCHITECTURE.md",
+      "section": "vector-operators",
+      "verification": "Explicit analytical policy; no published or measured UB bandwidth claim"
+    },
+    "normalization_serial_policy_v1": {
+      "title": "RMSNorm/Softmax 分行分阶段执行与归约依赖假设",
+      "classification": "modeling_assumption",
+      "path": "ARCHITECTURE.md",
+      "section": "normalization-operators",
+      "verification": "Explicit coarse work and storage policy; no silicon calibration claim"
+    }
+  },
+  "vector_execution_profiles": {
+    "configs/execution/vector.json": {
+      "canonical_json_sha256": "85eef7e2fa110f03cdd6e7aab4dc2ab36360674ba6693900b8eb6e98a2e1b0f6",
+      "schema_version": 2,
+      "parameters": {
+        "ascend_ub_read_bpc": {
+          "status": "assumed",
+          "decision": "Fixed uncalibrated 64*4 B/cycle UB service; only independent Ascend Vector uses it.",
+          "evidence": [
+            {
+              "source_id": "vector_serial_policy_v1",
+              "section": "vector-operators"
+            }
+          ]
+        },
+        "ascend_ub_write_bpc": {
+          "status": "assumed",
+          "decision": "Fixed uncalibrated 64*4 B/cycle UB service; only independent Ascend Vector uses it.",
+          "evidence": [
+            {
+              "source_id": "vector_serial_policy_v1",
+              "section": "vector-operators"
+            }
+          ]
+        }
+      },
+      "policy_source": "vector_serial_policy_v1",
+      "conditions": "Separate execution profile; native hardware parameter counts/hashes unchanged. TSP/CIM share one policy.",
+      "composite_parameters": {
+        "fp32_sub_cost": {
+          "status": "assumed",
+          "decision": "One scalar SUB modeled as one basic equivalent operation; shares native Vector/VXM budget, not calibrated.",
+          "evidence": [
+            {
+              "source_id": "normalization_serial_policy_v1",
+              "section": "normalization-operators"
+            }
+          ]
+        },
+        "fp32_max_cost": {
+          "status": "assumed",
+          "decision": "One pairwise MAX comparison/selection modeled as one equivalent operation; not calibrated.",
+          "evidence": [
+            {
+              "source_id": "normalization_serial_policy_v1",
+              "section": "normalization-operators"
+            }
+          ]
+        },
+        "fp32_rcp_cost": {
+          "status": "assumed",
+          "decision": "Algorithmic proxy: one seed-equivalent operation plus two Newton-style updates of two MUL and one SUB each: 1+2*3=7. Seed accuracy and numerical result are not modeled; not native reciprocal timing.",
+          "evidence": [
+            {
+              "source_id": "normalization_serial_policy_v1",
+              "section": "normalization-operators"
+            }
+          ]
+        },
+        "reduction_round_cycles": {
+          "status": "assumed",
+          "decision": "Minimum compute dependency interval per tree level or cross-tile binary merge. Total compute is max(weighted-work cycles, this value); memory and startup charged separately. Not a measured shuffle or lane-network latency.",
+          "evidence": [
+            {
+              "source_id": "normalization_serial_policy_v1",
+              "section": "normalization-operators"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

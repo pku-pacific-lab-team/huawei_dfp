@@ -8,4 +8,4 @@
 [Missing parameters] none
 [Assumptions] int8_macs_per_cell_cycle, vector_base_ops_per_cycle, vector_int32_add_cost, vector_fp32_basic_op_cost, vector_fp32_exp_cost, vector_fp32_rsqrt_cost, vmem_usable_bytes, vmem_bandwidth_bytes_per_second, cmem_usable_bytes, cmem_read_bandwidth_bytes_per_second, cmem_write_bandwidth_bytes_per_second, hbm_usable_bytes
 [Timing/energy/area] Not evaluated; chip peak is specification arithmetic
-[Report] C:\Users\86152\AppData\Local\Temp\issue2-tp4jba7t\report.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue2-hteza9nu\report.json

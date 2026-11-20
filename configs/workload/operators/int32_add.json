@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "operation": "vector",
+  "op": "int32_add",
+  "inputs": [
+    {
+      "name": "x0",
+      "shape": [
+        1025
+      ],
+      "dtype": "INT32"
+    },
+    {
+      "name": "x1",
+      "shape": [
+        1025
+      ],
+      "dtype": "INT32"
+    }
+  ]
+}

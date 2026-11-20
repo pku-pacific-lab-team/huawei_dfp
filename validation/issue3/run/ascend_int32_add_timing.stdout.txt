@@ -1,0 +1,14 @@
+[Operator] ascend int32_add (x0[1025]:INT32, x1[1025]:INT32) -> INT32
+[Time] 400 cycles; 4e-07 s (analytical_estimate)
+[Scope] single_core; mode=timing
+[Memory] hbm: 12300 / 32000000000 B (chip)
+[Memory] ub: 12288 / 262144 B (core)
+[Action] hbm_read_bytes: 8200 byte (logical, action)
+[Action] hbm_write_bytes: 4100 byte (logical, action)
+[Action] ub_input_write_bytes: 8200 byte (logical, action)
+[Action] ub_operand_read_bytes: 8200 byte (logical, action)
+[Action] ub_result_write_bytes: 4100 byte (logical, action)
+[Action] ub_export_read_bytes: 4100 byte (logical, action)
+[Action] int32_add: 1025 op (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-o835sd01\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-o835sd01\report.json

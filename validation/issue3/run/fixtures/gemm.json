@@ -1,0 +1,9 @@
+{
+  "operation": "gemm",
+  "gemm": {
+    "M": 2,
+    "K": 17,
+    "N": 7
+  },
+  "data_format": "INT8"
+}

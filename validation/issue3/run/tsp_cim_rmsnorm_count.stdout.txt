@@ -1,0 +1,13 @@
+[Operator] tsp_cim rmsnorm (x[2, 1025]:FP32, weight[1025]:FP32) -> FP32
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_hem; mode=count
+[Memory] mem: 24772 / 115343360 B (single_hem)
+[Action] mem_read_bytes: 49232 byte (logical, action)
+[Action] input_stream_bytes: 61440 byte (padded, action)
+[Action] mem_write_bytes: 32824 byte (logical, action)
+[Action] output_stream_bytes: 42880 byte (padded, action)
+[Action] fp32_mul: 6152 op (logical, action)
+[Action] fp32_add: 2050 op (logical, action)
+[Action] fp32_rsqrt: 2 op (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-6k_q92xe\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-6k_q92xe\report.json

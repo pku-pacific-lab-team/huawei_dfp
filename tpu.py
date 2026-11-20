@@ -9,6 +9,9 @@ from src.core.tpu import TPUSimulator
 from src.utils.tpu_config import TPUConfigLoader
 from src.utils.tpu_report import print_report, write_report
 from src.utils.workload import load_workload_config, parse_workloads
+from src.operators import adapt_gemm_report
+from src.runtime.cli import add_vector_arguments, handles_operator_workload, operator_options, write_operator_result, write_operator_results
+from src.runtime.workloads import execute_workload
 
 
 def parse_args(argv=None):
@@ -29,8 +32,11 @@ def parse_args(argv=None):
                         help="CMEM input-panel reuse or direct HBM-to-VMEM comparison; defaults to hardware policy")
     parser.add_argument("--cmem-groups", nargs=2, type=int, metavar=("M", "N"),
                         help="Maximum VMEM output-block counts per CMEM outer tile; capacity may shrink them")
+    parser.add_argument("--report-format", choices=["legacy", "operator"], default="legacy",
+                        help="operator: unified GEMM result and action ledger; legacy (default): existing report")
     parser.add_argument("--output", default=str(Path(__file__).resolve().parent / "results" / "tpu.json"),
-                        help="JSON report path (default: %(default)s; overwrites on success)")
+                        help="JSON report path (GEMM default: %(default)s; Vector/composite: project results/<arch>_<op>.json; overwrites on success)")
+    add_vector_arguments(parser)
     return parser.parse_args(argv)
 
 
@@ -39,11 +45,21 @@ def main(argv=None):
     try:
         loader = TPUConfigLoader(args.config_dir)
         spec = loader.load_hardware(args.hardware)
-        workload = parse_workloads(load_workload_config(args.workload, loader.config_dir), args.format)[0]
+        config = load_workload_config(args.workload, loader.config_dir)
+        if handles_operator_workload(config, args, argv):
+            result = execute_workload(config, "tpu", lambda: spec, mode=args.mode,
+                                      execution_file=args.vector_config, config_dir=loader.config_dir,
+                                      **operator_options(args, "tpu"))
+            write_operator_result(result, args, argv)
+            return 0
+        workload = parse_workloads(config, args.format)[0]
         # tile 是逻辑块上限，具体可行尺寸由 tiling.py 按 VMEM 容量确定。
         report = TPUSimulator(spec).simulate(workload, tile=tuple(args.tile) if args.tile is not None else None,
                     mode=args.mode, schedule=args.schedule, buffers=args.buffers,
                     cmem_mode=args.cmem_mode, cmem_groups_mn=args.cmem_groups, cmem_buffers=args.cmem_buffers)
+        if args.report_format == "operator":
+            write_operator_results([adapt_gemm_report("tpu", report, include_details=bool(args.details_output))], args)
+            return 0
         print_report(report)
         if args.output:
             write_report(report, args.output)

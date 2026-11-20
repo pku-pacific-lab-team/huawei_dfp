@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "issue": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3",
+  "scope": "implemented_batches_1_3_and_interface_finalization",
+  "reference_commit": "98e79ee5b34991f09c65efe395e1e84d58589fab",
+  "requirements": {
+    "I3_contracts": {
+      "title": "Tensor、算子与动作账本契约",
+      "test_modules": [
+        "tests.operators.test_contracts"
+      ],
+      "cli_operations": []
+    },
+    "I3_gemm_adapter": {
+      "title": "四架构 GEMM 统一报告与原生行为兼容",
+      "test_modules": [
+        "tests.operators.test_gemm",
+        "tests.operators.test_cli"
+      ],
+      "cli_operations": [
+        "gemm"
+      ]
+    },
+    "I3_vector": {
+      "title": "五种独立 Vector/Nonlinear 的执行、容量、时间和来源",
+      "test_modules": [
+        "tests.operators.test_vector",
+        "tests.operators.test_vector_cli",
+        "tests.operators.test_vector_config"
+      ],
+      "cli_operations": [
+        "int32_add",
+        "fp32_add",
+        "fp32_mul",
+        "fp32_exp",
+        "fp32_rsqrt"
+      ]
+    },
+    "I3_normalization": {
+      "title": "RMSNorm/Softmax 调度、手算对账与符号缓冲生命周期",
+      "test_modules": [
+        "tests.operators.test_composite",
+        "tests.operators.test_composite_cli",
+        "tests.operators.test_composite_storage"
+      ],
+      "cli_operations": [
+        "rmsnorm",
+        "softmax"
+      ]
+    },
+    "I3_interfaces": {
+      "title": "Tensor 身份、语义属性、连接边界、严格输入校验与报告路径",
+      "test_modules": [
+        "tests.operators.test_interface_finalization",
+        "tests.operators.test_output"
+      ],
+      "cli_operations": [
+        "reject_null_profile",
+        "reject_unsupported"
+      ]
+    },
+    "I3_layering": {
+      "title": "执行分层、原生结果适配、显式内存路径与重构前结果对账",
+      "test_modules": [
+        "tests.operators.test_layering"
+      ],
+      "cli_operations": []
+    },
+    "I3_evidence": {
+      "title": "验收范围、失败传播和证据目录隔离",
+      "test_modules": [
+        "tests.validation.test_verification",
+        "tests.validation.test_run_all"
+      ],
+      "cli_operations": []
+    },
+    "I3_reporting": {
+      "title": "Compact operator results, separate diagnostics and batch summaries",
+      "test_modules": [
+        "tests.operators.test_reporting"
+      ],
+      "cli_operations": []
+    }
+  },
+  "pending_work": [
+    "Attention、SwiGLU/FFN、残差、KV Cache、MoE 等其余复合块",
+    "目标模型的完整算子覆盖矩阵与整模端到端验证",
+    "跨算子 dtype 转换、布局与驻留的执行及成本模型；当前只提供连接需求描述",
+    "数值执行、精度验证及硬件标定不属于当前解析计数/时间验证"
+  ]
+}

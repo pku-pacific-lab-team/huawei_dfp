@@ -1,0 +1,14 @@
+[Operator] ascend fp32_exp (x0[1025]:FP32) -> FP32
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_core; mode=count
+[Memory] hbm: 8200 / 32000000000 B (chip)
+[Memory] ub: 8192 / 262144 B (core)
+[Action] hbm_read_bytes: 4100 byte (logical, action)
+[Action] hbm_write_bytes: 4100 byte (logical, action)
+[Action] ub_input_write_bytes: 4100 byte (logical, action)
+[Action] ub_operand_read_bytes: 4100 byte (logical, action)
+[Action] ub_result_write_bytes: 4100 byte (logical, action)
+[Action] ub_export_read_bytes: 4100 byte (logical, action)
+[Action] fp32_exp: 1025 op (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-dcgwadb9\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-dcgwadb9\report.json

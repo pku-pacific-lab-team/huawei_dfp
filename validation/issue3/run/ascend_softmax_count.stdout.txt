@@ -1,0 +1,19 @@
+[Operator] ascend softmax (x[2, 4, 1025]:FP32) -> FP32
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_core; mode=count
+[Memory] hbm: 65600 / 32000000000 B (chip)
+[Memory] ub: 4104 / 262144 B (core)
+[Action] hbm_read_bytes: 98400 byte (logical, action)
+[Action] ub_dma_write_bytes: 98400 byte (logical, action)
+[Action] ub_read_bytes: 229696 byte (logical, action)
+[Action] ub_write_bytes: 164032 byte (logical, action)
+[Action] fp32_max: 8192 op (logical, action)
+[Action] fp32_sub: 8200 op (logical, action)
+[Action] fp32_exp: 8200 op (logical, action)
+[Action] hbm_write_bytes: 65600 byte (logical, action)
+[Action] ub_dma_read_bytes: 65600 byte (logical, action)
+[Action] fp32_add: 8192 op (logical, action)
+[Action] fp32_rcp: 8 op (logical, action)
+[Action] fp32_mul: 8200 op (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-p3umhqbo\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-p3umhqbo\report.json

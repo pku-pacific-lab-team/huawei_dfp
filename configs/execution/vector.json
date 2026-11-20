@@ -1,0 +1,116 @@
+{
+  "schema_version": 2,
+  "model": "vector_serial",
+  "profile_id": "vector_and_normalization_reference_v2",
+  "policies": {
+    "ascend": {
+      "scope": "single_core",
+      "path": "hbm_ub_bypass_l2",
+      "schedule": "serial_tiles_and_stages",
+      "tile_elements": 1024,
+      "transfer_startup_cycles": 0,
+      "compute_startup_cycles": 0,
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#vector-operators",
+      "version": "vector-serial-v1",
+      "conditions": "HBM 与 UB 同时预约的 DMA 取两端最小服务率。输入 DMA、UB 操作数读取、计算、UB 结果写入、导出 DMA 分阶段串行，L2 bypass。每次算子调用为冷启动。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+    },
+    "tpu": {
+      "scope": "single_tensorcore",
+      "path": "hbm_vmem_bypass_cmem",
+      "schedule": "serial_tiles_and_stages",
+      "tile_elements": 1024,
+      "transfer_startup_cycles": 0,
+      "compute_startup_cycles": 0,
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#vector-operators",
+      "version": "vector-serial-v1",
+      "conditions": "HBM 按 TensorCore 数均分，VMEM 为单核共享服务。输入 DMA、操作数读取、计算、结果写入、导出 DMA 分阶段串行；CMEM bypass。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+    },
+    "tsp": {
+      "scope": "single_hem",
+      "path": "resident_mem_stream_vxm",
+      "schedule": "serial_tiles_and_stages",
+      "tile_elements": 1024,
+      "transfer_startup_cycles": 0,
+      "compute_startup_cycles": 0,
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#vector-operators",
+      "version": "vector-serial-v1",
+      "conditions": "完整输入和输出驻留所选本侧 MEM。每个输入读取受 MEM 和输入 stream 共同约束；输出写回受 MEM 和输出 stream 共同约束。FP32/INT32 每元素 4 byte，stream 每块按完整宽度补齐，MEM 只计逻辑载荷。使用一个共享 VXM 任务预算，CIM 不复制预算。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+    }
+  },
+  "parameters": {
+    "ascend_ub_read_bpc": {
+      "value": 256,
+      "unit": "byte/cycle",
+      "scope": "core",
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#vector-operators",
+      "source_version": "vector-serial-v1",
+      "conditions": "每周期 64 个 32-bit 字作为独立 UB 端口服务代理：64*4=256 B/cycle。参考现有 Vector 预算量级选择，不是实测 UB 带宽；数值固定，不随 compute budget 修改。读写分阶段串行，DMA 同时预约 HBM 和 UB。",
+      "verification": "explicit_uncalibrated_model_assumption"
+    },
+    "ascend_ub_write_bpc": {
+      "value": 256,
+      "unit": "byte/cycle",
+      "scope": "core",
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#vector-operators",
+      "source_version": "vector-serial-v1",
+      "conditions": "每周期 64 个 32-bit 字作为独立 UB 端口服务代理：64*4=256 B/cycle。参考现有 Vector 预算量级选择，不是实测 UB 带宽；数值固定，不随 compute budget 修改。读写分阶段串行，DMA 同时预约 HBM 和 UB。",
+      "verification": "explicit_uncalibrated_model_assumption"
+    }
+  },
+  "composite": {
+    "schedule": "serial_rows_passes_tiles",
+    "reduction": "balanced_tile_tree_serial_merge",
+    "storage": "rmsnorm_reread_softmax_output_workspace",
+    "status": "assumed",
+    "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+    "version": "normalization-serial-v1",
+    "conditions": "Last-axis FP32. Serial rows, passes and tiles. Balanced binary reduction levels wait for predecessors; partials merge into one row state. Constants are implicit; one scalar read per tile broadcasts without extra shuffle work. RMSNorm rereads x and loads weight per row. Softmax stores exp in the output allocation, then normalizes it. No numerical accuracy or hardware-instruction claims.",
+    "parameters": {
+      "fp32_sub_cost": {
+        "value": 1,
+        "unit": "equivalent_op/op",
+        "scope": "task",
+        "status": "assumed",
+        "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+        "source_version": "normalization-serial-v1",
+        "conditions": "One scalar SUB modeled as one basic equivalent operation; shares native Vector/VXM budget, not calibrated.",
+        "verification": "explicit_uncalibrated_model_assumption"
+      },
+      "fp32_max_cost": {
+        "value": 1,
+        "unit": "equivalent_op/op",
+        "scope": "task",
+        "status": "assumed",
+        "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+        "source_version": "normalization-serial-v1",
+        "conditions": "One pairwise MAX comparison/selection modeled as one equivalent operation; not calibrated.",
+        "verification": "explicit_uncalibrated_model_assumption"
+      },
+      "fp32_rcp_cost": {
+        "value": 7,
+        "unit": "equivalent_op/op",
+        "scope": "task",
+        "status": "assumed",
+        "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+        "source_version": "normalization-serial-v1",
+        "conditions": "Algorithmic proxy: one seed-equivalent operation plus two Newton-style updates of two MUL and one SUB each: 1+2*3=7. Seed accuracy and numerical result are not modeled; not native reciprocal timing.",
+        "verification": "explicit_uncalibrated_model_assumption"
+      },
+      "reduction_round_cycles": {
+        "value": 1,
+        "unit": "cycle",
+        "scope": "task",
+        "status": "assumed",
+        "source": "model-policy; ARCHITECTURE.md#normalization-operators",
+        "source_version": "normalization-serial-v1",
+        "conditions": "Minimum compute dependency interval per tree level or cross-tile binary merge. Total compute is max(weighted-work cycles, this value); memory and startup charged separately. Not a measured shuffle or lane-network latency.",
+        "verification": "explicit_uncalibrated_model_assumption"
+      }
+    }
+  }
+}

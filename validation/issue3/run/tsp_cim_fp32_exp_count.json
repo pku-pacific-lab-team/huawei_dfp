@@ -1,0 +1,146 @@
+{
+  "schema_version": 2,
+  "kind": "operator_result",
+  "status": "success",
+  "architecture": "tsp_cim",
+  "mode": "count",
+  "operator": {
+    "kind": "fp32_exp",
+    "inputs": [
+      {
+        "name": "x0",
+        "shape": [
+          1025
+        ],
+        "dtype": "FP32",
+        "numel": 1025,
+        "logical_bytes": 4100
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "shape": [
+          1025
+        ],
+        "dtype": "FP32",
+        "numel": 1025,
+        "logical_bytes": 4100
+      }
+    ],
+    "accumulation_dtype": null,
+    "attributes": {}
+  },
+  "latency_s": null,
+  "cycle_count": null,
+  "timing_status": "not_evaluated",
+  "boundary": {
+    "scope": "single_hem",
+    "chip_execution_included": false,
+    "numeric_values_simulated": false,
+    "in_place_included": false,
+    "start": "tensors_in_local_MEM",
+    "end": "output_in_local_MEM",
+    "selected_hemisphere": 0,
+    "offchip_supply_included": false,
+    "compute_resource": "one_shared_vxm_service",
+    "macro_execution_included": false
+  },
+  "work_counts": {
+    "logical": {
+      "operations": 1025,
+      "operation_counts": {
+        "fp32_exp": 1025
+      },
+      "output_bytes": 4100
+    },
+    "issued": {
+      "operations": null,
+      "status": "not_modeled",
+      "basis": "No SIMD instruction/padded arithmetic issue model"
+    },
+    "internal": {
+      "status": "not_modeled",
+      "action_references": []
+    }
+  },
+  "resource_requirements": {
+    "mem": {
+      "scope": "single_hem",
+      "required_bytes": 8272,
+      "capacity_bytes": 115343360,
+      "requirement_basis": "resident_bytes"
+    }
+  },
+  "action_counts": {
+    "mem_read_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 4100,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "mem_write_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 4100,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "input_stream_bytes": {
+      "component": "stream_to_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 4480,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available"
+    },
+    "output_stream_bytes": {
+      "component": "stream_from_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 4480,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available"
+    },
+    "fp32_exp": {
+      "component": "vxm",
+      "name": "fp32_exp",
+      "category": "nonlinear",
+      "count": 1025,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    }
+  },
+  "coverage": {
+    "offchip_memory": "outside_native_boundary",
+    "interconnect": "onchip_streams_only",
+    "physical_memory_transactions": "not_modeled"
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null
+  }
+}

@@ -1,0 +1,20 @@
+[Operator] ascend gemm (A[2, 17]:INT8, B[17, 7]:INT8) -> INT32
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_core; mode=count
+[Memory] L1: 2048 / 1048576 B (core)
+[Memory] L0A: 1024 / 65536 B (core)
+[Memory] L0B: 1024 / 65536 B (core)
+[Memory] L0C: 2048 / 262144 B (core)
+[Memory] UB: 2048 / 262144 B (core)
+[Memory] l2: 1024 / 1048576 B (core_share_of_chip)
+[Memory] hbm: 2048 / 32000000000 B (chip)
+[Action] l1_l0a: 512 byte (padded, action)
+[Action] l1_l0b: 512 byte (padded, action)
+[Action] l0c_ub: 1024 byte (padded, action)
+[Action] hbm_read_bytes: 1024 byte (padded, action)
+[Action] l2_fill_bytes: 1024 byte (padded, action)
+[Action] l2_read_bytes: 1024 byte (padded, action)
+[Action] hbm_write_bytes: 1024 byte (padded, action)
+[Action] cube_mac: 8192 MAC (padded, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-u0y2qxan\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-u0y2qxan\report.json

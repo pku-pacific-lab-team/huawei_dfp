@@ -1,0 +1,16 @@
+[Operator] ascend rmsnorm (x[2, 1025]:FP32, weight[1025]:FP32) -> FP32
+[Time] 1412 cycles; 1.412e-06 s (analytical_estimate)
+[Scope] single_core; mode=timing
+[Memory] hbm: 20500 / 32000000000 B (chip)
+[Memory] ub: 8196 / 262144 B (core)
+[Action] hbm_read_bytes: 24600 byte (logical, action)
+[Action] ub_dma_write_bytes: 24600 byte (logical, action)
+[Action] ub_read_bytes: 49232 byte (logical, action)
+[Action] ub_write_bytes: 32824 byte (logical, action)
+[Action] fp32_mul: 6152 op (logical, action)
+[Action] fp32_add: 2050 op (logical, action)
+[Action] fp32_rsqrt: 2 op (logical, action)
+[Action] hbm_write_bytes: 8200 byte (logical, action)
+[Action] ub_dma_read_bytes: 8200 byte (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-1jeui_5f\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-1jeui_5f\report.json
