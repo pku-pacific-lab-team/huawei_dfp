@@ -1,0 +1,26 @@
+[Operator] tpu vocabulary_projection (x[2, 7]:INT8, weight[7, 19]:INT8) -> FP32
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_tensorcore; mode=count
+[Memory] cmem: 147 / 67108864 B (single_tensorcore)
+[Memory] vmem: 446 / 16777216 B (tensorcore)
+[Memory] hbm: 451 / 34359738368 B (chip)
+[Action] projection.matrix_mac: 266 MAC (logical, action)
+[Action] projection.hbm_read_bytes: 147 byte (logical, action)
+[Action] projection.hbm_write_bytes: 152 byte (logical, action)
+[Action] projection.cmem_write_bytes: 147 byte (logical, action)
+[Action] projection.cmem_read_bytes: 147 byte (logical, action)
+[Action] projection.vmem_input_write_bytes: 147 byte (logical, action)
+[Action] projection.vmem_input_read_bytes: 147 byte (logical, action)
+[Action] projection.vmem_psum_read_bytes: 0 byte (logical, action)
+[Action] projection.vmem_psum_write_bytes: 0 byte (logical, action)
+[Action] projection.vmem_final_write_bytes: 152 byte (logical, action)
+[Action] projection.vmem_export_read_bytes: 152 byte (logical, action)
+[Action] logits_storage.hbm_read_bytes: 152 byte (logical, action)
+[Action] logits_storage.vmem_dma_write_bytes: 152 byte (logical, action)
+[Action] logits_storage.vmem_read_bytes: 152 byte (logical, action)
+[Action] logits_storage.vmem_write_bytes: 152 byte (logical, action)
+[Action] logits_storage.boundary_to_fp32: 38 element (modeled_internal, action)
+[Action] logits_storage.hbm_write_bytes: 152 byte (logical, action)
+[Action] logits_storage.vmem_dma_read_bytes: 152 byte (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-xh68jbq0\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-xh68jbq0\report.json

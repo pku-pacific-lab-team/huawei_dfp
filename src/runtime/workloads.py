@@ -27,7 +27,8 @@ def execute_workload(config, architecture, load_spec, *, mode, execution_file=No
     if attention_execution_file is not None:
         raise ValueError("Attention profile requires kv_cache/decode_attention")
     if isinstance(config, dict) and config.get("operation") in ("residual", "swiglu", "swiglu_ffn",
-                                                              "rmsnorm_int8", "qkv_projection", "attention_output_projection"):
+                                                              "rmsnorm_int8", "qkv_projection", "attention_output_projection",
+                                                              "rope", "embedding", "vocabulary_projection"):
         return simulate_block(parse_block_workload(config), architecture, load_spec(), mode=mode,
                               execution=load_vector_execution(architecture, execution_file, config_dir),
                               block_execution=load_block_execution(block_execution_file, config_dir), **policy)

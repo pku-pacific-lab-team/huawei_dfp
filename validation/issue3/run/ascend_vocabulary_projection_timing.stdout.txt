@@ -1,0 +1,27 @@
+[Operator] ascend vocabulary_projection (x[2, 7]:INT8, weight[7, 19]:INT8) -> FP32
+[Time] 150 cycles; 1.5e-07 s (analytical_estimate)
+[Scope] single_core; mode=timing
+[Memory] l1: 3072 / 1048576 B (core)
+[Memory] l0a: 1024 / 65536 B (core)
+[Memory] l0b: 2048 / 65536 B (core)
+[Memory] l0c: 4096 / 262144 B (core)
+[Memory] ub: 4096 / 262144 B (core)
+[Memory] l2: 1536 / 1048576 B (core_share_of_chip)
+[Memory] hbm: 3736 / 32000000000 B (chip)
+[Action] projection.l1_l0a: 512 byte (padded, action)
+[Action] projection.l1_l0b: 1024 byte (padded, action)
+[Action] projection.l0c_ub: 2048 byte (padded, action)
+[Action] projection.hbm_read_bytes: 1536 byte (padded, action)
+[Action] projection.l2_fill_bytes: 1536 byte (padded, action)
+[Action] projection.l2_read_bytes: 1536 byte (padded, action)
+[Action] projection.hbm_write_bytes: 2048 byte (padded, action)
+[Action] projection.cube_mac: 16384 MAC (padded, action)
+[Action] logits_storage.hbm_read_bytes: 152 byte (logical, action)
+[Action] logits_storage.ub_dma_write_bytes: 152 byte (logical, action)
+[Action] logits_storage.ub_read_bytes: 152 byte (logical, action)
+[Action] logits_storage.ub_write_bytes: 152 byte (logical, action)
+[Action] logits_storage.boundary_to_fp32: 38 element (modeled_internal, action)
+[Action] logits_storage.hbm_write_bytes: 152 byte (logical, action)
+[Action] logits_storage.ub_dma_read_bytes: 152 byte (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-okdv1dpx\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-okdv1dpx\report.json

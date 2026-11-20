@@ -1,0 +1,378 @@
+{
+  "schema_version": 2,
+  "kind": "operator_result",
+  "status": "success",
+  "architecture": "ascend",
+  "mode": "count",
+  "operator": {
+    "kind": "vocabulary_projection",
+    "inputs": [
+      {
+        "name": "x",
+        "shape": [
+          2,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 14,
+        "logical_bytes": 14
+      },
+      {
+        "name": "weight",
+        "shape": [
+          7,
+          19
+        ],
+        "dtype": "INT8",
+        "numel": 133,
+        "logical_bytes": 133
+      }
+    ],
+    "outputs": [
+      {
+        "name": "logits",
+        "shape": [
+          2,
+          19
+        ],
+        "dtype": "FP32",
+        "numel": 38,
+        "logical_bytes": 152
+      }
+    ],
+    "accumulation_dtype": "INT32",
+    "attributes": {
+      "bias": false,
+      "output_semantics": "logits",
+      "softmax_or_sampling_included": false
+    }
+  },
+  "latency_s": null,
+  "cycle_count": null,
+  "timing_status": "not_evaluated",
+  "boundary": {
+    "scope": "single_core",
+    "chip_execution_included": false,
+    "numeric_values_simulated": false,
+    "start": "tensors_in_HBM",
+    "end": "output_in_HBM",
+    "intermediate_storage": "HBM",
+    "offchip_supply_included": true,
+    "input_output_alias_included": false,
+    "layout": "symbolic_padded_views"
+  },
+  "work_counts": {
+    "logical": {
+      "operations": 532,
+      "useful_macs": 266,
+      "operation_counts": {},
+      "output_bytes": 152
+    },
+    "issued": {
+      "operations": null,
+      "status": "per_node_only",
+      "basis": "See native matrix counts; no SIMD issue model"
+    },
+    "internal": {
+      "boundary_elements": {
+        "boundary_to_fp32": 38
+      },
+      "status": "per_node_only"
+    }
+  },
+  "resource_requirements": {
+    "l1": {
+      "scope": "core",
+      "required_bytes": 3072,
+      "capacity_bytes": 1048576,
+      "requirement_basis": "peak_bytes"
+    },
+    "l0a": {
+      "scope": "core",
+      "required_bytes": 1024,
+      "capacity_bytes": 65536,
+      "requirement_basis": "peak_bytes"
+    },
+    "l0b": {
+      "scope": "core",
+      "required_bytes": 2048,
+      "capacity_bytes": 65536,
+      "requirement_basis": "peak_bytes"
+    },
+    "l0c": {
+      "scope": "core",
+      "required_bytes": 4096,
+      "capacity_bytes": 262144,
+      "requirement_basis": "peak_bytes"
+    },
+    "ub": {
+      "scope": "core",
+      "required_bytes": 4096,
+      "capacity_bytes": 262144,
+      "requirement_basis": "peak_bytes"
+    },
+    "l2": {
+      "scope": "core_share_of_chip",
+      "required_bytes": 1536,
+      "capacity_bytes": 1048576,
+      "requirement_basis": "peak_bytes"
+    },
+    "hbm": {
+      "scope": "chip",
+      "required_bytes": 3736,
+      "capacity_bytes": 32000000000,
+      "requirement_basis": "peak_bytes"
+    }
+  },
+  "action_counts": {
+    "projection.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "projection",
+        "native_action": "l1_l0a"
+      }
+    },
+    "projection.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "projection",
+        "native_action": "l1_l0b"
+      }
+    },
+    "projection.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 2048,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "projection",
+        "native_action": "l0c_ub"
+      }
+    },
+    "projection.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1536,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "projection",
+        "native_action": "hbm_read_bytes"
+      }
+    },
+    "projection.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1536,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "projection",
+        "native_action": "l2_fill_bytes"
+      }
+    },
+    "projection.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1536,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "projection",
+        "native_action": "l2_read_bytes"
+      }
+    },
+    "projection.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 2048,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "projection",
+        "native_action": "hbm_write_bytes"
+      }
+    },
+    "projection.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 16384,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "projection",
+        "native_action": "cube_mac"
+      }
+    },
+    "logits_storage.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 152,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "logits_storage",
+        "native_action": "hbm_read_bytes"
+      }
+    },
+    "logits_storage.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 152,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "logits_storage",
+        "native_action": "ub_dma_write_bytes"
+      }
+    },
+    "logits_storage.ub_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 152,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "logits_storage",
+        "native_action": "ub_read_bytes"
+      }
+    },
+    "logits_storage.ub_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 152,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "logits_storage",
+        "native_action": "ub_write_bytes"
+      }
+    },
+    "logits_storage.boundary_to_fp32": {
+      "component": "vector",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 38,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "logits_storage",
+        "native_action": "boundary_to_fp32"
+      }
+    },
+    "logits_storage.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 152,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "logits_storage",
+        "native_action": "hbm_write_bytes"
+      }
+    },
+    "logits_storage.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 152,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "logits_storage",
+        "native_action": "ub_dma_read_bytes"
+      }
+    }
+  },
+  "coverage": {
+    "offchip_memory": "native_payload_counts",
+    "interconnect": "not_modeled",
+    "physical_memory_transactions": "not_modeled"
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null
+  }
+}

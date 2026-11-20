@@ -19,6 +19,15 @@ def make_path(op, arch, spec, execution, mode, live_bytes, capacity, allocation,
         scratch_per_element = 0
     scratch_per_element += 4 * (op.operation == "swiglu")
     scratch_per_element += 4 * (output.dtype == "INT8" and op.operation not in {"ffn_output", "storage_boundary"})
+    stored_per_element = sum(t.nbytes // t.numel for t in op.inputs) + output.nbytes // output.numel
+    return make_workspace_path(arch, spec, execution, mode, live_bytes, capacity, allocation, tile_elements,
+                               elements=output.numel, scratch_per_element=scratch_per_element,
+                               stored_per_element=stored_per_element)
+
+
+def make_workspace_path(arch, spec, execution, mode, live_bytes, capacity, allocation, tile_elements, *,
+                        elements, scratch_per_element, stored_per_element, local_fixed_bytes=0):
+    """Shared architectural services with caller-declared, disjoint tile slots."""
     timed = mode == "timing"
     resident = allocation is not None
     native = spec.native_reference_spec if arch == "tsp_cim" else spec
@@ -27,7 +36,7 @@ def make_path(op, arch, spec, execution, mode, live_bytes, capacity, allocation,
         # Scratch is one byte-striped pool, with disjoint logical subranges.
         available = capacity - live_bytes
         per_element = scratch_per_element
-        max_tile = available // per_element if per_element else output.numel
+        max_tile = available // per_element if per_element else elements
         resources = resident_services(native, allocation, timed)
         clock = None if native.clock_freq_ghz is None else Fraction(str(native.clock_freq_ghz)) * 10**9
         compute, budget = native.vxm_service_cycles, native.values["vxm_base_ops_per_cycle"]
@@ -38,8 +47,8 @@ def make_path(op, arch, spec, execution, mode, live_bytes, capacity, allocation,
     else:
         local = "ub" if arch == "ascend" else "vmem"
         available = spec.capacities["UB"] if arch == "ascend" else int(positive(spec.values["vmem_usable_bytes"], "vmem_usable_bytes"))
-        per_element = scratch_per_element + sum(t.nbytes // t.numel for t in op.inputs) + output.nbytes // output.numel
-        max_tile = available // per_element
+        per_element = scratch_per_element + stored_per_element
+        max_tile = (available - local_fixed_bytes) // per_element
         resources = ascend_services(spec, execution, timed) if arch == "ascend" else tpu_services(spec, timed)
         clock = (None if spec.clock_ghz is None else Fraction(str(spec.clock_ghz)) * 10**9) if arch == "ascend" else spec.values["clock_hz"]
         compute = spec.vector_service_cycles
@@ -51,7 +60,7 @@ def make_path(op, arch, spec, execution, mode, live_bytes, capacity, allocation,
                      "ascend_ub_read_bpc", "ascend_ub_write_bpc", "vector.base_ops_per_cycle"] if arch == "ascend" else
                     ["clock_hz", "hbm_bandwidth_bytes_per_second", "tensorcores_per_chip",
                      "vmem_bandwidth_bytes_per_second", "vector_base_ops_per_cycle"])
-    tile, _ = tile_groups(output.numel, tile_elements, execution, max_tile)
+    tile, _ = tile_groups(elements, tile_elements, execution, max_tile)
     if resident:
         slices = len(allocation.slices)
         scratch = ((tile * per_element + slices - 1) // slices) * slices
@@ -64,7 +73,7 @@ def make_path(op, arch, spec, execution, mode, live_bytes, capacity, allocation,
     else:
         memory = {"hbm": {"scope": "chip", "capacity_bytes": capacity, "peak_bytes": live_bytes},
                   local: {"scope": "core" if arch == "ascend" else "tensorcore", "capacity_bytes": available,
-                          "allocated_bytes": tile * per_element, "scratch_tile_bytes": tile * scratch_per_element}}
+                          "allocated_bytes": tile * per_element + local_fixed_bytes, "scratch_tile_bytes": tile * scratch_per_element}}
         boundary = {"start": "tensors_in_HBM", "end": "output_in_HBM", "cache_policy": "bypass_for_elementwise"}
     kwargs = dict(spec=native, timed=timed, tile=tile,
                   requested_tile=execution.policy["tile_elements"] if tile_elements is None else tile_elements,

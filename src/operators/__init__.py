@@ -8,11 +8,13 @@ from .composite import RMSNorm, Softmax, simulate_composite
 from .connections import plan_connection
 from .blocks import Residual, SwiGLU, SwiGLUFFN, simulate_block
 from .attention import KVCacheSpec, KVCacheAccess, DecodeAttention, simulate_kv_cache, simulate_attention
-from .projections import RMSNormINT8, QKVProjection, AttentionOutputProjection
+from .projections import RMSNormINT8, QKVProjection, AttentionOutputProjection, VocabularyProjection
+from .rope import RoPE
+from .embedding import Embedding
 
 __all__ = ["Action", "ActionLedger", "Gemm", "OperatorSpec", "OpResult", "TensorSpec",
            "adapt_gemm_report", "simulate_gemm", "Vector", "simulate_vector",
            "RMSNorm", "Softmax", "simulate_composite", "plan_connection",
            "Residual", "SwiGLU", "SwiGLUFFN", "simulate_block",
            "KVCacheSpec", "KVCacheAccess", "DecodeAttention", "simulate_kv_cache", "simulate_attention",
-           "RMSNormINT8", "QKVProjection", "AttentionOutputProjection"]
+           "RMSNormINT8", "QKVProjection", "AttentionOutputProjection", "VocabularyProjection", "RoPE", "Embedding"]

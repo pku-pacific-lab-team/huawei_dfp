@@ -13,6 +13,7 @@
 - [Residual / SwiGLU / FFN（Issue #3 第四批）](#decode-blocks)
 - [Decode Attention / GQA 与 KV Cache（Issue #3 第五批）](#decode-attention)
 - [INT8 RMSNorm 与 Attention 投影（Issue #3 第六批 A）](#decode-projections)
+- [RoPE、Embedding 与词表输出（Issue #3 第六批 B）](#position-vocabulary)
 - [Ascend 910](#ascend)
 - [TPU v4](#tpu)
 - [原生 TSP](#tsp)与[完整参数来源表](#tsp-parameters)
@@ -335,7 +336,7 @@ Attention 总时间为一次缓存追加，加上 B*Hq 次完整 head 模板的 
 
 Cache 手算取 HBM或所选单 MEM slice=16 B/cycle、本地32 B/cycle、启动0：每个 K/V head 追加7 B读写各1 cycle，读取42 B用3 cycle，8个 K/V head 总40 cycle。测试进一步覆盖空缓存首次追加、满缓存拒绝、只读 MHA/GQA/MQA、batch/sequence/capacity 独立缩放、重复模板不展开、尾块、原生结果保真、slice 条带化、临时区容量、未知成本/时钟和四入口失败保护。
 
-`validation/issue3/model_coverage.json` 是初始目标模型块清单，区分 implemented/partial/pending，给出代码、测试和缺口归属。它没有宣称模型整体完成：RoPE、词表投影输出边界、embedding、MLA、MoE 等仍需补齐；INT8 RMSNorm 与常规 Attention 投影已在第六批 A 实现。完整模型拼装属于 Issue #4，整片调度另行推进。
+`validation/issue3/model_coverage.json` 是初始目标模型块清单，区分 implemented/partial/pending，给出代码、测试和缺口归属。它没有宣称模型整体完成：MLA、MoE 等仍需补齐；INT8 RMSNorm 与常规 Attention 投影已在第六批 A 实现，RoPE、Embedding 与词表输出边界已在第六批 B 实现。完整模型拼装属于 Issue #4，整片调度另行推进。
 
 <a id="decode-projections"></a>
 
@@ -355,7 +356,43 @@ Ascend/TPU 使用 HBM 物化边界和原有 UB/VMEM 服务；TSP/CIM 把同时�
 
 独立手算样例 B=2、H=17、Hq=4、Hkv=2、D=7：QKV 有效 MAC=1904，边界各112元素，INT8 输出总112 B。TPU 六步 HBM 存储为1210/1266/1154/1182/1182/1210 B，峰值1266 B；HBM 读1502 B、写560 B。输出投影 Hout=17 时有效 MAC=952，两步存储668/702 B，无额外 head 拼接副本。TSP 三 slice、RMSNorm `[1,7]`、reserved=17 B、tile=3 时，归一化存储117 B，条带化 scratch/行状态18 B，峰值135 B。
 
-`tests/operators/test_projections*.py` 覆盖这些手算、原生 action/role 保真、四架构 count/timing、一份 backing、多输出存活、全块容量超限、局部最小临时空间、类型/形状/别名拒绝、成本敏感性及 CLI 输出保护。该范围仍是单核/单半片；RoPE、Embedding、词表输出边界、MLA/MoE 与整片调度待后续实现，模型拼装属于 Issue #4。
+`tests/operators/test_projections*.py` 覆盖这些手算、原生 action/role 保真、四架构 count/timing、一份 backing、多输出存活、全块容量超限、局部最小临时空间、类型/形状/别名拒绝、成本敏感性及 CLI 输出保护。该范围仍是单核/单半片；RoPE、Embedding 和词表输出边界由第六批 B 补齐，MLA/MoE 与整片调度待后续实现，模型拼装属于 Issue #4。
+
+<a id="position-vocabulary"></a>
+
+## RoPE、Embedding 与词表输出（Issue #3 第六批 B）
+
+三个块均通过既有串行组合执行层返回 OpResult，使用同一套硬件服务和执行 profile。形状与算法边界参考 [LLaMA3 官方实现](https://github.com/meta-llama/llama3/blob/main/llama/model.py)：Q/K 在写入缓存前应用旋转，模型入口读取 token embedding，末端投影输出转为浮点。INT8 存储、内部 FP32 与转换成本是本工程的性能假设，来源与限制记录在 `calibration/operator_execution_audit.json.decode_position_vocabulary_blocks`。
+
+### RoPE：预计算表与通道对
+
+`RoPE(query, key, cos, sin, position)` 接受 INT8 Q `[B,Hq,1,D]`、K `[B,Hkv,1,D]`，Hq 为 Hkv 的整数倍，D 为偶数。两张 FP32 表各为 `[C,D/2]`，`position` 为非布尔整数且在 `[0,C)` 内；当前 batch 位置统一。表生成、三角函数求值、部分 head 旋转和 MLA 解耦位置分支不包含在此块内。输出 Q/K 与输入同形状、独立分配，V 不在本块内。
+
+每对相邻通道 `(a,b)` 使用选中表行的 `(c,s)`，计算 `(a*c-b*s, a*s+b*c)`。令 `E=B*(Hq+Hkv)*D`，共有 E/2 对：FP32 MUL=`2E`、SUB=`E/2`、ADD=`E/2`，数学运算共 `3E`；INT8→FP32 和 FP32→INT8 边界各 E 元素。SUB 复用 `vector.json` 中的 composite 成本，其余复用既有 Vector 服务与 `blocks.json` 类型边界成本，无 FMA 折扣和新增硬件速率。
+
+Q、K 顺序执行；每个 head 按完整通道对分 tile，模板以重复次数压缩。每个 tile 先读 INT8 输入、cos、sin，再转换输入、计算四个乘积、做 SUB/ADD、转换并导出 INT8。显式策略为不同 head 不保留表行缓存，因此表读取载荷为 `4E` B；完整表容量仅为 `4CD` B，不按 head 数复制，也不把整表容量当作流量。位置变化不改变工作量，增大 C 只增加容量。
+
+每对 scratch 使用 8 B FP32 输入和四份 4 B 乘积，共24 B；全部四个 MUL 完成后，输入槽复用为8 B旋转结果。Ascend/TPU 另保留每对2 B输入、8 B表值、2 B输出，共36 B/对，HBM总读=`5E` B、总写=`E` B。TSP/CIM 的完整输入/表/输出先按 slice 条带化，scratch 作为单个独立池条带化；内部每阶段 MEM/stream 读写仍计入，不将 scratch 当作免费寄存器。请求 tile 单位为元素，最少2；奇数向下取完整对，报告同时给出请求元素数、实际元素数和 pair tile。
+
+独立手算 B=2、Hq=4、Hkv=2、D=10、C=9、position=5：E=120、MUL/SUB/ADD=240/60/60，转换各120元素。两步 HBM 存储为560/600 B，HBM 读写600/120 B；tile=4时 UB/VMEM 峰值72 B，局部算术访问读3480 B、写2040 B，DMA端点另列。三 slice、reserved=17 B 时，两步基本存储582/624 B，scratch48 B，峰值672 B。单 pair Q/K、4 op/cycle、HBM16 B/cycle、本地32 B/cycle、零启动成本时，每个 head29 cycle，两者共58 cycle。
+
+### Embedding：完整表驻留与选中行访问
+
+`Embedding(indices, weight)` 接受 INT32 `[B]` 索引描述与 INT8 `[V,H]` 表，输出 INT8 `[B,H]`。索引值不进入数值仿真，契约明确假设合法；V 不超过非负 signed INT32 可表示的行范围。一个 batch 项对应一个 Decode token，没有重复行缓存、权重分页、地址生成/Gather 指令或随机访问额外惩罚模型。
+
+HBM 基本容量为 `4B+VH+BH` B；TSP/CIM 对索引、完整表和输出分别条带化，再加 reserved。读流量为 `4B+BH` B，写为 `BH` B。每个 token 先读取一次4 B索引，再分块搬运一行；模板压缩不表示不同 token 重叠执行。没有 MAC、浮点运算或精度转换。
+
+Ascend/TPU 保留4 B索引槽和一个可复用行 tile，局部最小容量5 B；索引 DMA 后另计本地4 B读取，行搬运复用 DMA 缓冲，不再新增一次无意义的本地复制。TSP/CIM 直接计索引 MEM→stream 与行 MEM→stream→MEM 服务；瞬态寻址/转发寄存器未建模，不分配第二张词表。计算服务成本未知时，纯 Embedding timing 仍可运行，只要求实际使用的存储服务。
+
+B=2、V=19、H=7 时，HBM完整容量155 B、读22 B、写14 B；tile=4的局部容量8 B。在 HBM16 B/cycle、本地32 B/cycle、零启动成本下，每个 token 的索引读取2 cycle、两块行复制4 cycle，共12 cycle。三 slice、reserved=17 B 时，完整 MEM 占用177 B。扩大 V 只增容量，不改变本次读取；扩大 B 同时增索引/输出容量与访问量。完整表放不下时即使单行能放下也拒绝任务。
+
+### 词表投影：FP32 logits 边界
+
+`VocabularyProjection(x, weight)` 接受 INT8 `[B,H]` 和 `[H,V]`，按原生 GEMM→INT32→FP32 的两步执行，输出 FP32 `[B,V]`。有效 MAC=`BHV`，FP32 边界处理 `BV` 个元素，读写各 `4BV` B；仅模拟显式转换工作代理，不验证量化 scale 或 logits 数值，不含最终 Softmax、采样、权重共享或多核词表分片。
+
+转换直接写到独立的 FP32 输出，不另申请 cast scratch；INT32 累加张量与 FP32 输出同时存活，不能因每元素都是4 B而忽略其中一个分配。原生补齐、流水、cache/CMEM 行为与 action role 完整保留。TPU 样例 B=2、H=7、V=19：有效266 MAC、532 op、转换38元素；两个阶段 HBM 基本占用299/451 B，HBM读299 B、写304 B。
+
+`tests/operators/test_position_vocabulary*.py` 验证四架构 count/timing、手算工作量/流量/周期、通道对尾块、源槽复用顺序、全块及最小 scratch 容量、索引/位置/类型校验、profile 敏感性、原生矩阵动作与连接形状。独立块通过不表示完整模型能在单半片驻留；模型覆盖矩阵中的 implemented 仅表示所述策略下的块可执行。DeepSeek 的 MLA/MoE、整片分片和完整 Decoder 拼装继续保持单独待办。
 
 <a id="execution-diagrams"></a>
 

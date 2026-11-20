@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Coarse block inventory through batch 6A; not complete model execution, numerical validation or guaranteed fit of full model weights on one resource.",
+  "scope": "Coarse block inventory through batch 6B; not complete model execution, numerical validation or guaranteed fit of full model weights on one resource.",
   "full_target_model_coverage": false,
   "status_definitions": {
     "implemented": "The named coarse block runs on all four architectures under documented assumptions.",
@@ -25,11 +25,18 @@
       "blocks": [
         {
           "id": "embedding",
-          "status": "pending",
+          "status": "implemented",
           "owner": "issue3",
-          "implementation": [],
-          "tests": [],
-          "notes": "Coarse vocabulary lookup/read block still needs an explicit boundary and accounting."
+          "implementation": [
+            "src/operators/embedding.py",
+            "src/runtime/blocks.py",
+            "src/core/block_embedding.py"
+          ],
+          "tests": [
+            "tests.operators.test_position_vocabulary",
+            "tests.operators.test_position_vocabulary_cli"
+          ],
+          "notes": "Decode INT32 symbolic in-range indices, full INT8 table residency and selected-row copies. No duplicate-row reuse or address/gather instruction model; oversized resident tables explicitly fail."
         },
         {
           "id": "normalization",
@@ -59,15 +66,17 @@
         },
         {
           "id": "vocabulary_projection",
-          "status": "partial",
+          "status": "implemented",
           "owner": "issue3",
           "implementation": [
-            "src/operators/primitives.py"
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
           ],
           "tests": [
-            "tests.operators.test_gemm"
+            "tests.operators.test_position_vocabulary",
+            "tests.operators.test_position_vocabulary_cli"
           ],
-          "notes": "INT8 GEMM primitive exists; vocabulary/output boundary wrapper remains."
+          "notes": "Native INT8 GEMM with INT32 accumulation followed by explicit FP32 logits storage; no final Softmax or sampling. Full weight/output capacity checked."
         },
         {
           "id": "qkv_projections",
@@ -85,11 +94,18 @@
         },
         {
           "id": "rope",
-          "status": "pending",
+          "status": "implemented",
           "owner": "issue3",
-          "implementation": [],
-          "tests": [],
-          "notes": "Q and new K are assumed already position-processed by DecodeAttention; a coarse RoPE block remains."
+          "implementation": [
+            "src/operators/rope.py",
+            "src/runtime/blocks.py",
+            "src/core/block_rope.py"
+          ],
+          "tests": [
+            "tests.operators.test_position_vocabulary",
+            "tests.operators.test_position_vocabulary_cli"
+          ],
+          "notes": "Single-token full-head adjacent-pair Q/K rotation using supplied FP32 cos/sin tables. Uniform batch position; INT8 storage boundaries, table generation outside scope. Not MLA positional-branch semantics."
         },
         {
           "id": "gqa_attention_core",
@@ -157,11 +173,18 @@
       "blocks": [
         {
           "id": "embedding",
-          "status": "pending",
+          "status": "implemented",
           "owner": "issue3",
-          "implementation": [],
-          "tests": [],
-          "notes": "Coarse vocabulary lookup/read block still needs an explicit boundary and accounting."
+          "implementation": [
+            "src/operators/embedding.py",
+            "src/runtime/blocks.py",
+            "src/core/block_embedding.py"
+          ],
+          "tests": [
+            "tests.operators.test_position_vocabulary",
+            "tests.operators.test_position_vocabulary_cli"
+          ],
+          "notes": "Decode INT32 symbolic in-range indices, full INT8 table residency and selected-row copies. No duplicate-row reuse or address/gather instruction model; oversized resident tables explicitly fail."
         },
         {
           "id": "normalization",
@@ -191,15 +214,17 @@
         },
         {
           "id": "vocabulary_projection",
-          "status": "partial",
+          "status": "implemented",
           "owner": "issue3",
           "implementation": [
-            "src/operators/primitives.py"
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
           ],
           "tests": [
-            "tests.operators.test_gemm"
+            "tests.operators.test_position_vocabulary",
+            "tests.operators.test_position_vocabulary_cli"
           ],
-          "notes": "INT8 GEMM primitive exists; vocabulary/output boundary wrapper remains."
+          "notes": "Native INT8 GEMM with INT32 accumulation followed by explicit FP32 logits storage; no final Softmax or sampling. Full weight/output capacity checked."
         },
         {
           "id": "mla_projections",

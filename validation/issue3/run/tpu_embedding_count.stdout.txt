@@ -1,0 +1,14 @@
+[Operator] tpu embedding (indices[2]:INT32, weight[19, 7]:INT8) -> INT8
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_tensorcore; mode=count
+[Memory] vmem: 11 / 16777216 B (tensorcore)
+[Memory] hbm: 155 / 34359738368 B (chip)
+[Action] lookup.index.vmem_read_bytes: 8 byte (logical, action)
+[Action] lookup.index.hbm_read_bytes: 8 byte (logical, action)
+[Action] lookup.index.vmem_dma_write_bytes: 8 byte (logical, action)
+[Action] lookup.row.hbm_read_bytes: 14 byte (logical, action)
+[Action] lookup.row.vmem_dma_write_bytes: 14 byte (logical, action)
+[Action] lookup.row.hbm_write_bytes: 14 byte (logical, action)
+[Action] lookup.row.vmem_dma_read_bytes: 14 byte (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-e7qaoj04\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-e7qaoj04\report.json

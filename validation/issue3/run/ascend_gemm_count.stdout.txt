@@ -16,5 +16,5 @@
 [Action] l2_read_bytes: 1024 byte (padded, action)
 [Action] hbm_write_bytes: 1024 byte (padded, action)
 [Action] cube_mac: 8192 MAC (padded, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-022wrn8r\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-022wrn8r\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-ym8xj1i2\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-ym8xj1i2\report.json

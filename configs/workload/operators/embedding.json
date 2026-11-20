@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "operation": "embedding",
+  "description": "Single token per batch item, symbolic in-range INT32 indices and complete INT8 vocabulary table",
+  "inputs": [
+    {"name": "indices", "shape": [2], "dtype": "INT32"},
+    {"name": "weight", "shape": [19, 7], "dtype": "INT8"}
+  ]
+}

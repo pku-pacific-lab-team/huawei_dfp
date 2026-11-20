@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "issue": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3",
-  "scope": "implemented_batches_1_6a_decode_projections_and_int8_norm",
+  "scope": "implemented_batches_1_6b_position_embedding_and_logits",
   "reference_commit": "98e79ee5b34991f09c65efe395e1e84d58589fab",
   "requirements": {
     "I3_contracts": {
@@ -122,10 +122,22 @@
         "qkv_projection",
         "attention_output_projection"
       ]
+    },
+    "I3_position_vocabulary": {
+      "title": "RoPE、Embedding 与词表输出投影：位置/精度契约、整表容量与访问量、临时空间及四架构映射",
+      "test_modules": [
+        "tests.operators.test_position_vocabulary",
+        "tests.operators.test_position_vocabulary_cli"
+      ],
+      "cli_operations": [
+        "rope",
+        "embedding",
+        "vocabulary_projection"
+      ]
     }
   },
   "pending_work": [
-    "目标模型覆盖矩阵已更新；第六批 B 尚需 RoPE、embedding、词表投影输出边界，后续再推进 MLA/MoE",
+    "LLaMA 路线的清单内粗粒度独立块已覆盖；完整目标形状的分片、容量适配与层间执行仍需后续工作，DeepSeek MLA/MoE 尚未完成",
     "DeepSeek-R1 MLA 压缩缓存/Attention、MoE 路由、专家调度和合并块；常规 GQA/KV Cache 不代表 MLA",
     "整片执行与 M/N 分片、跨核/半片通信模型；当前执行范围保持单核/单半片",
     "完整 Decoder/模型拼装与端到端评估属于 Issue #4；独立量化/布局/ISA 指令模型和数值精度不属于 Issue #3 解析验收"

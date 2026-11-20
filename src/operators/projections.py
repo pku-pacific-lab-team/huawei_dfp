@@ -120,6 +120,30 @@ class AttentionOutputProjection:
 
 
 @dataclass(frozen=True)
+class VocabularyProjection:
+    x: TensorSpec
+    weight: TensorSpec
+    output_name: str | None = None
+    operation = "vocabulary_projection"
+
+    def __post_init__(self):
+        checked_inputs(self.inputs)
+        if any(t.dtype != "INT8" or len(t.shape) != 2 for t in self.inputs) or self.x.shape[1] != self.weight.shape[0]:
+            raise ValueError("VocabularyProjection requires INT8 x [batch, hidden] and weight [hidden, vocabulary]")
+        object.__setattr__(self, "output_name", select_output_name(self.output_name, self.inputs))
+
+    @property
+    def inputs(self):
+        return (self.x, self.weight)
+
+    @property
+    def spec(self):
+        return OperatorSpec(self.operation, self.inputs,
+                            (TensorSpec(self.output_name, (self.x.shape[0], self.weight.shape[1]), "FP32"),), "INT32",
+                            {"bias": False, "output_semantics": "logits", "softmax_or_sampling_included": False})
+
+
+@dataclass(frozen=True)
 class _StorageBoundary:
     """Internal work proxy; equal-element views do not allocate an extra reshape buffer."""
     x: TensorSpec
@@ -129,7 +153,7 @@ class _StorageBoundary:
     def __post_init__(self):
         if self.x.numel != self.output.numel or self.x.name == self.output.name:
             raise ValueError("Storage boundary requires equal elements in distinct buffers")
-        if (self.x.dtype, self.output.dtype) not in {("INT8", "FP32"), ("INT32", "INT8"), ("FP32", "INT8")}:
+        if (self.x.dtype, self.output.dtype) not in {("INT8", "FP32"), ("INT32", "FP32"), ("INT32", "INT8"), ("FP32", "INT8")}:
             raise ValueError("Unsupported internal storage boundary")
 
     @property
@@ -142,7 +166,7 @@ class _StorageBoundary:
 
 
 def projection_steps(operator):
-    if not isinstance(operator, (RMSNormINT8, QKVProjection, AttentionOutputProjection)):
+    if not isinstance(operator, (RMSNormINT8, QKVProjection, AttentionOutputProjection, VocabularyProjection)):
         raise ValueError("Expected a supported Decode block")
     taken = {t.name for t in (*operator.inputs, *operator.spec.outputs)}
 
@@ -164,6 +188,9 @@ def projection_steps(operator):
             gemm = Gemm.from_tensors(operator.x, weight, output_name=internal(label + "_accumulator"))
             nodes.extend([(label, gemm), (label + "_storage", _StorageBoundary(gemm.spec.outputs[0], output))])
         return nodes
+    if isinstance(operator, VocabularyProjection):
+        gemm = Gemm.from_tensors(operator.x, operator.weight, output_name=internal("accumulator"))
+        return [("projection", gemm), ("logits_storage", _StorageBoundary(gemm.spec.outputs[0], operator.spec.outputs[0]))]
     view = TensorSpec(operator.context.name, (operator.context.shape[0], operator.weight.shape[0]), "INT8")
     gemm = Gemm.from_tensors(view, operator.weight, output_name=internal("accumulator"))
     return [("projection", gemm), ("output_storage", _StorageBoundary(gemm.spec.outputs[0], operator.spec.outputs[0]))]

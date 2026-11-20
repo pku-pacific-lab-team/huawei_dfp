@@ -111,6 +111,12 @@ class _FFNOutput:
 
 def block_steps(operator):
     """Return a topological, serial plan; internal names cannot alias caller tensors."""
+    from .embedding import Embedding
+    from .rope import RoPE, rope_steps
+    if isinstance(operator, RoPE):
+        return rope_steps(operator)
+    if isinstance(operator, Embedding):
+        return [("lookup", operator)]
     if isinstance(operator, (Residual, SwiGLU)):
         return [(operator.operation, operator)]
     if not isinstance(operator, SwiGLUFFN):

@@ -167,5 +167,18 @@
     "algorithm_reference": "https://github.com/meta-llama/llama3/blob/main/llama/model.py",
     "precision_reference": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/1",
     "conditions": "Single-token bias-free GQA projections. INT8 activation/matrix weights and outputs; RMSNorm scale weight and internal normalization FP32. Existing to_fp32/to_int8 proxies, no new measured hardware rate. Serial materialized nodes; head/matrix views share storage symbolically and require physical layout validation. No RoPE, numeric quantization, MLA composition or chip execution."
+  },
+  "decode_position_vocabulary_blocks": {
+    "status": "assumed",
+    "documentation": "ARCHITECTURE.md#position-vocabulary",
+    "execution_profiles": [
+      "configs/execution/blocks.json",
+      "configs/execution/vector.json"
+    ],
+    "algorithm_reference": "https://github.com/meta-llama/llama3/blob/main/llama/model.py",
+    "precision_reference": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/1",
+    "conditions": "Single-token full-head adjacent-channel RoPE with one uniform batch position and supplied FP32 cos/sin tables. No table generation; tables reread per head. INT8 Q/K and embedding/output activations; vocabulary logits FP32. Embedding assumes symbolic valid INT32 indices, complete INT8 table residency and no duplicate-row cache. Native matrix and existing conversion/SUB costs reused; no new hardware rates, address-generation or gather/transpose instructions, numeric accuracy, MLA composition or chip execution.",
+    "rope_workspace": "One pair uses 8 B converted input plus four 4 B products; converted-input slots become rotation results only after all four products. Local stored input/table/output slots add 12 B per pair.",
+    "embedding_workspace": "Local DMA path retains a 4 B index and one reusable row tile. Resident MEM copies have no second full table/output copy; transient address registers are not modeled."
   }
 }

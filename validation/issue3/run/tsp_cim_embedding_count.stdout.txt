@@ -1,0 +1,12 @@
+[Operator] tsp_cim embedding (indices[2]:INT32, weight[19, 7]:INT8) -> INT8
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_hem; mode=count
+[Memory] mem: 264 / 115343360 B (single_hem)
+[Action] lookup.index.mem_read_bytes: 8 byte (logical, action)
+[Action] lookup.index.input_stream_bytes: 640 byte (padded, action)
+[Action] lookup.row.mem_read_bytes: 14 byte (logical, action)
+[Action] lookup.row.input_stream_bytes: 640 byte (padded, action)
+[Action] lookup.row.mem_write_bytes: 14 byte (logical, action)
+[Action] lookup.row.output_stream_bytes: 640 byte (padded, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-au9m0yhu\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-au9m0yhu\report.json

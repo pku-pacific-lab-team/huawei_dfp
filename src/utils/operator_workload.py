@@ -2,7 +2,9 @@
 from ..operators import TensorSpec, Vector, RMSNorm, Softmax
 from ..operators.blocks import Residual, SwiGLU, SwiGLUFFN
 from ..operators.attention import KVCacheSpec, KVCacheAccess, DecodeAttention
-from ..operators.projections import RMSNormINT8, QKVProjection, AttentionOutputProjection
+from ..operators.projections import RMSNormINT8, QKVProjection, AttentionOutputProjection, VocabularyProjection
+from ..operators.rope import RoPE
+from ..operators.embedding import Embedding
 
 
 def parse_attention_workload(config):
@@ -38,13 +40,15 @@ def parse_block_workload(config):
     operation = config["operation"]
     factories = {"residual": (Residual, 2), "swiglu": (SwiGLU, 2), "swiglu_ffn": (SwiGLUFFN, 4),
                  "rmsnorm_int8": (RMSNormINT8, 2), "qkv_projection": (QKVProjection, 4),
-                 "attention_output_projection": (AttentionOutputProjection, 2)}
+                 "attention_output_projection": (AttentionOutputProjection, 2), "rope": (RoPE, 4),
+                 "embedding": (Embedding, 2), "vocabulary_projection": (VocabularyProjection, 2)}
     if type(config["schema_version"]) is not int or config["schema_version"] != 1 or not isinstance(operation, str) or operation not in factories:
         raise ValueError("Expected a supported block workload schema 1")
     options_by_kind = {"swiglu": {"output_dtype"}, "rmsnorm_int8": {"axis", "epsilon"},
-                       "qkv_projection": {"query_heads", "kv_heads", "head_dim", "output_names"}}
+                       "qkv_projection": {"query_heads", "kv_heads", "head_dim", "output_names"},
+                       "rope": {"position", "output_names"}}
     optional = {"description"} | options_by_kind.get(operation, set())
-    if operation != "qkv_projection":
+    if operation not in {"qkv_projection", "rope"}:
         optional.add("output_name")
     if set(config) - required - optional:
         raise ValueError("Unknown block workload fields")
@@ -60,6 +64,8 @@ def parse_block_workload(config):
         tensors.append(TensorSpec(**tensor))
     if operation == "qkv_projection" and not {"query_heads", "kv_heads", "head_dim"} <= set(config):
         raise ValueError("QKV workload requires query_heads, kv_heads and head_dim")
+    if operation == "rope" and "position" not in config:
+        raise ValueError("RoPE workload requires position")
     options = {k: config[k] for k in optional - {"description"} if k in config}
     return factory(*tensors, **options)
 

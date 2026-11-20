@@ -1,0 +1,24 @@
+[Operator] tsp rope (query[2, 4, 1, 10]:INT8, key[2, 2, 1, 10]:INT8, cos[9, 5]:FP32, sin[9, 5]:FP32) -> INT8
+[Time] 360 cycles; 4e-07 s (analytical_estimate)
+[Scope] single_hem; mode=timing
+[Memory] mem: 836 / 115343360 B (single_hem)
+[Action] query_rope.mem_read_bytes: 2320 byte (logical, action)
+[Action] query_rope.input_stream_bytes: 35840 byte (padded, action)
+[Action] query_rope.mem_write_bytes: 1360 byte (logical, action)
+[Action] query_rope.output_stream_bytes: 20480 byte (padded, action)
+[Action] query_rope.boundary_to_fp32: 80 element (modeled_internal, action)
+[Action] query_rope.fp32_mul: 160 op (logical, action)
+[Action] query_rope.fp32_sub: 40 op (logical, action)
+[Action] query_rope.fp32_add: 40 op (logical, action)
+[Action] query_rope.boundary_to_int8: 80 element (modeled_internal, action)
+[Action] key_rope.mem_read_bytes: 1160 byte (logical, action)
+[Action] key_rope.input_stream_bytes: 17920 byte (padded, action)
+[Action] key_rope.mem_write_bytes: 680 byte (logical, action)
+[Action] key_rope.output_stream_bytes: 10240 byte (padded, action)
+[Action] key_rope.boundary_to_fp32: 40 element (modeled_internal, action)
+[Action] key_rope.fp32_mul: 80 op (logical, action)
+[Action] key_rope.fp32_sub: 20 op (logical, action)
+[Action] key_rope.fp32_add: 20 op (logical, action)
+[Action] key_rope.boundary_to_int8: 40 element (modeled_internal, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-39k6galp\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-39k6galp\report.json

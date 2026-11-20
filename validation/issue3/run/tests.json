@@ -1,7 +1,7 @@
 {
-  "tests_run": 148,
+  "tests_run": 171,
   "status_counts": {
-    "passed": 148
+    "passed": 171
   },
   "tests": {
     "tests.operators.test_attention.AttentionTest.test_all_heads_share_one_workspace_without_report_expansion": {
@@ -299,6 +299,75 @@
       "status": "passed"
     },
     "tests.operators.test_output.OperatorOutputTest.test_explicit_relative_absolute_and_empty_outputs_override_defaults": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_embedding_full_table_capacity_is_checked_on_all_architectures": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_embedding_hand_counts_capacity_and_cycles": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_embedding_shape_alias_and_index_range_contract": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_embedding_striping_and_minimum_local_index_buffer": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_embedding_table_size_and_batch_scale_separately": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_four_architectures_count_timing_and_summary": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_qkv_rope_and_cache_shape_interfaces_without_graph_execution": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_rope_complete_pairs_tail_and_scratch_reuse": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_rope_hand_arithmetic_bytes_and_lifetimes": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_rope_head_batch_scaling_without_template_expansion": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_rope_minimum_resident_and_local_workspace_capacity": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_rope_shape_position_table_and_alias_rejections": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_rope_single_pair_hand_cycles": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_rope_striped_global_and_temporary_peak": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_rope_table_capacity_independent_of_position_and_traffic": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_strict_workload_schema_and_required_position": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_used_costs_sensitive_unknown_costs_only_reject_consumers": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_vocabulary_hand_work_and_fp32_boundary": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_vocabulary_native_matrix_actions_preserved": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary.PositionVocabularyTest.test_vocabulary_output_overlap_capacity_and_invalid_inputs": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary_cli.PositionVocabularyCLITest.test_invalid_position_dtype_options_and_profiles_preserve_reports": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary_cli.PositionVocabularyCLITest.test_profiles_other_directory_and_allocation_on_four_entries": {
+      "status": "passed"
+    },
+    "tests.operators.test_position_vocabulary_cli.PositionVocabularyCLITest.test_rope_requires_composite_profile_and_chip_mode_rejected": {
       "status": "passed"
     },
     "tests.operators.test_projections.ProjectionTest.test_all_architectures_count_timing_and_serial_aggregation": {

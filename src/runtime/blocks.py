@@ -5,6 +5,7 @@ from dataclasses import replace
 
 from ..core.block_schedule import storage_schedule
 from ..core.block_elementwise import make_path, simulate as run_elementwise
+from ..core import block_rope, block_embedding
 from ..core.metrics import attach_timing_breakdowns
 from ..core.vector import positive
 from ..core.vector_resources import resident_allocation
@@ -13,6 +14,8 @@ from ..operators.actions import ActionLedger
 from ..operators.adapters import adapt_native_result
 from ..operators.blocks import block_steps
 from ..operators.composite import RMSNorm
+from ..operators.rope import _RotaryTensor
+from ..operators.embedding import Embedding
 from ..operators.primitives import Gemm
 from ..operators.types import OpResult
 from .backends import get_backend
@@ -41,7 +44,7 @@ def simulate_block(operator, architecture, spec, *, mode="count", execution=None
                    include_details=False):
     get_backend(architecture, spec)
     steps = block_steps(operator)
-    execution = execution_profile(architecture, execution, mode, composite=any(isinstance(op, RMSNorm) for _, op in steps))
+    execution = execution_profile(architecture, execution, mode, composite=any(isinstance(op, (RMSNorm, _RotaryTensor)) for _, op in steps))
     profile = load_block_execution() if block_execution is None else block_execution
     if not isinstance(profile, BlockExecution):
         raise ValueError("Expected a BlockExecution profile")
@@ -95,6 +98,12 @@ def simulate_block(operator, architecture, spec, *, mode="count", execution=None
                               reserved_bytes=live["storage_bytes"] - own, hemisphere=hemisphere)
             result = simulate_composite(op, architecture, spec, mode=mode, execution=execution,
                                         tile_elements=tile_elements, include_details=True, **policy)
+        elif isinstance(op, (_RotaryTensor, Embedding)):
+            kernel = block_rope if isinstance(op, _RotaryTensor) else block_embedding
+            path = kernel.make_path(op, architecture, spec, execution, mode, live["storage_bytes"], capacity, allocation, tile_elements)
+            native_result = (kernel.simulate(op, path, execution, profile, mode) if isinstance(op, _RotaryTensor)
+                             else kernel.simulate(op, path, execution, mode))
+            result = adapt_native_result(op.spec, architecture, native_result, include_details=True)
         else:
             path = make_path(op, architecture, spec, execution, mode, live["storage_bytes"], capacity, allocation, tile_elements)
             native_result = run_elementwise(op, path, execution, profile, mode)

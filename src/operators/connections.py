@@ -12,7 +12,7 @@ def io_contract(result):
                 "physical_device": None}
     layout = "native_packed" if gemm and arch != "tpu" else "logical_dense"
     if op.kind in {"residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention",
-                   "rmsnorm_int8", "qkv_projection", "attention_output_projection"}:
+                   "rmsnorm_int8", "qkv_projection", "attention_output_projection", "rope", "embedding", "vocabulary_projection"}:
         layout = result.boundary["layout"]
     def tensors(values):
         return [{**tensor.to_dict(), "location": dict(location), "layout": layout} for tensor in values]
