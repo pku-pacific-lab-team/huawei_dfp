@@ -9,7 +9,7 @@
       "--mode",
       "count",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-jekl_c20\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-kkbqdo6j\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -54,7 +54,7 @@
       "--mode",
       "count",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-7_9t_npd\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-qyn95qrv\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -106,7 +106,7 @@
       "--mode",
       "count",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-o4e3pfvw\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-o_5lmqp2\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -140,7 +140,7 @@
       "--mode",
       "count",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-g8comzyq\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-vm386fn8\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -186,7 +186,7 @@
       "--hardware",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\ascend_missing_timing.hardware.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-8u4zxo_g\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-8_rhgsnp\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -211,7 +211,7 @@
       "--hardware",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\ascend_missing_capacity.hardware.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-9ne15rri\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-pz78ce2d\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -236,7 +236,7 @@
       "--hardware",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\tsp_missing_timing.hardware.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-h4yjb9b6\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-1gifohb7\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -257,7 +257,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-0eq8gxvh\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-4fn36ers\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -313,7 +313,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-9v5h2sij\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-8vffvyhz\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -356,7 +356,7 @@
       "--hardware",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\tpu_missing_capacity.hardware.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-fm2d1j4o\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-b5g5i2ug\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -381,7 +381,7 @@
       "--hardware",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\tpu_missing_timing.hardware.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-6u2xlrbj\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-jkqi9jc7\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -402,7 +402,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-l19o5nix\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-d3mlghng\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -457,7 +457,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-kq249nhl\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-ukzt1kyy\\report.json"
     ],
     "exit_code": 0,
     "expected_exit_code": 0,
@@ -506,7 +506,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\non_gemm.workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-fp3mm3aj\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-nel_wwhj\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -529,7 +529,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\non_gemm.workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-od3nhw4m\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-i5_uup2a\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -552,7 +552,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\non_gemm.workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-y8tyi3g4\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-m_4qxgjd\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,
@@ -575,7 +575,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue2\\run\\non_gemm.workload.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-5vg09gbu\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue2-h1bimb54\\report.json"
     ],
     "exit_code": 2,
     "expected_exit_code": 2,

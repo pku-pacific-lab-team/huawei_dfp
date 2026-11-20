@@ -12,7 +12,7 @@ def io_contract(result):
                 "physical_device": None}
     layout = "native_packed" if gemm and arch != "tpu" else "logical_dense"
     if op.kind in {"residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention",
-                   "rmsnorm_int8", "qkv_projection", "attention_output_projection", "rope", "embedding", "vocabulary_projection"}:
+                   "rmsnorm_int8", "qkv_projection", "attention_output_projection", "rope", "embedding", "vocabulary_projection", "mla_preprocess", "mla_cache"}:
         layout = result.boundary["layout"]
     def tensors(values):
         return [{**tensor.to_dict(), "location": dict(location), "layout": layout} for tensor in values]
@@ -21,7 +21,7 @@ def io_contract(result):
             "intermediate_residency": "No UB/VMEM/register retention across operator calls is promised.",
             "conversion": "No implicit cast, dequantization or requantization; stored dtype is binding.",
             "traffic": "Standalone actions already include each block's boundary accesses; connections do not remove them."}
-    if op.kind in {"kv_cache", "decode_attention"}:
+    if op.kind in {"kv_cache", "decode_attention", "mla_cache"}:
         contract["state_aliases"] = dict(result.boundary["state_aliases"])
         contract["cache_update"] = result.boundary["cache_update"]
     return contract

@@ -11,10 +11,12 @@ from .attention import KVCacheSpec, KVCacheAccess, DecodeAttention, simulate_kv_
 from .projections import RMSNormINT8, QKVProjection, AttentionOutputProjection, VocabularyProjection
 from .rope import RoPE
 from .embedding import Embedding
+from .mla import MLASpec, MLAPreprocess, MLACacheSpec, MLACacheAccess, simulate_mla_cache
 
 __all__ = ["Action", "ActionLedger", "Gemm", "OperatorSpec", "OpResult", "TensorSpec",
            "adapt_gemm_report", "simulate_gemm", "Vector", "simulate_vector",
            "RMSNorm", "Softmax", "simulate_composite", "plan_connection",
            "Residual", "SwiGLU", "SwiGLUFFN", "simulate_block",
            "KVCacheSpec", "KVCacheAccess", "DecodeAttention", "simulate_kv_cache", "simulate_attention",
-           "RMSNormINT8", "QKVProjection", "AttentionOutputProjection", "VocabularyProjection", "RoPE", "Embedding"]
+           "RMSNormINT8", "QKVProjection", "AttentionOutputProjection", "VocabularyProjection", "RoPE", "Embedding",
+           "MLASpec", "MLAPreprocess", "MLACacheSpec", "MLACacheAccess", "simulate_mla_cache"]

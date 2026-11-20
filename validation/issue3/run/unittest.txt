@@ -93,6 +93,29 @@ test_complete_api_reports_match_pre_refactor_baseline (tests.operators.test_laye
 test_core_has_no_dependency_on_public_operator_or_runtime_layers (tests.operators.test_layering.LayeringTest.test_core_has_no_dependency_on_public_operator_or_runtime_layers) ... ok
 test_memory_paths_require_complete_fields_and_expose_storage_kind (tests.operators.test_layering.LayeringTest.test_memory_paths_require_complete_fields_and_expose_storage_kind) ... ok
 test_native_results_adapt_without_recounting_or_aliasing (tests.operators.test_layering.LayeringTest.test_native_results_adapt_without_recounting_or_aliasing) ... ok
+test_accumulators_live_through_last_branch_and_outputs_persist (tests.operators.test_mla.MLATest.test_accumulators_live_through_last_branch_and_outputs_persist) ... ok
+test_cache_append_only_read_only_and_empty_to_full (tests.operators.test_mla.MLATest.test_cache_append_only_read_only_and_empty_to_full) ... ok
+test_cache_exact_hbm_capacity_and_resident_reservation (tests.operators.test_mla.MLATest.test_cache_exact_hbm_capacity_and_resident_reservation) ... ok
+test_cache_hand_bytes_and_state_aliases (tests.operators.test_mla.MLATest.test_cache_hand_bytes_and_state_aliases) ... ok
+test_cache_hand_cycles_reuses_memory_services (tests.operators.test_mla.MLATest.test_cache_hand_cycles_reuses_memory_services) ... ok
+test_cache_native_padding_covers_both_latent_roles_once (tests.operators.test_mla.MLATest.test_cache_native_padding_covers_both_latent_roles_once) ... ok
+test_cache_reads_capacity_and_batch_scale_independently (tests.operators.test_mla.MLATest.test_cache_reads_capacity_and_batch_scale_independently) ... ok
+test_cache_rejects_invalid_states_and_noop (tests.operators.test_mla.MLATest.test_cache_rejects_invalid_states_and_noop) ... ok
+test_channel_selection_rejects_invalid_geometry (tests.operators.test_mla.MLATest.test_channel_selection_rejects_invalid_geometry) ... ok
+test_dimensions_and_preprocess_contract_rejections (tests.operators.test_mla.MLATest.test_dimensions_and_preprocess_contract_rejections) ... ok
+test_four_architectures_count_timing_and_serial_work (tests.operators.test_mla.MLATest.test_four_architectures_count_timing_and_serial_work) ... ok
+test_hand_calculated_macs_normalization_rotation_and_boundaries (tests.operators.test_mla.MLATest.test_hand_calculated_macs_normalization_rotation_and_boundaries) ... ok
+test_hbm_peak_and_full_table_capacity_rejected (tests.operators.test_mla.MLATest.test_hbm_peak_and_full_table_capacity_rejected) ... ok
+test_independent_dimensions_and_precise_shapes (tests.operators.test_mla.MLATest.test_independent_dimensions_and_precise_shapes) ... ok
+test_matrix_work_owned_by_native_kernels (tests.operators.test_mla.MLATest.test_matrix_work_owned_by_native_kernels) ... ok
+test_preprocess_cache_connection_preserves_shared_shapes (tests.operators.test_mla.MLATest.test_preprocess_cache_connection_preserves_shared_shapes) ... ok
+test_resident_storage_includes_disjoint_scratch_and_striping (tests.operators.test_mla.MLATest.test_resident_storage_includes_disjoint_scratch_and_striping) ... ok
+test_selected_rows_account_payload_without_duplicate_full_reads (tests.operators.test_mla.MLATest.test_selected_rows_account_payload_without_duplicate_full_reads) ... ok
+test_strict_workload_parsing (tests.operators.test_mla.MLATest.test_strict_workload_parsing) ... ok
+test_used_conversion_profile_and_rope_tile_failures (tests.operators.test_mla.MLATest.test_used_conversion_profile_and_rope_tile_failures) ... ok
+test_full_cache_overflow_and_chip_execution_rejected (tests.operators.test_mla_cli.MLACLITest.test_full_cache_overflow_and_chip_execution_rejected) ... ok
+test_invalid_contracts_and_options_preserve_reports (tests.operators.test_mla_cli.MLACLITest.test_invalid_contracts_and_options_preserve_reports) ... ok
+test_profiles_other_directory_and_allocation_on_four_entries (tests.operators.test_mla_cli.MLACLITest.test_profiles_other_directory_and_allocation_on_four_entries) ... ok
 test_conventional_cache_is_not_claimed_as_mla (tests.operators.test_model_coverage.ModelCoverageTest.test_conventional_cache_is_not_claimed_as_mla) ... ok
 test_inventory_claims_have_evidence_and_all_gaps_have_owners (tests.operators.test_model_coverage.ModelCoverageTest.test_inventory_claims_have_evidence_and_all_gaps_have_owners) ... ok
 test_defaults_separate_architectures_operations_and_preserve_failed_outputs (tests.operators.test_output.OperatorOutputTest.test_defaults_separate_architectures_operations_and_preserve_failed_outputs) ... ok
@@ -171,6 +194,6 @@ test_owned_changes_and_shared_dependencies_have_distinct_snapshots (tests.valida
 test_subtest_failure_and_skips_do_not_become_success (tests.validation.test_verification.VerificationTest.test_subtest_failure_and_skips_do_not_become_success) ... ok
 
 ----------------------------------------------------------------------
-Ran 171 tests in 218.475s
+Ran 194 tests in 255.329s
 
 OK

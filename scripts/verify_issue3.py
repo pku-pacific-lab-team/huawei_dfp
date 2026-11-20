@@ -21,7 +21,8 @@ ARCHITECTURES = ("ascend", "tpu", "tsp", "tsp_cim")
 VECTOR_OPS = ("int32_add", "fp32_add", "fp32_mul", "fp32_exp", "fp32_rsqrt")
 PROJECTION_OPS = ("rmsnorm_int8", "qkv_projection", "attention_output_projection")
 POSITION_VOCAB_OPS = ("rope", "embedding", "vocabulary_projection")
-OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax", "residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", *PROJECTION_OPS, *POSITION_VOCAB_OPS)
+MLA_OPS = ("mla_preprocess", "mla_cache")
+OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax", "residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", *PROJECTION_OPS, *POSITION_VOCAB_OPS, *MLA_OPS)
 NEGATIVE_CASES = ("reject_null_profile", "reject_unsupported")
 MANIFEST = ROOT / "validation/issue3/scope.json"
 
@@ -90,20 +91,27 @@ def report_checks(report, arch, kind, mode, details):
     checks["native_actions"] = set(report["action_counts"]) == set(native["action_counts"]) and all(
         action["count"] == native["action_counts"][key]["count"] and
         action["unit"] == native["action_counts"][key]["unit"] for key, action in report["action_counts"].items())
-    dtype = "INT8" if kind in ("residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", "rope", "embedding", *PROJECTION_OPS) else "INT32" if kind in ("gemm", "int32_add") else "FP32"
+    dtype = "INT8" if kind in ("residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", "rope", "embedding", *PROJECTION_OPS, *MLA_OPS) else "INT32" if kind in ("gemm", "int32_add") else "FP32"
     checks["stored_output_dtype"] = all(t["dtype"] == dtype for t in op["outputs"])
-    if kind in ("kv_cache", "decode_attention"):
+    if kind in ("kv_cache", "decode_attention", "mla_cache"):
         checks["lifetime_validated"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"
         checks["single_resource"] = report["boundary"]["chip_execution_included"] is False
         state = native["cache_state"]
         checks["append_semantics"] = state["after"]["length"] == state["before"]["length"] + 1
         checks["state_aliases"] = details["io_contract"]["state_aliases"] == state["output_aliases"]
-    if kind in ("residual", "swiglu", "swiglu_ffn", *PROJECTION_OPS, *POSITION_VOCAB_OPS):
+    if kind in ("residual", "swiglu", "swiglu_ffn", *PROJECTION_OPS, *POSITION_VOCAB_OPS, "mla_preprocess"):
         checks["lifetime_validated"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"
         checks["single_resource"] = report["boundary"]["chip_execution_included"] is False
         checks["block_plan"] = len(native["schedule"]["steps"]) == {
             "swiglu_ffn": 5, "rmsnorm_int8": 3, "qkv_projection": 6, "attention_output_projection": 2,
-            "rope": 2, "embedding": 1, "vocabulary_projection": 2}.get(kind, 1)
+            "rope": 2, "embedding": 1, "vocabulary_projection": 2, "mla_preprocess": 14}.get(kind, 1)
+    if kind == "mla_preprocess":
+        checks["mla_branch_shapes"] = [t["shape"] for t in op["outputs"]] == [[2, 3, 1, 3], [2, 3, 1, 4], [2, 1, 1, 7], [2, 1, 1, 4]]
+        checks["mla_hand_macs"] = native["work_counts"]["logical"]["useful_macs"] == 754
+        checks["mla_core_excluded"] = op["attributes"]["attention_core_included"] is False
+    if kind == "mla_cache":
+        checks["mla_shared_storage"] = set(native["cache_state"]["allocations"]) == {"latent", "rope"}
+        checks["mla_hand_traffic"] = native["work_counts"]["logical"]["appended_bytes"] == 22 and native["work_counts"]["logical"]["cache_read_bytes"] == 66
     if kind == "rope":
         checks["rotation_outputs"] = [t["shape"] for t in op["outputs"]] == [t["shape"] for t in op["inputs"][:2]]
         checks["precomputed_tables"] = op["attributes"]["table_generation_included"] is False

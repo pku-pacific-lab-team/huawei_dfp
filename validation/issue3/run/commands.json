@@ -10,9 +10,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ym8xj1i2\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-4l6i68ek\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ym8xj1i2\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-4l6i68ek\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -52,9 +52,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-3dcs8pnj\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-fd1byxpq\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-3dcs8pnj\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-fd1byxpq\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -94,9 +94,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-meu_wtn9\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-54ms4eky\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-meu_wtn9\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-54ms4eky\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -136,9 +136,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-zsv8hst6\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ty7g_d2j\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-zsv8hst6\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ty7g_d2j\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -178,9 +178,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-gll3brbe\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-mwb2n8g0\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-gll3brbe\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-mwb2n8g0\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -220,9 +220,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-n8vwswv2\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-bj3kc49h\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-n8vwswv2\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-bj3kc49h\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -262,9 +262,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_b7cft2k\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-lkmvbxjj\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_b7cft2k\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-lkmvbxjj\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -304,9 +304,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-j0s0kfm9\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-zjdzx7r4\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-j0s0kfm9\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-zjdzx7r4\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -346,9 +346,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-vknk8ruc\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-vw1g6fbl\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-vknk8ruc\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-vw1g6fbl\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -388,9 +388,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_8zhy32m\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-svtt390d\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_8zhy32m\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-svtt390d\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -430,9 +430,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5vhx0uxe\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5oxujn4h\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5vhx0uxe\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5oxujn4h\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -472,9 +472,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-jcdzdu7v\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-mugxp0yi\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-jcdzdu7v\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-mugxp0yi\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -514,9 +514,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ufomccam\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-c52zz523\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ufomccam\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-c52zz523\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -559,9 +559,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5aed57zy\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ze70tvn4\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5aed57zy\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ze70tvn4\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -604,9 +604,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-dfy0uesl\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-z8nne90f\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-dfy0uesl\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-z8nne90f\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -648,9 +648,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-snt3lss8\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-uilnyat6\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-snt3lss8\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-uilnyat6\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -692,9 +692,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-zssa9rxr\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-md0xvykw\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-zssa9rxr\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-md0xvykw\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -737,9 +737,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-reyrpz3v\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-gsoix5na\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-reyrpz3v\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-gsoix5na\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -782,9 +782,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-vhqosxnp\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-r4219u6d\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-vhqosxnp\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-r4219u6d\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -827,9 +827,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-cttvz98q\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7etaaakj\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-cttvz98q\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7etaaakj\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -872,9 +872,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ejco1jdd\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-e1gmn2sa\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ejco1jdd\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-e1gmn2sa\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -917,9 +917,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6o_upkwt\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_f9gbym7\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6o_upkwt\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_f9gbym7\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -962,9 +962,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-86k87j2r\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ro3oonpn\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-86k87j2r\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ro3oonpn\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1008,9 +1008,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6ia8t2qm\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6ozps6aw\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6ia8t2qm\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6ozps6aw\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1054,9 +1054,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-jcikj7bp\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-90xsxfll\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-jcikj7bp\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-90xsxfll\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1100,9 +1100,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-z_8jk5b8\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-29dbuz1z\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-z_8jk5b8\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-29dbuz1z\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1146,9 +1146,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-3pfii0_g\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-uhhhdp8b\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-3pfii0_g\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-uhhhdp8b\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1191,9 +1191,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-cbktlnt9\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qi_kjdhs\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-cbktlnt9\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qi_kjdhs\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1236,9 +1236,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qozgrd61\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-djl9ifv6\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qozgrd61\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-djl9ifv6\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1283,9 +1283,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tg90thvg\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7tkey6ob\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tg90thvg\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7tkey6ob\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1330,9 +1330,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-my_pl_5f\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-mczsefxv\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-my_pl_5f\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-mczsefxv\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1375,9 +1375,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ci7827s_\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6gaomed4\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ci7827s_\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6gaomed4\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1420,9 +1420,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-2a44hjah\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v4998mre\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-2a44hjah\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v4998mre\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1468,9 +1468,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-nzr44dq8\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-m8tm_qow\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-nzr44dq8\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-m8tm_qow\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1516,9 +1516,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-0jb1ecml\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-dn0pneva\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-0jb1ecml\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-dn0pneva\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1563,9 +1563,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5qdgu6xp\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-cjb2f74l\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5qdgu6xp\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-cjb2f74l\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1610,9 +1610,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5qve1m14\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-fm5a34_4\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5qve1m14\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-fm5a34_4\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1657,9 +1657,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-okdv1dpx\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-wsfcdb_l\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-okdv1dpx\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-wsfcdb_l\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1693,6 +1693,198 @@
     "stdout": "ascend_vocabulary_projection_timing.stdout.txt",
     "stderr": "ascend_vocabulary_projection_timing.stderr.txt"
   },
+  "ascend_mla_preprocess_count": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\ascend.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_preprocess.json",
+      "--mode",
+      "count",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-85s6qyo_\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-85s6qyo_\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "ascend_mla_preprocess_count.json",
+    "details_report": "details/ascend_mla_preprocess_count.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "block_plan": true,
+      "mla_branch_shapes": true,
+      "mla_hand_macs": true,
+      "mla_core_excluded": true
+    },
+    "passed": true,
+    "stdout": "ascend_mla_preprocess_count.stdout.txt",
+    "stderr": "ascend_mla_preprocess_count.stderr.txt"
+  },
+  "ascend_mla_preprocess_timing": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\ascend.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_preprocess.json",
+      "--mode",
+      "timing",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ta2xbbn_\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ta2xbbn_\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "ascend_mla_preprocess_timing.json",
+    "details_report": "details/ascend_mla_preprocess_timing.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "block_plan": true,
+      "mla_branch_shapes": true,
+      "mla_hand_macs": true,
+      "mla_core_excluded": true
+    },
+    "passed": true,
+    "stdout": "ascend_mla_preprocess_timing.stdout.txt",
+    "stderr": "ascend_mla_preprocess_timing.stderr.txt"
+  },
+  "ascend_mla_cache_count": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\ascend.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_cache.json",
+      "--mode",
+      "count",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-aq2dj9l1\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-aq2dj9l1\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "ascend_mla_cache_count.json",
+    "details_report": "details/ascend_mla_cache_count.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "append_semantics": true,
+      "state_aliases": true,
+      "mla_shared_storage": true,
+      "mla_hand_traffic": true
+    },
+    "passed": true,
+    "stdout": "ascend_mla_cache_count.stdout.txt",
+    "stderr": "ascend_mla_cache_count.stderr.txt"
+  },
+  "ascend_mla_cache_timing": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\ascend.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_cache.json",
+      "--mode",
+      "timing",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-u1or5829\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-u1or5829\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "ascend_mla_cache_timing.json",
+    "details_report": "details/ascend_mla_cache_timing.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "append_semantics": true,
+      "state_aliases": true,
+      "mla_shared_storage": true,
+      "mla_hand_traffic": true
+    },
+    "passed": true,
+    "stdout": "ascend_mla_cache_timing.stdout.txt",
+    "stderr": "ascend_mla_cache_timing.stderr.txt"
+  },
   "ascend_reject_null_profile": {
     "arguments": [
       "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
@@ -1702,7 +1894,7 @@
       "--vector-config",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue3\\run\\fixtures\\null_profile.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qan4fjo0\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v5geb5fl\\report.json"
     ],
     "expected_exit_code": 2,
     "exit_code": 2,
@@ -1722,7 +1914,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue3\\run\\fixtures\\unsupported.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-2ytmutbd\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-sldrn37u\\report.json"
     ],
     "expected_exit_code": 2,
     "exit_code": 2,
@@ -1746,9 +1938,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-zmr3ixtu\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-xc4jypqc\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-zmr3ixtu\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-xc4jypqc\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1788,9 +1980,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-z_k80b6h\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-66g2xn3g\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-z_k80b6h\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-66g2xn3g\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1830,9 +2022,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yesa7x6v\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-k7r9uw81\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yesa7x6v\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-k7r9uw81\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1872,9 +2064,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-squtrm1w\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-u1tdx736\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-squtrm1w\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-u1tdx736\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1914,9 +2106,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-uvk4k2ue\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-33rrvxag\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-uvk4k2ue\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-33rrvxag\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1956,9 +2148,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-st7bxd53\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-szy4phte\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-st7bxd53\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-szy4phte\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -1998,9 +2190,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-lwh6mxkp\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yyhynq0g\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-lwh6mxkp\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yyhynq0g\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2040,9 +2232,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7n6rgaam\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ta52q0zw\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7n6rgaam\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ta52q0zw\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2082,9 +2274,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ie5nb1gw\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-riu_p8rf\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ie5nb1gw\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-riu_p8rf\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2124,9 +2316,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-gwsh6gh3\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-oizn3v37\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-gwsh6gh3\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-oizn3v37\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2166,9 +2358,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-psz_epmr\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-4blbvm9z\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-psz_epmr\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-4blbvm9z\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2208,9 +2400,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7c1m2lz2\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ii5psmnl\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7c1m2lz2\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ii5psmnl\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2250,9 +2442,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-4kiqcaxu\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-p61o0j6q\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-4kiqcaxu\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-p61o0j6q\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2295,9 +2487,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-wi36tgvq\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-a17yoq8h\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-wi36tgvq\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-a17yoq8h\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2340,9 +2532,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-n2p8x1tl\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-3f7_fo9l\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-n2p8x1tl\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-3f7_fo9l\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2384,9 +2576,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-q9ptlu_r\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-m6hewkfb\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-q9ptlu_r\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-m6hewkfb\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2428,9 +2620,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-t7gnc2wt\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-l3wf3wy6\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-t7gnc2wt\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-l3wf3wy6\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2473,9 +2665,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-y9ehzxxd\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-s0eqnml0\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-y9ehzxxd\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-s0eqnml0\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2518,9 +2710,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7dtg8xg1\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ciywowu1\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7dtg8xg1\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ciywowu1\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2563,9 +2755,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-exwthtwu\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_betisc4\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-exwthtwu\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_betisc4\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2608,9 +2800,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-jn9rm1ir\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-hregqxz6\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-jn9rm1ir\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-hregqxz6\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2653,9 +2845,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tpxrxw8s\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-arsllm2x\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tpxrxw8s\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-arsllm2x\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2698,9 +2890,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-srr4rcyn\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-o0xzthqk\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-srr4rcyn\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-o0xzthqk\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2744,9 +2936,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-2e01jw8f\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v3rnyjj5\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-2e01jw8f\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v3rnyjj5\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2790,9 +2982,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_5_l4rqb\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-vfzvu4co\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_5_l4rqb\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-vfzvu4co\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2836,9 +3028,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-4cbpqwlt\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-djslh58s\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-4cbpqwlt\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-djslh58s\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2882,9 +3074,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-pmxq8cmt\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qsooixk3\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-pmxq8cmt\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qsooixk3\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2927,9 +3119,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-j2iv70tl\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yhest3n9\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-j2iv70tl\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yhest3n9\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -2972,9 +3164,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yzy2wy79\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-brgilxbi\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yzy2wy79\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-brgilxbi\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3019,9 +3211,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-mm0u9lyo\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5p4wlm4r\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-mm0u9lyo\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5p4wlm4r\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3066,9 +3258,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-k7vgttha\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-npp7rmpv\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-k7vgttha\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-npp7rmpv\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3111,9 +3303,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-cnx2__4l\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-83ondrkz\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-cnx2__4l\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-83ondrkz\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3156,9 +3348,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-exawv35f\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-2kefxm27\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-exawv35f\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-2kefxm27\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3204,9 +3396,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qbqv2434\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-k2rxfg3z\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qbqv2434\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-k2rxfg3z\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3252,9 +3444,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-e7qaoj04\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-h4sxq9c2\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-e7qaoj04\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-h4sxq9c2\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3299,9 +3491,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-y8am98bl\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ifmvzbvh\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-y8am98bl\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ifmvzbvh\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3346,9 +3538,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-xh68jbq0\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7v_hqc80\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-xh68jbq0\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7v_hqc80\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3393,9 +3585,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ozuyfvk8\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-8xrbzkvg\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ozuyfvk8\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-8xrbzkvg\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3429,6 +3621,198 @@
     "stdout": "tpu_vocabulary_projection_timing.stdout.txt",
     "stderr": "tpu_vocabulary_projection_timing.stderr.txt"
   },
+  "tpu_mla_preprocess_count": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\tpu.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_preprocess.json",
+      "--mode",
+      "count",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-s32lbt_o\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-s32lbt_o\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "tpu_mla_preprocess_count.json",
+    "details_report": "details/tpu_mla_preprocess_count.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "block_plan": true,
+      "mla_branch_shapes": true,
+      "mla_hand_macs": true,
+      "mla_core_excluded": true
+    },
+    "passed": true,
+    "stdout": "tpu_mla_preprocess_count.stdout.txt",
+    "stderr": "tpu_mla_preprocess_count.stderr.txt"
+  },
+  "tpu_mla_preprocess_timing": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\tpu.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_preprocess.json",
+      "--mode",
+      "timing",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-f_67q1if\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-f_67q1if\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "tpu_mla_preprocess_timing.json",
+    "details_report": "details/tpu_mla_preprocess_timing.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "block_plan": true,
+      "mla_branch_shapes": true,
+      "mla_hand_macs": true,
+      "mla_core_excluded": true
+    },
+    "passed": true,
+    "stdout": "tpu_mla_preprocess_timing.stdout.txt",
+    "stderr": "tpu_mla_preprocess_timing.stderr.txt"
+  },
+  "tpu_mla_cache_count": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\tpu.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_cache.json",
+      "--mode",
+      "count",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tgatxbex\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tgatxbex\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "tpu_mla_cache_count.json",
+    "details_report": "details/tpu_mla_cache_count.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "append_semantics": true,
+      "state_aliases": true,
+      "mla_shared_storage": true,
+      "mla_hand_traffic": true
+    },
+    "passed": true,
+    "stdout": "tpu_mla_cache_count.stdout.txt",
+    "stderr": "tpu_mla_cache_count.stderr.txt"
+  },
+  "tpu_mla_cache_timing": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\tpu.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_cache.json",
+      "--mode",
+      "timing",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-xivvhrqh\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-xivvhrqh\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "tpu_mla_cache_timing.json",
+    "details_report": "details/tpu_mla_cache_timing.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "append_semantics": true,
+      "state_aliases": true,
+      "mla_shared_storage": true,
+      "mla_hand_traffic": true
+    },
+    "passed": true,
+    "stdout": "tpu_mla_cache_timing.stdout.txt",
+    "stderr": "tpu_mla_cache_timing.stderr.txt"
+  },
   "tpu_reject_null_profile": {
     "arguments": [
       "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
@@ -3438,7 +3822,7 @@
       "--vector-config",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue3\\run\\fixtures\\null_profile.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-rltexhhu\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-hurpbvpa\\report.json"
     ],
     "expected_exit_code": 2,
     "exit_code": 2,
@@ -3458,7 +3842,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue3\\run\\fixtures\\unsupported.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-q7trz8f9\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-1iidaxlz\\report.json"
     ],
     "expected_exit_code": 2,
     "exit_code": 2,
@@ -3482,9 +3866,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_0wn19qv\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-0y3t5ywt\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_0wn19qv\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-0y3t5ywt\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3524,9 +3908,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qxd4ippy\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9veudxgd\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qxd4ippy\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9veudxgd\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3566,9 +3950,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-f1fpni76\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-d7weuc_d\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-f1fpni76\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-d7weuc_d\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3608,9 +3992,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-s82bmw07\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-hyd7rys_\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-s82bmw07\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-hyd7rys_\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3650,9 +4034,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-lgq1qzb8\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tua3ah2i\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-lgq1qzb8\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tua3ah2i\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3692,9 +4076,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-zv3hjshi\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-m93_isy4\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-zv3hjshi\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-m93_isy4\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3734,9 +4118,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-gtgnmcqv\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-f49nzx1o\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-gtgnmcqv\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-f49nzx1o\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3776,9 +4160,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ahpl5uxt\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9epyg654\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ahpl5uxt\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9epyg654\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3818,9 +4202,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-x0jr7tzp\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yrfrk_zd\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-x0jr7tzp\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yrfrk_zd\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3860,9 +4244,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-f8x_qykg\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-u8vf55t5\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-f8x_qykg\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-u8vf55t5\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3902,9 +4286,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-70btal64\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9xbdxd8e\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-70btal64\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9xbdxd8e\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3944,9 +4328,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-4qmxhz__\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7mtrtpui\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-4qmxhz__\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-7mtrtpui\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -3986,9 +4370,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5jlop388\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-mlc43dbz\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5jlop388\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-mlc43dbz\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4031,9 +4415,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-p6nncsst\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-x16hyr4y\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-p6nncsst\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-x16hyr4y\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4076,9 +4460,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_065xta_\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9fhobesu\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_065xta_\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9fhobesu\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4120,9 +4504,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-kpdlef5k\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tzzgbhcz\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-kpdlef5k\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tzzgbhcz\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4164,9 +4548,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-x0rjssbx\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-3slkvrk0\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-x0rjssbx\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-3slkvrk0\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4209,9 +4593,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-s3wq5exl\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9_8hluqm\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-s3wq5exl\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9_8hluqm\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4254,9 +4638,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v3882sbq\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-8p7nj9mz\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v3882sbq\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-8p7nj9mz\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4299,9 +4683,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-fpc6qrtg\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-wbjau8h0\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-fpc6qrtg\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-wbjau8h0\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4344,9 +4728,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-h3yurftg\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6sfzeli8\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-h3yurftg\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6sfzeli8\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4389,9 +4773,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v61v506u\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-3ukehoya\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v61v506u\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-3ukehoya\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4434,9 +4818,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-lz6f9pp0\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-q0i7wysk\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-lz6f9pp0\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-q0i7wysk\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4480,9 +4864,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-t_crpkji\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-rq0ugeb_\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-t_crpkji\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-rq0ugeb_\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4526,9 +4910,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ofr8nhuo\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-gc_n8v3i\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ofr8nhuo\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-gc_n8v3i\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4572,9 +4956,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-gyqir3nh\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-wq2qwf7n\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-gyqir3nh\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-wq2qwf7n\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4618,9 +5002,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5j37n12l\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-hpr2mk4g\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5j37n12l\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-hpr2mk4g\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4663,9 +5047,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-nn528wm1\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-hpa_3vv7\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-nn528wm1\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-hpa_3vv7\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4708,9 +5092,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-xieahln2\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-8tz41d8t\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-xieahln2\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-8tz41d8t\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4755,9 +5139,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ry3atj5n\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-vfuz6b_r\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ry3atj5n\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-vfuz6b_r\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4802,9 +5186,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-wrygmg_u\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yucidy0n\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-wrygmg_u\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yucidy0n\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4847,9 +5231,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-dxkxjese\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9chb_gww\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-dxkxjese\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9chb_gww\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4892,9 +5276,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-bjsjvikb\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_cbz0j4i\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-bjsjvikb\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_cbz0j4i\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4940,9 +5324,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-39k6galp\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ejrmwwyx\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-39k6galp\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ejrmwwyx\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -4988,9 +5372,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-g4xrcp6f\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-0jdszc14\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-g4xrcp6f\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-0jdszc14\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5035,9 +5419,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-sskvip83\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6vqd8dhh\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-sskvip83\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6vqd8dhh\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5082,9 +5466,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_jakyu4h\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-93nd7xtx\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_jakyu4h\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-93nd7xtx\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5129,9 +5513,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ppeed2n0\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-c8gk98pl\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ppeed2n0\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-c8gk98pl\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5165,6 +5549,198 @@
     "stdout": "tsp_vocabulary_projection_timing.stdout.txt",
     "stderr": "tsp_vocabulary_projection_timing.stderr.txt"
   },
+  "tsp_mla_preprocess_count": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\tsp.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_preprocess.json",
+      "--mode",
+      "count",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-07qn76c1\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-07qn76c1\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "tsp_mla_preprocess_count.json",
+    "details_report": "details/tsp_mla_preprocess_count.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "block_plan": true,
+      "mla_branch_shapes": true,
+      "mla_hand_macs": true,
+      "mla_core_excluded": true
+    },
+    "passed": true,
+    "stdout": "tsp_mla_preprocess_count.stdout.txt",
+    "stderr": "tsp_mla_preprocess_count.stderr.txt"
+  },
+  "tsp_mla_preprocess_timing": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\tsp.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_preprocess.json",
+      "--mode",
+      "timing",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-86e8ymor\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-86e8ymor\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "tsp_mla_preprocess_timing.json",
+    "details_report": "details/tsp_mla_preprocess_timing.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "block_plan": true,
+      "mla_branch_shapes": true,
+      "mla_hand_macs": true,
+      "mla_core_excluded": true
+    },
+    "passed": true,
+    "stdout": "tsp_mla_preprocess_timing.stdout.txt",
+    "stderr": "tsp_mla_preprocess_timing.stderr.txt"
+  },
+  "tsp_mla_cache_count": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\tsp.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_cache.json",
+      "--mode",
+      "count",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ooz06351\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ooz06351\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "tsp_mla_cache_count.json",
+    "details_report": "details/tsp_mla_cache_count.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "append_semantics": true,
+      "state_aliases": true,
+      "mla_shared_storage": true,
+      "mla_hand_traffic": true
+    },
+    "passed": true,
+    "stdout": "tsp_mla_cache_count.stdout.txt",
+    "stderr": "tsp_mla_cache_count.stderr.txt"
+  },
+  "tsp_mla_cache_timing": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\tsp.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_cache.json",
+      "--mode",
+      "timing",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-568l1kgd\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-568l1kgd\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "tsp_mla_cache_timing.json",
+    "details_report": "details/tsp_mla_cache_timing.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "append_semantics": true,
+      "state_aliases": true,
+      "mla_shared_storage": true,
+      "mla_hand_traffic": true
+    },
+    "passed": true,
+    "stdout": "tsp_mla_cache_timing.stdout.txt",
+    "stderr": "tsp_mla_cache_timing.stderr.txt"
+  },
   "tsp_reject_null_profile": {
     "arguments": [
       "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
@@ -5174,7 +5750,7 @@
       "--vector-config",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue3\\run\\fixtures\\null_profile.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-r8mvuw6a\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6r0nwam5\\report.json"
     ],
     "expected_exit_code": 2,
     "exit_code": 2,
@@ -5194,7 +5770,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue3\\run\\fixtures\\unsupported.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-cap7fsx3\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-40tupi1z\\report.json"
     ],
     "expected_exit_code": 2,
     "exit_code": 2,
@@ -5218,9 +5794,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ctd0g159\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-feazfrq2\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ctd0g159\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-feazfrq2\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5260,9 +5836,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-njjoihf8\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-jo_bkezl\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-njjoihf8\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-jo_bkezl\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5302,9 +5878,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yd5mn94h\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-vmrje036\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-yd5mn94h\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-vmrje036\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5344,9 +5920,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tkvyrhgn\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-iuqa9d5p\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tkvyrhgn\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-iuqa9d5p\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5386,9 +5962,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-dmauy0k5\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-p_r34k9z\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-dmauy0k5\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-p_r34k9z\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5428,9 +6004,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-lkrs9asr\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-pbirmo9a\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-lkrs9asr\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-pbirmo9a\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5470,9 +6046,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ctvchw1t\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-izknq6c8\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ctvchw1t\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-izknq6c8\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5512,9 +6088,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-28p8plqe\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-h_13ogfe\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-28p8plqe\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-h_13ogfe\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5554,9 +6130,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-bnuck5r9\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-geik12dz\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-bnuck5r9\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-geik12dz\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5596,9 +6172,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-k5tdul_n\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-pjucro9v\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-k5tdul_n\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-pjucro9v\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5638,9 +6214,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ukty9lsb\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-947ht8ze\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ukty9lsb\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-947ht8ze\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5680,9 +6256,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-dkhfac68\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-4cj_xzpm\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-dkhfac68\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-4cj_xzpm\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5722,9 +6298,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tl9kdcfn\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-o57uchbu\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tl9kdcfn\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-o57uchbu\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5767,9 +6343,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-otxunc41\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-fyj_s8za\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-otxunc41\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-fyj_s8za\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5812,9 +6388,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ffr185_m\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-d_gtrkrq\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ffr185_m\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-d_gtrkrq\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5856,9 +6432,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-h9alimbi\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-41diywyh\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-h9alimbi\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-41diywyh\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5900,9 +6476,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-1osodaz6\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-k9jq_16k\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-1osodaz6\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-k9jq_16k\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5945,9 +6521,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-kyzubb26\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-8pjvkipx\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-kyzubb26\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-8pjvkipx\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -5990,9 +6566,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tm4it4us\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-beqfmfup\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-tm4it4us\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-beqfmfup\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6035,9 +6611,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-msb01ms5\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-bqu6b9b2\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-msb01ms5\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-bqu6b9b2\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6080,9 +6656,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-f05xymqf\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-0793j3pt\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-f05xymqf\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-0793j3pt\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6125,9 +6701,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-x97z5trf\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v6herhpg\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-x97z5trf\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v6herhpg\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6170,9 +6746,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-iw86e7s3\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ihm1y0co\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-iw86e7s3\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ihm1y0co\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6216,9 +6792,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-m6x3b3xu\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ty6gzg_8\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-m6x3b3xu\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ty6gzg_8\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6262,9 +6838,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6ps4jvin\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-oo_arz1w\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6ps4jvin\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-oo_arz1w\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6308,9 +6884,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-fn2n_bdu\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ltu06xna\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-fn2n_bdu\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ltu06xna\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6354,9 +6930,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-lamsjdkr\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qli1vny6\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-lamsjdkr\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qli1vny6\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6399,9 +6975,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-z1axx2gt\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-pnxtjtyr\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-z1axx2gt\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-pnxtjtyr\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6444,9 +7020,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_ng2g5zv\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qw5tvyik\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_ng2g5zv\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-qw5tvyik\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6491,9 +7067,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-fkiayf86\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-niei1gzo\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-fkiayf86\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-niei1gzo\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6538,9 +7114,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-dyg3dqid\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-wp1w1473\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-dyg3dqid\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-wp1w1473\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6583,9 +7159,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-pdj763st\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-il_sjd47\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-pdj763st\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-il_sjd47\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6628,9 +7204,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-semgzahz\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-09kvkkaf\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-semgzahz\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-09kvkkaf\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6676,9 +7252,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-s5zhqcx6\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_0aspc72\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-s5zhqcx6\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-_0aspc72\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6724,9 +7300,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-au9m0yhu\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6nv0_0l4\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-au9m0yhu\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6nv0_0l4\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6771,9 +7347,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v02sq2wi\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v7ci43a0\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v02sq2wi\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-v7ci43a0\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6818,9 +7394,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ucq6ovwv\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ac3gn5_m\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ucq6ovwv\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-ac3gn5_m\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6865,9 +7441,9 @@
       "--report-format",
       "operator",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5ishp302\\report.json",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-bbkzf95g\\report.json",
       "--details-output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-5ishp302\\details.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-bbkzf95g\\details.json"
     ],
     "expected_exit_code": 0,
     "exit_code": 0,
@@ -6901,6 +7477,198 @@
     "stdout": "tsp_cim_vocabulary_projection_timing.stdout.txt",
     "stderr": "tsp_cim_vocabulary_projection_timing.stderr.txt"
   },
+  "tsp_cim_mla_preprocess_count": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\tsp_cim.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_preprocess.json",
+      "--mode",
+      "count",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-n5u_ktqh\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-n5u_ktqh\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "tsp_cim_mla_preprocess_count.json",
+    "details_report": "details/tsp_cim_mla_preprocess_count.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "block_plan": true,
+      "mla_branch_shapes": true,
+      "mla_hand_macs": true,
+      "mla_core_excluded": true
+    },
+    "passed": true,
+    "stdout": "tsp_cim_mla_preprocess_count.stdout.txt",
+    "stderr": "tsp_cim_mla_preprocess_count.stderr.txt"
+  },
+  "tsp_cim_mla_preprocess_timing": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\tsp_cim.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_preprocess.json",
+      "--mode",
+      "timing",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9tv1_1dz\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-9tv1_1dz\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "tsp_cim_mla_preprocess_timing.json",
+    "details_report": "details/tsp_cim_mla_preprocess_timing.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "block_plan": true,
+      "mla_branch_shapes": true,
+      "mla_hand_macs": true,
+      "mla_core_excluded": true
+    },
+    "passed": true,
+    "stdout": "tsp_cim_mla_preprocess_timing.stdout.txt",
+    "stderr": "tsp_cim_mla_preprocess_timing.stderr.txt"
+  },
+  "tsp_cim_mla_cache_count": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\tsp_cim.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_cache.json",
+      "--mode",
+      "count",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-xep3c8y9\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-xep3c8y9\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "tsp_cim_mla_cache_count.json",
+    "details_report": "details/tsp_cim_mla_cache_count.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "append_semantics": true,
+      "state_aliases": true,
+      "mla_shared_storage": true,
+      "mla_hand_traffic": true
+    },
+    "passed": true,
+    "stdout": "tsp_cim_mla_cache_count.stdout.txt",
+    "stderr": "tsp_cim_mla_cache_count.stderr.txt"
+  },
+  "tsp_cim_mla_cache_timing": {
+    "arguments": [
+      "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
+      "D:\\PROJECT\\huawei_dfp\\tsp_cim.py",
+      "--workload",
+      "D:\\PROJECT\\huawei_dfp\\configs\\workload\\operators\\mla_cache.json",
+      "--mode",
+      "timing",
+      "--report-format",
+      "operator",
+      "--output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6byg4ake\\report.json",
+      "--details-output",
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-6byg4ake\\details.json"
+    ],
+    "expected_exit_code": 0,
+    "exit_code": 0,
+    "report": "tsp_cim_mla_cache_timing.json",
+    "details_report": "details/tsp_cim_mla_cache_timing.json",
+    "checks": {
+      "exit_code": true,
+      "report_created": true,
+      "operator_schema": true,
+      "architecture": true,
+      "operation": true,
+      "mode": true,
+      "scope": true,
+      "actions_present": true,
+      "compact_result": true,
+      "details_binding": true,
+      "io_contract": true,
+      "time_status": true,
+      "no_claimed_energy": true,
+      "time_value": true,
+      "native_cycles": true,
+      "native_actions": true,
+      "stored_output_dtype": true,
+      "lifetime_validated": true,
+      "single_resource": true,
+      "append_semantics": true,
+      "state_aliases": true,
+      "mla_shared_storage": true,
+      "mla_hand_traffic": true
+    },
+    "passed": true,
+    "stdout": "tsp_cim_mla_cache_timing.stdout.txt",
+    "stderr": "tsp_cim_mla_cache_timing.stderr.txt"
+  },
   "tsp_cim_reject_null_profile": {
     "arguments": [
       "D:\\PROJECT\\huawei_dfp\\.venv\\Scripts\\python.exe",
@@ -6910,7 +7678,7 @@
       "--vector-config",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue3\\run\\fixtures\\null_profile.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-k2bww6t_\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-meskkj8_\\report.json"
     ],
     "expected_exit_code": 2,
     "exit_code": 2,
@@ -6930,7 +7698,7 @@
       "--workload",
       "D:\\PROJECT\\huawei_dfp\\validation\\issue3\\run\\fixtures\\unsupported.json",
       "--output",
-      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-d6o8h6w2\\report.json"
+      "C:\\Users\\86152\\AppData\\Local\\Temp\\issue3-uax4stah\\report.json"
     ],
     "expected_exit_code": 2,
     "exit_code": 2,

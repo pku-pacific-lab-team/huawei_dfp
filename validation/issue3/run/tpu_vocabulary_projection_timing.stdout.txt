@@ -22,5 +22,5 @@
 [Action] logits_storage.boundary_to_fp32: 38 element (modeled_internal, action)
 [Action] logits_storage.hbm_write_bytes: 152 byte (logical, action)
 [Action] logits_storage.vmem_dma_read_bytes: 152 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-ozuyfvk8\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-ozuyfvk8\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-8xrbzkvg\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-8xrbzkvg\report.json

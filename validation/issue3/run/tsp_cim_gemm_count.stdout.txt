@@ -29,5 +29,5 @@
 [Action] logical_inter_superlane_adds: 14 add (logical, summary)
 [Action] logical_inter_k_tile_adds: 0 add (logical, summary)
 [Action] logical_cluster_partial_bytes: 56 byte (logical, summary)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-ctd0g159\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-ctd0g159\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-feazfrq2\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-feazfrq2\report.json

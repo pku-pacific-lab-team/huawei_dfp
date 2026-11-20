@@ -45,16 +45,25 @@ def make_path(arch, spec, execution, mode, live_bytes, capacity, allocation, til
 
 def simulate(op, path, execution, mode):
     c = op.cache
-    counts, times, groups = Counter(), Counter(), []
     phases = []
     if op.append_tokens:
-        phases.append(("append", c.head_dim, True))
+        phases.append(("append", c.head_dim, True, 2 * c.batch * c.kv_heads))
     if op.read_cache:
-        phases.append(("read", op.cache_after.length * c.head_dim, False))
-    for phase, size, copy in phases:
+        phases.append(("read", op.cache_after.length * c.head_dim, False, 2 * c.batch * c.kv_heads))
+    return simulate_payloads(op, path, execution, mode, phases=phases,
+        appended_bytes=2 * c.batch * c.kv_heads * c.head_dim * op.append_tokens,
+        cache_read_bytes=2 * c.batch * c.kv_heads * c.head_dim * op.cache_after.length if op.read_cache else 0,
+        model="kv_cache_access",
+        policy="Append new K/V only, then stream filled cache once per KV head; one reusable transfer buffer, no full read copy.")
+
+
+def simulate_payloads(op, path, execution, mode, *, phases, appended_bytes, cache_read_bytes, model, policy):
+    """Common memory service execution for independently sized cache components."""
+    counts, times, groups = Counter(), Counter(), []
+    for phase, size, copy, instances in phases:
         _, tiles = tile_groups(size, path.tile, execution)
         for n, repetitions in tiles:
-            repetitions *= 2 * c.batch * c.kv_heads
+            repetitions *= instances
             if isinstance(path, ResidentMemoryPath):
                 read, rt = path.access([n], "read")
                 write, wt = path.access([n], "write") if copy else (Counter(), 0)
@@ -79,16 +88,16 @@ def simulate(op, path, execution, mode):
               "model": "serial_cache_copy_and_streaming_read",
               "derived_services": {k: None if v is None else float(v) for k, v in path.services.items()}}
     attach_timing_breakdowns(timing, service=dict(times) if path.timed else None, elapsed=dict(times) if path.timed else None)
-    report = {"schema_version": 1, "model": "kv_cache_access", "mode": mode, "workload": op.spec.to_dict(),
+    report = {"schema_version": 1, "model": model, "mode": mode, "workload": op.spec.to_dict(),
               "boundary": {"scope": scope}, "execution_contract": {"scope": scope, "selected_tile_elements": path.tile,
                                                                            "requested_tile_elements": path.requested_tile},
               "timing": timing, "memory": deepcopy(path.memory), "action_counts": actions,
               "work_counts": {"logical": {"operations": 0, "output_bytes": sum(t.nbytes for t in op.spec.outputs),
-                                          "appended_bytes": 2 * c.batch * c.kv_heads * c.head_dim * op.append_tokens,
-                                          "cache_read_bytes": 2 * c.batch * c.kv_heads * c.head_dim * op.cache_after.length if op.read_cache else 0},
+                                          "appended_bytes": appended_bytes,
+                                          "cache_read_bytes": cache_read_bytes},
                               "issued": {"operations": None, "status": "not_applicable"},
                               "internal": {"status": "not_modeled"}},
-              "schedule": {"tile_groups": groups, "policy": "Append new K/V only, then stream filled cache once per KV head; one reusable transfer buffer, no full read copy."},
+              "schedule": {"tile_groups": groups, "policy": policy},
               "parameter_provenance": path.provenance,
               "limitations": ["Cache offsets and head layouts are symbolic; no gather/scatter or transpose instructions.",
                               "Resident copy counts MEM-to-stream and stream-to-MEM service; transient forwarding registers are not modeled.",

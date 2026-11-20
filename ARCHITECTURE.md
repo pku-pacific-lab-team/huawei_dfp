@@ -394,6 +394,35 @@ B=2、V=19、H=7 时，HBM完整容量155 B、读22 B、写14 B；tile=4的局�
 
 `tests/operators/test_position_vocabulary*.py` 验证四架构 count/timing、手算工作量/流量/周期、通道对尾块、源槽复用顺序、全块及最小 scratch 容量、索引/位置/类型校验、profile 敏感性、原生矩阵动作与连接形状。独立块通过不表示完整模型能在单半片驻留；模型覆盖矩阵中的 implemented 仅表示所述策略下的块可执行。DeepSeek 的 MLA/MoE、整片分片和完整 Decoder 拼装继续保持单独待办。
 
+<a id="mla-preprocess-cache"></a>
+
+## MLA 前处理与共享压缩缓存（第七批 A）
+
+算法依据 [DeepSeek-V3 官方 MLA 实现](https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/model.py) 和 [671B 配置](https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/configs/config_671B.json)。671B 的 H=7168、Hq=128、rq=1536、rk=512、dn=128、dr=64、dv=128；这些维度互相独立，不能套用常规 GQA 的同一 head_dim。官方 dtype 为 FP8/BF16，本工程仍是 INT8 性能 what-if。配置 dataclass 的默认维度不当作 671B 的实际值；本批小尺寸 fixture 也不冒充完整模型运行。
+
+符号：B 为 batch；H 为 hidden；Hq 为 query head 数；rq/rk 为 Q/KV 压缩秩；dn/dr 为非位置/位置 QK 维度；dv 为 V 维度。全部为正整数，dr 为偶数，当前不实现 rq=0 的直接 Q 路径。输入为 INT8 `x[B,H]`、`Wqa[H,rq]`、`Wqb[rq,Hq*(dn+dr)]`、`Wkva[H,rk+dr]`，FP32 两份 norm 权重及 `[positions,dr/2]` 的 cos/sin 表；所有 batch 项使用同一合法 position。
+
+`MLAPreprocess` 的 14 个串行节点复用原生 GEMM、FP32 RMSNorm、已有转换代理与 RoPE 服务：
+
+1. Q：GEMM 下投影 → INT32 转 FP32 → RMSNorm(rq) → INT8 → GEMM 上投影；分别读取每个 head 的 dn/dr 段并转换为两个 INT8 输出，位置段再执行 RoPE。
+2. KV：GEMM 到 rk+dr；rk 段读取并转换到 FP32 → RMSNorm(rk) → INT8 latent KV；dr 段读取并转换到 INT8 → 共享 K 的 RoPE。
+
+输出顺序为 INT8 `[B,Hq,1,dn]`、`[B,Hq,1,dr]`、`[B,1,1,rk]`、`[B,1,1,dr]`。非位置 Q 与 latent KV 不旋转。FP32 归一化直接接 INT32 累加转换，避免在归一化前人为插入一轮 INT8 存储。
+
+分支选择采用 **显式物化通道段**：源累加张量完整驻留到最后一个分支读取完毕，各目标张量独立分配；每个逻辑行单独分块，统计选中元素的读流量、类型边界工作及输出写流量，不重复读取未选中的通道。行 stride、offset、selected_channels 留在节点契约中。布局、偏移寻址和原生补齐间的物理对应保持符号假设；没有新增 Gather/Transpose 指令模型，也不将分支拷贝视为免费。
+
+有效 MAC 为 `B*(H*rq + rq*Hq*(dn+dr) + H*(rk+dr))`。两份 RMSNorm 的 FP32 op 为 `4B*(rq+rk)+4B`，RoPE 为 `3B*(Hq+1)*dr`；两个方向的转换元素数各为 `B*(rq+rk+Hq*dn+2*(Hq+1)*dr)`。所有 GEMM 延迟与动作由原生内核产生；转换成本与串行策略仍是显式假设，没有新增硬件标定值。
+
+`MLACacheSpec` 只描述共享 latent KV 和位置 K：`[B,1,C,rk]`、`[B,1,C,dr]`，这里的 1 表示共享存储，不等于 Hq。令旧长度 S、追加 a∈{0,1}，新长度 L=S+a≤C。逻辑容量为 `BC(rk+dr)` B；填充量为 `BS(rk+dr)` B；追加读/写各 `Ba(rk+dr)` B；独立 read 再读 `BL(rk+dr)` B。禁止空读取、越界追加、无操作与自动扩容，状态输出别名指向已有 backing。
+
+物理容量对每个 batch/component 分别考虑原生 GEMM 补齐和 MEM slice 条带化。latent backing 预留 `max(score 的 rk×C 权重视图, weighted-value 的 C×rk 权重视图)`，位置 backing 预留 dr×C score 视图；同一 backing 不按两个使用角色或 Hq 重复分配。物理布局兼容性仍待验证。全局同时保留新 token 和 reserved；Ascend/TPU 另有一个复用传输 tile，TSP/CIM 复用已有 stream 服务，不分配第二份完整读取结果。
+
+前处理与缓存是独立可执行块，连接形状兼容，但不自动拼成零成本流水；调用方仍须验证 position 与 cache length、布局和分配。独立缓存 read 每组件只读一次，未来 Attention 的 per-head GEMM 读取须由 Attention 自己计入，不能从这里推断免费广播或跨 head 复用。
+
+样例 B=2、H=17、Hq=3、rq=5、rk=7、dn=3、dr=4、dv=6：前处理754 MAC、200个非矩阵 FP32 op、两方向各106转换元素，输出64 B；TPU HBM 峰值845 B。缓存 S=2、C=9、a=1：逻辑预分配198 B，新 token22 B，总峰值220 B，追加后填充66 B；本次读88 B、写22 B。两组件各自不超过一个16 B/cycle服务单元时，B=1、rk=3、dr=2、S=0、a=1的追加加读取为6 cycle。
+
+`tests/operators/test_mla*.py` 核对四架构 count/timing、上述手算、分支生命周期、native GEMM 动作、片内 scratch 缩小、容量拒绝、共享缓存和严格 CLI。`mla_rope`、`mla_compressed_cache` 可标 implemented；`mla_projections` 仍为 partial：吸收路线中 Q 内容到 latent、latent 加权输出到 V 的两次 Wkvb 使用要在第七批 B 计入。score、位置贡献、缩放策略/Softmax、加权 latent、输出集成、MoE、整片和完整模型执行继续待办。
+
 <a id="execution-diagrams"></a>
 
 ## 四套执行路径字符框图

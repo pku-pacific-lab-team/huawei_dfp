@@ -1,7 +1,7 @@
 {
-  "tests_run": 171,
+  "tests_run": 194,
   "status_counts": {
-    "passed": 171
+    "passed": 194
   },
   "tests": {
     "tests.operators.test_attention.AttentionTest.test_all_heads_share_one_workspace_without_report_expansion": {
@@ -287,6 +287,75 @@
       "status": "passed"
     },
     "tests.operators.test_layering.LayeringTest.test_native_results_adapt_without_recounting_or_aliasing": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_accumulators_live_through_last_branch_and_outputs_persist": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_cache_append_only_read_only_and_empty_to_full": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_cache_exact_hbm_capacity_and_resident_reservation": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_cache_hand_bytes_and_state_aliases": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_cache_hand_cycles_reuses_memory_services": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_cache_native_padding_covers_both_latent_roles_once": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_cache_reads_capacity_and_batch_scale_independently": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_cache_rejects_invalid_states_and_noop": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_channel_selection_rejects_invalid_geometry": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_dimensions_and_preprocess_contract_rejections": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_four_architectures_count_timing_and_serial_work": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_hand_calculated_macs_normalization_rotation_and_boundaries": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_hbm_peak_and_full_table_capacity_rejected": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_independent_dimensions_and_precise_shapes": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_matrix_work_owned_by_native_kernels": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_preprocess_cache_connection_preserves_shared_shapes": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_resident_storage_includes_disjoint_scratch_and_striping": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_selected_rows_account_payload_without_duplicate_full_reads": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_strict_workload_parsing": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla.MLATest.test_used_conversion_profile_and_rope_tile_failures": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla_cli.MLACLITest.test_full_cache_overflow_and_chip_execution_rejected": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla_cli.MLACLITest.test_invalid_contracts_and_options_preserve_reports": {
+      "status": "passed"
+    },
+    "tests.operators.test_mla_cli.MLACLITest.test_profiles_other_directory_and_allocation_on_four_entries": {
       "status": "passed"
     },
     "tests.operators.test_model_coverage.ModelCoverageTest.test_conventional_cache_is_not_claimed_as_mla": {

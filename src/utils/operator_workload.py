@@ -5,6 +5,7 @@ from ..operators.attention import KVCacheSpec, KVCacheAccess, DecodeAttention
 from ..operators.projections import RMSNormINT8, QKVProjection, AttentionOutputProjection, VocabularyProjection
 from ..operators.rope import RoPE
 from ..operators.embedding import Embedding
+from ..operators.mla import MLASpec, MLAPreprocess, MLACacheSpec, MLACacheAccess
 
 
 def parse_attention_workload(config):
@@ -12,19 +13,21 @@ def parse_attention_workload(config):
     if not isinstance(config, dict) or not required <= set(config):
         raise ValueError("Attention/cache workload requires schema_version, operation, cache")
     kind = config["operation"]
-    if type(config["schema_version"]) is not int or config["schema_version"] != 1 or kind not in ("kv_cache", "decode_attention"):
+    if type(config["schema_version"]) is not int or config["schema_version"] != 1 or kind not in ("kv_cache", "decode_attention", "mla_cache"):
         raise ValueError("Expected KV Cache/DecodeAttention workload schema 1")
     optional = {"description", "append_tokens"} | ({"query", "output_name"} if kind == "decode_attention" else {"read_cache"})
     if set(config) - required - optional:
         raise ValueError("Unknown attention/cache workload fields")
     if "description" in config and (not isinstance(config["description"], str) or not config["description"].strip()):
         raise ValueError("Attention description must be nonempty text")
-    fields = {"batch", "kv_heads", "head_dim", "length", "capacity"}
+    fields = {"batch", "length", "capacity"} | ({"kv_lora_rank", "qk_rope_head_dim"} if kind == "mla_cache" else {"kv_heads", "head_dim"})
     cache = config["cache"]
     if not isinstance(cache, dict) or not fields <= set(cache) or set(cache) - fields - {"name", "dtype"}:
-        raise ValueError("Cache requires batch, kv_heads, head_dim, length and capacity")
-    cache = KVCacheSpec(**cache)
+        raise ValueError("Cache requires exactly its dimensions, length and capacity")
+    cache = (MLACacheSpec if kind == "mla_cache" else KVCacheSpec)(**cache)
     append = config.get("append_tokens", 1)
+    if kind == "mla_cache":
+        return MLACacheAccess(cache, append, config.get("read_cache", True))
     if kind == "kv_cache":
         return KVCacheAccess(cache, append, config.get("read_cache", True))
     q = config.get("query")
@@ -41,14 +44,16 @@ def parse_block_workload(config):
     factories = {"residual": (Residual, 2), "swiglu": (SwiGLU, 2), "swiglu_ffn": (SwiGLUFFN, 4),
                  "rmsnorm_int8": (RMSNormINT8, 2), "qkv_projection": (QKVProjection, 4),
                  "attention_output_projection": (AttentionOutputProjection, 2), "rope": (RoPE, 4),
-                 "embedding": (Embedding, 2), "vocabulary_projection": (VocabularyProjection, 2)}
+                 "embedding": (Embedding, 2), "vocabulary_projection": (VocabularyProjection, 2),
+                 "mla_preprocess": (MLAPreprocess, 8)}
     if type(config["schema_version"]) is not int or config["schema_version"] != 1 or not isinstance(operation, str) or operation not in factories:
         raise ValueError("Expected a supported block workload schema 1")
     options_by_kind = {"swiglu": {"output_dtype"}, "rmsnorm_int8": {"axis", "epsilon"},
                        "qkv_projection": {"query_heads", "kv_heads", "head_dim", "output_names"},
-                       "rope": {"position", "output_names"}}
+                       "rope": {"position", "output_names"},
+                       "mla_preprocess": {"dimensions", "position", "epsilon", "output_names"}}
     optional = {"description"} | options_by_kind.get(operation, set())
-    if operation not in {"qkv_projection", "rope"}:
+    if operation not in {"qkv_projection", "rope", "mla_preprocess"}:
         optional.add("output_name")
     if set(config) - required - optional:
         raise ValueError("Unknown block workload fields")
@@ -67,6 +72,11 @@ def parse_block_workload(config):
     if operation == "rope" and "position" not in config:
         raise ValueError("RoPE workload requires position")
     options = {k: config[k] for k in optional - {"description"} if k in config}
+    if operation == "mla_preprocess":
+        fields = set(MLASpec.__dataclass_fields__)
+        if "position" not in options or not isinstance(options.get("dimensions"), dict) or set(options["dimensions"]) != fields:
+            raise ValueError("MLA requires position and all seven independent dimensions")
+        options["dimensions"] = MLASpec(**options["dimensions"])
     return factory(*tensors, **options)
 
 

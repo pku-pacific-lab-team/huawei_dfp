@@ -21,8 +21,8 @@ def supplied_option(name, argv=None):
 
 def handles_operator_workload(config, args, argv=None):
     blocks = ("residual", "swiglu", "swiglu_ffn", "rmsnorm_int8", "qkv_projection", "attention_output_projection",
-              "rope", "embedding", "vocabulary_projection")
-    attention = ("kv_cache", "decode_attention")
+              "rope", "embedding", "vocabulary_projection", "mla_preprocess")
+    attention = ("kv_cache", "decode_attention", "mla_cache")
     if supplied_option("--attention-config", argv) and (not isinstance(config, dict) or config.get("operation") not in attention):
         raise ValueError("--attention-config requires kv_cache/decode_attention")
     if supplied_option("--block-config", argv) and (not isinstance(config, dict) or config.get("operation") not in (*blocks, "decode_attention")):

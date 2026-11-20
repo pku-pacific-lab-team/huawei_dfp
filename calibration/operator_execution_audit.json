@@ -180,5 +180,23 @@
     "conditions": "Single-token full-head adjacent-channel RoPE with one uniform batch position and supplied FP32 cos/sin tables. No table generation; tables reread per head. INT8 Q/K and embedding/output activations; vocabulary logits FP32. Embedding assumes symbolic valid INT32 indices, complete INT8 table residency and no duplicate-row cache. Native matrix and existing conversion/SUB costs reused; no new hardware rates, address-generation or gather/transpose instructions, numeric accuracy, MLA composition or chip execution.",
     "rope_workspace": "One pair uses 8 B converted input plus four 4 B products; converted-input slots become rotation results only after all four products. Local stored input/table/output slots add 12 B per pair.",
     "embedding_workspace": "Local DMA path retains a 4 B index and one reusable row tile. Resident MEM copies have no second full table/output copy; transient address registers are not modeled."
+  },
+  "mla_preprocessing_and_cache": {
+    "status": "assumed",
+    "documentation": "ARCHITECTURE.md#mla-preprocess-cache",
+    "execution_profiles": [
+      "configs/execution/blocks.json",
+      "configs/execution/vector.json",
+      "configs/execution/attention.json"
+    ],
+    "algorithm_references": [
+      "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/model.py",
+      "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/configs/config_671B.json"
+    ],
+    "precision_reference": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/1",
+    "conditions": "Single-token low-rank Q and KV preprocessing, supplied cos/sin tables and uniform batch position. Three native INT8 GEMMs, two FP32 normalizations, materialized channel selections with cast/read/write work, and two positional rotations. Shared INT8 latent/position cache appends once per batch and streams each filled component once. These INT8 and serial materialization policies are project assumptions, distinct from official FP8/BF16 inference. No measured rates added.",
+    "cache_profile_usage": "Uses existing attention profile append-only capacity and symbolic-view layout. Query-head scheduling/reuse fields are inactive in standalone MLA cache; read_policy explicitly specifies one stream per batch/component.",
+    "cache_storage": "Reserve one maximum-size native score/value backing per batch for latent KV, one score backing for positional K. Native padding and slice striping included; no query-head replication. Physical layout compatibility and address/transpose instructions remain outside scope.",
+    "excluded": "Direct Q rank-zero path, absorbed attention core and its two Wkvb projection uses, output integration, MoE, chip partition, table generation/YaRN policy and full-model assembly."
   }
 }

@@ -8,11 +8,12 @@ from .blocks import simulate_block
 from ..hardware.attention import load_attention_execution
 from ..utils.operator_workload import parse_attention_workload
 from .attention import simulate_attention, simulate_kv_cache
+from .mla import simulate_mla_cache
 
 
 def execute_workload(config, architecture, load_spec, *, mode, execution_file=None, block_execution_file=None,
                      attention_execution_file=None, config_dir=None, **policy):
-    if isinstance(config, dict) and config.get("operation") in ("kv_cache", "decode_attention"):
+    if isinstance(config, dict) and config.get("operation") in ("kv_cache", "decode_attention", "mla_cache"):
         op = parse_attention_workload(config)
         if config["operation"] == "decode_attention":
             policy["block_execution"] = load_block_execution(block_execution_file, config_dir)
@@ -20,7 +21,7 @@ def execute_workload(config, architecture, load_spec, *, mode, execution_file=No
         else:
             if block_execution_file is not None:
                 raise ValueError("KV Cache does not use a block compute profile")
-            simulate = simulate_kv_cache
+            simulate = simulate_mla_cache if config["operation"] == "mla_cache" else simulate_kv_cache
         return simulate(op, architecture, load_spec(), mode=mode,
                         execution=load_vector_execution(architecture, execution_file, config_dir),
                         attention_execution=load_attention_execution(attention_execution_file, config_dir), **policy)
@@ -28,7 +29,7 @@ def execute_workload(config, architecture, load_spec, *, mode, execution_file=No
         raise ValueError("Attention profile requires kv_cache/decode_attention")
     if isinstance(config, dict) and config.get("operation") in ("residual", "swiglu", "swiglu_ffn",
                                                               "rmsnorm_int8", "qkv_projection", "attention_output_projection",
-                                                              "rope", "embedding", "vocabulary_projection"):
+                                                              "rope", "embedding", "vocabulary_projection", "mla_preprocess"):
         return simulate_block(parse_block_workload(config), architecture, load_spec(), mode=mode,
                               execution=load_vector_execution(architecture, execution_file, config_dir),
                               block_execution=load_block_execution(block_execution_file, config_dir), **policy)

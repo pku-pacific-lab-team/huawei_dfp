@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "operation": "mla_cache",
+  "description": "INT8 shared compressed latent KV and positional K; append one token, then stream the filled cache once per component.",
+  "cache": {"batch": 2, "kv_lora_rank": 7, "qk_rope_head_dim": 4, "length": 2, "capacity": 9},
+  "append_tokens": 1,
+  "read_cache": true
+}

@@ -110,6 +110,9 @@ class _FFNOutput:
 
 
 def block_steps(operator):
+    from .mla import MLAPreprocess, mla_steps
+    if isinstance(operator, MLAPreprocess):
+        return mla_steps(operator)
     """Return a topological, serial plan; internal names cannot alias caller tensors."""
     from .embedding import Embedding
     from .rope import RoPE, rope_steps

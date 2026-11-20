@@ -1,0 +1,18 @@
+[Operator] tsp_cim mla_cache (mla_cache.latent[2, 1, 9, 7]:INT8, mla_cache.rope[2, 1, 9, 4]:INT8, mla_cache.new_latent[2, 1, 1, 7]:INT8, mla_cache.new_rope[2, 1, 1, 4]:INT8) -> INT8
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_hem; mode=count
+[Memory] mem: 2288 / 115343360 B (single_hem)
+[Action] latent_append.mem_read_bytes: 14 byte (logical, action)
+[Action] latent_append.input_stream_bytes: 640 byte (padded, action)
+[Action] latent_append.mem_write_bytes: 14 byte (logical, action)
+[Action] latent_append.output_stream_bytes: 640 byte (padded, action)
+[Action] rope_append.mem_read_bytes: 8 byte (logical, action)
+[Action] rope_append.input_stream_bytes: 640 byte (padded, action)
+[Action] rope_append.mem_write_bytes: 8 byte (logical, action)
+[Action] rope_append.output_stream_bytes: 640 byte (padded, action)
+[Action] latent_read.mem_read_bytes: 42 byte (logical, action)
+[Action] latent_read.input_stream_bytes: 640 byte (padded, action)
+[Action] rope_read.mem_read_bytes: 24 byte (logical, action)
+[Action] rope_read.input_stream_bytes: 640 byte (padded, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-xep3c8y9\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-xep3c8y9\report.json

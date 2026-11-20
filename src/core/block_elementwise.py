@@ -21,7 +21,7 @@ def make_path(op, arch, spec, execution, mode, live_bytes, capacity, allocation,
     scratch_per_element += 4 * (output.dtype == "INT8" and op.operation not in {"ffn_output", "storage_boundary"})
     stored_per_element = sum(t.nbytes // t.numel for t in op.inputs) + output.nbytes // output.numel
     return make_workspace_path(arch, spec, execution, mode, live_bytes, capacity, allocation, tile_elements,
-                               elements=output.numel, scratch_per_element=scratch_per_element,
+                               elements=getattr(op, "row_elements", output.numel), scratch_per_element=scratch_per_element,
                                stored_per_element=stored_per_element)
 
 
@@ -91,8 +91,9 @@ def simulate(op, path, execution, block_execution, mode):
     counts, operation_counts, boundary_counts, times = Counter(), Counter(), Counter(), Counter()
     groups, used = [], set()
     output = op.spec.outputs[0]
-    _, tiles = tile_groups(output.numel, path.tile, execution)
+    _, tiles = tile_groups(getattr(op, "row_elements", output.numel), path.tile, execution)
     for n, repeats in tiles:
+        repeats *= getattr(op, "rows", 1)
         stages = []
 
         def transfer(label, size, direction):

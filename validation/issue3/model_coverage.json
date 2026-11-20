@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Coarse block inventory through batch 6B; not complete model execution, numerical validation or guaranteed fit of full model weights on one resource.",
+  "scope": "Coarse block inventory through batch 7A; not complete model execution, numerical validation or guaranteed fit of full model weights on one resource.",
   "full_target_model_coverage": false,
   "status_definitions": {
     "implemented": "The named coarse block runs on all four architectures under documented assumptions.",
@@ -12,7 +12,9 @@
     "gqa": "https://arxiv.org/abs/2305.13245v3",
     "deepseek_r1": "https://github.com/deepseek-ai/DeepSeek-R1",
     "deepseek_v3": "https://arxiv.org/abs/2412.19437v2",
-    "task": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3"
+    "task": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3",
+    "deepseek_v3_inference": "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/model.py",
+    "deepseek_v3_671b": "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/configs/config_671B.json"
   },
   "models": [
     {
@@ -168,7 +170,9 @@
       "reference_ids": [
         "deepseek_r1",
         "deepseek_v3",
-        "task"
+        "task",
+        "deepseek_v3_inference",
+        "deepseek_v3_671b"
       ],
       "blocks": [
         {
@@ -228,27 +232,45 @@
         },
         {
           "id": "mla_projections",
-          "status": "pending",
+          "status": "partial",
           "owner": "issue3",
-          "implementation": [],
-          "tests": [],
-          "notes": "MLA query/KV compression and reconstruction require dedicated shape/work contracts; conventional GQA cannot substitute."
+          "implementation": [
+            "src/operators/mla.py",
+            "src/runtime/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_mla",
+            "tests.operators.test_mla_cli"
+          ],
+          "notes": "Low-rank Q down/up and combined KV compression, two FP32 normalizations and explicit selected-channel INT8 boundaries implemented. Absorbed Q-content-to-latent and latent-context-to-V matrix work remains in batch 7B; no free weight absorption assumption. Direct Q rank-zero path not supported."
         },
         {
           "id": "mla_rope",
-          "status": "pending",
+          "status": "implemented",
           "owner": "issue3",
-          "implementation": [],
-          "tests": [],
-          "notes": "Separate content and positional branches require their own coarse work and dependencies."
+          "implementation": [
+            "src/operators/mla.py",
+            "src/runtime/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_mla",
+            "tests.operators.test_mla_cli"
+          ],
+          "notes": "Rotate Q positional branch and one shared positional K per batch with supplied FP32 tables; content Q and latent KV bypass RoPE. Uniform position, adjacent pairs, explicit INT8 what-if boundaries; table generation/YaRN construction not included."
         },
         {
           "id": "mla_compressed_cache",
-          "status": "pending",
+          "status": "implemented",
           "owner": "issue3",
-          "implementation": [],
-          "tests": [],
-          "notes": "Latent KV and positional cache formats remain; conventional K/V cache accounting is not claimed to cover MLA."
+          "implementation": [
+            "src/operators/mla.py",
+            "src/runtime/mla.py"
+          ],
+          "tests": [
+            "tests.operators.test_mla",
+            "tests.operators.test_mla_cli"
+          ],
+          "notes": "Preallocated shared latent KV and positional K, [B,1,C,rank] and [B,1,C,rope_dim]. Capacity, valid length and append amount are distinct; state outputs alias backing. Native view capacity reserved once per batch, append/read traffic explicit. Standalone read is once per component; future attention owns per-head reads."
         },
         {
           "id": "mla_attention_core",
@@ -256,7 +278,7 @@
           "owner": "issue3",
           "implementation": [],
           "tests": [],
-          "notes": "Absorbed/unabsorbed MLA Decode scheduling and cache-use policy remain."
+          "notes": "Absorbed MLA score, position contribution, explicit scaling policy, Softmax, weighted latent sum and latent-to-V projection remain. Existing preprocessing/cache are independently executable; no full MLA Attention claim."
         },
         {
           "id": "attention_output_projection",
