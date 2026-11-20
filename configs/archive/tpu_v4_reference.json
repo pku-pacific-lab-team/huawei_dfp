@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "model": "tpu_v4_archived_specifications",
+  "description": "TPU v4 reference-only metadata archived from the active execution profile. Not a simulation configuration; the runtime does not load or merge this file.",
+  "archived_at": "2026-11-18 America/Los_Angeles",
+  "archived_from": {
+    "path": "configs/hardware/tpu_v4_reference.json",
+    "schema_version": 10
+  },
+  "parameters": {
+    "register_file_chip_bytes": {
+      "value": 262144,
+      "unit": "byte",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4; PDF p10, section 7.5)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; chip scope adopted 2026-11-17",
+      "conditions": "0.25 MiB = 262144 bytes per chip, supported by Table 4 and section 7.5. Aggregate physical inventory only; no per-TensorCore ownership, allocation, spill or timing model. Count once per chip; do not multiply or divide by tensorcores_per_chip."
+    },
+    "ici_links_per_chip": {
+      "value": 6,
+      "unit": "link",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Inventory only; mesh/torus selection depends on the slice."
+    },
+    "ici_link_reported_bytes_per_second": {
+      "value": 50000000000,
+      "unit": "byte/s",
+      "scope": "link",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Reported 50 GB/s/link; directional interpretation is unresolved in this profile. Do not use as one-way payload bandwidth."
+    },
+    "process_node_nm": {
+      "value": 7,
+      "unit": "nm",
+      "scope": "die",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Reported process node; no technology scaling model."
+    },
+    "die_area_upper_bound_mm2": {
+      "value": 600,
+      "unit": "mm2",
+      "scope": "die",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Strict upper bound: die area <600 mm2; neither exact area nor a component area coefficient."
+    },
+    "nominal_int8_tops": {
+      "value": 275,
+      "unit": "TOPS",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Official table labels bf16 or int8 as 275 teraflops; INT8 is reported here as TOPS with 2 operations per MAC."
+    },
+    "vpus_per_tensorcore": {
+      "value": 1,
+      "unit": "unit",
+      "scope": "tensorcore",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Vector unit inventory, not executed by the counter."
+    },
+    "vpu_lanes": {
+      "value": 128,
+      "unit": "lane",
+      "scope": "vpu",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "ALU inventory does not specify operation throughput."
+    },
+    "vpu_alus_per_lane": {
+      "value": 16,
+      "unit": "unit",
+      "scope": "lane",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Do not convert ALU count to a per-op effective rate."
+    }
+  },
+  "interconnect": {
+    "topology": "3D mesh; full cubes can form 3D torus or supported twisted torus slices",
+    "source": "https://docs.cloud.google.com/tpu/docs/v4",
+    "version": "TPU v4 documentation; accessed 2026-11-15",
+    "conditions": "Specification only; no links, routing or collectives are executed. Link direction and effective payload bandwidth remain unverified."
+  },
+  "archival_reasons": {
+    "register_file_chip_bytes": "Aggregate register inventory only; no register allocation, spill or timing model.",
+    "ici_links_per_chip": "ICI is retired from execution. Link inventory/reported bandwidth/topology display only; no network transfer or collectives.",
+    "ici_link_reported_bytes_per_second": "ICI is retired from execution. Link inventory/reported bandwidth/topology display only; no network transfer or collectives.",
+    "process_node_nm": "Only provenance remains; no process scaling, timing, energy or area model reads this value.",
+    "die_area_upper_bound_mm2": "Displayed die-area upper bound, not an enforced model constraint or a computed area.",
+    "nominal_int8_tops": "Published nominal peak was a display-only reference, distinct from the retained geometry-derived peak.",
+    "vpus_per_tensorcore": "VPU count was used only for physical inventory; the standalone Vector service has an explicit fixed budget.",
+    "vpu_lanes": "VPU lane geometry was used only for ALU inventory; it is not a runtime fallback for Vector throughput.",
+    "vpu_alus_per_lane": "ALUs per VPU lane were used only for ALU inventory; Vector work consumes the independently configured budget and costs."
+  },
+  "archival_history": [
+    {
+      "archived_at": "2026-11-18 America/Los_Angeles",
+      "from_schema": 10,
+      "parameters": [
+        "register_file_chip_bytes",
+        "ici_links_per_chip",
+        "ici_link_reported_bytes_per_second",
+        "process_node_nm",
+        "die_area_upper_bound_mm2"
+      ]
+    },
+    {
+      "archived_at": "2026-11-18 America/Los_Angeles",
+      "from_schema": 11,
+      "active_schema_after": 12,
+      "report_schema_after": 13,
+      "parameters": [
+        "nominal_int8_tops",
+        "vpus_per_tensorcore",
+        "vpu_lanes",
+        "vpu_alus_per_lane"
+      ]
+    }
+  ]
+}

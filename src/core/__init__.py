@@ -1,9 +1,6 @@
-"""
-Core simulation module - CIM Core Simulator and Tiling Engine
-"""
-from .simulator import CIMCoreSimulator
-from .tiling import TilingEngine
-from .tsp_cim_simulator import TSPCIMSimulator
-from .tsp_cim_tiling import TSPCIMTilingEngine
+"""架构执行内核与 CIM Macro 支持模型。"""
+from .tsp_cim.simulator import TSPCIMSimulator
+from .cim.macro_model import CIMMacroModel, MacroContexts
 
-__all__ = ["CIMCoreSimulator", "TilingEngine", "TSPCIMSimulator", "TSPCIMTilingEngine"]
+__all__ = ["TSPCIMSimulator",
+           "CIMMacroModel", "MacroContexts"]

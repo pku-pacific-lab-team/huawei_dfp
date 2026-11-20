@@ -1,46 +1,189 @@
 {
-  "description": "TSP-CIM配置 V2（Groq TSP架构 + CIM Macro替换MXM，含物理布局）",
-  "superlane": {
-    "n_superlanes": 20,
-    "n_lanes_per_superlane": 16,
-    "n_macros_per_superlane": 80
+  "_documentation": {
+    "purpose": "维护注释，采用合法 JSON 字段代替 // 注释。前三节区分硬件数值、执行策略、说明依据；configuration_control 单列会参与身份/格式校验或依赖加载的字段。此 _documentation 块为可选，只供阅读，解析时整体剔除，不进入计算、报告或运行时 reference_id；完整文件仍纳入来源台账校验。",
+    "hardware_parameters": {
+      "parameters": "硬件数值参数：CIM Core/Cluster/Plane 拓扑、LW 捕获及 INT32 writer 服务。四项 NIM 库存已归档；int32_writer_bpc 继续参与 GEMM 计时。共享 MEM/stream/VXM 从 native_reference 读取，Macro 几何从 macro_reference 读取。"
+    },
+    "execution_policy": {
+      "execution": "执行策略及其依据：约束/控制仿真行为，内部数值如槽数、分块和固定延迟也属于本类；其中 status/source/version/conditions 是说明与依据，详见 execution_fields。"
+    },
+    "descriptive_metadata": {
+      "description": "说明与依据：CIM 替换方案及建模范围的文字摘要，不控制实际执行。 已归档的规格/库存值见 configs/archive/tsp_cim.json，运行时不读取或合并归档。"
+    },
+    "configuration_control": {
+      "schema_version": "配置控制：解析器校验版本；不应作为任意备注修改。",
+      "model": "配置控制：模型身份，必须匹配 CIM 解析器支持的名称。",
+      "profile_id": "配置控制：参考配置标识，参与 reference_id 命名，不作为吞吐系数。",
+      "supported_formats": "配置控制：支持格式约束，当前必须为 INT8；添加名称不会自动实现新精度。",
+      "native_reference": "配置依赖：实际加载的原生 TSP JSON，提供共享系统及比较基线；相对路径以本文件所在目录为准。修改它可能改变执行和校验，不是引用文献的文字。",
+      "macro_reference": "配置依赖：实际加载的 Macro profile，提供 Macro 几何及动作模型；相对路径以本文件所在目录为准。修改它会影响构造与计算，不是纯说明。"
+    },
+    "parameter_fields": [
+      "value: 硬件数值输入：固定能力、容量、数量、服务率或延迟；包括 status=assumed 的显式代理，不是自动求值的公式。",
+      "unit: 单位约束：随 value 一起校验；不能仅改单位标签而不换算数值。",
+      "scope: 作用域约束：区分 chip/core/plane 等；随参数校验，不能只改标签来缩放硬件。",
+      "status: 说明与依据并附校验：documented/measured/assumed/unknown；描述证据强度，不是开关。null 必须显式为 unknown，不触发隐藏默认值。",
+      "source: 说明与依据：原始来源或模型政策，文字不会自动执行或改写 value。",
+      "source_version: 说明与依据：参数依据的文档/配置版本，不是本文件 schema_version。",
+      "conditions: 说明与依据：数值取法、适用条件及消费边界；改变公式文字不会自动重算 value，应同步更新数值和实现。",
+      "verification: 说明与依据：核验范围与限制；项目设计材料核验不等于硅片测量。"
+    ],
+    "execution_fields": {
+      "scope": "执行约束：允许的局部仿真范围；不能通过改字符串获得整片调度。",
+      "resident_boundary": "执行约束：任务的输入/输出驻留边界，解析器校验支持的边界。",
+      "schedule": "执行策略：选择解析器支持的调度模型。",
+      "default_tile_mkn": "执行策略：默认 M/K/N 分块；不是物理阵列尺寸。支持的 CLI/API 参数可覆盖。",
+      "buffer_slots": "执行约束：当前必须为 1，表示一份 resident A/B/C 分配；不能用它设置 Macro context 数量。",
+      "weight_load_overlap": "执行策略/约束：权重准备是否允许重叠，取值必须属于本架构支持的实现。",
+      "fixed_latency_cycles": "执行策略：显式建模的固定周期开销，虽为数值仍属于执行策略；0 表示忽略该项开销，空对象表示没有此类配置项。",
+      "rules": "执行规则：资源共享、屏障或映射约束；只支持已实现的值，修改说明文字不能增加新规则。",
+      "status": "说明与依据并附校验：执行模型必须标为 assumed，不冒充硬件实测行为。",
+      "source": "说明与依据：策略的设计依据；不会执行此字符串或访问其 URL 来决定调度。",
+      "version": "说明与依据：策略依据的版本，不是 schema_version。",
+      "conditions": "说明与依据：策略的适用条件和局限；用于追溯，不作为可执行表达式。"
+    },
+    "maintenance_rules": [
+      "新增或移动真实字段时同步更新本注释的分类；不要只修改注释来改变模型行为。",
+      "硬件参数的 value、unit、scope 与来源元数据一起维护；是否参与当前 GEMM 以该参数的 conditions 和实际消费路径为准。",
+      "执行策略仅可使用解析器已有实现；修改策略后检查容量、动作计数和时间报告，不用库存数量直接缩放任务耗时。",
+      "说明文字仍可能接受完整性校验或出现在来源报告中；只有 _documentation 是完全独立的阅读注释。",
+      "注释只放在根层 _documentation 中；其他未知字段及参数/策略内部的额外字段仍严格拒绝。"
+    ]
   },
-  "macro": {
-    "n_banks_internal": 32,
-    "n_subarrays_per_bank": 32,
-    "n_loc_per_subarray": 4,
-    "n_cols_per_bank": 8,
-    "p_input": 8
+  "schema_version": 7,
+  "model": "tsp_cim_cluster_reference",
+  "profile_id": "tsp-cim-core-cluster-plane-int8-v1",
+  "supported_formats": [
+    "INT8"
+  ],
+  "native_reference": "tsp.json",
+  "macro_reference": "cim_macro.json",
+  "parameters": {
+    "macros_per_core": {
+      "value": 4,
+      "unit": "count",
+      "scope": "core",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2; lines 184-200",
+      "conditions": "Four Macros per Core implement N shards; INT8 Core has K=16,N=128,256 MAC/cycle.",
+      "verification": "source_checked_project_spec_not_silicon"
+    },
+    "cores_per_cluster": {
+      "value": 5,
+      "unit": "count",
+      "scope": "cluster_slice",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2.6; lines 301-322",
+      "conditions": "Five Cores per Cluster slice in one SuperLane. One task across20SL has K=320,N=640; 20SL extend K and do not multiply N.",
+      "verification": "source_checked_project_spec_not_silicon"
+    },
+    "clusters_per_superlane": {
+      "value": 4,
+      "unit": "count",
+      "scope": "superlane_in_plane",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2.6; lines 301-322",
+      "conditions": "Four independent Cluster task domains in each SuperLane of each Plane.",
+      "verification": "source_checked_project_spec_not_silicon"
+    },
+    "superlanes_per_plane": {
+      "value": 20,
+      "unit": "count",
+      "scope": "plane",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2; lines 184-202",
+      "conditions": "20 SuperLanes per Plane, chained along K. One Plane has400Cores/1600Macros.",
+      "verification": "source_checked_project_spec_not_silicon"
+    },
+    "planes_per_hemisphere": {
+      "value": 2,
+      "unit": "count",
+      "scope": "hemisphere",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2; lines 184-202",
+      "conditions": "Two CIM Planes per hemisphere/MXM, preserving baseline plane organization.",
+      "verification": "source_checked_project_spec_not_silicon"
+    },
+    "hemispheres": {
+      "value": 2,
+      "unit": "count",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2;5.1; lines 184-202,744-759",
+      "conditions": "Full chip has four Planes; together with two Planes per hemisphere this means two hemispheres. The early section3.1 comparison of400Macros/hemisphere is not the finalized section3.2 topology; do not apply it to the final6400Macros/chip profile.",
+      "verification": "source_checked_project_spec_not_silicon"
+    },
+    "int32_writer_bpc": {
+      "value": 256,
+      "unit": "byte/cycle",
+      "scope": "writer_superlane_plane",
+      "status": "assumed",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/c641844c1d213d02a7d961d889838cae9b9dc8aa/docs/legacy/patent-idea-review.md",
+      "source_version": "commit c641844c1d213d02a7d961d889838cae9b9dc8aa; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; sections 3.2.5, 3.4.5-3.4.6",
+      "conditions": "256 B/cycle per transposed writer SuperLane per Plane. Section 3.4.6 permits distinct Core/Cluster results on distinct writer SuperLanes, not one serial Plane-wide writer. INT32 bypass service is an explicit model assumption; aggregate traffic remains constrained by MEM and directional streams. This does not multiply FP conversion-lane inventory. Runtime INT32 bypass is reported separately as an assumed service; this is not the Plane-wide FP conversion capacity.",
+      "verification": "explicit_INT32_bypass_service_assumption"
+    },
+    "streams_per_plane": {
+      "value": 16,
+      "unit": "count",
+      "scope": "superlane_plane_direction",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.3.2-3.3.4; lines 351-390,430-439",
+      "conditions": "16 stream IDs allocated to each Plane within one direction/SuperLane; two Planes share the native32-ID budget.",
+      "verification": "source_checked_project_spec_not_silicon"
+    },
+    "lw_cores_per_cycle": {
+      "value": 2,
+      "unit": "core/cycle",
+      "scope": "superlane_plane",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.3.4 final LW rotation; lines 430-439",
+      "conditions": "Per SuperLane and Plane, two Cores/cycle*four Macros/Core*32B/wordline=256B/cycle distributed LW capture. Across20SL the width is5120B/cycle/Plane; this is not the256B/cycle individual transposed writer SuperLane service.",
+      "verification": "source_checked_project_spec_not_silicon"
+    },
+    "core_stagger_cycles": {
+      "value": 1,
+      "unit": "cycle",
+      "scope": "cluster_slice",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/7383ae43cefcddc04d01c189794356ca62eb7101/docs/legacy/patent-idea-review.md",
+      "source_version": "commit 7383ae43cefcddc04d01c189794356ca62eb7101; git-blob acf4798e3d0a5ed57bec576849d6c3ffb4679ab7; 3.2.5-3.2.6; lines 290-322",
+      "conditions": "Adjacent Cores within a Cluster start one cycle apart, creating a five-cycle local staircase; project schedule target, not calibrated ASIC latency.",
+      "verification": "source_checked_project_spec_not_silicon"
+    }
   },
-  "mem": {
-    "total_bytes": 335544320,
-    "n_slices": 88,
-    "bw_tbps": 80.0,
-    "stream_bw_tbps": 20.0
+  "execution": {
+    "scope": "single_hem",
+    "resident_boundary": "local_MEM",
+    "schedule": "static_wave_pipeline",
+    "default_tile_mkn": [
+      320,
+      320,
+      640
+    ],
+    "buffer_slots": 1,
+    "weight_load_overlap": "background",
+    "fixed_latency_cycles": {
+      "local_pipeline": 3,
+      "context_switch": 1
+    },
+    "rules": {
+      "mapping": "kn_round_robin_no_m_replication",
+      "wave_barrier": "drain",
+      "mem_read_write": "independent_assumed_conflict_free"
+    },
+    "status": "assumed",
+    "source": "Project analytical execution policy; ARCHITECTURE.md execution contract; ARCHITECTURE.md#tsp-mem-concurrency",
+    "version": "2026-11-18 independent MEM read/write services v1; background LW default",
+    "conditions": "Explicit software modeling assumptions, not measured hardware behavior. Byte/cycle service budgets are allocated separately from chip inventory. CLI/API overrides are recorded in the effective execution contract. Fixed latencies use cycles; zero omits an uncalibrated allowance. Output-block/wave barriers and ideal input sharing remain declared approximations. MEM reads and writes use independent directional budgets under an assumed conflict-free bank layout. Activation, partial-sum and weight reads share the read budget. Bank placement, per-bank capacity and conflicts are not simulated; data dependencies and stream constraints still apply."
   },
-  "sram": {
-    "physical_total_bytes": 369098752,
-    "global_mem_bytes": 335544320,
-    "local_reserved_bytes": 33554432
-  },
-  "vxm": {
-    "alus_per_lane": 16
-  },
-  "layout": {
-    "n_mem_slices_per_hemisphere": 44,
-    "n_hemispheres": 2,
-    "act_mem_start_slice": 0,
-    "wt_mem_start_slice": 28
-  },
-  "cim_fabric": {
-    "macro_arrangement": "grid_broadcast_reduce",
-    "macro_link_hops": 1,
-    "macro_k_groups_per_superlane": 40
-  },
-  "streams": {
-    "n_streams_per_direction": 32,
-    "stream_width_bytes": 320
-  },
-  "clock_freq_ghz": 0.9,
-  "weight_prog_bw_gbps": 512.0
+  "description": "Core/Cluster/Plane topology; default single-hemisphere INT8 execution with eight Cluster domains. Display-only specifications are preserved in configs/archive/tsp_cim.json; the runtime does not load this archive."
 }

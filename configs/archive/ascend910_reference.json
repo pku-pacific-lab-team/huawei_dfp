@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "model": "ascend910_reference_archived_specifications",
+  "description": "Reference-only specifications archived from the active execution profile. Not a simulation configuration; the runtime does not load or merge this file.",
+  "archived_at": "2026-11-18 America/Los_Angeles",
+  "archived_from": {
+    "path": "configs/hardware/ascend910_reference.json",
+    "schema_version": 8
+  },
+  "parameters": {
+    "cube.units_per_core": {
+      "value": 1,
+      "unit": "unit",
+      "scope": "core",
+      "status": "documented",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "One Cube unit in the published Ascend-Max core diagram; not a claim about later 910B/910C architectures."
+    },
+    "vector.units_per_core": {
+      "value": 1,
+      "unit": "unit",
+      "scope": "core",
+      "status": "documented",
+      "source": "https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf#page=108 (Figure 9, printed p104)",
+      "version": "Communications of HUAWEI RESEARCH, June 2022; original Ascend 910 / Ascend-Max; audited 2026-11-14 America/Los_Angeles",
+      "conditions": "One Vector unit in the published Ascend-Max core diagram; not a claim about later 910B/910C architectures."
+    }
+  },
+  "archival_reasons": {
+    "cube.units_per_core": "Cube count was used only for compute-unit inventory. GEMM uses its explicit per-core MAC service and fixed INT8 geometry.",
+    "vector.units_per_core": "Vector count was used only for compute-unit inventory. The standalone Vector API uses its explicit shared service budget."
+  },
+  "archival_history": [
+    {
+      "archived_at": "2026-11-18 America/Los_Angeles",
+      "from_schema": 8,
+      "active_schema_after": 9,
+      "report_schema_after": 12,
+      "parameters": [
+        "cube.units_per_core",
+        "vector.units_per_core"
+      ]
+    }
+  ]
+}

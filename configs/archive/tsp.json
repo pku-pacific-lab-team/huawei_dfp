@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "model": "tsp_archived_specifications",
+  "description": "Reference-only specifications archived from the active execution profile. Not a simulation configuration; the runtime does not load or merge this file.",
+  "archived_at": "2026-11-18 America/Los_Angeles",
+  "archived_from": {
+    "path": "configs/hardware/tsp.json",
+    "schema_version": 8
+  },
+  "parameters": {
+    "nominal_int8_tops": {
+      "value": 750,
+      "unit": "TOPS",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/071573763db09594a85f2371e7abfc7615cfe509/docs/reference/SOW-Summary.md",
+      "source_version": "commit 071573763db09594a85f2371e7abfc7615cfe509; git-blob b77cbdf8eb55ba46c990dd89060c193445cb81b2; Table 1 architecture comparison; lines 33-45",
+      "conditions": "Nominal INT8 rating is 750 TOPS. Geometry at 900 MHz and two operations/MAC gives 737.28 TOPS; source does not explain the 12.72 TOPS gap, so preserve distinct nominal and derived fields.",
+      "verification": "source_checked_project_spec_not_silicon"
+    }
+  },
+  "archival_reasons": {
+    "nominal_int8_tops": "Nominal 750 TOPS was only printed as a reference; derived geometry remains 737.28 TOPS and neither nominal value drives GEMM time."
+  },
+  "archival_history": [
+    {
+      "archived_at": "2026-11-18 America/Los_Angeles",
+      "from_schema": 8,
+      "active_schema_after": 9,
+      "report_schema_after": 10,
+      "parameters": [
+        "nominal_int8_tops"
+      ]
+    }
+  ]
+}

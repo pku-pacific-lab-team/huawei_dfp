@@ -2,16 +2,16 @@
 Hardware module - CIM Macro specifications and data formats
 """
 from .macro import CIMMacroSpec
-from .dataformat import DataFormatSpec, FORMAT_SPECS, get_format_overheads
+from .dataformat import KNOWN_FORMATS
 from .tsp import TSPSpec
-from .tsp_cim import MacroPlacement, TSPCIMSpec
+from .tsp_cim import CIMCoreSpec, CIMClusterSpec, CIMPlaneSpec, TSPCIMSpec
 
 __all__ = [
     "CIMMacroSpec",
-    "DataFormatSpec",
-    "FORMAT_SPECS",
-    "get_format_overheads",
+    "KNOWN_FORMATS",
     "TSPSpec",
-    "MacroPlacement",
+    "CIMCoreSpec",
+    "CIMClusterSpec",
+    "CIMPlaneSpec",
     "TSPCIMSpec",
 ]

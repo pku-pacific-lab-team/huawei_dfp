@@ -1,0 +1,275 @@
+{
+  "_documentation": {
+    "purpose": "维护注释，采用合法 JSON 字段代替 // 注释。前三节区分硬件数值、执行策略、说明依据；configuration_control 单列会参与身份/格式校验或依赖加载的字段。此 _documentation 块为可选，只供阅读，解析时整体剔除，不进入计算、报告或运行时 reference_id；完整文件仍纳入来源台账校验。",
+    "hardware_parameters": {
+      "parameters": "硬件数值参数：矩阵几何、容量、带宽、算术服务和矩阵单元库存。标称 TOPS 与 VPU/ALU 库存已归档；Vector 服务直接使用显式预算，不从归档几何推导默认吞吐。"
+    },
+    "execution_policy": {
+      "execution": "执行策略及其依据：约束/控制仿真行为，内部数值如槽数、分块和固定延迟也属于本类；其中 status/source/version/conditions 是说明与依据，详见 execution_fields。"
+    },
+    "descriptive_metadata": {
+      "description": "说明与依据：模型范围、带宽代理及已归档项目的文字说明。configs/archive/tpu_v4_reference.json 是参考资料；当前加载器不读取它来补默认值。 已归档的规格/库存值见 configs/archive/tpu_v4_reference.json，运行时不读取或合并归档。"
+    },
+    "configuration_control": {
+      "schema_version": "配置控制：解析器校验版本；不允许通过修改版本号自动恢复已归档参数。",
+      "model": "配置控制：模型身份，必须匹配 TPU 解析器支持的名称。"
+    },
+    "parameter_fields": [
+      "value: 硬件数值输入：固定能力、容量、数量、服务率或延迟；包括 status=assumed 的显式代理，不是自动求值的公式。",
+      "unit: 单位约束：随 value 一起校验；不能仅改单位标签而不换算数值。",
+      "scope: 作用域约束：区分 chip/core/plane 等；随参数校验，不能只改标签来缩放硬件。",
+      "status: 说明与依据并附校验：documented/measured/assumed/unknown；描述证据强度，不是开关。null 必须显式为 unknown，不触发隐藏默认值。",
+      "source: 说明与依据：原始来源或模型政策，文字不会自动执行或改写 value。",
+      "version: 说明与依据：参数依据的文档/配置版本，不是本文件 schema_version。",
+      "conditions: 说明与依据：数值取法、适用条件及消费边界；改变公式文字不会自动重算 value，应同步更新数值和实现。"
+    ],
+    "execution_fields": {
+      "scope": "执行约束：允许的局部仿真范围；不能通过改字符串获得整片调度。",
+      "resident_boundary": "执行约束：任务的输入/输出驻留边界，解析器校验支持的边界。",
+      "schedule": "执行策略：选择解析器支持的调度模型。",
+      "default_tile_mkn": "执行策略：默认 M/K/N 分块；不是物理阵列尺寸。支持的 CLI/API 参数可覆盖。",
+      "buffer_slots": "执行策略：允许的缓冲槽数；容量仍由硬件数值约束，实际分配以报告为准。",
+      "weight_load_overlap": "执行策略/约束：权重准备是否允许重叠，取值必须属于本架构支持的实现。",
+      "fixed_latency_cycles": "执行策略：显式建模的固定周期开销，虽为数值仍属于执行策略；0 表示忽略该项开销，空对象表示没有此类配置项。",
+      "rules": "执行规则：资源共享、屏障或映射约束；只支持已实现的值，修改说明文字不能增加新规则。",
+      "status": "说明与依据并附校验：执行模型必须标为 assumed，不冒充硬件实测行为。",
+      "source": "说明与依据：策略的设计依据；不会执行此字符串或访问其 URL 来决定调度。",
+      "version": "说明与依据：策略依据的版本，不是 schema_version。",
+      "conditions": "说明与依据：策略的适用条件和局限；用于追溯，不作为可执行表达式。",
+      "cmem_mode": "执行策略：tiled 启用完整 K 面板，bypass 旁路；实际模式还受容量约束。",
+      "cmem_groups_mn": "执行策略：外层 CMEM 面板覆盖的 VMEM 输出块组数，不是硬件阵列数量。",
+      "cmem_buffer_slots": "执行策略：请求的 CMEM 面板槽数，容量不足或无下一面板时可降为一个。"
+    },
+    "maintenance_rules": [
+      "新增或移动真实字段时同步更新本注释的分类；不要只修改注释来改变模型行为。",
+      "硬件参数的 value、unit、scope 与来源元数据一起维护；是否参与当前 GEMM 以该参数的 conditions 和实际消费路径为准。",
+      "执行策略仅可使用解析器已有实现；修改策略后检查容量、动作计数和时间报告，不用库存数量直接缩放任务耗时。",
+      "说明文字仍可能接受完整性校验或出现在来源报告中；只有 _documentation 是完全独立的阅读注释。",
+      "注释只放在根层 _documentation 中；其他未知字段及参数/策略内部的额外字段仍严格拒绝。"
+    ]
+  },
+  "schema_version": 12,
+  "model": "tpu_v4_count",
+  "parameters": {
+    "clock_hz": {
+      "value": 1050000000,
+      "unit": "Hz",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p7, Table 4)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Reference clock; not an effective instruction rate."
+    },
+    "tensorcores_per_chip": {
+      "value": 2,
+      "unit": "unit",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Architectural inventory; the counter uses one TensorCore."
+    },
+    "mxus_per_tensorcore": {
+      "value": 4,
+      "unit": "unit",
+      "scope": "tensorcore",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Physical inventory and maximum parallel MXUs per logical output block. The execution policy chooses block sizes; unused MXUs remain idle."
+    },
+    "mxu_rows": {
+      "value": 128,
+      "unit": "element",
+      "scope": "mxu",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Physical matrix geometry, not a logical-block alignment rule."
+    },
+    "mxu_columns": {
+      "value": 128,
+      "unit": "element",
+      "scope": "mxu",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Physical matrix geometry, not a logical-block alignment rule."
+    },
+    "int8_macs_per_cell_cycle": {
+      "value": 1,
+      "unit": "MAC/cycle",
+      "scope": "mxu_cell",
+      "status": "assumed",
+      "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "Assumed ideal active-cell INT8 MAC rate, used for specification peaks and analytical MXU compute service; not calibrated instruction throughput."
+    },
+    "vector_base_ops_per_cycle": {
+      "value": 2048,
+      "unit": "op/cycle",
+      "scope": "tensorcore",
+      "status": "assumed",
+      "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+      "version": "TPU hardware schema 3, 2026-11-17; not hardware calibration",
+      "conditions": "Fixed reference assumption: 1 VPU * 128 lanes * 16 ALUs/lane, assuming each ALU supplies one equivalent basic operation/cycle. Geometry does not establish operation-specific throughput. One shared service per TensorCore; dtype rates are alternatives, not independent parallel resources. Not used by current GEMM. No runtime geometry fallback; update the value explicitly when changing its basis."
+    },
+    "vector_int32_add_cost": {
+      "value": 1,
+      "unit": "equivalent_op/op",
+      "scope": "tensorcore",
+      "status": "assumed",
+      "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+      "version": "TPU hardware schema 3, 2026-11-17; not hardware calibration",
+      "conditions": "One scalar-element INT32 addition costs one equivalent operation on the shared Vector service. Logical modeling assumption, not verified instruction throughput. No extra Vector charge for current MXU accumulation."
+    },
+    "vector_fp32_basic_op_cost": {
+      "value": 1,
+      "unit": "equivalent_op/op",
+      "scope": "tensorcore",
+      "status": "assumed",
+      "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+      "version": "TPU Vector/Nonlinear algorithmic reference v1, 2026-11-18; not hardware calibration",
+      "conditions": "One scalar-element FP32 ADD or MUL costs one equivalent operation on the shared Vector service. EXP and RSQRT have separately configured total equivalent-work costs. FMA, DIV, conversions, reductions and full nonlinear operators have no implicit cost. Not used by current GEMM."
+    },
+    "vector_fp32_exp_cost": {
+      "value": 15,
+      "unit": "equivalent_op/op",
+      "scope": "tensorcore",
+      "status": "assumed",
+      "source": "Project algorithmic work proxy; ARCHITECTURE.md#tpu-vector-service; method shared with ARCHITECTURE.md#tsp-vxm-service",
+      "version": "TPU Vector/Nonlinear algorithmic reference v1, 2026-11-18; not hardware calibration",
+      "conditions": "FP32 approximation work proxy: k=round(x*log2(e)), r=x-k*ln(2) costs 4; degree-5 Taylor polynomial in Horner form costs 5 MUL + 5 ADD; exponent scaling costs 1, total 15. Round and exponent scaling each count as one equivalent operation. No fused-operation discount. Reference domain is finite x in [-80,0]; no correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate exp numerically, and is not native TPU Exp instruction throughput or latency. Shares the per-TensorCore Vector budget; memory and dependencies are separate. Fixed total equivalent-work cost, independent of vector_fp32_basic_op_cost. Adopts the project TSP algorithmic counting convention, not TSP throughput. Not used by current GEMM."
+    },
+    "vector_fp32_rsqrt_cost": {
+      "value": 12,
+      "unit": "equivalent_op/op",
+      "scope": "tensorcore",
+      "status": "assumed",
+      "source": "Project algorithmic work proxy; ARCHITECTURE.md#tpu-vector-service; method shared with ARCHITECTURE.md#tsp-vxm-service",
+      "version": "TPU Vector/Nonlinear algorithmic reference v1, 2026-11-18; not hardware calibration",
+      "conditions": "Positive-normal FP32 approximation work proxy: bit seed bits(y)=0x5f3759df-(bits(x)>>1) costs 2 (shift and subtraction; bit reinterpretation costs 0), then two iterations y=(0.5*y)*(3-x*y*y), each 4 MUL + 1 SUB, total 12. No fused-operation discount. No correctly-rounded FP32 or exceptional-value accuracy claim. This analytical service counts work only, does not evaluate rsqrt numerically, and is not native TPU RSqrt instruction throughput or latency. Shares the per-TensorCore Vector budget; memory and dependencies are separate. Fixed total equivalent-work cost, independent of vector_fp32_basic_op_cost. Adopts the project TSP algorithmic counting convention, not TSP throughput. Not used by current GEMM."
+    },
+    "vmem_physical_bytes": {
+      "value": 16777216,
+      "unit": "byte",
+      "scope": "tensorcore",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "16 MiB per TensorCore; binary capacity."
+    },
+    "vmem_usable_bytes": {
+      "value": 16777216,
+      "unit": "byte",
+      "scope": "tensorcore",
+      "status": "assumed",
+      "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "Logical scenario allows the full reference VMEM for A/B/C; runtime reservations, packing and spills are not modeled. Not a measured allocatable capacity."
+    },
+    "vmem_bandwidth_bytes_per_second": {
+      "value": 1075200000000,
+      "unit": "byte/s",
+      "scope": "tensorcore",
+      "status": "assumed",
+      "source": "ARCHITECTURE.md#tpu-parameters: parameter gaps in the cited TPU v4 paper and product documentation",
+      "version": "TPU count model v1, 2026-11-15; model assumption made explicit in configuration 2026-11-16",
+      "conditions": "Method: 4 MXUs * (128 rows + 128 columns) INT8 bytes/cycle * 1.05e9 Hz = 1075200000000 B/s. Assume shared read/write service; runtime divides by clock_hz. Explicit analytical assumption, not measured hardware calibration. Fixed configuration value; update it explicitly when changing its hardware basis."
+    },
+    "cmem_physical_bytes": {
+      "value": 134217728,
+      "unit": "byte",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://arxiv.org/pdf/2304.01433 (PDF p2, section 2 opening paragraphs; PDF p7, Table 4)",
+      "version": "ISCA 2023, DOI 10.1145/3579371.3589350; accessed 2026-11-15",
+      "conditions": "Shared scratchpad counted once per chip, not a transparent cache."
+    },
+    "cmem_usable_bytes": {
+      "value": 134217728,
+      "unit": "byte",
+      "scope": "chip",
+      "status": "assumed",
+      "source": "ARCHITECTURE.md#tpu-vector-service: explicit LLMCompass-style model policy",
+      "version": "TPU hardware schema 3, 2026-11-17; not hardware calibration",
+      "conditions": "Assume all 128 MiB physical CMEM is usable. Single-TensorCore tiled execution gets floor(chip usable bytes / tensorcores_per_chip), with no idle-share borrowing. One or two capacity-checked cold slots hold full-K INT8 A/B panels; C remains in VMEM. This is an allocation scenario, not measured runtime capacity. Bypass allocates no CMEM."
+    },
+    "cmem_read_bandwidth_bytes_per_second": {
+      "value": 2150704873472,
+      "unit": "byte/s",
+      "scope": "chip",
+      "status": "assumed",
+      "source": "https://pypi.org/project/libtpu/0.0.40/ (Pufferfish SharedMemory[CMEM].parts.bytes_per_second; verified binary decode); https://markgottscho.com/cv/papers/2021_NJouppi_ISCA.pdf (PDF p10, read/write ratio only); ARCHITECTURE.md#tpu-cmem-proxy",
+      "version": "libtpu 0.0.40 cp314 Linux x86_64, published 2026-04-14; verified 2026-11-18; CMEM directional proxy v2",
+      "conditions": "Method: read = 2150704873472 B/s. The libtpu 0.0.40 Pufferfish standard and lite SharedMemory[CMEM].parts.bytes_per_second field is 2150704873472 B/s (2003 GiB/s), identical in both variants. The field does not distinguish read and write; assigning it to the chip read service and applying the TPUv4i 2000:1000 read/write ratio are explicit model assumptions, not validated TPU v4 directional bandwidth or silicon calibration. Decimal byte/s in this configuration; preserve the decoded integer without implying measurement precision. Independent read/write directions; do not multiply by TensorCore count or sum directions. Tiled execution divides each direction equally among TensorCores with no idle borrowing. HBM-to-CMEM fill and CMEM-to-VMEM read each reserve both endpoints at their minimum bandwidth. Capacity-checked CMEM slots permit outer-fill/inner-execution overlap under resource_pipeline. Different live slots may read and write concurrently. Fills and output exports share the same HBM service; slot reuse waits for its last read. Serial mode disables overlap. No additional OCI/bank/port bottleneck beyond these effective services. Bypass consumes neither direction."
+    },
+    "cmem_write_bandwidth_bytes_per_second": {
+      "value": 1075352436736,
+      "unit": "byte/s",
+      "scope": "chip",
+      "status": "assumed",
+      "source": "https://pypi.org/project/libtpu/0.0.40/ (Pufferfish SharedMemory[CMEM].parts.bytes_per_second; verified binary decode); https://markgottscho.com/cv/papers/2021_NJouppi_ISCA.pdf (PDF p10, read/write ratio only); ARCHITECTURE.md#tpu-cmem-proxy",
+      "version": "libtpu 0.0.40 cp314 Linux x86_64, published 2026-04-14; verified 2026-11-18; CMEM directional proxy v2",
+      "conditions": "Method: write = 2150704873472 * (1000 / 2000) = 1075352436736 B/s. This is not a separately decoded write-bandwidth field. The libtpu 0.0.40 Pufferfish standard and lite SharedMemory[CMEM].parts.bytes_per_second field is 2150704873472 B/s (2003 GiB/s), identical in both variants. The field does not distinguish read and write; assigning it to the chip read service and applying the TPUv4i 2000:1000 read/write ratio are explicit model assumptions, not validated TPU v4 directional bandwidth or silicon calibration. Decimal byte/s in this configuration; preserve the decoded integer without implying measurement precision. Independent read/write directions; do not multiply by TensorCore count or sum directions. Tiled execution divides each direction equally among TensorCores with no idle borrowing. HBM-to-CMEM fill and CMEM-to-VMEM read each reserve both endpoints at their minimum bandwidth. Capacity-checked CMEM slots permit outer-fill/inner-execution overlap under resource_pipeline. Different live slots may read and write concurrently. Fills and output exports share the same HBM service; slot reuse waits for its last read. Serial mode disables overlap. No additional OCI/bank/port bottleneck beyond these effective services. Bypass consumes neither direction."
+    },
+    "hbm_physical_bytes": {
+      "value": 34359738368,
+      "unit": "byte",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Unified physical HBM2 capacity; 32 GiB, not 32 decimal GB."
+    },
+    "hbm_usable_bytes": {
+      "value": 34359738368,
+      "unit": "byte",
+      "scope": "chip",
+      "status": "assumed",
+      "source": "ARCHITECTURE.md#tpu-parameters: explicit logical counting assumptions",
+      "version": "TPU count model v1, 2026-11-15",
+      "conditions": "Logical scenario allocates up to physical HBM; real runtime reserves memory. A/B/C coexist, no host offload. Not a measured runtime limit."
+    },
+    "hbm_bandwidth_bytes_per_second": {
+      "value": 1200000000000,
+      "unit": "byte/s",
+      "scope": "chip",
+      "status": "documented",
+      "source": "https://docs.cloud.google.com/tpu/docs/v4",
+      "version": "TPU v4 documentation; accessed 2026-11-15",
+      "conditions": "Published aggregate bandwidth, decimal GB/s; no inference of single-TensorCore effective bandwidth."
+    }
+  },
+  "execution": {
+    "scope": "single_tensorcore",
+    "resident_boundary": "HBM",
+    "schedule": "resource_pipeline",
+    "default_tile_mkn": [
+      256,
+      128,
+      256
+    ],
+    "buffer_slots": 2,
+    "weight_load_overlap": "serialized",
+    "fixed_latency_cycles": {
+      "transfer_startup": 0
+    },
+    "rules": {
+      "fill_drain": "rows_plus_columns_minus_two",
+      "output_blocks": "serial",
+      "input_sharing": "ideal_within_block"
+    },
+    "status": "assumed",
+    "source": "Project analytical execution policy; ARCHITECTURE.md execution contract",
+    "version": "2026-11-18 CMEM capacity-aware prefetch execution v2",
+    "conditions": "Explicit analytical policies, not measured hardware behavior. CMEM starts cold with full-K A/B panels for at most cmem_groups_mn VMEM output blocks. Preserve the selected panel shape; use two slots only when capacity and remaining panels allow, otherwise one. Capacity and bandwidth are equally partitioned between TensorCores with no borrowing. If one panel does not fit, shrink groups, then report bypass if necessary. Resource-pipeline scheduling overlaps next-panel fills with inner execution and releases CMEM slots after their last input read. HBM fills and exports share one non-preemptive service; late refills are deferred until after the current output export. CMEM read and write services are independent across different live slots. Each DMA reserves both endpoints once at the minimum rate plus transfer_startup. Serial mode disables overlap. VMEM retains C across K with one or two input slots; inner output blocks remain serial. No partial-fill consumption, cross-outer/task retention, OCI/bank conflicts, physical layout or XLA mapping. CLI/API overrides, effective mode and slot counts are reported.",
+    "cmem_mode": "tiled",
+    "cmem_groups_mn": [
+      4,
+      4
+    ],
+    "cmem_buffer_slots": 2
+  },
+  "description": "TPU v4 single-TensorCore INT8 GEMM with cold full-K CMEM input panels and a VMEM/MXU pipeline. CMEM uses a verified libtpu v4 configuration constant as an assumed read-service baseline and a TPUv4i-derived 2:1 read/write ratio. Bypass is available for comparison. Vector/Nonlinear supports standalone shared compute-service estimates; GEMM accumulation remains in the MXU; Scalar inventory and SparseCore/SPMEM are retired. Register capacity, ICI, process and die-area reference metadata are preserved separately in configs/archive/tpu_v4_reference.json. Display-only specifications are preserved in configs/archive/tpu_v4_reference.json; the runtime does not load this archive."
+}

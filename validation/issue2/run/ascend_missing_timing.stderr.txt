@@ -1,0 +1,1 @@
+[ERROR] Timing parameters missing: chip.hbm_bandwidth_bytes_per_second
