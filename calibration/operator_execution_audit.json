@@ -17,6 +17,13 @@
       "path": "ARCHITECTURE.md",
       "section": "normalization-operators",
       "verification": "Explicit coarse work and storage policy; no silicon calibration claim"
+    },
+    "materialized_block_policy_v1": {
+      "title": "Materialized Decode block schedule and storage-boundary work proxies",
+      "classification": "modeling_assumption",
+      "path": "ARCHITECTURE.md",
+      "section": "decode-blocks",
+      "verification": "Explicit symbolic storage and uncalibrated compute assumptions; no numerical or physical-layout validation claim"
     }
   },
   "vector_execution_profiles": {
@@ -85,6 +92,45 @@
             {
               "source_id": "normalization_serial_policy_v1",
               "section": "normalization-operators"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "block_execution_profiles": {
+    "configs/execution/blocks.json": {
+      "canonical_json_sha256": "a4cab24150f5fb8d3cf7779144ff212249d725cd5487b9f5095fb4d1479bd97a",
+      "schema_version": 1,
+      "policy_source": "materialized_block_policy_v1",
+      "parameters": {
+        "to_fp32_cost": {
+          "status": "assumed",
+          "decision": "Coarse storage-boundary conversion work; no standalone instruction model.",
+          "evidence": [
+            {
+              "source_id": "materialized_block_policy_v1",
+              "section": "decode-blocks"
+            }
+          ]
+        },
+        "to_int8_cost": {
+          "status": "assumed",
+          "decision": "Coarse scale/round/clamp work proxy; no numerical quantization or standalone instruction model.",
+          "evidence": [
+            {
+              "source_id": "materialized_block_policy_v1",
+              "section": "decode-blocks"
+            }
+          ]
+        },
+        "fp32_rcp_cost": {
+          "status": "assumed",
+          "decision": "Reciprocal work proxy on the shared Vector/VXM budget.",
+          "evidence": [
+            {
+              "source_id": "materialized_block_policy_v1",
+              "section": "decode-blocks"
             }
           ]
         }

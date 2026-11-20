@@ -1,9 +1,78 @@
 {
-  "tests_run": 82,
+  "tests_run": 105,
   "status_counts": {
-    "passed": 82
+    "passed": 105
   },
   "tests": {
+    "tests.operators.test_blocks.BlockTest.test_batch_scaling_and_cross_k_native_allocation": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_count_timing_consistency_all_blocks_and_architectures": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_ffn_branch_lifetimes_and_peak_not_sum_of_nodes": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_ffn_hbm_materialization_counted_exactly_once_per_access": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_ffn_reuses_native_gemm_work_and_keeps_roles": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_fp32_residual_has_no_storage_boundary_work": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_global_capacity_rejects_graph_whose_children_fit": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_internal_names_cannot_alias_external_tensors": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_missing_native_budget_and_clock_semantics": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_proxy_sensitivity_and_native_arithmetic_independent": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_resident_capacity_reduces_tile_and_rejects_one_element_short": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_resident_padding_reserved_and_scratch": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_residual_hand_counts_and_tiled_cycles": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_schedule_rejects_cycles_alias_and_orphan": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_shape_dtype_and_alias_rejection": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_swiglu_formula_and_storage_boundaries": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_tile_partition_preserves_logical_work_and_hbm_payload": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_tsp_cim_share_one_vxm_not_macro_count": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_unknown_proxy_fails_only_when_timing_uses_it": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks.BlockTest.test_workload_and_profile_strictness_and_provenance": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks_cli.BlockCLITest.test_allocations_profile_and_details_from_external_directory": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks_cli.BlockCLITest.test_chip_execution_rejected": {
+      "status": "passed"
+    },
+    "tests.operators.test_blocks_cli.BlockCLITest.test_invalid_options_workload_and_profile_preserve_existing_outputs": {
+      "status": "passed"
+    },
     "tests.operators.test_cli.OperatorReportCLITest.test_invalid_workload_does_not_replace_operator_output": {
       "status": "passed"
     },

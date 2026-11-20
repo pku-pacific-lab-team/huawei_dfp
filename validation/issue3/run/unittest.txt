@@ -1,3 +1,26 @@
+test_batch_scaling_and_cross_k_native_allocation (tests.operators.test_blocks.BlockTest.test_batch_scaling_and_cross_k_native_allocation) ... ok
+test_count_timing_consistency_all_blocks_and_architectures (tests.operators.test_blocks.BlockTest.test_count_timing_consistency_all_blocks_and_architectures) ... ok
+test_ffn_branch_lifetimes_and_peak_not_sum_of_nodes (tests.operators.test_blocks.BlockTest.test_ffn_branch_lifetimes_and_peak_not_sum_of_nodes) ... ok
+test_ffn_hbm_materialization_counted_exactly_once_per_access (tests.operators.test_blocks.BlockTest.test_ffn_hbm_materialization_counted_exactly_once_per_access) ... ok
+test_ffn_reuses_native_gemm_work_and_keeps_roles (tests.operators.test_blocks.BlockTest.test_ffn_reuses_native_gemm_work_and_keeps_roles) ... ok
+test_fp32_residual_has_no_storage_boundary_work (tests.operators.test_blocks.BlockTest.test_fp32_residual_has_no_storage_boundary_work) ... ok
+test_global_capacity_rejects_graph_whose_children_fit (tests.operators.test_blocks.BlockTest.test_global_capacity_rejects_graph_whose_children_fit) ... ok
+test_internal_names_cannot_alias_external_tensors (tests.operators.test_blocks.BlockTest.test_internal_names_cannot_alias_external_tensors) ... ok
+test_missing_native_budget_and_clock_semantics (tests.operators.test_blocks.BlockTest.test_missing_native_budget_and_clock_semantics) ... ok
+test_proxy_sensitivity_and_native_arithmetic_independent (tests.operators.test_blocks.BlockTest.test_proxy_sensitivity_and_native_arithmetic_independent) ... ok
+test_resident_capacity_reduces_tile_and_rejects_one_element_short (tests.operators.test_blocks.BlockTest.test_resident_capacity_reduces_tile_and_rejects_one_element_short) ... ok
+test_resident_padding_reserved_and_scratch (tests.operators.test_blocks.BlockTest.test_resident_padding_reserved_and_scratch) ... ok
+test_residual_hand_counts_and_tiled_cycles (tests.operators.test_blocks.BlockTest.test_residual_hand_counts_and_tiled_cycles) ... ok
+test_schedule_rejects_cycles_alias_and_orphan (tests.operators.test_blocks.BlockTest.test_schedule_rejects_cycles_alias_and_orphan) ... ok
+test_shape_dtype_and_alias_rejection (tests.operators.test_blocks.BlockTest.test_shape_dtype_and_alias_rejection) ... ok
+test_swiglu_formula_and_storage_boundaries (tests.operators.test_blocks.BlockTest.test_swiglu_formula_and_storage_boundaries) ... ok
+test_tile_partition_preserves_logical_work_and_hbm_payload (tests.operators.test_blocks.BlockTest.test_tile_partition_preserves_logical_work_and_hbm_payload) ... ok
+test_tsp_cim_share_one_vxm_not_macro_count (tests.operators.test_blocks.BlockTest.test_tsp_cim_share_one_vxm_not_macro_count) ... ok
+test_unknown_proxy_fails_only_when_timing_uses_it (tests.operators.test_blocks.BlockTest.test_unknown_proxy_fails_only_when_timing_uses_it) ... ok
+test_workload_and_profile_strictness_and_provenance (tests.operators.test_blocks.BlockTest.test_workload_and_profile_strictness_and_provenance) ... ok
+test_allocations_profile_and_details_from_external_directory (tests.operators.test_blocks_cli.BlockCLITest.test_allocations_profile_and_details_from_external_directory) ... ok
+test_chip_execution_rejected (tests.operators.test_blocks_cli.BlockCLITest.test_chip_execution_rejected) ... ok
+test_invalid_options_workload_and_profile_preserve_existing_outputs (tests.operators.test_blocks_cli.BlockCLITest.test_invalid_options_workload_and_profile_preserve_existing_outputs) ... ok
 test_invalid_workload_does_not_replace_operator_output (tests.operators.test_cli.OperatorReportCLITest.test_invalid_workload_does_not_replace_operator_output) ... ok
 test_opt_in_report_preserves_default_report_in_both_modes (tests.operators.test_cli.OperatorReportCLITest.test_opt_in_report_preserves_default_report_in_both_modes) ... ok
 test_arithmetic_counts_are_width_minus_one_reductions_for_every_tiling (tests.operators.test_composite.CompositeTest.test_arithmetic_counts_are_width_minus_one_reductions_for_every_tiling) ... ok
@@ -82,6 +105,6 @@ test_owned_changes_and_shared_dependencies_have_distinct_snapshots (tests.valida
 test_subtest_failure_and_skips_do_not_become_success (tests.validation.test_verification.VerificationTest.test_subtest_failure_and_skips_do_not_become_success) ... ok
 
 ----------------------------------------------------------------------
-Ran 82 tests in 126.563s
+Ran 105 tests in 130.571s
 
 OK

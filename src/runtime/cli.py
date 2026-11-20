@@ -7,6 +7,7 @@ from ..utils.operator_report import print_report, write_report
 
 
 def add_vector_arguments(parser):
+    parser.add_argument("--block-config", help="Coarse block execution profile (default: configs/execution/blocks.json)")
     parser.add_argument("--details-output", help="Optional separate operator diagnostics JSON (requires operator report)")
     parser.add_argument("--vector-config", help="Vector/composite execution profile (default: configs/execution/vector.json)")
     parser.add_argument("--vector-tile-elements", type=int, help="Vector/composite tile upper bound; local capacity may reduce it")
@@ -18,7 +19,10 @@ def supplied_option(name, argv=None):
 
 
 def handles_operator_workload(config, args, argv=None):
-    if not isinstance(config, dict) or config.get("operation", "gemm") not in ("vector", "rmsnorm", "softmax"):
+    blocks = ("residual", "swiglu", "swiglu_ffn")
+    if supplied_option("--block-config", argv) and (not isinstance(config, dict) or config.get("operation") not in blocks):
+        raise ValueError("--block-config requires residual/swiglu/swiglu_ffn")
+    if not isinstance(config, dict) or config.get("operation", "gemm") not in ("vector", "rmsnorm", "softmax", *blocks):
         if args.details_output and args.report_format != "operator":
             raise ValueError("--details-output requires --report-format operator for GEMM")
         if args.report_format == "operator" and not args.details_output and any(supplied_option(name, argv) for name in (
@@ -42,6 +46,8 @@ def handles_operator_workload(config, args, argv=None):
 
 def operator_options(args, architecture):
     policy = {"tile_elements": args.vector_tile_elements, "include_details": bool(args.details_output)}
+    if args.block_config is not None:
+        policy["block_execution_file"] = args.block_config
     if architecture in {"tsp", "tsp_cim"}:
         policy.update(mem_slices=args.mem_slices, streams=args.streams,
                       reserved_bytes=args.reserved_bytes, hemisphere=getattr(args, "hemisphere", 0))

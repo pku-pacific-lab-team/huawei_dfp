@@ -1,0 +1,14 @@
+[Operator] tsp_cim residual (x[2, 7]:INT8, residual[2, 7]:INT8) -> INT8
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_hem; mode=count
+[Memory] mem: 308 / 115343360 B (single_hem)
+[Memory] lifetime_validation: 308 / None B (None)
+[Action] residual.mem_read_bytes: 196 byte (logical, action)
+[Action] residual.input_stream_bytes: 1600 byte (padded, action)
+[Action] residual.mem_write_bytes: 182 byte (logical, action)
+[Action] residual.output_stream_bytes: 1280 byte (padded, action)
+[Action] residual.boundary_to_fp32: 28 element (modeled_internal, action)
+[Action] residual.fp32_add: 14 op (logical, action)
+[Action] residual.boundary_to_int8: 14 element (modeled_internal, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-elwj9hna\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-elwj9hna\report.json

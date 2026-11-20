@@ -1,0 +1,257 @@
+{
+  "schema_version": 2,
+  "kind": "operator_result",
+  "status": "success",
+  "architecture": "ascend",
+  "mode": "timing",
+  "operator": {
+    "kind": "residual",
+    "inputs": [
+      {
+        "name": "x",
+        "shape": [
+          2,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 14,
+        "logical_bytes": 14
+      },
+      {
+        "name": "residual",
+        "shape": [
+          2,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 14,
+        "logical_bytes": 14
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "shape": [
+          2,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 14,
+        "logical_bytes": 14
+      }
+    ],
+    "accumulation_dtype": "FP32",
+    "attributes": {}
+  },
+  "latency_s": 1.5e-08,
+  "cycle_count": 15,
+  "timing_status": "analytical_estimate",
+  "boundary": {
+    "scope": "single_core",
+    "chip_execution_included": false,
+    "numeric_values_simulated": false,
+    "start": "tensors_in_HBM",
+    "end": "output_in_HBM",
+    "intermediate_storage": "HBM",
+    "offchip_supply_included": true,
+    "input_output_alias_included": false,
+    "layout": "symbolic_padded_views"
+  },
+  "work_counts": {
+    "logical": {
+      "operations": 14,
+      "useful_macs": 0,
+      "operation_counts": {
+        "fp32_add": 14
+      },
+      "output_bytes": 14
+    },
+    "issued": {
+      "operations": null,
+      "status": "per_node_only",
+      "basis": "See native matrix counts; no SIMD issue model"
+    },
+    "internal": {
+      "boundary_elements": {
+        "boundary_to_fp32": 28,
+        "boundary_to_int8": 14
+      },
+      "status": "per_node_only"
+    }
+  },
+  "resource_requirements": {
+    "ub": {
+      "scope": "core",
+      "required_bytes": 210,
+      "capacity_bytes": 262144,
+      "requirement_basis": "peak_bytes"
+    },
+    "hbm": {
+      "scope": "chip",
+      "required_bytes": 42,
+      "capacity_bytes": 32000000000,
+      "requirement_basis": "peak_bytes"
+    },
+    "lifetime_validation": {
+      "scope": null,
+      "required_bytes": 42,
+      "capacity_bytes": null,
+      "requirement_basis": "peak_bytes"
+    }
+  },
+  "action_counts": {
+    "residual.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 28,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "hbm_read_bytes"
+      }
+    },
+    "residual.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 28,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "ub_dma_write_bytes"
+      }
+    },
+    "residual.ub_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 196,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "ub_read_bytes"
+      }
+    },
+    "residual.ub_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 182,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "ub_write_bytes"
+      }
+    },
+    "residual.boundary_to_fp32": {
+      "component": "vector",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 28,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "boundary_to_fp32"
+      }
+    },
+    "residual.fp32_add": {
+      "component": "vector",
+      "name": "fp32_add",
+      "category": "vector",
+      "count": 14,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "fp32_add"
+      }
+    },
+    "residual.boundary_to_int8": {
+      "component": "vector",
+      "name": "boundary_to_int8",
+      "category": "vector",
+      "count": 14,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "boundary_to_int8"
+      }
+    },
+    "residual.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 14,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "hbm_write_bytes"
+      }
+    },
+    "residual.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 14,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "ub_dma_read_bytes"
+      }
+    }
+  },
+  "coverage": {
+    "offchip_memory": "native_payload_counts",
+    "interconnect": "not_modeled",
+    "physical_memory_transactions": "not_modeled"
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null
+  }
+}

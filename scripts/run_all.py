@@ -17,7 +17,8 @@ from scripts.verification import discover, fingerprints, save
 
 
 ARCHITECTURES = ("ascend", "tpu", "tsp", "tsp_cim")
-OPERATIONS = ("int32_add", "fp32_add", "fp32_mul", "fp32_exp", "fp32_rsqrt", "rmsnorm", "softmax")
+OPERATIONS = ("int32_add", "fp32_add", "fp32_mul", "fp32_exp", "fp32_rsqrt", "rmsnorm", "softmax",
+              "residual", "swiglu", "swiglu_ffn")
 
 
 def build_plan(scope, root=ROOT, *, details=False):

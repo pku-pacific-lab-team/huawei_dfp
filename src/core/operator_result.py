@@ -7,6 +7,7 @@ class ActionSpec:
     component: str
     name: str
     category: str
+    dtype: str | None = None
 
 
 @dataclass(frozen=True)

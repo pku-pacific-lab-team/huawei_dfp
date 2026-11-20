@@ -16,7 +16,7 @@ def adapt_native_result(operator, architecture, native, *, include_details=False
     for key, action in report["action_counts"].items():
         spec = native.action_specs[key]
         entries.append(Action(key, architecture, spec.component, spec.name, spec.category,
-                              action["count"], action["unit"], operator.outputs[0].dtype,
+                              action["count"], action["unit"], spec.dtype or operator.outputs[0].dtype,
                               action["scope"], action["basis"], f"#/native_report/action_counts/{key}",
                               native.action_description, attributes=(("native_action", key),)))
     return OpResult.from_native(operator, architecture, ActionLedger(tuple(entries)), report, include_details=include_details)

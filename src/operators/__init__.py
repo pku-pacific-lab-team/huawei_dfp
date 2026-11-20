@@ -6,7 +6,9 @@ from .types import OperatorSpec, OpResult, TensorSpec
 from .vector import Vector, simulate_vector
 from .composite import RMSNorm, Softmax, simulate_composite
 from .connections import plan_connection
+from .blocks import Residual, SwiGLU, SwiGLUFFN, simulate_block
 
 __all__ = ["Action", "ActionLedger", "Gemm", "OperatorSpec", "OpResult", "TensorSpec",
            "adapt_gemm_report", "simulate_gemm", "Vector", "simulate_vector",
-           "RMSNorm", "Softmax", "simulate_composite", "plan_connection"]
+           "RMSNorm", "Softmax", "simulate_composite", "plan_connection",
+           "Residual", "SwiGLU", "SwiGLUFFN", "simulate_block"]

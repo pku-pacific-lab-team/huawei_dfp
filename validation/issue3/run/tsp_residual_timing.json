@@ -1,0 +1,267 @@
+{
+  "schema_version": 2,
+  "kind": "operator_result",
+  "status": "success",
+  "architecture": "tsp",
+  "mode": "timing",
+  "operator": {
+    "kind": "residual",
+    "inputs": [
+      {
+        "name": "x",
+        "shape": [
+          2,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 14,
+        "logical_bytes": 14
+      },
+      {
+        "name": "residual",
+        "shape": [
+          2,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 14,
+        "logical_bytes": 14
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "shape": [
+          2,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 14,
+        "logical_bytes": 14
+      }
+    ],
+    "accumulation_dtype": "FP32",
+    "attributes": {}
+  },
+  "latency_s": 1.4444444444444445e-08,
+  "cycle_count": 13,
+  "timing_status": "analytical_estimate",
+  "boundary": {
+    "scope": "single_hem",
+    "chip_execution_included": false,
+    "numeric_values_simulated": false,
+    "start": "tensors_in_local_MEM",
+    "end": "output_in_local_MEM",
+    "intermediate_storage": "local_MEM",
+    "offchip_supply_included": false,
+    "input_output_alias_included": false,
+    "layout": "symbolic_padded_views",
+    "selected_hemisphere": 0,
+    "mem_slices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "streams_per_direction": 32
+  },
+  "work_counts": {
+    "logical": {
+      "operations": 14,
+      "useful_macs": 0,
+      "operation_counts": {
+        "fp32_add": 14
+      },
+      "output_bytes": 14
+    },
+    "issued": {
+      "operations": null,
+      "status": "per_node_only",
+      "basis": "See native matrix counts; no SIMD issue model"
+    },
+    "internal": {
+      "boundary_elements": {
+        "boundary_to_fp32": 28,
+        "boundary_to_int8": 14
+      },
+      "status": "per_node_only"
+    }
+  },
+  "resource_requirements": {
+    "mem": {
+      "scope": "single_hem",
+      "required_bytes": 308,
+      "capacity_bytes": 115343360,
+      "requirement_basis": "peak_bytes"
+    },
+    "lifetime_validation": {
+      "scope": null,
+      "required_bytes": 308,
+      "capacity_bytes": null,
+      "requirement_basis": "peak_bytes"
+    }
+  },
+  "action_counts": {
+    "residual.mem_read_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 196,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "mem_read_bytes"
+      }
+    },
+    "residual.input_stream_bytes": {
+      "component": "stream_to_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 1600,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "input_stream_bytes"
+      }
+    },
+    "residual.mem_write_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 182,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "mem_write_bytes"
+      }
+    },
+    "residual.output_stream_bytes": {
+      "component": "stream_from_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 1280,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "output_stream_bytes"
+      }
+    },
+    "residual.boundary_to_fp32": {
+      "component": "vxm",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 28,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_hem",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "boundary_to_fp32"
+      }
+    },
+    "residual.fp32_add": {
+      "component": "vxm",
+      "name": "fp32_add",
+      "category": "vector",
+      "count": 14,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "fp32_add"
+      }
+    },
+    "residual.boundary_to_int8": {
+      "component": "vxm",
+      "name": "boundary_to_int8",
+      "category": "vector",
+      "count": 14,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_hem",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "residual",
+        "native_action": "boundary_to_int8"
+      }
+    }
+  },
+  "coverage": {
+    "offchip_memory": "outside_native_boundary",
+    "interconnect": "onchip_streams_only",
+    "physical_memory_transactions": "not_modeled"
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null
+  }
+}

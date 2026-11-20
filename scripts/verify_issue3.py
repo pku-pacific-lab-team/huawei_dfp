@@ -19,7 +19,7 @@ from scripts.verification import (ISSUE3_TEST_DIRS, discover, fingerprints, issu
 
 ARCHITECTURES = ("ascend", "tpu", "tsp", "tsp_cim")
 VECTOR_OPS = ("int32_add", "fp32_add", "fp32_mul", "fp32_exp", "fp32_rsqrt")
-OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax")
+OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax", "residual", "swiglu", "swiglu_ffn")
 NEGATIVE_CASES = ("reject_null_profile", "reject_unsupported")
 MANIFEST = ROOT / "validation/issue3/scope.json"
 
@@ -88,8 +88,12 @@ def report_checks(report, arch, kind, mode, details):
     checks["native_actions"] = set(report["action_counts"]) == set(native["action_counts"]) and all(
         action["count"] == native["action_counts"][key]["count"] and
         action["unit"] == native["action_counts"][key]["unit"] for key, action in report["action_counts"].items())
-    dtype = "INT32" if kind in ("gemm", "int32_add") else "FP32"
+    dtype = "INT8" if kind in ("residual", "swiglu", "swiglu_ffn") else "INT32" if kind in ("gemm", "int32_add") else "FP32"
     checks["stored_output_dtype"] = op["outputs"][0]["dtype"] == dtype
+    if kind in ("residual", "swiglu", "swiglu_ffn"):
+        checks["lifetime_validated"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"
+        checks["single_resource"] = report["boundary"]["chip_execution_included"] is False
+        checks["block_plan"] = len(native["schedule"]["steps"]) == (5 if kind == "swiglu_ffn" else 1)
     if kind in ("rmsnorm", "softmax"):
         checks["axis_semantics"] = op["attributes"]["axis"] == len(op["inputs"][0]["shape"]) - 1
         checks["lifetime_validated"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"

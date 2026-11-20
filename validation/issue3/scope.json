@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "issue": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3",
-  "scope": "implemented_batches_1_3_and_interface_finalization",
+  "scope": "implemented_batches_1_4_and_interface_finalization",
   "reference_commit": "98e79ee5b34991f09c65efe395e1e84d58589fab",
   "requirements": {
     "I3_contracts": {
@@ -80,12 +80,24 @@
         "tests.operators.test_reporting"
       ],
       "cli_operations": []
+    },
+    "I3_decode_blocks": {
+      "title": "Residual/SwiGLU/FFN 组合、存储边界工作量、生命周期、容量及四架构执行",
+      "test_modules": [
+        "tests.operators.test_blocks",
+        "tests.operators.test_blocks_cli"
+      ],
+      "cli_operations": [
+        "residual",
+        "swiglu",
+        "swiglu_ffn"
+      ]
     }
   },
   "pending_work": [
-    "Attention、SwiGLU/FFN、残差、KV Cache、MoE 等其余复合块",
-    "目标模型的完整算子覆盖矩阵与整模端到端验证",
-    "跨算子 dtype 转换、布局与驻留的执行及成本模型；当前只提供连接需求描述",
-    "数值执行、精度验证及硬件标定不属于当前解析计数/时间验证"
+    "Attention/GQA、KV Cache、MLA、MoE 等其余复合块及目标模型的块覆盖矩阵",
+    "整片执行与 M/N 分片、跨核/半片通信模型；当前执行范围保持单核/单半片",
+    "块间仅采用显式粗粒度转换工作量与符号布局假设；不覆盖独立量化/反量化、转置或 ISA 指令",
+    "完整 Decoder/模型拼装与端到端评估属于 Issue #4；数值精度及硬件标定不属于本 Issue 的解析验收"
   ]
 }

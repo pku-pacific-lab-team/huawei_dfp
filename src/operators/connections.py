@@ -11,6 +11,8 @@ def io_contract(result):
                 "hemisphere": result.boundary.get("selected_hemisphere"),
                 "physical_device": None}
     layout = "native_packed" if gemm and arch != "tpu" else "logical_dense"
+    if op.kind in {"residual", "swiglu", "swiglu_ffn"}:
+        layout = result.boundary["layout"]
     def tensors(values):
         return [{**tensor.to_dict(), "location": dict(location), "layout": layout} for tensor in values]
     return {"schema_version": 1, "inputs": tensors(op.inputs), "outputs": tensors(op.outputs),
@@ -40,7 +42,7 @@ def plan_connection(producer, consumer, *, output_index=0, input_index=0):
     transfer = a["architecture"] != b["architecture"] or a["memory"] != b["memory"]
     if a["hemisphere"] is not None and b["hemisphere"] is not None and a["hemisphere"] != b["hemisphere"]:
         transfer = True
-    layout_change = source["layout"] != target["layout"] or source["layout"] == "native_packed"
+    layout_change = source["layout"] != target["layout"] or source["layout"] in {"native_packed", "symbolic_padded_views"}
     needs = []
     if dtype_change:
         needs.append("explicit_conversion_model")

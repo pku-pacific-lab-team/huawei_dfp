@@ -1,5 +1,31 @@
 """Pure parsing of Vector and normalization workload descriptions."""
 from ..operators import TensorSpec, Vector, RMSNorm, Softmax
+from ..operators.blocks import Residual, SwiGLU, SwiGLUFFN
+
+
+def parse_block_workload(config):
+    required = {"schema_version", "operation", "inputs"}
+    if not isinstance(config, dict) or not required <= set(config):
+        raise ValueError("Block workload requires schema_version, operation, inputs")
+    operation = config["operation"]
+    factories = {"residual": (Residual, 2), "swiglu": (SwiGLU, 2), "swiglu_ffn": (SwiGLUFFN, 4)}
+    if type(config["schema_version"]) is not int or config["schema_version"] != 1 or not isinstance(operation, str) or operation not in factories:
+        raise ValueError("Expected Residual/SwiGLU/FFN workload schema 1")
+    optional = {"description", "output_name"} | ({"output_dtype"} if operation == "swiglu" else set())
+    if set(config) - required - optional:
+        raise ValueError("Unknown block workload fields")
+    if "description" in config and (not isinstance(config["description"], str) or not config["description"].strip()):
+        raise ValueError("Block description must be nonempty text")
+    factory, arity = factories[operation]
+    if not isinstance(config["inputs"], list) or len(config["inputs"]) != arity:
+        raise ValueError(f"{operation} requires {arity} inputs")
+    tensors = []
+    for tensor in config["inputs"]:
+        if not isinstance(tensor, dict) or set(tensor) != {"name", "shape", "dtype"}:
+            raise ValueError("Block input requires exactly name, shape, dtype")
+        tensors.append(TensorSpec(**tensor))
+    options = {k: config[k] for k in ("output_name", "output_dtype") if k in config}
+    return factory(*tensors, **options)
 
 
 def parse_vector_workload(config):

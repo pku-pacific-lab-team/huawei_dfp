@@ -1,0 +1,17 @@
+[Operator] tpu residual (x[2, 7]:INT8, residual[2, 7]:INT8) -> INT8
+[Time] None cycles; None s (not_evaluated)
+[Scope] single_tensorcore; mode=count
+[Memory] vmem: 210 / 16777216 B (tensorcore)
+[Memory] hbm: 42 / 34359738368 B (chip)
+[Memory] lifetime_validation: 42 / None B (None)
+[Action] residual.hbm_read_bytes: 28 byte (logical, action)
+[Action] residual.vmem_dma_write_bytes: 28 byte (logical, action)
+[Action] residual.vmem_read_bytes: 196 byte (logical, action)
+[Action] residual.vmem_write_bytes: 182 byte (logical, action)
+[Action] residual.boundary_to_fp32: 28 element (modeled_internal, action)
+[Action] residual.fp32_add: 14 op (logical, action)
+[Action] residual.boundary_to_int8: 14 element (modeled_internal, action)
+[Action] residual.hbm_write_bytes: 14 byte (logical, action)
+[Action] residual.vmem_dma_read_bytes: 14 byte (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-mv14s013\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-mv14s013\report.json

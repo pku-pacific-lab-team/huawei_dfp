@@ -1,6 +1,6 @@
 # 多架构算子仿真工程
 
-本工程提供 Ascend 910、TPU v4、原生 TSP、CIM-TSP 四个独立分析入口，支持 INT8 GEMM、独立 INT32/FP32 Vector/Nonlinear，以及 FP32 RMSNorm/Softmax 复合块。当前交付以可追溯规格、容量检查、动作计数和局部解析时间为主。
+本工程提供 Ascend 910、TPU v4、原生 TSP、CIM-TSP 四个独立分析入口，支持 INT8 GEMM、独立 INT32/FP32 Vector/Nonlinear、FP32 RMSNorm/Softmax，以及 Residual、SwiGLU/FFN 复合块。当前交付以可追溯规格、容量检查、动作计数和局部解析时间为主。
 
 技术说明见 [ARCHITECTURE.md](ARCHITECTURE.md)：[四套执行路径字符框图](ARCHITECTURE.md#execution-diagrams)、[四个仿真器结构](ARCHITECTURE.md#simulator-structure)、[公共口径](ARCHITECTURE.md#conventions)、[Ascend](ARCHITECTURE.md#ascend)、[TPU](ARCHITECTURE.md#tpu)、[TSP](ARCHITECTURE.md#tsp)、[CIM Macro](ARCHITECTURE.md#cim-macro)、[CIM-TSP](ARCHITECTURE.md#cim-tsp)、[验证状态](ARCHITECTURE.md#validation)。
 
@@ -56,7 +56,7 @@ Linux/macOS 对应使用 `python3 -m venv .venv` 和 `source .venv/bin/activate`
 
 ```powershell
 .\scripts\run_all.ps1 -Scope issue2  # 4 架构原生 GEMM + Issue #2 验证
-.\scripts\run_all.ps1 -Scope issue3  # 4 架构 × 8 类算子 + Issue #3 验证
+.\scripts\run_all.ps1 -Scope issue3  # 4 架构 × 11 类算子 + Issue #3 验证
 .\scripts\run_all.ps1 -Scope all     # 两组全部执行，并核对全仓库测试覆盖
 .\scripts\run_all.ps1                # 默认等同于 -Scope all
 ```
@@ -64,8 +64,8 @@ Linux/macOS 对应使用 `python3 -m venv .venv` 和 `source .venv/bin/activate`
 | 范围 | 日常 timing 报告 | 独立验证 |
 | --- | --- | --- |
 | `issue2` | 4 份原生 GEMM，`results/<架构>.json` | 原生测试及 17 项 CLI 检查，`validation/issue2/run/` |
-| `issue3` | 32 份：统一 GEMM 报告及 7 个 Vector/归一化样例 | 算子/验证工具测试及 72 项 count/timing/负例 CLI 检查，`validation/issue3/run/` |
-| `all` | 两组共 36 份，分别保存 | 两套判据分别汇总；核对单元测试集合并集覆盖全仓库且无重复 |
+| `issue3` | 44 份：统一 GEMM 报告及 10 个 Vector/复合块样例 | 算子/验证工具测试及 96 项 count/timing/负例 CLI 检查，`validation/issue3/run/` |
+| `all` | 两组共 48 份，分别保存 | 两套判据分别汇总；核对单元测试集合并集覆盖全仓库且无重复 |
 
 Issue #3 另输出每算子一行的 `results/run_all_<范围>_operators.csv`；可加 `-Details` 保留独立详细文件。Issue #3 的 GEMM 适配报告使用 `results/<架构>_gemm_operator.json`，其他算子使用 `<架构>_<算子>.json`。每个范围另生成 `results/run_all_<范围>.json` 总结和 `results/run_all/<范围>/` 命令日志，均以脚本所属工程为根目录。Python 优先使用工程 `.venv`，否则使用 PATH。Linux/macOS 可运行等价命令 `python scripts/run_all.py --scope all`。
 
@@ -122,7 +122,7 @@ report = result.to_dict()  # compact schema 2
 print(result.latency_s, result.cycle_count)
 ```
 
-第一批提供 INT8 GEMM → INT32 输出、公共类型和计数接口；第二批补充独立 Vector，第三批接入下方 RMSNorm/Softmax。Tensor 能描述 FP32 等存储类型，不表示这些 GEMM 输入格式已可执行。Attention、SwiGLU/FFN、MoE 等复合块、INT8 激活写回、整模与能耗计算尚未接入。容量不足和缺少必需服务继续报错；TSP/CIM 的片外流量标记为执行边界之外。接口、计数依据和已知限制见[算子契约](ARCHITECTURE.md#operator-contract)。
+第一批提供 INT8 GEMM → INT32 输出、公共类型和计数接口；第二批补充独立 Vector，第三批接入 RMSNorm/Softmax，第四批接入下方 Residual、SwiGLU/FFN 和粗粒度 INT8 存储边界工作量。Tensor 能描述 FP32 等存储类型，不表示这些 GEMM 输入格式已可执行。Attention/GQA、KV Cache、MLA、MoE 等复合块及整片执行仍待实现；完整模型拼装属于 Issue #4，能耗计算另行接入。容量不足和缺少必需服务继续报错；TSP/CIM 的片外流量标记为执行边界之外。接口、计数依据和已知限制见[算子契约](ARCHITECTURE.md#operator-contract)。
 
 `Gemm.from_tensors()` 保留调用方的 Tensor 名称；GEMM、Vector、RMSNorm、Softmax 的 Python API 均可用 `output_name=` 指定输出。未指定时使用默认名称并避开输入名，显式输入输出重名会拒绝。Vector/复合 workload 同样接受可选 `output_name`。名称只在一次算子调用内标识张量，后续图层须用节点 ID 限定，不能以同名推断共用存储。
 
@@ -193,6 +193,23 @@ report = simulate_composite(op, "tpu", TPUConfigLoader().load_hardware(),
 RMSNorm 两遍读取输入，Softmax 用输出区暂存指数值再归一化。块内树形归约、跨块合并、行标量广播和中间存储访问均进入模型；不会将独立 Vector 的完整 HBM 往返直接拼接。超过 UB/VMEM 的行可分块，TSP/CIM 仍要求完整输入输出及块内临时区驻留 MEM。详见[复合块公式与容量边界](ARCHITECTURE.md#normalization-operators)。
 
 每次复合块执行还会检查符号缓冲生命周期，结果在 `memory.lifetime_validation`：包括初始化后才读取、局部槽覆盖顺序、奇数归约存活值、完整指数行写完后才归一化，以及临时容量。重复块最多检查首轮和稳定轮，检查量不随 batch 或块数线性增长。这不是物理地址、bank 或寄存器级验证。
+
+### Residual / SwiGLU / FFN（Issue #3 第四批）
+
+四个入口支持三种 schema 1 workload：`residual` 接受两个同形状 INT8 或 FP32 输入，输出保持相同存储类型；`swiglu` 接受两个同形状 INT8、INT32 或 FP32 输入，内部使用 FP32，输出默认为 INT8，可指定 `output_dtype="FP32"`；`swiglu_ffn` 输入顺序为 INT8 的 `x[M,H]`、`gate_weight[H,I]`、`up_weight[H,I]`、`down_weight[I,H]`，输出为 INT8 `[M,H]`。当前 FFN 不含 bias 或外部残差连接，Residual 是单独的块。
+
+```powershell
+python ascend.py --workload operators/residual.json
+python tpu.py --workload operators/swiglu.json --vector-tile-elements 80
+python tsp.py --workload operators/swiglu_ffn.json --mem-slices 0 1 --streams 2
+python tsp_cim.py --workload operators/swiglu_ffn.json --hemisphere 1 --details-output results/details/tsp_cim_ffn.json
+```
+
+Python API 使用 `Residual`、`SwiGLU`、`SwiGLUFFN` 与 `simulate_block(op, architecture, spec, mode="timing")`。三个 GEMM 复用原生内核，FFN 按 gate → up → SwiGLU → down → INT8 输出依次执行。每个子块在 HBM（Ascend/TPU）或本侧 MEM（TSP/CIM）中物化结果；父块保留全部子块读写，不额外加收“连接流量”。输入与权重在整块期间常驻，中间张量在最后一次使用后释放，容量按同时存活峰值检查。
+
+独立 [blocks.json](configs/execution/blocks.json) 保存串行组合、符号补齐布局和未标定的类型边界代价，可用 `--block-config` 替换；`--vector-config` 继续控制所复用的 Vector 服务，`--vector-tile-elements` 控制点算 tile。INT32→FP32→INT8 不再被当作免费连接，但这里仅有块级工作量代理，不实现独立量化/反量化指令、量化数值或物理布局转换。详见[公式、生命周期与执行边界](ARCHITECTURE.md#decode-blocks)。
+
+执行范围仍为单 AI Core、单 TensorCore 或单半片，`chip_execution_included=false`。尚未实现整片 M/N 分片、权重/激活复制与跨核通信，不能直接把单核时间除以库存核数。
 
 ### 导出报告
 
@@ -347,7 +364,7 @@ Issue #3 已实现算子的独立验证：
 python scripts/verify_issue3.py
 ```
 
-输出到 `validation/issue3/run/`，只运行算子及验证工具测试，另执行 72 项算子 CLI 检查。范围、逐项覆盖和剩余缺口见 [Issue #3 验证说明](validation/issue3/README.md)及[覆盖清单](validation/issue3/scope.json)；退出 0 只表示已实现范围通过，不表示整个 Issue #3 已完成。
+输出到 `validation/issue3/run/`，只运行算子及验证工具测试，另执行 96 项算子 CLI 检查。范围、逐项覆盖和剩余缺口见 [Issue #3 验证说明](validation/issue3/README.md)及[覆盖清单](validation/issue3/scope.json)；退出 0 只表示已实现范围通过，不表示整个 Issue #3 已完成。
 
 按 Issue #2 的四类交付物和五条条件执行原生模型验收：
 

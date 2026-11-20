@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "profile_id": "materialized_decode_blocks_v1",
+  "schedule": "serial_materialized_nodes",
+  "storage": "persistent_inputs_reused_intermediates",
+  "layout": "symbolic_padded_views",
+  "status": "assumed",
+  "source": "model-policy; ARCHITECTURE.md#decode-blocks",
+  "conditions": "Single core/TensorCore/hemisphere. Native GEMM padding views share symbolic backing allocations. INT8 storage and FP32 nonlinear work; materialized outputs. No physical layout, quantization instruction or numerical accuracy claim.",
+  "parameters": {
+    "to_fp32_cost": {
+      "value": 1,
+      "unit": "equivalent_op/element",
+      "scope": "task",
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#decode-blocks",
+      "source_version": "materialized-block-v1",
+      "conditions": "Coarse storage-boundary conversion work; no standalone instruction model.",
+      "verification": "explicit_uncalibrated_model_assumption"
+    },
+    "to_int8_cost": {
+      "value": 3,
+      "unit": "equivalent_op/element",
+      "scope": "task",
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#decode-blocks",
+      "source_version": "materialized-block-v1",
+      "conditions": "Coarse scale/round/clamp work proxy; no numerical quantization or standalone instruction model.",
+      "verification": "explicit_uncalibrated_model_assumption"
+    },
+    "fp32_rcp_cost": {
+      "value": 7,
+      "unit": "equivalent_op/element",
+      "scope": "task",
+      "status": "assumed",
+      "source": "model-policy; ARCHITECTURE.md#decode-blocks",
+      "source_version": "materialized-block-v1",
+      "conditions": "Reciprocal work proxy on the shared Vector/VXM budget.",
+      "verification": "explicit_uncalibrated_model_assumption"
+    }
+  }
+}
