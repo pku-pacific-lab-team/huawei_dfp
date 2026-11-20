@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Coarse block inventory through batch 7B; not complete model execution, numerical validation or guaranteed fit of full model weights on one resource.",
+  "scope": "Coarse block inventory through batch 8A; fixed-routing experts are not a complete MoE layer or full model execution.",
   "full_target_model_coverage": false,
   "status_definitions": {
     "implemented": "The named coarse block runs on all four architectures under documented assumptions.",
@@ -14,7 +14,8 @@
     "deepseek_v3": "https://arxiv.org/abs/2412.19437v2",
     "task": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3",
     "deepseek_v3_inference": "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/model.py",
-    "deepseek_v3_671b": "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/configs/config_671B.json"
+    "deepseek_v3_671b": "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/configs/config_671B.json",
+    "deepseek_v3_fixed_moe": "https://github.com/deepseek-ai/DeepSeek-V3/blob/9b4e9788e4a3a731f7567338ed15d3ec549ce03b/inference/model.py"
   },
   "models": [
     {
@@ -172,7 +173,8 @@
         "deepseek_v3",
         "task",
         "deepseek_v3_inference",
-        "deepseek_v3_671b"
+        "deepseek_v3_671b",
+        "deepseek_v3_fixed_moe"
       ],
       "blocks": [
         {
@@ -317,23 +319,35 @@
         },
         {
           "id": "shared_expert_ffn",
-          "status": "partial",
+          "status": "implemented",
           "owner": "issue3",
           "implementation": [
+            "src/operators/moe.py",
+            "src/runtime/moe.py",
+            "src/core/moe.py",
             "src/operators/blocks.py"
           ],
           "tests": [
-            "tests.operators.test_blocks"
+            "tests.operators.test_moe",
+            "tests.operators.test_moe_cli"
           ],
-          "notes": "Individual dense expert arithmetic available; shared-expert and routed-path composition remains."
+          "notes": "One widened shared FFN executes all Decode tokens; width = shared_experts * expert intermediate. INT8 GEMM/SwiGLU storage, FP32 final output, global resident weight/capacity checks. Shared branch remains separate; summation with routed output is pending."
         },
         {
           "id": "moe_routed_ffn",
-          "status": "pending",
+          "status": "implemented",
           "owner": "issue3",
-          "implementation": [],
-          "tests": [],
-          "notes": "Expert/token assignment, expert GEMM shapes, resident weights and coarse dependencies remain."
+          "implementation": [
+            "src/operators/moe.py",
+            "src/runtime/moe.py",
+            "src/core/moe.py",
+            "src/operators/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_moe",
+            "tests.operators.test_moe_cli"
+          ],
+          "notes": "Fixed caller-supplied token/expert assignments; actual rows per active expert, empty experts skipped, all declared weights resident. Explicit dispatch and FP32 publish payloads, global storage and reused expert workspace. Unweighted [B,top_k,H] output preserves token/slot mapping; gate computation and weighted combine remain pending."
         },
         {
           "id": "moe_router_and_combine",
@@ -341,7 +355,7 @@
           "owner": "issue3",
           "implementation": [],
           "tests": [],
-          "notes": "Coarse routing/weighting/combine work remains; no Top-K or gather/scatter instruction model is required."
+          "notes": "Gate GEMM, sigmoid/group selection semantics, selected-score normalization/scaling and FP32 weighted/shared combine remain. Fixed route indices supplied to batch 8A are not a router implementation. No Top-K/gather/scatter ISA model is required."
         }
       ]
     }

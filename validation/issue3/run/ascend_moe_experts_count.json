@@ -1,0 +1,3768 @@
+{
+  "schema_version": 2,
+  "kind": "operator_result",
+  "status": "success",
+  "architecture": "ascend",
+  "mode": "count",
+  "operator": {
+    "kind": "moe_experts",
+    "inputs": [
+      {
+        "name": "tokens",
+        "shape": [
+          3,
+          5
+        ],
+        "dtype": "INT8",
+        "numel": 15,
+        "logical_bytes": 15
+      },
+      {
+        "name": "expert_gate",
+        "shape": [
+          5,
+          5,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 175,
+        "logical_bytes": 175
+      },
+      {
+        "name": "expert_up",
+        "shape": [
+          5,
+          5,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 175,
+        "logical_bytes": 175
+      },
+      {
+        "name": "expert_down",
+        "shape": [
+          5,
+          7,
+          5
+        ],
+        "dtype": "INT8",
+        "numel": 175,
+        "logical_bytes": 175
+      },
+      {
+        "name": "selected_experts",
+        "shape": [
+          3,
+          2
+        ],
+        "dtype": "INT32",
+        "numel": 6,
+        "logical_bytes": 24
+      },
+      {
+        "name": "shared_gate",
+        "shape": [
+          5,
+          14
+        ],
+        "dtype": "INT8",
+        "numel": 70,
+        "logical_bytes": 70
+      },
+      {
+        "name": "shared_up",
+        "shape": [
+          5,
+          14
+        ],
+        "dtype": "INT8",
+        "numel": 70,
+        "logical_bytes": 70
+      },
+      {
+        "name": "shared_down",
+        "shape": [
+          14,
+          5
+        ],
+        "dtype": "INT8",
+        "numel": 70,
+        "logical_bytes": 70
+      }
+    ],
+    "outputs": [
+      {
+        "name": "unweighted_experts",
+        "shape": [
+          3,
+          2,
+          5
+        ],
+        "dtype": "FP32",
+        "numel": 30,
+        "logical_bytes": 120
+      },
+      {
+        "name": "shared_output",
+        "shape": [
+          3,
+          5
+        ],
+        "dtype": "FP32",
+        "numel": 15,
+        "logical_bytes": 60
+      }
+    ],
+    "accumulation_dtype": "INT32",
+    "attributes": {
+      "active_experts": 3,
+      "expert_count": 5,
+      "expert_output_dtype": "FP32",
+      "intermediate_size": 7,
+      "output_order": "batch, selection_slot, hidden",
+      "routing_compute_included": false,
+      "routing_source": "caller_supplied_fixed_routing",
+      "shared_experts": 2,
+      "top_k": 2,
+      "weight_storage": "all_declared_experts_resident",
+      "weighted_combine_included": false
+    }
+  },
+  "latency_s": null,
+  "cycle_count": null,
+  "timing_status": "not_evaluated",
+  "boundary": {
+    "scope": "single_core",
+    "chip_execution_included": false,
+    "numeric_values_simulated": false,
+    "start": "tensors_in_HBM",
+    "end": "outputs_in_HBM",
+    "intermediate_storage": "HBM",
+    "offchip_supply_included": true,
+    "input_output_alias_included": false,
+    "layout": "symbolic_padded_views"
+  },
+  "work_counts": {
+    "logical": {
+      "operations": 3024,
+      "useful_macs": 1260,
+      "operation_counts": {
+        "fp32_mul": 252,
+        "fp32_exp": 84,
+        "fp32_add": 84,
+        "fp32_rcp": 84
+      },
+      "output_bytes": 180,
+      "route_index_read_bytes": 24,
+      "dispatch_payload_bytes": 30,
+      "publish_payload_bytes": 120,
+      "declared_weight_logical_bytes": 735,
+      "active_weight_logical_bytes": 525
+    },
+    "issued": {
+      "operations": null,
+      "status": "per_node_only"
+    },
+    "internal": {
+      "boundary_elements": {
+        "boundary_to_fp32": 213,
+        "boundary_to_int8": 84
+      },
+      "status": "per_node_only"
+    }
+  },
+  "resource_requirements": {
+    "ub": {
+      "scope": "core",
+      "required_bytes": 2048,
+      "capacity_bytes": 262144,
+      "requirement_basis": "peak_bytes"
+    },
+    "l1": {
+      "scope": "core",
+      "required_bytes": 2048,
+      "capacity_bytes": 1048576,
+      "requirement_basis": "peak_bytes"
+    },
+    "l0a": {
+      "scope": "core",
+      "required_bytes": 1024,
+      "capacity_bytes": 65536,
+      "requirement_basis": "peak_bytes"
+    },
+    "l0b": {
+      "scope": "core",
+      "required_bytes": 1024,
+      "capacity_bytes": 65536,
+      "requirement_basis": "peak_bytes"
+    },
+    "l0c": {
+      "scope": "core",
+      "required_bytes": 2048,
+      "capacity_bytes": 262144,
+      "requirement_basis": "peak_bytes"
+    },
+    "l2": {
+      "scope": "core_share_of_chip",
+      "required_bytes": 1024,
+      "capacity_bytes": 1048576,
+      "requirement_basis": "peak_bytes"
+    },
+    "hbm": {
+      "scope": "chip",
+      "required_bytes": 12944,
+      "capacity_bytes": 32000000000,
+      "requirement_basis": "peak_bytes"
+    }
+  },
+  "action_counts": {
+    "route_read.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 24,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "route_read",
+        "repetitions": "1"
+      }
+    },
+    "route_read.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 24,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "route_read",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.dispatch.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 15,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_0.dispatch",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.dispatch.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 15,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "expert_0.dispatch",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.dispatch.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 15,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_0.dispatch",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.dispatch.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 15,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "expert_0.dispatch",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.gate.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l1_l0a",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.gate.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l1_l0b",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.gate.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l0c_ub",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.gate.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.gate.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l2_fill_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.gate.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l2_read_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.gate.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.gate.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 8192,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "cube_mac",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.up.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l1_l0a",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.up.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l1_l0b",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.up.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l0c_ub",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.up.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.up.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l2_fill_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.up.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l2_read_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.up.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.up.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 8192,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "cube_mac",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.activation.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 168,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.activation.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 168,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.activation.ub_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 924,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_read_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.activation.ub_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 693,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_write_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.activation.boundary_to_fp32": {
+      "component": "vector",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 42,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "boundary_to_fp32",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.activation.fp32_mul": {
+      "component": "vector",
+      "name": "fp32_mul",
+      "category": "vector",
+      "count": 63,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_mul",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.activation.fp32_exp": {
+      "component": "vector",
+      "name": "fp32_exp",
+      "category": "nonlinear",
+      "count": 21,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_exp",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.activation.fp32_add": {
+      "component": "vector",
+      "name": "fp32_add",
+      "category": "vector",
+      "count": 21,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_add",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.activation.fp32_rcp": {
+      "component": "vector",
+      "name": "fp32_rcp",
+      "category": "nonlinear",
+      "count": 21,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_rcp",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.activation.boundary_to_int8": {
+      "component": "vector",
+      "name": "boundary_to_int8",
+      "category": "vector",
+      "count": 21,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "boundary_to_int8",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.activation.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 21,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.activation.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 21,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.down.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l1_l0a",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.down.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l1_l0b",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.down.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l0c_ub",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.down.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.down.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l2_fill_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.down.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l2_read_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.down.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.down.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 8192,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "cube_mac",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.output.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.output.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.output.ub_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_read_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.output.ub_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_write_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.output.boundary_to_fp32": {
+      "component": "vector",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 15,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "boundary_to_fp32",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.output.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.ffn.output.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "expert_0.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.publish.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_0.publish",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.publish.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "expert_0.publish",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.publish.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_0.publish",
+        "repetitions": "1"
+      }
+    },
+    "expert_0.publish.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "expert_0.publish",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.dispatch.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 5,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_1.dispatch",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.dispatch.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 5,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "expert_1.dispatch",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.dispatch.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 5,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_1.dispatch",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.dispatch.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 5,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "expert_1.dispatch",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.gate.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l1_l0a",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.gate.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l1_l0b",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.gate.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l0c_ub",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.gate.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.gate.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l2_fill_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.gate.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l2_read_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.gate.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.gate.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 8192,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "cube_mac",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.up.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l1_l0a",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.up.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l1_l0b",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.up.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l0c_ub",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.up.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.up.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l2_fill_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.up.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l2_read_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.up.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.up.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 8192,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "cube_mac",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.activation.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 56,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.activation.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 56,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.activation.ub_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 308,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_read_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.activation.ub_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 231,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_write_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.activation.boundary_to_fp32": {
+      "component": "vector",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 14,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "boundary_to_fp32",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.activation.fp32_mul": {
+      "component": "vector",
+      "name": "fp32_mul",
+      "category": "vector",
+      "count": 21,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_mul",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.activation.fp32_exp": {
+      "component": "vector",
+      "name": "fp32_exp",
+      "category": "nonlinear",
+      "count": 7,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_exp",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.activation.fp32_add": {
+      "component": "vector",
+      "name": "fp32_add",
+      "category": "vector",
+      "count": 7,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_add",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.activation.fp32_rcp": {
+      "component": "vector",
+      "name": "fp32_rcp",
+      "category": "nonlinear",
+      "count": 7,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_rcp",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.activation.boundary_to_int8": {
+      "component": "vector",
+      "name": "boundary_to_int8",
+      "category": "vector",
+      "count": 7,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "boundary_to_int8",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.activation.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 7,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.activation.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 7,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.down.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l1_l0a",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.down.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l1_l0b",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.down.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l0c_ub",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.down.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.down.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l2_fill_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.down.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l2_read_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.down.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.down.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 8192,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "cube_mac",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.output.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 20,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.output.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 20,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.output.ub_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 20,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_read_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.output.ub_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 20,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_write_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.output.boundary_to_fp32": {
+      "component": "vector",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 5,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "boundary_to_fp32",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.output.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 20,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.ffn.output.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 20,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "expert_1.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.publish.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 20,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_1.publish",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.publish.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 20,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "expert_1.publish",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.publish.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 20,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_1.publish",
+        "repetitions": "1"
+      }
+    },
+    "expert_1.publish.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 20,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "expert_1.publish",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.dispatch.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 10,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_2.dispatch",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.dispatch.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 10,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "expert_2.dispatch",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.dispatch.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 10,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_2.dispatch",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.dispatch.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 10,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "expert_2.dispatch",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.gate.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l1_l0a",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.gate.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l1_l0b",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.gate.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l0c_ub",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.gate.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.gate.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l2_fill_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.gate.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l2_read_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.gate.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.gate.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 8192,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "cube_mac",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.up.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l1_l0a",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.up.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l1_l0b",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.up.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l0c_ub",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.up.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.up.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l2_fill_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.up.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l2_read_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.up.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.up.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 8192,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "cube_mac",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.activation.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 112,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.activation.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 112,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.activation.ub_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 616,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_read_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.activation.ub_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 462,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_write_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.activation.boundary_to_fp32": {
+      "component": "vector",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 28,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "boundary_to_fp32",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.activation.fp32_mul": {
+      "component": "vector",
+      "name": "fp32_mul",
+      "category": "vector",
+      "count": 42,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_mul",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.activation.fp32_exp": {
+      "component": "vector",
+      "name": "fp32_exp",
+      "category": "nonlinear",
+      "count": 14,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_exp",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.activation.fp32_add": {
+      "component": "vector",
+      "name": "fp32_add",
+      "category": "vector",
+      "count": 14,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_add",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.activation.fp32_rcp": {
+      "component": "vector",
+      "name": "fp32_rcp",
+      "category": "nonlinear",
+      "count": 14,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_rcp",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.activation.boundary_to_int8": {
+      "component": "vector",
+      "name": "boundary_to_int8",
+      "category": "vector",
+      "count": 14,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "boundary_to_int8",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.activation.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 14,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.activation.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 14,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.down.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l1_l0a",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.down.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l1_l0b",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.down.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l0c_ub",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.down.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.down.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l2_fill_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.down.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l2_read_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.down.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.down.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 8192,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "cube_mac",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.output.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 40,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.output.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 40,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.output.ub_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 40,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_read_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.output.ub_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 40,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_write_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.output.boundary_to_fp32": {
+      "component": "vector",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 10,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "boundary_to_fp32",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.output.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 40,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.ffn.output.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 40,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "expert_2.ffn",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.publish.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 40,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "expert_2.publish",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.publish.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 40,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "expert_2.publish",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.publish.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 40,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "expert_2.publish",
+        "repetitions": "1"
+      }
+    },
+    "expert_2.publish.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 40,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "expert_2.publish",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.gate.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l1_l0a",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.gate.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l1_l0b",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.gate.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l0c_ub",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.gate.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.gate.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l2_fill_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.gate.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "l2_read_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.gate.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.gate.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 8192,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "gate",
+        "native_action": "cube_mac",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.up.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l1_l0a",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.up.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l1_l0b",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.up.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l0c_ub",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.up.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.up.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l2_fill_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.up.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "l2_read_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.up.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.up.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 8192,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "up",
+        "native_action": "cube_mac",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.activation.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 336,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.activation.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 336,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.activation.ub_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1848,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_read_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.activation.ub_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1386,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_write_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.activation.boundary_to_fp32": {
+      "component": "vector",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 84,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "boundary_to_fp32",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.activation.fp32_mul": {
+      "component": "vector",
+      "name": "fp32_mul",
+      "category": "vector",
+      "count": 126,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_mul",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.activation.fp32_exp": {
+      "component": "vector",
+      "name": "fp32_exp",
+      "category": "nonlinear",
+      "count": 42,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_exp",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.activation.fp32_add": {
+      "component": "vector",
+      "name": "fp32_add",
+      "category": "vector",
+      "count": 42,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_add",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.activation.fp32_rcp": {
+      "component": "vector",
+      "name": "fp32_rcp",
+      "category": "nonlinear",
+      "count": 42,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "fp32_rcp",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.activation.boundary_to_int8": {
+      "component": "vector",
+      "name": "boundary_to_int8",
+      "category": "vector",
+      "count": 42,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "boundary_to_int8",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.activation.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 42,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.activation.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 42,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "activation",
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.down.l1_l0a": {
+      "component": "l1_to_l0a",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l1_l0a",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.down.l1_l0b": {
+      "component": "l1_to_l0b",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l1_l0b",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.down.l0c_ub": {
+      "component": "l0c_to_ub",
+      "name": "transfer",
+      "category": "onchip_transfer",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l0c_ub",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.down.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.down.l2_fill_bytes": {
+      "component": "l2",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l2_fill_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.down.l2_read_bytes": {
+      "component": "l2",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "l2_read_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.down.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 1024,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.down.cube_mac": {
+      "component": "cube",
+      "name": "mac",
+      "category": "matrix",
+      "count": 8192,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "core",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "down",
+        "native_action": "cube_mac",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.output.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "hbm_read_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.output.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.output.ub_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_read_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.output.ub_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_write_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.output.boundary_to_fp32": {
+      "component": "vector",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 15,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_core",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "boundary_to_fp32",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.output.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "hbm_write_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    },
+    "shared.ffn.output.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "block_node": "output",
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "shared.ffn",
+        "repetitions": "1"
+      }
+    }
+  },
+  "coverage": {
+    "offchip_memory": "native_payload_counts",
+    "interconnect": "not_modeled",
+    "physical_memory_transactions": "not_modeled"
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null
+  }
+}

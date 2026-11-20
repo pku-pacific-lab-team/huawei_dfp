@@ -129,5 +129,5 @@
 [Action] k_rope.boundary_to_int8: 8 element (modeled_internal, action)
 [Action] k_rope.hbm_write_bytes: 8 byte (logical, action)
 [Action] k_rope.vmem_dma_read_bytes: 8 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-097hz5ps\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-097hz5ps\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-5kth470e\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-5kth470e\report.json

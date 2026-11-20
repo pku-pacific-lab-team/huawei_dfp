@@ -56,7 +56,7 @@ Linux/macOS 对应使用 `python3 -m venv .venv` 和 `source .venv/bin/activate`
 
 ```powershell
 .\scripts\run_all.ps1 -Scope issue2  # 4 架构原生 GEMM + Issue #2 验证
-.\scripts\run_all.ps1 -Scope issue3  # 4 架构 × 22 类算子 + Issue #3 验证
+.\scripts\run_all.ps1 -Scope issue3  # 4 架构 × 23 类算子 + Issue #3 验证
 .\scripts\run_all.ps1 -Scope all     # 两组全部执行，并核对全仓库测试覆盖
 .\scripts\run_all.ps1                # 默认等同于 -Scope all
 ```
@@ -64,8 +64,8 @@ Linux/macOS 对应使用 `python3 -m venv .venv` 和 `source .venv/bin/activate`
 | 范围 | 日常 timing 报告 | 独立验证 |
 | --- | --- | --- |
 | `issue2` | 4 份原生 GEMM，`results/<架构>.json` | 原生测试及 17 项 CLI 检查，`validation/issue2/run/` |
-| `issue3` | 88 份：统一 GEMM 报告及 21 个 Vector/复合块样例 | 算子/验证工具测试及 184 项 count/timing/负例 CLI 检查，`validation/issue3/run/` |
-| `all` | 两组共 92 份，分别保存 | 两套判据分别汇总；核对单元测试集合并集覆盖全仓库且无重复 |
+| `issue3` | 92 份：统一 GEMM 报告及 22 个 Vector/复合块样例 | 算子/验证工具测试及 192 项 count/timing/负例 CLI 检查，`validation/issue3/run/` |
+| `all` | 两组共 96 份，分别保存 | 两套判据分别汇总；核对单元测试集合并集覆盖全仓库且无重复 |
 
 Issue #3 另输出每算子一行的 `results/run_all_<范围>_operators.csv`；可加 `-Details` 保留独立详细文件。Issue #3 的 GEMM 适配报告使用 `results/<架构>_gemm_operator.json`，其他算子使用 `<架构>_<算子>.json`。每个范围另生成 `results/run_all_<范围>.json` 总结和 `results/run_all/<范围>/` 命令日志，均以脚本所属工程为根目录。Python 优先使用工程 `.venv`，否则使用 PATH。Linux/macOS 可运行等价命令 `python scripts/run_all.py --scope all`。
 
@@ -122,7 +122,7 @@ report = result.to_dict()  # compact schema 2
 print(result.latency_s, result.cycle_count)
 ```
 
-第一批提供 INT8 GEMM → INT32 输出、公共类型和计数接口；第二批补充独立 Vector，第三批接入 RMSNorm/Softmax，第四批接入 Residual、SwiGLU/FFN 和粗粒度 INT8 存储边界工作量，第五批接入 Decode Attention/GQA 与 KV Cache，第六批 A 补齐 INT8 RMSNorm、Q/K/V 和 Attention 输出投影，第六批 B 补齐 RoPE、Embedding 和 FP32 词表输出边界，第七批 A 接入 MLA 低秩前处理与共享压缩缓存，第七批 B 补齐 absorbed MLA Attention 和输出投影集成。Tensor 能描述 FP32 等存储类型，不表示这些 GEMM 输入格式已可执行。MoE 等块及整片执行仍待实现；完整模型拼装属于 Issue #4，能耗计算另行接入。容量不足和缺少必需服务继续报错；TSP/CIM 的片外流量标记为执行边界之外。接口、计数依据和已知限制见[算子契约](ARCHITECTURE.md#operator-contract)。
+第一批提供 INT8 GEMM → INT32 输出、公共类型和计数接口；第二批补充独立 Vector，第三批接入 RMSNorm/Softmax，第四批接入 Residual、SwiGLU/FFN 和粗粒度 INT8 存储边界工作量，第五批接入 Decode Attention/GQA 与 KV Cache，第六批 A 补齐 INT8 RMSNorm、Q/K/V 和 Attention 输出投影，第六批 B 补齐 RoPE、Embedding 和 FP32 词表输出边界，第七批 A 接入 MLA 低秩前处理与共享压缩缓存，第七批 B 补齐 absorbed MLA Attention 和输出投影集成，第八批 A 接入给定路由的 MoE 专家与独立 FP32 输出。Tensor 能描述 FP32 等存储类型，不表示这些 GEMM 输入格式已可执行。MoE 路由与加权合并及整片执行仍待实现；完整模型拼装属于 Issue #4，能耗计算另行接入。容量不足和缺少必需服务继续报错；TSP/CIM 的片外流量标记为执行边界之外。接口、计数依据和已知限制见[算子契约](ARCHITECTURE.md#operator-contract)。
 
 `Gemm.from_tensors()` 保留调用方的 Tensor 名称；GEMM、Vector、RMSNorm、Softmax 的 Python API 均可用 `output_name=` 指定输出。未指定时使用默认名称并避开输入名，显式输入输出重名会拒绝。Vector/复合 workload 同样接受可选 `output_name`。名称只在一次算子调用内标识张量，后续图层须用节点 ID 限定，不能以同名推断共用存储。
 
@@ -310,6 +310,19 @@ python tsp_cim.py --workload operators/mla_decode_attention.json --mode timing -
 
 默认缩放为 `1/sqrt(dn+dr)`。长上下文修正可通过正的 `scale_multiplier` 显式提供，非默认值必须附 `scale_source`；例如调用方可提供经过确认的 YaRN mscale²。不会根据缓存 capacity 自动推断修正。INT8 精度、串行执行和符号布局继续沿用项目假设；完整容量与手算说明见 [第七批 B](ARCHITECTURE.md#mla-attention)。
 
+### 给定路由的 MoE 专家（第八批 A）
+
+```powershell
+python tpu.py --workload operators/moe_experts.json --mode timing
+python tsp_cim.py --workload operators/moe_experts.json --mode timing --mem-slices 0 1 2 --streams 2 --hemisphere 1
+```
+
+`MoERoutingPlan` / `MoEExperts` / `simulate_moe_experts` 接收调用方给定的 `[B,top_k]` 专家索引。每个 token 的专家 ID 必须互异、在范围内；每个专家按实际收到的 token 数执行原生 FFN，空专家不执行。样例分配为 `[3,1,2,0,0]`，共享分支按 `shared_experts × intermediate_size` 构造一个加宽 FFN。
+
+输出为未加权的 FP32 `[B,top_k,H]`，槽位顺序与输入 assignments 一致；启用共享专家时，另输出 FP32 `[B,H]`。`shared_experts=0` 时省略三个共享权重。现有 `SwiGLUFFN` 可显式指定 `output_dtype="FP32"`，默认仍为 INT8。专家输出只做 INT32→FP32 转换，供后续加权合并；路由器计算、路由权重和最终相加属于第八批 B。
+
+所有声明的专家权重（包括空专家）都占用容量；计算只读取激活专家权重。分发 INT8 行和回填 FP32 行的流量单独计费，使用串行调度和单份可复用专家工作区。超容量明确拒绝，不自动卸载权重或按专家数除时间。见 [MoE 容量与手算](ARCHITECTURE.md#moe-experts)。
+
 ### 导出报告
 
 成功运行后默认保存到**工程根目录**的 `results/`，并在终端打印 `[Report]` 路径。从其他工作目录启动时，默认位置仍然是本工程的 `results/`。
@@ -463,7 +476,7 @@ Issue #3 已实现算子的独立验证：
 python scripts/verify_issue3.py
 ```
 
-输出到 `validation/issue3/run/`，只运行算子及验证工具测试，另执行 184 项算子 CLI 检查。范围、逐项覆盖和剩余缺口见 [Issue #3 验证说明](validation/issue3/README.md)及[覆盖清单](validation/issue3/scope.json)；退出 0 只表示已实现范围通过，不表示整个 Issue #3 已完成。
+输出到 `validation/issue3/run/`，只运行算子及验证工具测试，另执行 192 项算子 CLI 检查。范围、逐项覆盖和剩余缺口见 [Issue #3 验证说明](validation/issue3/README.md)及[覆盖清单](validation/issue3/scope.json)；退出 0 只表示已实现范围通过，不表示整个 Issue #3 已完成。
 
 按 Issue #2 的四类交付物和五条条件执行原生模型验收：
 

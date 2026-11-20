@@ -32,7 +32,7 @@ class VerificationTest(unittest.TestCase):
         declared = {m for r in manifest["requirements"].values() for m in r["test_modules"]}
         self.assertEqual(declared, {t.rsplit(".", 2)[0] for t in operators})
         commands = [n for r in manifest["requirements"].values() for n in issue3.command_names(r["cli_operations"])]
-        self.assertEqual(len(commands), 184)
+        self.assertEqual(len(commands), 192)
         self.assertEqual(len(commands), len(set(commands)))
 
     def test_owned_changes_and_shared_dependencies_have_distinct_snapshots(self):
@@ -41,7 +41,7 @@ class VerificationTest(unittest.TestCase):
         self.assertNotIn("src/operators/types.py", native)
         self.assertIn("src/operators/types.py", issue2.dependency_snapshot())
         for path in ("src/runtime/simulation.py", "src/runtime/backends.py", "src/core/operator_result.py",
-                     "src/core/vector_resources.py"):
+                     "src/core/vector_resources.py", "src/core/moe.py"):
             self.assertNotIn(path, native)
             self.assertIn(path, issue2.dependency_snapshot())
             self.assertIn(path, operators["issue3"])

@@ -9,6 +9,8 @@ from ..hardware.attention import load_attention_execution
 from ..utils.operator_workload import parse_attention_workload, parse_mla_attention_workload
 from .attention import simulate_attention, simulate_kv_cache
 from .mla import simulate_mla_cache, simulate_mla_attention
+from ..utils.operator_workload import parse_moe_workload
+from .moe import simulate_moe_experts
 
 
 def execute_workload(config, architecture, load_spec, *, mode, execution_file=None, block_execution_file=None,
@@ -28,6 +30,10 @@ def execute_workload(config, architecture, load_spec, *, mode, execution_file=No
                         attention_execution=load_attention_execution(attention_execution_file, config_dir), **policy)
     if attention_execution_file is not None:
         raise ValueError("Attention profile requires kv_cache/decode_attention")
+    if isinstance(config, dict) and config.get("operation") == "moe_experts":
+        return simulate_moe_experts(parse_moe_workload(config), architecture, load_spec(), mode=mode,
+            execution=load_vector_execution(architecture, execution_file, config_dir),
+            block_execution=load_block_execution(block_execution_file, config_dir), **policy)
     if isinstance(config, dict) and config.get("operation") in ("residual", "swiglu", "swiglu_ffn",
                                                               "rmsnorm_int8", "qkv_projection", "attention_output_projection",
                                                               "rope", "embedding", "vocabulary_projection", "mla_preprocess"):

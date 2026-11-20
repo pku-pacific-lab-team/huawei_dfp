@@ -461,6 +461,30 @@ Ascend/TPU 校验完整 HBM 峰值并复用本地 UB/VMEM；TSP/CIM 将其它存
 
 `tests/operators/test_mla_attention*.py` 验证四架构 count/timing、上述手算、源 score 到最后消费者的生命周期、缓存/权重共享、有效长度与容量的独立变化、输出 context 视图、追加/只读、显式倍率、未知时钟/成本、位置与别名拒绝及 CLI 输出保护。模型清单的 MLA projections/core/output 更新为 implemented，含义限于本节的粗粒度 absorbed 路径；MoE、整片映射、数值精度和完整模型评估继续独立推进。
 
+<a id="moe-experts"></a>
+
+## 给定路由的 MoE 专家（第八批 A）
+
+算法依赖核对 [DeepSeek-V3 固定提交的 Expert/MoE](https://github.com/deepseek-ai/DeepSeek-V3/blob/9b4e9788e4a3a731f7567338ed15d3ec549ce03b/inference/model.py#L559)：每个专家执行三次 Linear 与 SwiGLU，只处理分配给它的 token；共享分支是宽度 `shared_experts × moe_inter_dim` 的一个 MLP。本批只复用这些依赖，矩阵精度、存储边界、串行调度和时间服务使用本项目假设，不复现官方 BF16/FP8 数值。
+
+`MoERoutingPlan(E, assignments)` 中 assignments 为 `[B,k]` 的固定专家 ID，每行等长、互异、在 `[0,E)` 内。它代表调用方提供的路由结果，不计算 Gate、group/Top-K 或路由权重。分组记录保留 `(token, selection_slot)`，每个专家收到 `n_e` 行，满足 `sum(n_e)=B*k`、`0<=n_e<=B`。空专家不构造零维 Tensor/GEMM。索引以 INT32 `[B,k]` 输入描述，额外计一次 `4*B*k` 字节的读取；外部计划生成与索引指令不在该算子边界内。
+
+`MoEExperts` 接收 INT8 `x[B,H]`、路由权重组 `gate/up[E,H,I]` 与 `down[E,I,H]`，可选共享权重 `gate/up[H,S*I]` 与 `down[S*I,H]`。`S=0` 时三个共享权重必须省略。执行顺序为索引读取、按专家编号逐个执行激活专家、共享分支；没有专家并行或跨节点重叠。
+
+每个激活专家先将 `n_e` 个输入行复制到独立的 packed INT8 输入，再调用已有 `SwiGLUFFN`：两个 INT8 GEMM→INT32、FP32 SwiGLU→INT8 激活、一个 INT8 GEMM→INT32、最后转换为 FP32。新增 `SwiGLUFFN.output_dtype="FP32"` 只改变最后存储边界，默认 INT8 路径的动作/时间不变。每个专家的 FP32 临时结果按原 token/slot 回填，输出为未加权的 `[B,k,H]`；共享 FFN 对全部 B 个 token 执行并直接产生独立 `[B,H]` FP32 输出。
+
+分发每个 assignment 复制 H 字节，发布复制 4H 字节，分别计入源读和目标写；它们与 FFN 自身的输入读取/输出写回是不同的物化阶段。共享分支直接使用原 x，不增加分发副本。payload 以行划分，复用当前 native memory/stream 服务；传输 tile 上限按字节解释，尾段不补算逻辑字节。FP32 行的字节切分不代表物理事务或 ISA 实现。路由选择、加权和共享分支相加均明确排除，不能把本算子时间当成完整 MoE 层时间。
+
+容量采用全声明权重驻留：所有 E 个路由专家（包括空专家）及共享权重均占用 HBM/所选 MEM；只有激活专家产生矩阵工作和权重访问。每个专家的三段权重分别按原生 GEMM 补齐/条带化后乘 E，不能只按 k 或实际激活专家数预留。全局 x 预留共享 GEMM 所需 padded view，与分发读共享一份 backing；routed output 和索引常驻。一个专家的 packed 输入、两个 gate/up 累加器、SwiGLU 激活、down 累加器与 FP32 临时输出按已有 FFN 生命周期分配；子块运行时其余全局对象显式保留。发布时 packed 输入和 FFN 中间结果已经释放，只有临时 FP32 源与目标槽位重叠。共享输出仅在最后的 FFN 转换阶段分配。scratch、输入/输出重叠及每段条带化都纳入全块容量检查；超容量直接拒绝，不隐式卸载权重。
+
+记 `N=B*k`，则矩阵 MAC 为 `3*H*I*(N+B*S)`；SwiGLU 非矩阵工作为 `6*I*(N+B*S)` 个 op（每元素3 MUL、1 ADD、1 EXP、1 RCP）。转换到 FP32 的元素数为 `2*I*(N+B*S)+H*(N+B*[S>0])`；转换到 INT8 仅发生在中间激活，为 `I*(N+B*S)`。上述计数仅用于手算核对；报告中的动作与时间来自已有原生内核，继续区分 logical/issued/internal、矩阵汇总与叶子动作，不能将它们重复相加。
+
+样例 B=3、H=5、I=7、E=5、k=2、S=2，assignments=`[[0,2],[0,1],[0,2]]`，负载 `[3,1,2,0,0]`。路由/共享各630 MAC，总1260 MAC；非矩阵504 op，FP32/INT8 转换213/84元素。声明权重逻辑735 B，激活权重逻辑525 B（这是权重规模，不替代 native 访问计数）。TPU 三个路由专家总读873 B、写618 B，共享读678 B、写498 B；加索引读24 B、分发读写各30 B、发布读写各120 B，总读1725 B、写1266 B。
+
+TPU 全局初始占用894 B：x15 B、索引24 B、路由输出120 B、全部路由权重525 B、共享权重210 B。首个专家分发909 B，激活阶段1098 B，发布954 B；共享激活阶段为894+2×168+42=1272 B，最终转换阶段为894+60+60=1014 B。容量1271 B必须拒绝，1272 B可执行。Resident 架构另计原生 padding、MEM 条带与 scratch，不能套用 TPU 的峰值。
+
+`tests/operators/test_moe*.py` 覆盖四架构 count/timing、手算、空专家、不均匀路由、slot 守恒、batch/top_k 缩放、全部权重驻留、原生 FFN action/role 对账、FP32 输出连接、容量边界和 CLI 输出保护。清单将 shared/routed FFN 标为所述条件下 implemented，router/weighted combine 保持 pending。第八批 B 继续接入路由与合并；整片、分布式专家、真实数值和完整模型评估不在本批内。
+
 <a id="execution-diagrams"></a>
 
 ## 四套执行路径字符框图

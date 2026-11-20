@@ -52,5 +52,5 @@
 [Action] output.boundary_to_int8: 34 element (modeled_internal, action)
 [Action] output.hbm_write_bytes: 34 byte (logical, action)
 [Action] output.ub_dma_read_bytes: 34 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-mkre_gv6\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-mkre_gv6\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-rgrue2dg\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-rgrue2dg\report.json

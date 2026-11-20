@@ -6,6 +6,30 @@ from ..operators.projections import RMSNormINT8, QKVProjection, AttentionOutputP
 from ..operators.rope import RoPE
 from ..operators.embedding import Embedding
 from ..operators.mla import MLASpec, MLAPreprocess, MLACacheSpec, MLACacheAccess, MLADecodeAttention
+from ..operators.moe import MoERoutingPlan, MoEExperts
+
+
+def parse_moe_workload(config):
+    required = {"schema_version", "operation", "x", "gate_weight", "up_weight", "down_weight", "routing"}
+    optional = {"description", "shared_experts", "shared_gate_weight", "shared_up_weight", "shared_down_weight", "output_names"}
+    if not isinstance(config, dict) or not required <= set(config) or set(config) - required - optional:
+        raise ValueError("MoE experts require activation, three routed weights and a fixed routing plan")
+    if type(config["schema_version"]) is not int or config["schema_version"] != 1 or config["operation"] != "moe_experts":
+        raise ValueError("Expected MoE experts workload schema 1")
+    if "description" in config and (not isinstance(config["description"], str) or not config["description"].strip()):
+        raise ValueError("MoE description must be nonempty text")
+    routing = config["routing"]
+    if not isinstance(routing, dict) or not {"expert_count", "assignments"} <= set(routing) or set(routing) - {"expert_count", "assignments", "name"}:
+        raise ValueError("MoE routing requires expert_count and assignments, with optional name")
+    tensors = {}
+    for key in ("x", "gate_weight", "up_weight", "down_weight", "shared_gate_weight", "shared_up_weight", "shared_down_weight"):
+        if key in config:
+            tensor = config[key]
+            if not isinstance(tensor, dict) or set(tensor) != {"name", "shape", "dtype"}:
+                raise ValueError("MoE tensor requires exactly name, shape and dtype")
+            tensors[key] = TensorSpec(**tensor)
+    return MoEExperts(**tensors, routing=MoERoutingPlan(**routing), shared_experts=config.get("shared_experts", 0),
+                      output_names=config.get("output_names"))
 
 
 def parse_mla_attention_workload(config):
@@ -75,7 +99,7 @@ def parse_block_workload(config):
                  "mla_preprocess": (MLAPreprocess, 8)}
     if type(config["schema_version"]) is not int or config["schema_version"] != 1 or not isinstance(operation, str) or operation not in factories:
         raise ValueError("Expected a supported block workload schema 1")
-    options_by_kind = {"swiglu": {"output_dtype"}, "rmsnorm_int8": {"axis", "epsilon"},
+    options_by_kind = {"swiglu": {"output_dtype"}, "swiglu_ffn": {"output_dtype"}, "rmsnorm_int8": {"axis", "epsilon"},
                        "qkv_projection": {"query_heads", "kv_heads", "head_dim", "output_names"},
                        "rope": {"position", "output_names"},
                        "mla_preprocess": {"dimensions", "position", "epsilon", "output_names"}}

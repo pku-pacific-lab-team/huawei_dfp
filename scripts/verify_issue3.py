@@ -22,7 +22,7 @@ VECTOR_OPS = ("int32_add", "fp32_add", "fp32_mul", "fp32_exp", "fp32_rsqrt")
 PROJECTION_OPS = ("rmsnorm_int8", "qkv_projection", "attention_output_projection")
 POSITION_VOCAB_OPS = ("rope", "embedding", "vocabulary_projection")
 MLA_OPS = ("mla_preprocess", "mla_cache", "mla_decode_attention")
-OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax", "residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", *PROJECTION_OPS, *POSITION_VOCAB_OPS, *MLA_OPS)
+OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax", "residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", *PROJECTION_OPS, *POSITION_VOCAB_OPS, *MLA_OPS, "moe_experts")
 NEGATIVE_CASES = ("reject_null_profile", "reject_unsupported")
 MANIFEST = ROOT / "validation/issue3/scope.json"
 
@@ -93,6 +93,16 @@ def report_checks(report, arch, kind, mode, details):
         action["unit"] == native["action_counts"][key]["unit"] for key, action in report["action_counts"].items())
     dtype = "INT8" if kind in ("residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", "rope", "embedding", *PROJECTION_OPS, *MLA_OPS) else "INT32" if kind in ("gemm", "int32_add") else "FP32"
     checks["stored_output_dtype"] = all(t["dtype"] == dtype for t in op["outputs"])
+    if kind == "moe_experts":
+        logical = native["work_counts"]["logical"]
+        checks["moe_fixed_route"] = native["routing"]["counts"] == [3, 1, 2, 0, 0] and native["routing"]["total_assignments"] == 6
+        checks["moe_outputs"] = [t["shape"] for t in op["outputs"]] == [[3, 2, 5], [3, 5]]
+        checks["moe_hand_work"] = logical["useful_macs"] == 1260 and logical["operations"] == 3024
+        checks["moe_hand_payloads"] = [logical[k] for k in ("route_index_read_bytes", "dispatch_payload_bytes", "publish_payload_bytes")] == [24, 30, 120]
+        checks["moe_empty_experts"] = native["schedule"]["skipped_experts"] == [3, 4]
+        checks["lifetime_validated"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"
+        checks["single_resource"] = report["boundary"]["chip_execution_included"] is False
+        checks["moe_scope"] = not op["attributes"]["routing_compute_included"] and not op["attributes"]["weighted_combine_included"]
     if kind in ("kv_cache", "decode_attention", "mla_cache", "mla_decode_attention"):
         checks["lifetime_validated"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"
         checks["single_resource"] = report["boundary"]["chip_execution_included"] is False

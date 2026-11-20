@@ -139,6 +139,28 @@ test_invalid_contracts_and_options_preserve_reports (tests.operators.test_mla_cl
 test_profiles_other_directory_and_allocation_on_four_entries (tests.operators.test_mla_cli.MLACLITest.test_profiles_other_directory_and_allocation_on_four_entries) ... ok
 test_conventional_cache_is_not_claimed_as_mla (tests.operators.test_model_coverage.ModelCoverageTest.test_conventional_cache_is_not_claimed_as_mla) ... ok
 test_inventory_claims_have_evidence_and_all_gaps_have_owners (tests.operators.test_model_coverage.ModelCoverageTest.test_inventory_claims_have_evidence_and_all_gaps_have_owners) ... ok
+test_batch_topk_scaling_and_single_token_all_experts (tests.operators.test_moe.MoETest.test_batch_topk_scaling_and_single_token_all_experts) ... ok
+test_copy_tail_tiles_do_not_duplicate_or_drop_payload_bytes (tests.operators.test_moe.MoETest.test_copy_tail_tiles_do_not_duplicate_or_drop_payload_bytes) ... ok
+test_ffn_fp32_option_reuses_gemms_without_final_int8_conversion (tests.operators.test_moe.MoETest.test_ffn_fp32_option_reuses_gemms_without_final_int8_conversion) ... ok
+test_fixed_assignments_are_detached_and_invalid_routes_rejected (tests.operators.test_moe.MoETest.test_fixed_assignments_are_detached_and_invalid_routes_rejected) ... ok
+test_four_architectures_counts_timing_shapes_and_serial_children (tests.operators.test_moe.MoETest.test_four_architectures_counts_timing_shapes_and_serial_children) ... ok
+test_global_hbm_capacity_exact_boundary_and_inactive_experts (tests.operators.test_moe.MoETest.test_global_hbm_capacity_exact_boundary_and_inactive_experts) ... ok
+test_hand_macs_nonlinear_work_and_explicit_fp32_output_boundary (tests.operators.test_moe.MoETest.test_hand_macs_nonlinear_work_and_explicit_fp32_output_boundary) ... ok
+test_hand_tpu_payloads_and_global_storage_peak (tests.operators.test_moe.MoETest.test_hand_tpu_payloads_and_global_storage_peak) ... ok
+test_inactive_weights_consume_capacity_but_do_not_add_work_or_traffic (tests.operators.test_moe.MoETest.test_inactive_weights_consume_capacity_but_do_not_add_work_or_traffic) ... ok
+test_input_shapes_storage_aliases_and_shared_consistency (tests.operators.test_moe.MoETest.test_input_shapes_storage_aliases_and_shared_consistency) ... ok
+test_lifetimes_release_packed_rows_before_publish_and_delay_shared_output (tests.operators.test_moe.MoETest.test_lifetimes_release_packed_rows_before_publish_and_delay_shared_output) ... ok
+test_load_imbalance_uses_actual_expert_rows_and_distinct_weight_reads (tests.operators.test_moe.MoETest.test_load_imbalance_uses_actual_expert_rows_and_distinct_weight_reads) ... ok
+test_native_ffn_actions_and_roles_preserved_for_every_active_expert (tests.operators.test_moe.MoETest.test_native_ffn_actions_and_roles_preserved_for_every_active_expert) ... ok
+test_resident_striping_reservation_and_minimum_scratch_capacity (tests.operators.test_moe.MoETest.test_resident_striping_reservation_and_minimum_scratch_capacity) ... ok
+test_routing_conservation_slot_order_and_empty_expert_skip (tests.operators.test_moe.MoETest.test_routing_conservation_slot_order_and_empty_expert_skip) ... ok
+test_shared_output_connection_retains_fp32_and_explicit_placement (tests.operators.test_moe.MoETest.test_shared_output_connection_retains_fp32_and_explicit_placement) ... ok
+test_shared_widened_ffn_and_routed_only_contract (tests.operators.test_moe.MoETest.test_shared_widened_ffn_and_routed_only_contract) ... ok
+test_strict_workload_fields_and_routed_only_parsing (tests.operators.test_moe.MoETest.test_strict_workload_fields_and_routed_only_parsing) ... ok
+test_unknown_cost_and_clock_are_not_silently_zero (tests.operators.test_moe.MoETest.test_unknown_cost_and_clock_are_not_silently_zero) ... ok
+test_four_entries_count_timing_profiles_and_reservation (tests.operators.test_moe_cli.MoECLITest.test_four_entries_count_timing_profiles_and_reservation) ... ok
+test_invalid_routes_fields_profiles_and_options_preserve_outputs (tests.operators.test_moe_cli.MoECLITest.test_invalid_routes_fields_profiles_and_options_preserve_outputs) ... ok
+test_routed_only_and_fp32_standalone_ffn_from_another_directory (tests.operators.test_moe_cli.MoECLITest.test_routed_only_and_fp32_standalone_ffn_from_another_directory) ... ok
 test_defaults_separate_architectures_operations_and_preserve_failed_outputs (tests.operators.test_output.OperatorOutputTest.test_defaults_separate_architectures_operations_and_preserve_failed_outputs) ... ok
 test_explicit_relative_absolute_and_empty_outputs_override_defaults (tests.operators.test_output.OperatorOutputTest.test_explicit_relative_absolute_and_empty_outputs_override_defaults) ... ok
 test_embedding_full_table_capacity_is_checked_on_all_architectures (tests.operators.test_position_vocabulary.PositionVocabularyTest.test_embedding_full_table_capacity_is_checked_on_all_architectures) ... ok
@@ -215,6 +237,6 @@ test_owned_changes_and_shared_dependencies_have_distinct_snapshots (tests.valida
 test_subtest_failure_and_skips_do_not_become_success (tests.validation.test_verification.VerificationTest.test_subtest_failure_and_skips_do_not_become_success) ... ok
 
 ----------------------------------------------------------------------
-Ran 215 tests in 332.799s
+Ran 237 tests in 370.504s
 
 OK

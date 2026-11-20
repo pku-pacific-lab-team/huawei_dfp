@@ -12,6 +12,7 @@ from .projections import RMSNormINT8, QKVProjection, AttentionOutputProjection, 
 from .rope import RoPE
 from .embedding import Embedding
 from .mla import MLASpec, MLAPreprocess, MLACacheSpec, MLACacheAccess, MLADecodeAttention, simulate_mla_cache, simulate_mla_attention
+from .moe import MoERoutingPlan, MoEExperts, simulate_moe_experts
 
 __all__ = ["Action", "ActionLedger", "Gemm", "OperatorSpec", "OpResult", "TensorSpec",
            "adapt_gemm_report", "simulate_gemm", "Vector", "simulate_vector",
@@ -19,4 +20,5 @@ __all__ = ["Action", "ActionLedger", "Gemm", "OperatorSpec", "OpResult", "Tensor
            "Residual", "SwiGLU", "SwiGLUFFN", "simulate_block",
            "KVCacheSpec", "KVCacheAccess", "DecodeAttention", "simulate_kv_cache", "simulate_attention",
            "RMSNormINT8", "QKVProjection", "AttentionOutputProjection", "VocabularyProjection", "RoPE", "Embedding",
-           "MLASpec", "MLAPreprocess", "MLACacheSpec", "MLACacheAccess", "MLADecodeAttention", "simulate_mla_cache", "simulate_mla_attention"]
+           "MLASpec", "MLAPreprocess", "MLACacheSpec", "MLACacheAccess", "MLADecodeAttention", "simulate_mla_cache", "simulate_mla_attention",
+           "MoERoutingPlan", "MoEExperts", "simulate_moe_experts"]

@@ -20,7 +20,7 @@ def issue3_owned(name):
                         "src/hardware/vector.py", "src/hardware/blocks.py", "src/hardware/attention.py",
                         "src/utils/operator_report.py", "src/utils/operator_workload.py"}
             or (name.startswith("src/core/") and
-                (path.name in {"vector.py", "vector_resources.py", "operator_result.py", "kv_cache.py"}
+                (path.name in {"vector.py", "vector_resources.py", "operator_result.py", "kv_cache.py", "moe.py"}
                  or path.name.startswith(("composite", "block_")))))
 
 

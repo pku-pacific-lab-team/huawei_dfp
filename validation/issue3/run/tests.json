@@ -1,7 +1,7 @@
 {
-  "tests_run": 215,
+  "tests_run": 237,
   "status_counts": {
-    "passed": 215
+    "passed": 237
   },
   "tests": {
     "tests.operators.test_attention.AttentionTest.test_all_heads_share_one_workspace_without_report_expansion": {
@@ -425,6 +425,72 @@
       "status": "passed"
     },
     "tests.operators.test_model_coverage.ModelCoverageTest.test_inventory_claims_have_evidence_and_all_gaps_have_owners": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_batch_topk_scaling_and_single_token_all_experts": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_copy_tail_tiles_do_not_duplicate_or_drop_payload_bytes": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_ffn_fp32_option_reuses_gemms_without_final_int8_conversion": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_fixed_assignments_are_detached_and_invalid_routes_rejected": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_four_architectures_counts_timing_shapes_and_serial_children": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_global_hbm_capacity_exact_boundary_and_inactive_experts": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_hand_macs_nonlinear_work_and_explicit_fp32_output_boundary": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_hand_tpu_payloads_and_global_storage_peak": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_inactive_weights_consume_capacity_but_do_not_add_work_or_traffic": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_input_shapes_storage_aliases_and_shared_consistency": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_lifetimes_release_packed_rows_before_publish_and_delay_shared_output": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_load_imbalance_uses_actual_expert_rows_and_distinct_weight_reads": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_native_ffn_actions_and_roles_preserved_for_every_active_expert": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_resident_striping_reservation_and_minimum_scratch_capacity": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_routing_conservation_slot_order_and_empty_expert_skip": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_shared_output_connection_retains_fp32_and_explicit_placement": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_shared_widened_ffn_and_routed_only_contract": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_strict_workload_fields_and_routed_only_parsing": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe.MoETest.test_unknown_cost_and_clock_are_not_silently_zero": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_cli.MoECLITest.test_four_entries_count_timing_profiles_and_reservation": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_cli.MoECLITest.test_invalid_routes_fields_profiles_and_options_preserve_outputs": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_cli.MoECLITest.test_routed_only_and_fp32_standalone_ffn_from_another_directory": {
       "status": "passed"
     },
     "tests.operators.test_output.OperatorOutputTest.test_defaults_separate_architectures_operations_and_preserve_failed_outputs": {

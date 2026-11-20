@@ -12,5 +12,5 @@
 [Action] residual.boundary_to_int8: 14 element (modeled_internal, action)
 [Action] residual.hbm_write_bytes: 14 byte (logical, action)
 [Action] residual.vmem_dma_read_bytes: 14 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-74dzzl33\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-74dzzl33\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-0ebsoxre\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-0ebsoxre\report.json

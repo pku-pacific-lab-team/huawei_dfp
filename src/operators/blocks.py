@@ -69,6 +69,7 @@ class SwiGLUFFN:
     up_weight: TensorSpec
     down_weight: TensorSpec
     output_name: str | None = None
+    output_dtype: str = "INT8"
     operation = "swiglu_ffn"
 
     def __post_init__(self):
@@ -78,6 +79,8 @@ class SwiGLUFFN:
         hidden, intermediate = self.x.shape[1], self.gate_weight.shape[1]
         if self.gate_weight.shape != (hidden, intermediate) or self.up_weight.shape != (hidden, intermediate) or self.down_weight.shape != (intermediate, hidden):
             raise ValueError("FFN weights must have shapes [hidden, intermediate], [hidden, intermediate], [intermediate, hidden]")
+        if self.output_dtype not in ("INT8", "FP32"):
+            raise ValueError("FFN output storage must be INT8 or FP32")
         object.__setattr__(self, "output_name", select_output_name(self.output_name, self.inputs))
 
     @property
@@ -87,7 +90,7 @@ class SwiGLUFFN:
     @property
     def spec(self):
         return OperatorSpec(self.operation, self.inputs,
-                            (TensorSpec(self.output_name, self.x.shape, "INT8"),), "INT32",
+                            (TensorSpec(self.output_name, self.x.shape, self.output_dtype),), "INT32",
                             {"activation_compute_dtype": "FP32", "intermediate_size": self.gate_weight.shape[1],
                              "bias": False})
 
@@ -97,6 +100,7 @@ class _FFNOutput:
     """A block-internal storage boundary, not a public quantization instruction."""
     x: TensorSpec
     output_name: str
+    output_dtype: str = "INT8"
     operation = "ffn_output"
 
     @property
@@ -106,7 +110,7 @@ class _FFNOutput:
     @property
     def spec(self):
         return OperatorSpec(self.operation, self.inputs,
-                            (TensorSpec(self.output_name, self.x.shape, "INT8"),), "FP32")
+                            (TensorSpec(self.output_name, self.x.shape, self.output_dtype),), "FP32")
 
 
 def block_steps(operator):
@@ -136,7 +140,7 @@ def block_steps(operator):
     up = Gemm.from_tensors(operator.x, operator.up_weight, output_name=internal("up"))
     activation = SwiGLU(gate.spec.outputs[0], up.spec.outputs[0], output_name=internal("activation"))
     down = Gemm.from_tensors(activation.spec.outputs[0], operator.down_weight, output_name=internal("down"))
-    output = _FFNOutput(down.spec.outputs[0], operator.output_name)
+    output = _FFNOutput(down.spec.outputs[0], operator.output_name, operator.output_dtype)
     return [("gate", gate), ("up", up), ("activation", activation), ("down", down), ("output", output)]
 
 

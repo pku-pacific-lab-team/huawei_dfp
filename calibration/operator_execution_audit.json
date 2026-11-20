@@ -31,6 +31,13 @@
       "path": "ARCHITECTURE.md",
       "section": "decode-attention",
       "verification": "Native GEMM/Softmax reuse, independent workload/cache checks; symbolic layout and uncalibrated memory-service policies"
+    },
+    "fixed_routing_moe_policy_v1": {
+      "title": "Fixed-routing serial MoE experts with resident weights and FP32 outputs",
+      "classification": "modeling_assumption",
+      "path": "ARCHITECTURE.md",
+      "section": "moe-experts",
+      "verification": "Analytical payload/work/liveness tests; no numerical inference, physical index ISA or hardware calibration claim"
     }
   },
   "vector_execution_profiles": {
@@ -213,5 +220,23 @@
     "weight_views": "One KV up weight [heads,nope_dim+v_dim,kv_rank], with disjoint native-padded K and V subranges per head. These weights are shared across batch items; transpose/packing is symbolic, with no numerical weight dequantization model.",
     "scale": "base=1/sqrt(nope_dim+rope_dim). Workload scale_multiplier defaults to 1; a non-default multiplier needs nonempty scale_source. Caller may supply squared YaRN mscale explicitly; no inference from cache capacity or automatic context-extension policy. Scale is applied once after FP32 score addition.",
     "excluded": "Numerical FP8/BF16 accuracy, physical repacking/transpose instructions, direct rank-zero Q preprocessing, prefill/masks/sliding-window/eviction/paging, chip execution, MoE and full-model assembly."
+  },
+  "moe_fixed_routing_experts": {
+    "status": "assumed",
+    "source_id": "fixed_routing_moe_policy_v1",
+    "algorithm_reference": "https://github.com/deepseek-ai/DeepSeek-V3/blob/9b4e9788e4a3a731f7567338ed15d3ec549ce03b/inference/model.py",
+    "reference_commit": "9b4e9788e4a3a731f7567338ed15d3ec549ce03b",
+    "reference_scope": "Expert's three linear layers and SwiGLU; count per selected expert; shared widened MLP. Gate and weighted combine are explicitly excluded.",
+    "precision": "Project INT8 matrix/SwiGLU storage, INT32 matrix accumulation and FP32 expert outputs. Existing conversion proxies are explicit; no final per-expert INT8 conversion.",
+    "routing": "Caller-supplied distinct in-range expert IDs per token, uniform top_k. One INT32 indices payload read per slot; actual token counts and output slots retained.",
+    "storage": "All declared routed/shared weights resident with native padding, including inactive experts. Packed input and FFN intermediates reused per expert; routed destination overlaps temporary FP32 publish source. Shared output allocates in its final conversion.",
+    "traffic": "One INT8 input-row copy and one FP32 output-row copy per assignment; no deduplication, free dispatch, implicit physical transpose or index instruction assumption.",
+    "timing": "Serial active experts then shared FFN, existing native matrix/vector/memory services; no expert parallelism or overlap.",
+    "profiles": "Existing hardware, vector/blocks/attention profile values and hashes unchanged.",
+    "excluded": "Router GEMM/scoring/group/Top-K selection, route weights/normalization, weighted/shared summation, offloaded weights, inter-resource communication, full model and numerical accuracy.",
+    "tests": [
+      "tests.operators.test_moe",
+      "tests.operators.test_moe_cli"
+    ]
   }
 }

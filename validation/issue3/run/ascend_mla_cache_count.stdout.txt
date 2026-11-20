@@ -15,5 +15,5 @@
 [Action] latent_read.ub_dma_write_bytes: 42 byte (logical, action)
 [Action] rope_read.hbm_read_bytes: 24 byte (logical, action)
 [Action] rope_read.ub_dma_write_bytes: 24 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-24brpaxj\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-24brpaxj\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-nyx74o6l\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-nyx74o6l\report.json

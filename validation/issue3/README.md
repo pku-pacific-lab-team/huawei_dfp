@@ -8,7 +8,7 @@
 
 默认输出到 `validation/issue3/run/`。临时验证可使用 `--output-dir tmp/issue3-experiment`。脚本拒绝输出到 `validation/issue2/` 及其子目录；Issue #2 脚本也不能写入本目录。
 
-退出 0 表示[覆盖清单](scope.json)声明的已实现范围通过，`acceptance.json` 中对应 `implemented_scope_passed=true`。这不表示整个 Issue #3 完成：`full_issue_complete` 保持 false，`pending_work` 明列其余复合块、目标模型块覆盖和整片调度等缺口。完整模型拼装属于 Issue #4。清单以当前第七批 B 及之前的实现与接口收尾为范围，不把暂未实现的要求改写为通过。
+退出 0 表示[覆盖清单](scope.json)声明的已实现范围通过，`acceptance.json` 中对应 `implemented_scope_passed=true`。这不表示整个 Issue #3 完成：`full_issue_complete` 保持 false，`pending_work` 明列其余复合块、目标模型块覆盖和整片调度等缺口。完整模型拼装属于 Issue #4。清单以当前第八批 A 及之前的实现与接口收尾为范围，不把暂未实现的要求改写为通过。
 
 日常单算子仿真报告与 Issue #2 一样放在工程根目录 `results/`：Vector / RMSNorm / Softmax / Residual / SwiGLU / FFN / KV Cache / Decode Attention 的默认名称为 `<架构>_<算子>.json`，例如 `ascend_fp32_add.json`。同一架构与算子的 count/timing 共用文件名，成功重跑时覆盖；显式 `--output` 可另存，任务失败时保留旧文件。该目录仍是 Git 忽略的可再生输出，与本目录的验收证据分开。
 
@@ -28,13 +28,14 @@
 | RoPE、Embedding 与词表输出 | `test_position_vocabulary.py`、`test_position_vocabulary_cli.py`；24 项 CLI 正例，通道对、位置与表、整表容量/行访问、FP32 logits 边界及手算周期 |
 | MLA 前处理与压缩缓存 | `test_mla.py`、`test_mla_cli.py`；16 项 CLI 正例，独立维度、分支手算、共享缓存状态与容量、原生服务复用 |
 | Absorbed MLA Attention | `test_mla_attention.py`、`test_mla_attention_cli.py`；8 项 CLI 正例，五次 head GEMM、FP32 分支合并、共享缓存/权重、输出投影及全块容量 |
+| 给定路由的 MoE 专家 | `test_moe.py`、`test_moe_cli.py`；8 项 CLI 正例，实际专家负载、空专家容量、FP32 输出、分发/回填、原生 FFN 和全局生命周期 |
 | 目标模型块清单 | `test_model_coverage.py`；检查代码/测试证据、缺口归属和覆盖状态；普通缓存不冒充 MLA |
 | 名称、axis/epsilon、连接边界、严格校验 | `test_interface_finalization.py`、`test_output.py`；默认路径及显式覆盖检查，8 项 CLI 负例，拒绝空 composite 与未支持操作并保护已有输出 |
 | 执行分层与行为兼容 | `test_layering.py`；64 组 API 的原生报告、算子身份和动作语义对账、core 依赖方向、原生结果适配隔离、显式内存路径及 Ascend Vector 入口 |
 | 精简报告与独立诊断 | `test_reporting.py`；schema 2、直接访问时间结果、按需保留诊断、容量口径、动作角色和文件绑定 |
 | 验证工具隔离与失败传播 | `tests/validation/test_verification.py`、`test_run_all.py`；范围选择、失败后继续、待审状态、旧报告拒绝与全仓库覆盖检查 |
 
-正例矩阵为 4 架构 × 22 操作 × count/timing，共 176 项；加 8 项负例共 184 项。CLI 结构检查与 API 手算/容量/依赖测试共同提供证据。模块缺失、跳过、失败、超时或有测试未登记到覆盖清单时，都不能通过。
+正例矩阵为 4 架构 × 23 操作 × count/timing，共 184 项；加 8 项负例共 192 项。CLI 结构检查与 API 手算/容量/依赖测试共同提供证据。模块缺失、跳过、失败、超时或有测试未登记到覆盖清单时，都不能通过。
 
 生成文件包括 `acceptance.json`（本 Issue 的条件和待办）、`tests.json` / `unittest.txt`（测试结果）、`commands.json`（命令与逐项检查），以及精简 CLI 报告、`details/` 下的独立详细报告、输出日志和负例输入。正例验证显式请求详细输出以检查原生结果与摘要的关联，日常 CLI 默认不导出详细数据。读取结果时同时核对：
 
@@ -113,3 +114,13 @@ LLaMA 清单内独立粗粒度块已覆盖，DeepSeek 仍有 MLA/MoE 缺口；`f
 MLA 核心采用每 head 五次原生 GEMM，分别计入 Q→latent、两路打分、加权 latent 及 latent→V。FP32 合并/缩放/Softmax 和所有 INT8 边界明确计费；共享缓存仅追加一次，没有额外独立扫描。可选输出投影复用已有节点并纳入完整块的容量校验；不提供 Wo 时输出 context。新测试核对1314 MAC、120个非矩阵 op、TPU读写2474/1386 B、941 B峰值，以及共享权重/缓存、有效长度、显式 scale、位置绑定、生命周期、容量拒绝、四架构入口和输出保护。
 
 执行假设见台账 `mla_absorbed_attention`。原生硬件与三个共享执行 profile 的参数/哈希保持不变。MLA 相关清单在所述单 token、INT8、absorbed 和符号布局条件下更新为 implemented；目标模型仍因 MoE 缺口而不完整，`full_issue_complete` 仍为 false。
+
+## 第八批 A 证据范围
+
+第七批 B 已保存为本地提交 `ff44d8c`。本批新增 `moe_experts` 和可选 FP32 FFN 输出；CLI 为184项正例、8项负例，共192项，日常 `all` 生成96份报告。已有176份正例的摘要与原生结果对账保存在 `run/batch7b_comparison.json`；64组历史 API 基线不改写。
+
+给定路由 `[B,top_k]` 中每行索引必须互异且有效。按实际 token 数执行各专家，空专家跳过；全部专家权重仍驻留。输入行分发与 FP32 结果回填明确计流量；输出保留原 token/slot 顺序，另返回共享分支结果。路由器与加权合并仍 pending，`full_issue_complete=false`。
+
+样例 B=3、H=5、I=7、E=5、top_k=2、shared=2，专家负载 `[3,1,2,0,0]`：1260 MAC、504个非矩阵 op、FP32/INT8 边界213/84元素。TPU读写1725/1266 B，峰值1272 B；容量1271 B必须拒绝。新增测试覆盖不均匀分配、token/slot 守恒、空专家权重容量、batch/top_k 缩放、原生 action/role、条带化与 scratch 回退、未知服务/时钟、四架构 CLI 和错误输出保护。
+
+执行假设见 `calibration/operator_execution_audit.json` 的 `moe_fixed_routing_experts`；`src/core/moe.py` 归属 Issue #3。原生硬件、三个执行 profile 的参数/哈希不变；INT8、串行、全权重驻留及符号分发属于本项目假设。
