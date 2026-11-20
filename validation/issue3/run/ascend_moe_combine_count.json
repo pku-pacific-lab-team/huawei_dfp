@@ -1,0 +1,254 @@
+{
+  "schema_version": 2,
+  "kind": "operator_result",
+  "status": "success",
+  "architecture": "ascend",
+  "mode": "count",
+  "operator": {
+    "kind": "moe_combine",
+    "inputs": [
+      {
+        "name": "unweighted_experts",
+        "shape": [
+          3,
+          2,
+          5
+        ],
+        "dtype": "FP32",
+        "numel": 30,
+        "logical_bytes": 120
+      },
+      {
+        "name": "route_weights",
+        "shape": [
+          3,
+          2
+        ],
+        "dtype": "FP32",
+        "numel": 6,
+        "logical_bytes": 24
+      },
+      {
+        "name": "shared_output",
+        "shape": [
+          3,
+          5
+        ],
+        "dtype": "FP32",
+        "numel": 15,
+        "logical_bytes": 60
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "shape": [
+          3,
+          5
+        ],
+        "dtype": "FP32",
+        "numel": 15,
+        "logical_bytes": 60
+      }
+    ],
+    "accumulation_dtype": "FP32",
+    "attributes": {
+      "broadcast_materialized": false,
+      "formula": "sum_k(experts * weights[...,None]) + optional_shared"
+    }
+  },
+  "latency_s": null,
+  "cycle_count": null,
+  "timing_status": "not_evaluated",
+  "boundary": {
+    "scope": "single_core",
+    "chip_execution_included": false,
+    "numeric_values_simulated": false,
+    "input_output_alias_included": false,
+    "layout": "symbolic_padded_views",
+    "start": "tensors_in_HBM",
+    "end": "outputs_in_HBM",
+    "intermediate_storage": "HBM",
+    "offchip_supply_included": true
+  },
+  "work_counts": {
+    "logical": {
+      "operations": 60,
+      "useful_macs": 0,
+      "operation_counts": {
+        "fp32_mul": 30,
+        "fp32_add": 30
+      },
+      "output_bytes": 60
+    },
+    "issued": {
+      "operations": null,
+      "status": "per_node_only"
+    },
+    "internal": {
+      "boundary_elements": {},
+      "status": "per_node_only"
+    }
+  },
+  "resource_requirements": {
+    "ub": {
+      "scope": "core",
+      "required_bytes": 84,
+      "capacity_bytes": 262144,
+      "requirement_basis": "peak_bytes"
+    },
+    "hbm": {
+      "scope": "chip",
+      "required_bytes": 264,
+      "capacity_bytes": 32000000000,
+      "requirement_basis": "peak_bytes"
+    }
+  },
+  "action_counts": {
+    "combine.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 204,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "combine",
+        "repetitions": "1"
+      }
+    },
+    "combine.ub_dma_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 204,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_write_bytes",
+        "parent_node": "combine",
+        "repetitions": "1"
+      }
+    },
+    "combine.ub_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 444,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_read_bytes",
+        "parent_node": "combine",
+        "repetitions": "1"
+      }
+    },
+    "combine.ub_write_bytes": {
+      "component": "ub",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 300,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_write_bytes",
+        "parent_node": "combine",
+        "repetitions": "1"
+      }
+    },
+    "combine.fp32_mul": {
+      "component": "vector",
+      "name": "fp32_mul",
+      "category": "vector",
+      "count": 30,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_mul",
+        "parent_node": "combine",
+        "repetitions": "1"
+      }
+    },
+    "combine.fp32_add": {
+      "component": "vector",
+      "name": "fp32_add",
+      "category": "vector",
+      "count": 30,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_add",
+        "parent_node": "combine",
+        "repetitions": "1"
+      }
+    },
+    "combine.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "combine",
+        "repetitions": "1"
+      }
+    },
+    "combine.ub_dma_read_bytes": {
+      "component": "ub",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 60,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_core",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "ub_dma_read_bytes",
+        "parent_node": "combine",
+        "repetitions": "1"
+      }
+    }
+  },
+  "coverage": {
+    "offchip_memory": "native_payload_counts",
+    "interconnect": "not_modeled",
+    "physical_memory_transactions": "not_modeled"
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null
+  }
+}

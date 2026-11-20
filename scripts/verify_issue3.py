@@ -22,7 +22,7 @@ VECTOR_OPS = ("int32_add", "fp32_add", "fp32_mul", "fp32_exp", "fp32_rsqrt")
 PROJECTION_OPS = ("rmsnorm_int8", "qkv_projection", "attention_output_projection")
 POSITION_VOCAB_OPS = ("rope", "embedding", "vocabulary_projection")
 MLA_OPS = ("mla_preprocess", "mla_cache", "mla_decode_attention")
-OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax", "residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", *PROJECTION_OPS, *POSITION_VOCAB_OPS, *MLA_OPS, "moe_experts")
+OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax", "residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", *PROJECTION_OPS, *POSITION_VOCAB_OPS, *MLA_OPS, "moe_experts", "moe_router", "moe_combine", "moe")
 NEGATIVE_CASES = ("reject_null_profile", "reject_unsupported")
 MANIFEST = ROOT / "validation/issue3/scope.json"
 
@@ -70,6 +70,36 @@ def evaluate_conditions(records, commands, manifest):
     return conditions
 
 
+def evaluate_delivery(manifest, coverage, conditions, records, root=ROOT):
+    """Local Issue #3 delivery verdict, never a GitHub closure/review claim."""
+    mapping = manifest.get("acceptance_mapping", {})
+    required = {"independent_vector", "verifiable_gemm", "tested_model_blocks"}
+    criteria = {name: bool(ids) and all(conditions.get(i, {}).get("status") == "passed" for i in ids)
+                for name, ids in mapping.items()}
+    mapping_valid = set(mapping) == required and all(criteria.values())
+    blocks = {}
+    models = coverage.get("models", [])
+    inventory_valid = {m.get("name") for m in models} == {"LLaMA3-70B", "DeepSeek-R1"} and len(models) == 2
+    for model in models:
+        items = model.get("blocks", [])
+        inventory_valid &= bool(items) and len({b.get("id") for b in items}) == len(items)
+        for b in items:
+            modules = b.get("tests", [])
+            tests_pass = bool(modules) and all(
+                any(n.startswith(m + ".") for n in records) and
+                all(r["status"] == "passed" for n,r in records.items() if n.startswith(m + ".")) for m in modules)
+            files = b.get("implementation", [])
+            ok = b.get("status") == "implemented" and b.get("owner") == "issue3" and bool(files) and all((root / p).is_file() for p in files) and tests_pass
+            blocks[model["name"] + "/" + b["id"]] = "passed" if ok else "failed"
+    inventory_valid &= bool(blocks) and all(v == "passed" for v in blocks.values()) and coverage.get("full_target_model_coverage") is True
+    all_conditions = bool(conditions) and manifest["requirements"].keys() <= conditions.keys() and all(v.get("status") == "passed" for v in conditions.values())
+    passed = mapping_valid and inventory_valid and all_conditions and not manifest.get("pending_work", ["missing declaration"])
+    return {"status": "passed" if passed else "failed", "acceptance_criteria": criteria,
+            "model_blocks": blocks, "inventory_valid": bool(inventory_valid),
+            "scope": "Local coarse-operator delivery; excludes full decoder/chip execution and numerical calibration.",
+            "github_state_changed": False}
+
+
 def report_checks(report, arch, kind, mode, details):
     scope = {"ascend": "single_core", "tpu": "single_tensorcore", "tsp": "single_hem", "tsp_cim": "single_hem"}[arch]
     op, native = report["operator"], details["native_report"]
@@ -92,7 +122,17 @@ def report_checks(report, arch, kind, mode, details):
         action["count"] == native["action_counts"][key]["count"] and
         action["unit"] == native["action_counts"][key]["unit"] for key, action in report["action_counts"].items())
     dtype = "INT8" if kind in ("residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention", "rope", "embedding", *PROJECTION_OPS, *MLA_OPS) else "INT32" if kind in ("gemm", "int32_add") else "FP32"
-    checks["stored_output_dtype"] = all(t["dtype"] == dtype for t in op["outputs"])
+    checks["stored_output_dtype"] = ([t["dtype"] for t in op["outputs"]] == ["INT32", "FP32"] if kind == "moe_router" else
+                                     all(t["dtype"] == ("INT8" if kind == "moe" else dtype) for t in op["outputs"]))
+    if kind in {"moe_router", "moe_combine", "moe"}:
+        logical = native["work_counts"]["logical"]
+        checks["moe_hand_work"] = logical["operations"] == {"moe_router":330, "moe_combine":60, "moe":3414}[kind]
+        checks["moe_hand_macs"] = logical["useful_macs"] == {"moe_router":90, "moe_combine":0, "moe":1350}[kind]
+        checks["moe_global_lifetime"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"
+        if arch == "tpu":
+            checks["moe_hand_peak"] = report["resource_requirements"]["hbm"]["required_bytes"] == {"moe_router":477, "moe_combine":264, "moe":1455}[kind]
+        if kind == "moe":
+            checks["moe_scenario_explicit"] = native["routing"]["router_work_included"] and not native["routing"]["numeric_routing_verified"]
     if kind == "moe_experts":
         logical = native["work_counts"]["logical"]
         checks["moe_fixed_route"] = native["routing"]["counts"] == [3, 1, 2, 0, 0] and native["routing"]["total_assignments"] == 6
@@ -228,6 +268,8 @@ def main(argv=None):
     tests, counts, tests_passed = run_tests(discover(ISSUE3_TEST_DIRS), out)
     commands = run_commands(out)
     conditions = evaluate_conditions(tests.records, commands, manifest)
+    coverage = json.loads((ROOT / "validation/issue3/model_coverage.json").read_text(encoding="utf-8"))
+    delivery = evaluate_delivery(manifest, coverage, conditions, tests.records)
     unchanged = snapshot() == before
     passed = tests_passed and unchanged and all(c["status"] == "passed" for c in conditions.values())
     git = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True)
@@ -239,12 +281,13 @@ def main(argv=None):
                               "details": "tests.json", "log": "unittest.txt"},
                "cli_checks": {"total": len(commands), "passed": sum(c["passed"] for c in commands.values()), "details": "commands.json"},
                "conditions": conditions, "implemented_scope_passed": passed,
-               "full_issue_complete": False, "pending_work": manifest["pending_work"],
-               "limits": ["Exit 0 applies only to the declared implemented scope, not completion of the whole issue.",
+               "full_issue_complete": passed and delivery["status"] == "passed", "delivery_audit": delivery,
+               "pending_work": manifest["pending_work"], "follow_up_outside_issue3": manifest.get("follow_up_outside_issue3", []),
+               "limits": ["full_issue_complete is a local scoped delivery verdict; it does not close GitHub or claim review approval.",
                           "No Issue #2 review or acceptance result is imported, renewed, or overwritten.",
                           "Shared native dependencies are fingerprinted separately; analytical tests do not calibrate hardware."]}
     save(out / "acceptance.json", summary)
-    print(f"Issue #3 implemented scope: {'passed' if passed else 'failed'}; full issue remains open")
+    print(f"Issue #3 implemented scope: {'passed' if passed else 'failed'}; local delivery complete: {summary['full_issue_complete']}")
     print(f"Unit tests: {counts}; CLI checks: {summary['cli_checks']['passed']}/{len(commands)}; unchanged snapshot: {unchanged}")
     for key, result in conditions.items():
         print(f"{key}: {result['status']}")

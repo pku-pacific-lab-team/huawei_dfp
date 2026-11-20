@@ -22,6 +22,33 @@ def test_ids(suite):
 
 
 class VerificationTest(unittest.TestCase):
+    def test_delivery_verdict_requires_live_evidence_for_every_model_block(self):
+        manifest = json.loads(issue3.MANIFEST.read_text(encoding="utf-8"))
+        coverage = json.loads((common.ROOT / "validation/issue3/model_coverage.json").read_text(encoding="utf-8"))
+        records = {n: {"status": "passed"} for n in test_ids(common.discover(common.ISSUE3_TEST_DIRS))}
+        conditions = {k: {"status": "passed"} for k in manifest["requirements"]}
+        conditions["coverage_mapping"] = {"status": "passed"}
+        audit = issue3.evaluate_delivery(manifest, coverage, conditions, records)
+        self.assertEqual(audit["status"], "passed")
+        self.assertEqual(len(audit["model_blocks"]), 23)
+        self.assertFalse(audit["github_state_changed"])
+        self.assertEqual(issue3.evaluate_delivery(manifest, coverage, conditions, {})["status"], "failed")
+        for field, value in (("status", "pending"), ("owner", "unknown"), ("implementation", ["missing.py"]), ("tests", [])):
+            bad = copy.deepcopy(coverage)
+            bad["models"][0]["blocks"][0][field] = value
+            self.assertEqual(issue3.evaluate_delivery(manifest, bad, conditions, records)["status"], "failed")
+
+    def test_delivery_verdict_rejects_incomplete_acceptance_or_pending_scope(self):
+        manifest = json.loads(issue3.MANIFEST.read_text(encoding="utf-8"))
+        coverage = json.loads((common.ROOT / "validation/issue3/model_coverage.json").read_text(encoding="utf-8"))
+        records = {n: {"status": "passed"} for n in test_ids(common.discover(common.ISSUE3_TEST_DIRS))}
+        conditions = {k: {"status": "passed"} for k in manifest["requirements"]}
+        for change in ({"pending_work": ["MoE incomplete"]}, {"acceptance_mapping": {}},
+                       {"acceptance_mapping": {"independent_vector": ["missing"]}}):
+            self.assertEqual(issue3.evaluate_delivery({**manifest, **change}, coverage, conditions, records)["status"], "failed")
+        conditions["I3_vector"] = {"status": "failed"}
+        self.assertEqual(issue3.evaluate_delivery(manifest, coverage, conditions, records)["status"], "failed")
+
     def test_issue_suites_are_disjoint_and_scope_covers_operator_modules(self):
         native = set(test_ids(common.discover(common.ISSUE2_TEST_DIRS)))
         operators = set(test_ids(common.discover(common.ISSUE3_TEST_DIRS)))
@@ -32,7 +59,7 @@ class VerificationTest(unittest.TestCase):
         declared = {m for r in manifest["requirements"].values() for m in r["test_modules"]}
         self.assertEqual(declared, {t.rsplit(".", 2)[0] for t in operators})
         commands = [n for r in manifest["requirements"].values() for n in issue3.command_names(r["cli_operations"])]
-        self.assertEqual(len(commands), 192)
+        self.assertEqual(len(commands), 216)
         self.assertEqual(len(commands), len(set(commands)))
 
     def test_owned_changes_and_shared_dependencies_have_distinct_snapshots(self):

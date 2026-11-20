@@ -1,7 +1,7 @@
 {
-  "tests_run": 237,
+  "tests_run": 259,
   "status_counts": {
-    "passed": 237
+    "passed": 259
   },
   "tests": {
     "tests.operators.test_attention.AttentionTest.test_all_heads_share_one_workspace_without_report_expansion": {
@@ -484,6 +484,66 @@
     "tests.operators.test_moe.MoETest.test_unknown_cost_and_clock_are_not_silently_zero": {
       "status": "passed"
     },
+    "tests.operators.test_moe_block.MoEBlockTest.test_batch_scaling_and_distribution_scenario_not_numerical_routing": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_four_architectures_count_timing_and_serial_native_children": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_hand_combine_broadcast_reduction_shared_and_tail": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_hand_router_work_and_hbm_payload": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_hand_whole_work_traffic_and_global_peak": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_internal_names_and_reservation_labels_do_not_alias_user_tensors": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_local_workspace_capacity_and_combine_tile_fallback": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_nested_native_actions_keep_counts_roles_and_unique_attributes": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_parser_fixtures_and_reject_unknown_or_inconsistent_contract": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_profiles_unknown_cost_count_and_timing_failure": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_public_option_validation": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_resident_reservations_striping_and_no_hbm": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_selection_comparison_cost_is_explicit_and_missing_clock_rejects_timing": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_selection_only_bias_and_original_weight_source": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_strict_shapes_names_groups_and_scenarios": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_ungrouped_and_single_expert_reduce_edges": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block.MoEBlockTest.test_whole_exact_capacity_not_max_of_standalone_peaks": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block_cli.MoEBlockCLITest.test_chip_scope_rejected": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block_cli.MoEBlockCLITest.test_four_entries_count_timing_and_custom_profile_reservations": {
+      "status": "passed"
+    },
+    "tests.operators.test_moe_block_cli.MoEBlockCLITest.test_invalid_nested_scenarios_and_profiles_preserve_outputs": {
+      "status": "passed"
+    },
     "tests.operators.test_moe_cli.MoECLITest.test_four_entries_count_timing_profiles_and_reservation": {
       "status": "passed"
     },
@@ -698,6 +758,12 @@
       "status": "passed"
     },
     "tests.validation.test_verification.VerificationTest.test_cross_issue_output_is_rejected_before_writes": {
+      "status": "passed"
+    },
+    "tests.validation.test_verification.VerificationTest.test_delivery_verdict_rejects_incomplete_acceptance_or_pending_scope": {
+      "status": "passed"
+    },
+    "tests.validation.test_verification.VerificationTest.test_delivery_verdict_requires_live_evidence_for_every_model_block": {
       "status": "passed"
     },
     "tests.validation.test_verification.VerificationTest.test_execution_audit_is_separate_from_hardware_audit": {

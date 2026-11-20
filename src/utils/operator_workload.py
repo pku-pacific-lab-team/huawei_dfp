@@ -7,6 +7,35 @@ from ..operators.rope import RoPE
 from ..operators.embedding import Embedding
 from ..operators.mla import MLASpec, MLAPreprocess, MLACacheSpec, MLACacheAccess, MLADecodeAttention
 from ..operators.moe import MoERoutingPlan, MoEExperts
+from ..operators.moe_block import MoERouter, MoECombine, MoE
+
+
+def parse_moe_block_workload(config):
+    if not isinstance(config, dict) or type(config.get("schema_version")) is not int or config["schema_version"] != 1:
+        raise ValueError("Expected MoE workload schema 1")
+    kind = config.get("operation")
+    fields = {"moe_router": ({"x", "weight", "top_k"}, {"groups", "selected_groups", "bias", "route_scale", "output_names"}),
+              "moe_combine": ({"experts", "weights"}, {"shared", "output_dtype", "output_name"}),
+              "moe": ({"router", "experts"}, {"output_dtype", "output_name"})}
+    if not isinstance(kind, str) or kind not in fields:
+        raise ValueError("Expected moe_router, moe_combine or moe")
+    required, optional = fields[kind]
+    if not required <= config.keys() or config.keys() - required - optional - {"schema_version", "operation", "description"}:
+        raise ValueError("Missing or unknown MoE workload fields")
+    if "description" in config and (not isinstance(config["description"], str) or not config["description"].strip()):
+        raise ValueError("MoE description must be nonempty text")
+    values = {k:v for k,v in config.items() if k in required | optional}
+    if kind == "moe":
+        values["router"] = parse_moe_block_workload(values["router"])
+        values["experts"] = parse_moe_workload(values["experts"])
+        return MoE(**values)
+    tensor_fields = {"x", "weight", "bias"} if kind == "moe_router" else {"experts", "weights", "shared"}
+    for key in tensor_fields & values.keys():
+        tensor = values[key]
+        if not isinstance(tensor, dict) or set(tensor) != {"name", "shape", "dtype"}:
+            raise ValueError("MoE tensor requires exactly name, shape, dtype")
+        values[key] = TensorSpec(**tensor)
+    return (MoERouter if kind == "moe_router" else MoECombine)(**values)
 
 
 def parse_moe_workload(config):

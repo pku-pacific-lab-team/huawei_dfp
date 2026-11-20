@@ -158,6 +158,26 @@ test_shared_output_connection_retains_fp32_and_explicit_placement (tests.operato
 test_shared_widened_ffn_and_routed_only_contract (tests.operators.test_moe.MoETest.test_shared_widened_ffn_and_routed_only_contract) ... ok
 test_strict_workload_fields_and_routed_only_parsing (tests.operators.test_moe.MoETest.test_strict_workload_fields_and_routed_only_parsing) ... ok
 test_unknown_cost_and_clock_are_not_silently_zero (tests.operators.test_moe.MoETest.test_unknown_cost_and_clock_are_not_silently_zero) ... ok
+test_batch_scaling_and_distribution_scenario_not_numerical_routing (tests.operators.test_moe_block.MoEBlockTest.test_batch_scaling_and_distribution_scenario_not_numerical_routing) ... ok
+test_four_architectures_count_timing_and_serial_native_children (tests.operators.test_moe_block.MoEBlockTest.test_four_architectures_count_timing_and_serial_native_children) ... ok
+test_hand_combine_broadcast_reduction_shared_and_tail (tests.operators.test_moe_block.MoEBlockTest.test_hand_combine_broadcast_reduction_shared_and_tail) ... ok
+test_hand_router_work_and_hbm_payload (tests.operators.test_moe_block.MoEBlockTest.test_hand_router_work_and_hbm_payload) ... ok
+test_hand_whole_work_traffic_and_global_peak (tests.operators.test_moe_block.MoEBlockTest.test_hand_whole_work_traffic_and_global_peak) ... ok
+test_internal_names_and_reservation_labels_do_not_alias_user_tensors (tests.operators.test_moe_block.MoEBlockTest.test_internal_names_and_reservation_labels_do_not_alias_user_tensors) ... ok
+test_local_workspace_capacity_and_combine_tile_fallback (tests.operators.test_moe_block.MoEBlockTest.test_local_workspace_capacity_and_combine_tile_fallback) ... ok
+test_nested_native_actions_keep_counts_roles_and_unique_attributes (tests.operators.test_moe_block.MoEBlockTest.test_nested_native_actions_keep_counts_roles_and_unique_attributes) ... ok
+test_parser_fixtures_and_reject_unknown_or_inconsistent_contract (tests.operators.test_moe_block.MoEBlockTest.test_parser_fixtures_and_reject_unknown_or_inconsistent_contract) ... ok
+test_profiles_unknown_cost_count_and_timing_failure (tests.operators.test_moe_block.MoEBlockTest.test_profiles_unknown_cost_count_and_timing_failure) ... ok
+test_public_option_validation (tests.operators.test_moe_block.MoEBlockTest.test_public_option_validation) ... ok
+test_resident_reservations_striping_and_no_hbm (tests.operators.test_moe_block.MoEBlockTest.test_resident_reservations_striping_and_no_hbm) ... ok
+test_selection_comparison_cost_is_explicit_and_missing_clock_rejects_timing (tests.operators.test_moe_block.MoEBlockTest.test_selection_comparison_cost_is_explicit_and_missing_clock_rejects_timing) ... ok
+test_selection_only_bias_and_original_weight_source (tests.operators.test_moe_block.MoEBlockTest.test_selection_only_bias_and_original_weight_source) ... ok
+test_strict_shapes_names_groups_and_scenarios (tests.operators.test_moe_block.MoEBlockTest.test_strict_shapes_names_groups_and_scenarios) ... ok
+test_ungrouped_and_single_expert_reduce_edges (tests.operators.test_moe_block.MoEBlockTest.test_ungrouped_and_single_expert_reduce_edges) ... ok
+test_whole_exact_capacity_not_max_of_standalone_peaks (tests.operators.test_moe_block.MoEBlockTest.test_whole_exact_capacity_not_max_of_standalone_peaks) ... ok
+test_chip_scope_rejected (tests.operators.test_moe_block_cli.MoEBlockCLITest.test_chip_scope_rejected) ... ok
+test_four_entries_count_timing_and_custom_profile_reservations (tests.operators.test_moe_block_cli.MoEBlockCLITest.test_four_entries_count_timing_and_custom_profile_reservations) ... ok
+test_invalid_nested_scenarios_and_profiles_preserve_outputs (tests.operators.test_moe_block_cli.MoEBlockCLITest.test_invalid_nested_scenarios_and_profiles_preserve_outputs) ... ok
 test_four_entries_count_timing_profiles_and_reservation (tests.operators.test_moe_cli.MoECLITest.test_four_entries_count_timing_profiles_and_reservation) ... ok
 test_invalid_routes_fields_profiles_and_options_preserve_outputs (tests.operators.test_moe_cli.MoECLITest.test_invalid_routes_fields_profiles_and_options_preserve_outputs) ... ok
 test_routed_only_and_fp32_standalone_ffn_from_another_directory (tests.operators.test_moe_cli.MoECLITest.test_routed_only_and_fp32_standalone_ffn_from_another_directory) ... ok
@@ -230,6 +250,8 @@ test_scope_matrix_and_default_powershell_from_another_directory (tests.validatio
 test_timeout_and_uncovered_or_duplicate_tests_cannot_pass (tests.validation.test_run_all.RunAllTest.test_timeout_and_uncovered_or_duplicate_tests_cannot_pass) ... ok
 test_cli_timeout_and_stale_reports_cannot_be_accepted (tests.validation.test_verification.VerificationTest.test_cli_timeout_and_stale_reports_cannot_be_accepted) ... ok
 test_cross_issue_output_is_rejected_before_writes (tests.validation.test_verification.VerificationTest.test_cross_issue_output_is_rejected_before_writes) ... ok
+test_delivery_verdict_rejects_incomplete_acceptance_or_pending_scope (tests.validation.test_verification.VerificationTest.test_delivery_verdict_rejects_incomplete_acceptance_or_pending_scope) ... ok
+test_delivery_verdict_requires_live_evidence_for_every_model_block (tests.validation.test_verification.VerificationTest.test_delivery_verdict_requires_live_evidence_for_every_model_block) ... ok
 test_execution_audit_is_separate_from_hardware_audit (tests.validation.test_verification.VerificationTest.test_execution_audit_is_separate_from_hardware_audit) ... ok
 test_issue_suites_are_disjoint_and_scope_covers_operator_modules (tests.validation.test_verification.VerificationTest.test_issue_suites_are_disjoint_and_scope_covers_operator_modules) ... ok
 test_missing_failed_and_unmapped_evidence_cannot_pass (tests.validation.test_verification.VerificationTest.test_missing_failed_and_unmapped_evidence_cannot_pass) ... ok
@@ -237,6 +259,6 @@ test_owned_changes_and_shared_dependencies_have_distinct_snapshots (tests.valida
 test_subtest_failure_and_skips_do_not_become_success (tests.validation.test_verification.VerificationTest.test_subtest_failure_and_skips_do_not_become_success) ... ok
 
 ----------------------------------------------------------------------
-Ran 237 tests in 370.504s
+Ran 259 tests in 429.206s
 
 OK

@@ -238,5 +238,23 @@
       "tests.operators.test_moe",
       "tests.operators.test_moe_cli"
     ]
+  },
+  "moe_router_combine": {
+    "status": "assumed",
+    "source_id": "materialized_sigmoid_moe_v1",
+    "documentation": "ARCHITECTURE.md#moe-complete",
+    "algorithm_reference": "https://github.com/deepseek-ai/DeepSeek-V3/blob/9b4e9788e4a3a731f7567338ed15d3ec549ce03b/inference/model.py",
+    "reference_commit": "9b4e9788e4a3a731f7567338ed15d3ec549ce03b",
+    "reference_sha256": "fdb7995bc234badbf0011b5af8cf391be94343abc51305428cb9a04452116f02",
+    "reference_scope": "Gate sigmoid/bias/group selection/original-score normalization/scaling, weighted experts and shared addition. Official BF16/FP8 precision is not reproduced.",
+    "selection": "Repeated maximum without replacement; sum_j(N-j-1) comparisons, max(compute, ceil(log2(N-j))*reduction_round_cycles) per round. Group max or biased top2 sum. Symbolic masks, indices and addresses; explicit payload traffic, no detailed selection ISA.",
+    "precision": "INT8 gate/experts, INT32 accumulation, FP32 sigmoid/weights/combine; optional final INT8 conversion. Existing conversion and reciprocal proxies.",
+    "storage": "External weights/inputs persist; full score rows materialized. Post-router buffers release before experts, indices before combine; weights and FP32 expert outputs survive through combine. Global padding, stripe and scratch reservations verified.",
+    "routing_scenario": "Whole MoE receives explicit assignments satisfying group/top-k constraints; router work is modeled but numeric expert selection is not computed or verified.",
+    "profiles": "Existing hardware and vector/blocks/attention parameter values/hashes unchanged. No measured coefficients introduced.",
+    "tests": [
+      "tests.operators.test_moe_block",
+      "tests.operators.test_moe_block_cli"
+    ]
   }
 }

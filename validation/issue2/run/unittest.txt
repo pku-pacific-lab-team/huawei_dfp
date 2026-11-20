@@ -215,6 +215,6 @@ test_tsp_cim_entry_rejects_unsupported_precision_and_counts_explicit_int8 (tests
 test_tsp_entries_use_shared_precision_and_print_effective_task (tests.common.test_workload.WorkloadTest.test_tsp_entries_use_shared_precision_and_print_effective_task) ... ok
 
 ----------------------------------------------------------------------
-Ran 215 tests in 30.720s
+Ran 215 tests in 31.567s
 
 OK

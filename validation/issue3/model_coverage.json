@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "scope": "Coarse block inventory through batch 8A; fixed-routing experts are not a complete MoE layer or full model execution.",
-  "full_target_model_coverage": false,
+  "scope": "Coarse Decode operator inventory through batch 8B; all named blocks covered under analytical assumptions, not full model/chip execution.",
+  "full_target_model_coverage": true,
   "status_definitions": {
     "implemented": "The named coarse block runs on all four architectures under documented assumptions.",
     "partial": "Reusable primitives exist; the complete named block or its storage boundary is pending.",
@@ -331,7 +331,7 @@
             "tests.operators.test_moe",
             "tests.operators.test_moe_cli"
           ],
-          "notes": "One widened shared FFN executes all Decode tokens; width = shared_experts * expert intermediate. INT8 GEMM/SwiGLU storage, FP32 final output, global resident weight/capacity checks. Shared branch remains separate; summation with routed output is pending."
+          "notes": "One widened shared FFN executes all Decode tokens; width = shared_experts * expert intermediate. INT8 GEMM/SwiGLU storage, FP32 final output, global resident weight/capacity checks. Standalone output remains separate; MoECombine and whole MoE now add it after weighted routed accumulation."
         },
         {
           "id": "moe_routed_ffn",
@@ -347,15 +347,22 @@
             "tests.operators.test_moe",
             "tests.operators.test_moe_cli"
           ],
-          "notes": "Fixed caller-supplied token/expert assignments; actual rows per active expert, empty experts skipped, all declared weights resident. Explicit dispatch and FP32 publish payloads, global storage and reused expert workspace. Unweighted [B,top_k,H] output preserves token/slot mapping; gate computation and weighted combine remain pending."
+          "notes": "Fixed caller-supplied token/expert assignments; actual rows per active expert, empty experts skipped, all declared weights resident. Explicit dispatch and FP32 publish payloads, global storage and reused expert workspace. Unweighted [B,top_k,H] output preserves token/slot mapping; standalone experts exclude gate/combine, now supplied by MoERouter/MoECombine and whole MoE."
         },
         {
           "id": "moe_router_and_combine",
-          "status": "pending",
+          "status": "implemented",
           "owner": "issue3",
-          "implementation": [],
-          "tests": [],
-          "notes": "Gate GEMM, sigmoid/group selection semantics, selected-score normalization/scaling and FP32 weighted/shared combine remain. Fixed route indices supplied to batch 8A are not a router implementation. No Top-K/gather/scatter ISA model is required."
+          "implementation": [
+            "src/operators/moe_block.py",
+            "src/runtime/moe_block.py",
+            "src/core/block_moe.py"
+          ],
+          "tests": [
+            "tests.operators.test_moe_block",
+            "tests.operators.test_moe_block_cli"
+          ],
+          "notes": "INT8 gate GEMM, FP32 sigmoid, optional selection-only bias, group/expert repeated-max selection proxy, original-score normalization/scaling, FP32 weighted/shared sum and optional final INT8 conversion. Whole MoE reserves external weights and live route/expert tensors globally. Actual expert assignments are explicit shape-only scenarios; no numeric routing or Top-K/gather/scatter ISA."
         }
       ]
     }

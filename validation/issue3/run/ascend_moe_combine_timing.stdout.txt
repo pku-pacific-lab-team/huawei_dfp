@@ -1,0 +1,15 @@
+[Operator] ascend moe_combine (unweighted_experts[3, 2, 5]:FP32, route_weights[3, 2]:FP32, shared_output[3, 5]:FP32) -> FP32
+[Time] 60 cycles; 6e-08 s (analytical_estimate)
+[Scope] single_core; mode=timing
+[Memory] ub: 84 / 262144 B (core)
+[Memory] hbm: 264 / 32000000000 B (chip)
+[Action] combine.hbm_read_bytes: 204 byte (logical, action)
+[Action] combine.ub_dma_write_bytes: 204 byte (logical, action)
+[Action] combine.ub_read_bytes: 444 byte (logical, action)
+[Action] combine.ub_write_bytes: 300 byte (logical, action)
+[Action] combine.fp32_mul: 30 op (logical, action)
+[Action] combine.fp32_add: 30 op (logical, action)
+[Action] combine.hbm_write_bytes: 60 byte (logical, action)
+[Action] combine.ub_dma_read_bytes: 60 byte (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-8iyeo6wt\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-8iyeo6wt\report.json

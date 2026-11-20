@@ -157,7 +157,7 @@ ledger 与其 grouped_counts 也是同一工作量的两种视图。Macro 的复
 
 `tests/operators` 覆盖 Tensor 字节与精度、ledger 单位/来源/别名、四架构小 M 和尾块/跨 K GEMM 的 count/timing 原生对账、策略透传、超容量/缺参、缺时钟周期结果、CLI 默认兼容及失败时保护输出。算子独立验证使用 `python scripts/verify_issue3.py`，全仓库回归另行使用 `python -m unittest discover -s tests -t . -v`。
 
-Issue #3 使用[独立覆盖清单、证据目录和判据](validation/issue3/README.md)，不读取或续用 Issue #2 的 A1/A5 审阅。Issue #2 不再发现算子测试，算子专属文件不进入其语义审阅快照；共享入口、原生代码和本文仍属于共同依赖，修改后可能使旧审阅过期。独立 Vector/Nonlinear 已在第二批接入，第三批加入 RMSNorm/Softmax；其余复合块与目标模型覆盖仍列为未完成，不因本轮验证通过而宣称整个 Issue #3 完成。
+Issue #3 使用[独立覆盖清单、证据目录和判据](validation/issue3/README.md)，不读取或续用 Issue #2 的 A1/A5 审阅。Issue #2 不再发现算子测试，算子专属文件不进入其语义审阅快照；共享入口、原生代码和本文仍属于共同依赖，修改后可能使旧审阅过期。独立 Vector/Nonlinear 已在第二批接入，第三批加入 RMSNorm/Softmax；后续批次已补齐目标模型粗粒度块；完成结论由 Issue #3 独立交付审计生成，不续用 Issue #2 审阅。
 
 新增执行 profile 的来源及哈希独立维护在 [operator_execution_audit.json](calibration/operator_execution_audit.json)，原生硬件台账及参数总数不包含这些策略。
 
@@ -266,7 +266,7 @@ schema 2 的 composite 必须为完整字典，null 不再等同于 schema 1 的
 
 上述局部字节不含 DMA 端点，Ascend/TPU 还分别计输入 DMA 本地写与导出 DMA 本地读；TSP/CIM 没有这部分 HBM/DMA 动作。测试逐项对照固定手算账本并校验阶段汇总；另将 transfer startup=2、compute startup=3，RMSNorm 得到 Ascend/TPU 112、TSP 163 cycle，Softmax 为 162/226 cycle。测试通过故意交换归一化/指数阶段、删除初始化或 DMA、错写奇数存活数、延后指数导出及缩小声明临时区，验证生命周期错误会被拒绝。
 
-`tests/operators/test_composite*.py` 覆盖四架构的两个块、手算单元素周期/访问、D-1 归约守恒、尾块及跨块依赖、batch/head 缩放、临时空间回退和全驻留容量边界、缺参/缺时钟、原生/CIM 一致性、严格 CLI 与 schema 迁移。第四批的 Residual、SwiGLU/FFN 见下节。Attention/GQA、KV Cache、MLA、MoE 和目标模型的块覆盖矩阵仍待完成；完整模型拼装与端到端评估属于 Issue #4。
+`tests/operators/test_composite*.py` 覆盖四架构的两个块、手算单元素周期/访问、D-1 归约守恒、尾块及跨块依赖、batch/head 缩放、临时空间回退和全驻留容量边界、缺参/缺时钟、原生/CIM 一致性、严格 CLI 与 schema 迁移。第四批的 Residual、SwiGLU/FFN 见下节。Attention/GQA、KV Cache、MLA、MoE 和覆盖矩阵由后续章节描述；完整模型拼装与端到端评估属于 Issue #4。
 
 <a id="decode-blocks"></a>
 
@@ -308,7 +308,7 @@ TSP/CIM 每个张量和用户 reserved 分别按选中 slice 数向上条带化�
 
 `src/operators/attention.py` 定义 `KVCacheSpec`、`KVCacheAccess` 和 `DecodeAttention`；`src/runtime/attention.py` 绑定共享缓存、组合原生 GEMM/Softmax 和已有块级转换；`src/core/kv_cache.py` 只计缓存追加拷贝与流式读取；`src/runtime/composition.py` 汇总重复子块，同时保留 action role、来源和 summary 引用。新增配置 `configs/execution/attention.json` 明确预分配缓存、串行 Query head、无跨 head 读取复用和符号补齐视图，所有策略为 assumed。
 
-算法语义核对 [Meta Llama 3 的 Attention 实现](https://github.com/meta-llama/llama3/blob/main/llama/model.py)及 [GQA 论文](https://arxiv.org/abs/2305.13245v3)：Query head 与 KV head 按组对应，缩放点积后做 Softmax 和加权 V。本工程只采用这些块级依赖；INT8 存储、资源映射、串行策略和时间服务均来自本项目显式假设，不复制参考代码的数值精度或硬件性能。DeepSeek-R1 基于 V3 架构（见其[官方说明](https://github.com/deepseek-ai/DeepSeek-R1)），MLA/MoE 单独登记为待补，不以普通 GQA 替代。
+算法语义核对 [Meta Llama 3 的 Attention 实现](https://github.com/meta-llama/llama3/blob/main/llama/model.py)及 [GQA 论文](https://arxiv.org/abs/2305.13245v3)：Query head 与 KV head 按组对应，缩放点积后做 Softmax 和加权 V。本工程只采用这些块级依赖；INT8 存储、资源映射、串行策略和时间服务均来自本项目显式假设，不复制参考代码的数值精度或硬件性能。DeepSeek-R1 基于 V3 架构（见其[官方说明](https://github.com/deepseek-ai/DeepSeek-R1)），MLA/MoE 由后续独立实现覆盖，不以普通 GQA 替代。
 
 ### 单 token 契约与工作量
 
@@ -336,7 +336,7 @@ Attention 总时间为一次缓存追加，加上 B*Hq 次完整 head 模板的 
 
 Cache 手算取 HBM或所选单 MEM slice=16 B/cycle、本地32 B/cycle、启动0：每个 K/V head 追加7 B读写各1 cycle，读取42 B用3 cycle，8个 K/V head 总40 cycle。测试进一步覆盖空缓存首次追加、满缓存拒绝、只读 MHA/GQA/MQA、batch/sequence/capacity 独立缩放、重复模板不展开、尾块、原生结果保真、slice 条带化、临时区容量、未知成本/时钟和四入口失败保护。
 
-`validation/issue3/model_coverage.json` 是初始目标模型块清单，区分 implemented/partial/pending，给出代码、测试和缺口归属。它没有宣称模型整体完成：MLA、MoE 等仍需补齐；INT8 RMSNorm 与常规 Attention 投影已在第六批 A 实现，RoPE、Embedding 与词表输出边界已在第六批 B 实现。完整模型拼装属于 Issue #4，整片调度另行推进。
+`validation/issue3/model_coverage.json` 是初始目标模型块清单，区分 implemented/partial/pending，给出代码、测试和缺口归属。它描述粗粒度块覆盖，MLA、MoE 已由第七、八批补齐；INT8 RMSNorm 与常规 Attention 投影已在第六批 A 实现，RoPE、Embedding 与词表输出边界已在第六批 B 实现。完整模型拼装属于 Issue #4，整片调度另行推进。
 
 <a id="decode-projections"></a>
 
@@ -356,7 +356,7 @@ Ascend/TPU 使用 HBM 物化边界和原有 UB/VMEM 服务；TSP/CIM 把同时�
 
 独立手算样例 B=2、H=17、Hq=4、Hkv=2、D=7：QKV 有效 MAC=1904，边界各112元素，INT8 输出总112 B。TPU 六步 HBM 存储为1210/1266/1154/1182/1182/1210 B，峰值1266 B；HBM 读1502 B、写560 B。输出投影 Hout=17 时有效 MAC=952，两步存储668/702 B，无额外 head 拼接副本。TSP 三 slice、RMSNorm `[1,7]`、reserved=17 B、tile=3 时，归一化存储117 B，条带化 scratch/行状态18 B，峰值135 B。
 
-`tests/operators/test_projections*.py` 覆盖这些手算、原生 action/role 保真、四架构 count/timing、一份 backing、多输出存活、全块容量超限、局部最小临时空间、类型/形状/别名拒绝、成本敏感性及 CLI 输出保护。该范围仍是单核/单半片；RoPE、Embedding 和词表输出边界由第六批 B 补齐，MLA/MoE 与整片调度待后续实现，模型拼装属于 Issue #4。
+`tests/operators/test_projections*.py` 覆盖这些手算、原生 action/role 保真、四架构 count/timing、一份 backing、多输出存活、全块容量超限、局部最小临时空间、类型/形状/别名拒绝、成本敏感性及 CLI 输出保护。该范围仍是单核/单半片；RoPE、Embedding 和词表输出边界由第六批 B 补齐，MLA/MoE 由第七、八批实现，整片调度另行推进，模型拼装属于 Issue #4。
 
 <a id="position-vocabulary"></a>
 
@@ -392,7 +392,7 @@ B=2、V=19、H=7 时，HBM完整容量155 B、读22 B、写14 B；tile=4的局�
 
 转换直接写到独立的 FP32 输出，不另申请 cast scratch；INT32 累加张量与 FP32 输出同时存活，不能因每元素都是4 B而忽略其中一个分配。原生补齐、流水、cache/CMEM 行为与 action role 完整保留。TPU 样例 B=2、H=7、V=19：有效266 MAC、532 op、转换38元素；两个阶段 HBM 基本占用299/451 B，HBM读299 B、写304 B。
 
-`tests/operators/test_position_vocabulary*.py` 验证四架构 count/timing、手算工作量/流量/周期、通道对尾块、源槽复用顺序、全块及最小 scratch 容量、索引/位置/类型校验、profile 敏感性、原生矩阵动作与连接形状。独立块通过不表示完整模型能在单半片驻留；模型覆盖矩阵中的 implemented 仅表示所述策略下的块可执行。DeepSeek 的 MLA/MoE、整片分片和完整 Decoder 拼装继续保持单独待办。
+`tests/operators/test_position_vocabulary*.py` 验证四架构 count/timing、手算工作量/流量/周期、通道对尾块、源槽复用顺序、全块及最小 scratch 容量、索引/位置/类型校验、profile 敏感性、原生矩阵动作与连接形状。独立块通过不表示完整模型能在单半片驻留；模型覆盖矩阵中的 implemented 仅表示所述策略下的块可执行。DeepSeek 的 MLA/MoE 见第七、八批章节；整片分片和完整 Decoder 拼装继续保持单独待办。
 
 <a id="mla-preprocess-cache"></a>
 
@@ -483,7 +483,25 @@ Ascend/TPU 校验完整 HBM 峰值并复用本地 UB/VMEM；TSP/CIM 将其它存
 
 TPU 全局初始占用894 B：x15 B、索引24 B、路由输出120 B、全部路由权重525 B、共享权重210 B。首个专家分发909 B，激活阶段1098 B，发布954 B；共享激活阶段为894+2×168+42=1272 B，最终转换阶段为894+60+60=1014 B。容量1271 B必须拒绝，1272 B可执行。Resident 架构另计原生 padding、MEM 条带与 scratch，不能套用 TPU 的峰值。
 
-`tests/operators/test_moe*.py` 覆盖四架构 count/timing、手算、空专家、不均匀路由、slot 守恒、batch/top_k 缩放、全部权重驻留、原生 FFN action/role 对账、FP32 输出连接、容量边界和 CLI 输出保护。清单将 shared/routed FFN 标为所述条件下 implemented，router/weighted combine 保持 pending。第八批 B 继续接入路由与合并；整片、分布式专家、真实数值和完整模型评估不在本批内。
+`tests/operators/test_moe*.py` 覆盖四架构 count/timing、手算、空专家、不均匀路由、slot 守恒、batch/top_k 缩放、全部权重驻留、原生 FFN action/role 对账、FP32 输出连接、容量边界和 CLI 输出保护。第八批 A 将 shared/routed FFN 标为所述条件下 implemented；第八批 B 的路由与合并见下节。整片、分布式专家、真实数值和完整模型评估不在本批内。
+
+<a id="moe-complete"></a>
+
+## MoE 路由与整块执行（第八批 B）
+
+语义参考固定 [DeepSeek-V3 Gate/MoE 源码](https://github.com/deepseek-ai/DeepSeek-V3/blob/9b4e9788e4a3a731f7567338ed15d3ec549ce03b/inference/model.py)。仅实现目标 R1 的 sigmoid 分支：INT8 Gate GEMM 累加 INT32，转换后以 negate/exp/add-one/reciprocal 计算 FP32 sigmoid。可选 FP32 bias 只生成选择分数，原始 sigmoid 分数保留供最终 gather。权重 shape 使用 [H,E] 符号转置视图，不计独立布局指令。官方 BF16/FP8 数值精度不在本工程范围。
+
+G>1 时将 E 个专家等分。无 bias 时组分数为组内最大值，有 bias 时为前两名之和；先选 L 组，再在 L*E/G 个候选中选 k 个专家。比较采用重复 MAX 归约代理：从 N 个候选选 q 个需要 sum(j=0..q-1)(N-j-1) 次比较；每轮依赖下限为 ceil(log2(N-j))*reduction_round_cycles。比较和归约使用既有 assumed composite/vector 服务，没有新增标定参数。索引生成、排除已选赢家、屏蔽未选组及地址映射是符号操作，不细拆 Top-K/Gather/Scatter ISA。读写的选中索引、分组状态和分数 payload 明确计数。
+
+选择阶段按 batch 行串行执行，保存原始分数、可选校正分数、组分数/赢家/索引、归一化标量、输出 indices/weights；本物化策略让这些缓冲同时存活到阶段结束。HBM 架构每步将输入搬入本地、读写计算缓冲并导出中间结果；一整行需要最多 12*max(E,k,G) B 本地空间，超限明确拒绝。所选值从原始 sigmoid 读取，以 k-1 次 ADD、一次 RCP、k 次归一化 MUL、k 次 route_scale MUL 得到 FP32 权重。选择性 bias 不修改最终权重来源。
+
+Combine 按 hidden tile 流式执行，无 [B,k,H] 广播权重副本：B*k*H 次 MUL、B*(k-1)*H 次 ADD，启用 shared 再加 B*H 次 ADD。每个 hidden tile 每个 slot 读取一个 FP32 权重；两个 4-byte/元素 scratch 缓冲保存乘积/累加结果，第一项乘积以别名初始化累加器。FP32 输出复制到独立 backing，INT8 输出只做一次最终转换。原生 MEM 流按各访问补齐，HBM 使用显式 DMA；本地 scratch 不产生额外 HBM 中间张量。
+
+完整 MoE 的全部外部权重和输入贯穿执行。x 只预留一份兼容 router/shared FFN native view 的最大 backing；router 中间区在选择完成后释放，indices 在专家阶段后释放，route weights 与专家 FP32 输出保留至 combine；最终输出在 combine 才分配。专家子块显式预留其余存活对象，所有阶段按本地条带、native padding 和 scratch 校验，不能简单取三个独立算子的最大峰值。原有 Action role、summary 引用及子块来源经嵌套组合保留。
+
+独立手算样例 B=3,H=5,I=7,E=6,k=2,S=2,G=3,L=2,bias=on：Gate 90 MAC，router 150 非矩阵 op，专家 1260 MAC+504 op，combine 60 op，总1350 MAC/3414 op；FP32 转换231元素、INT8转换99元素。TPU 固定输入/权重909 B；router选择峰1317 B，专家阶段全局峰1455 B，combine存储1128 B。1454 B 必须失败、1455 B 可运行；单独专家峰1377 B 不足以运行整块。hidden tile=3 时 router HBM读1041/写756 B、专家读1725/写1266 B、combine读228/写15 B，总读2994/写2037 B。
+
+`tests/operators/test_moe_block*.py` 检查上述手算、四架构 count/timing、偏置/分组/单候选边界、负载缩放、全局容量、原生动作、条带预留、本地空间回退、缺参失败与 CLI 输出保护。实际 expert assignments 仍是显式负载场景；完整数值路由、分布式专家、权重卸载、整片执行和端到端模型不在该块交付范围。
 
 <a id="execution-diagrams"></a>
 

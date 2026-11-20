@@ -1,0 +1,12 @@
+[Operator] tsp moe_combine (unweighted_experts[3, 2, 5]:FP32, route_weights[3, 2]:FP32, shared_output[3, 5]:FP32) -> FP32
+[Time] 54 cycles; 6e-08 s (analytical_estimate)
+[Scope] single_hem; mode=timing
+[Memory] mem: 396 / 115343360 B (single_hem)
+[Action] combine.mem_read_bytes: 444 byte (logical, action)
+[Action] combine.input_stream_bytes: 8640 byte (padded, action)
+[Action] combine.mem_write_bytes: 300 byte (logical, action)
+[Action] combine.output_stream_bytes: 4800 byte (padded, action)
+[Action] combine.fp32_mul: 30 op (logical, action)
+[Action] combine.fp32_add: 30 op (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-za1efa98\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-za1efa98\report.json

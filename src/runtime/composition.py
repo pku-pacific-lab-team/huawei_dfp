@@ -21,7 +21,8 @@ def collect_children(children, mode):
             key = node_id + "." + action.id
             entries.append(replace(action, id=key, count=None if action.count is None else action.count * repetitions,
                                    source=f"#/native_report/action_counts/{key}",
-                                   attributes=action.attributes + (("parent_node", node_id), ("repetitions", str(repetitions))),
+                                   attributes=tuple(("child." + k if k in {"parent_node", "repetitions"} or k.startswith("child.") else k, v)
+                                                    for k, v in action.attributes) + (("parent_node", node_id), ("repetitions", str(repetitions))),
                                    summarizes=tuple(node_id + "." + name for name in action.summarizes)))
             actions[key] = deepcopy(report["action_counts"][action.id])
             actions[key]["count"] = entries[-1].count

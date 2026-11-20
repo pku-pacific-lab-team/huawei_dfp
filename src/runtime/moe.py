@@ -27,9 +27,35 @@ def binding_sizes(operator, architecture, spec, stripe):
     return {name: stripe(size) for name, size in sizes.items()}
 
 
-def simulate_moe_experts(operator, architecture, spec, *, mode="count", execution=None, block_execution=None,
+def expert_allocations(operator, architecture, spec, stripe, reserved_bytes=0):
+    """Global expert storage, shared by standalone and whole-MoE planners."""
+    r, h, i = operator.routing, operator.hidden, operator.intermediate
+    per_weight = (stripe(gemm_storage(Gemm(1, h, i), architecture, spec)["B"]),) * 2 + (
+                  stripe(gemm_storage(Gemm(1, i, h), architecture, spec)["B"]),)
+    globals_ = {"input": stripe(operator.x.nbytes), "route_indices": stripe(r.indices.nbytes),
+                "routed_output": stripe(operator.spec.outputs[0].nbytes), "reserved": stripe(reserved_bytes)}
+    for key, size in zip(("routed_gate_weight", "routed_up_weight", "routed_down_weight"), per_weight):
+        globals_[key] = r.expert_count * size
+    shared, shared_sizes = operator.shared(), {}
+    if shared:
+        shared_sizes = binding_sizes(shared, architecture, spec, stripe)
+        globals_["input"] = max(globals_["input"], shared_sizes[shared.x.name])
+        for key, weight in zip(("shared_gate_weight", "shared_up_weight", "shared_down_weight"), shared.inputs[1:]):
+            globals_[key] = shared_sizes[weight.name]
+    return per_weight, globals_, shared, shared_sizes
+
+
+def simulate_moe_experts(operator, architecture, spec, **options):
+    # Parent-owned HBM reservations are internal; public allocation options retain
+    # the same validation as other operators.
+    if "_parent_bytes" in options:
+        raise ValueError("Parent reservations are internal to whole MoE")
+    return _simulate_moe_experts(operator, architecture, spec, **options)
+
+
+def _simulate_moe_experts(operator, architecture, spec, *, mode="count", execution=None, block_execution=None,
                          tile_elements=None, mem_slices=None, streams=None, reserved_bytes=0,
-                         hemisphere=0, include_details=False):
+                         hemisphere=0, include_details=False, _parent_bytes=0):
     if not isinstance(operator, MoEExperts):
         raise ValueError("Expected MoEExperts")
     get_backend(architecture, spec)
@@ -49,18 +75,9 @@ def simulate_moe_experts(operator, architecture, spec, *, mode="count", executio
         capacity = int(positive(spec.chip["hbm_usable_bytes"] if architecture == "ascend" else spec.values["hbm_usable_bytes"], "HBM capacity"))
         stripe = lambda size: size
     r, h, i = operator.routing, operator.hidden, operator.intermediate
-    per_weight = (stripe(gemm_storage(Gemm(1, h, i), architecture, spec)["B"]),) * 2 + (
-                  stripe(gemm_storage(Gemm(1, i, h), architecture, spec)["B"]),)
-    globals_ = {"input": stripe(operator.x.nbytes), "route_indices": stripe(r.indices.nbytes),
-                "routed_output": stripe(operator.spec.outputs[0].nbytes), "reserved": stripe(reserved_bytes)}
-    for key, size in zip(("routed_gate_weight", "routed_up_weight", "routed_down_weight"), per_weight):
-        globals_[key] = r.expert_count * size
-    shared, shared_sizes = operator.shared(), {}
-    if shared:
-        shared_sizes = binding_sizes(shared, architecture, spec, stripe)
-        globals_["input"] = max(globals_["input"], shared_sizes[shared.x.name])
-        for key, weight in zip(("shared_gate_weight", "shared_up_weight", "shared_down_weight"), shared.inputs[1:]):
-            globals_[key] = shared_sizes[weight.name]
+    per_weight, globals_, shared, shared_sizes = expert_allocations(operator, architecture, spec, stripe, reserved_bytes)
+    if _parent_bytes:
+        globals_["parent_live_tensors"] = stripe(_parent_bytes)
     # Routed output slots persist. The shared final output is allocated by its
     # own last conversion, after all routed outputs have been published.
     base = sum(globals_.values())

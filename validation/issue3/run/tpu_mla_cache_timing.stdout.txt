@@ -15,5 +15,5 @@
 [Action] latent_read.vmem_dma_write_bytes: 42 byte (logical, action)
 [Action] rope_read.hbm_read_bytes: 24 byte (logical, action)
 [Action] rope_read.vmem_dma_write_bytes: 24 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-rxvkdy_g\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-rxvkdy_g\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-seg6g2s2\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-seg6g2s2\report.json

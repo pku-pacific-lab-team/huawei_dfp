@@ -1,0 +1,15 @@
+[Operator] tpu moe_combine (unweighted_experts[3, 2, 5]:FP32, route_weights[3, 2]:FP32, shared_output[3, 5]:FP32) -> FP32
+[Time] 60 cycles; 5.7142857142857144e-08 s (analytical_estimate)
+[Scope] single_tensorcore; mode=timing
+[Memory] vmem: 84 / 16777216 B (tensorcore)
+[Memory] hbm: 264 / 34359738368 B (chip)
+[Action] combine.hbm_read_bytes: 204 byte (logical, action)
+[Action] combine.vmem_dma_write_bytes: 204 byte (logical, action)
+[Action] combine.vmem_read_bytes: 444 byte (logical, action)
+[Action] combine.vmem_write_bytes: 300 byte (logical, action)
+[Action] combine.fp32_mul: 30 op (logical, action)
+[Action] combine.fp32_add: 30 op (logical, action)
+[Action] combine.hbm_write_bytes: 60 byte (logical, action)
+[Action] combine.vmem_dma_read_bytes: 60 byte (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-3gxscbe3\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-3gxscbe3\report.json

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "issue": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3",
-  "scope": "implemented_batches_1_8a_fixed_routing_moe_experts",
+  "scope": "implemented_batches_1_8b_coarse_decode_operator_delivery",
   "reference_commit": "98e79ee5b34991f09c65efe395e1e84d58589fab",
   "requirements": {
     "I3_contracts": {
@@ -165,12 +165,46 @@
       "cli_operations": [
         "moe_experts"
       ]
+    },
+    "I3_moe_complete": {
+      "title": "MoE sigmoid/group routing, FP32 weighted/shared combine, whole-block global lifetime and four-architecture execution",
+      "test_modules": [
+        "tests.operators.test_moe_block",
+        "tests.operators.test_moe_block_cli"
+      ],
+      "cli_operations": [
+        "moe_router",
+        "moe_combine",
+        "moe"
+      ]
     }
   },
-  "pending_work": [
-    "LLaMA 清单内粗粒度独立块及 DeepSeek 的 absorbed MLA 路径已覆盖；完整目标形状的分片、容量适配与层间执行仍需后续工作",
-    "DeepSeek-R1 MoE 路由打分、分组/专家选择、路由权重与加权合并待第八批 B；第八批 A 仅覆盖调用方给定路由下的专家执行与独立 FP32 输出",
-    "整片执行与 M/N 分片、跨核/半片通信模型；当前执行范围保持单核/单半片",
-    "完整 Decoder/模型拼装与端到端评估属于 Issue #4；独立量化/布局/ISA 指令模型和数值精度不属于 Issue #3 解析验收"
+  "pending_work": [],
+  "acceptance_mapping": {
+    "independent_vector": [
+      "I3_vector",
+      "I3_layering"
+    ],
+    "verifiable_gemm": [
+      "I3_gemm_adapter",
+      "I3_contracts"
+    ],
+    "tested_model_blocks": [
+      "I3_model_inventory",
+      "I3_moe_complete",
+      "I3_moe_experts",
+      "I3_mla_attention",
+      "I3_mla_preprocess_cache",
+      "I3_position_vocabulary",
+      "I3_decode_projections",
+      "I3_decode_attention",
+      "I3_decode_blocks",
+      "I3_normalization"
+    ]
+  },
+  "follow_up_outside_issue3": [
+    "Complete Decoder/model assembly, target-scale batch/sequence experiments and end-to-end evaluation (Issue #4).",
+    "Chip partition, distributed expert scheduling, inter-core/hemisphere communication and weight offload.",
+    "Numerical BF16/FP8 accuracy, physical layout/ISA validation and measured hardware/energy calibration."
   ]
 }

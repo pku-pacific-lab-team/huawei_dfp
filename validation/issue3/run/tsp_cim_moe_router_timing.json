@@ -1,0 +1,808 @@
+{
+  "schema_version": 2,
+  "kind": "operator_result",
+  "status": "success",
+  "architecture": "tsp_cim",
+  "mode": "timing",
+  "operator": {
+    "kind": "moe_router",
+    "inputs": [
+      {
+        "name": "tokens",
+        "shape": [
+          3,
+          5
+        ],
+        "dtype": "INT8",
+        "numel": 15,
+        "logical_bytes": 15
+      },
+      {
+        "name": "router_weight",
+        "shape": [
+          5,
+          6
+        ],
+        "dtype": "INT8",
+        "numel": 30,
+        "logical_bytes": 30
+      },
+      {
+        "name": "router_bias",
+        "shape": [
+          6
+        ],
+        "dtype": "FP32",
+        "numel": 6,
+        "logical_bytes": 24
+      }
+    ],
+    "outputs": [
+      {
+        "name": "selected_experts",
+        "shape": [
+          3,
+          2
+        ],
+        "dtype": "INT32",
+        "numel": 6,
+        "logical_bytes": 24
+      },
+      {
+        "name": "route_weights",
+        "shape": [
+          3,
+          2
+        ],
+        "dtype": "FP32",
+        "numel": 6,
+        "logical_bytes": 24
+      }
+    ],
+    "accumulation_dtype": "INT32",
+    "attributes": {
+      "bias_affects": "selection_only",
+      "groups": 3,
+      "numeric_indices_generated": false,
+      "route_scale": 2.5,
+      "score_function": "sigmoid",
+      "selected_groups": 2,
+      "top_k": 2,
+      "weight_source": "original_sigmoid_scores"
+    }
+  },
+  "latency_s": 4.622222222222222e-07,
+  "cycle_count": 416,
+  "timing_status": "analytical_estimate",
+  "boundary": {
+    "scope": "single_hem",
+    "chip_execution_included": false,
+    "numeric_values_simulated": false,
+    "input_output_alias_included": false,
+    "layout": "symbolic_padded_views",
+    "start": "tensors_in_local_MEM",
+    "end": "outputs_in_local_MEM",
+    "intermediate_storage": "local_MEM",
+    "offchip_supply_included": false,
+    "selected_hemisphere": 0,
+    "mem_slices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "streams_per_direction": 32
+  },
+  "work_counts": {
+    "logical": {
+      "operations": 330,
+      "useful_macs": 90,
+      "operation_counts": {
+        "fp32_mul": 30,
+        "fp32_exp": 18,
+        "fp32_add": 48,
+        "fp32_rcp": 21,
+        "fp32_max": 33
+      },
+      "output_bytes": 48
+    },
+    "issued": {
+      "operations": null,
+      "status": "per_node_only"
+    },
+    "internal": {
+      "boundary_elements": {
+        "boundary_to_fp32": 18
+      },
+      "status": "per_node_only"
+    }
+  },
+  "resource_requirements": {
+    "mem": {
+      "scope": "single_hem",
+      "required_bytes": 1540,
+      "capacity_bytes": 115343360,
+      "requirement_basis": "peak_bytes"
+    }
+  },
+  "action_counts": {
+    "router.gate.program_bytes": {
+      "component": "macro",
+      "name": "program_bytes",
+      "category": "cim_internal",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "program_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.context_programs": {
+      "component": "macro",
+      "name": "context_programs",
+      "category": "cim_internal",
+      "count": 1,
+      "unit": "context",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "context_programs",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.context_switches": {
+      "component": "macro",
+      "name": "context_switches",
+      "category": "cim_internal",
+      "count": 1,
+      "unit": "switch",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "context_switches",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.program_wordlines": {
+      "component": "macro",
+      "name": "program_wordlines",
+      "category": "cim_internal",
+      "count": 16,
+      "unit": "wordline",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "program_wordlines",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.cross_macro_k_adds": {
+      "component": "inter_superlane_reduction",
+      "name": "add",
+      "category": "vector",
+      "count": 0,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "cross_macro_k_adds",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.cross_tile_k_adds": {
+      "component": "vxm",
+      "name": "add",
+      "category": "vector",
+      "count": 0,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "cross_tile_k_adds",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.mem_read_weight_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 512,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "mem_read_weight_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.mem_read_activation_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 48,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "mem_read_activation_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.mem_read_psum_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "mem_read_psum_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.mem_write_psum_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "mem_write_psum_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.mem_write_final_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 72,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "mem_write_final_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.activation_stream_bytes": {
+      "component": "stream",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 960,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "activation_stream_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.psum_stream_bytes": {
+      "component": "stream",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "psum_stream_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.write_stream_bytes": {
+      "component": "stream",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 96,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "write_stream_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.useful_mac": {
+      "component": "macro",
+      "name": "mac",
+      "category": "matrix",
+      "count": 90,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "reference",
+      "status": "available",
+      "attributes": {
+        "native_action": "useful_mac",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.issued_mac": {
+      "component": "macro",
+      "name": "mac",
+      "category": "matrix",
+      "count": 1536,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "sum_of_macro_actions",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "issued_mac",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.launches": {
+      "component": "macro",
+      "name": "launches",
+      "category": "cim_internal",
+      "count": 3,
+      "unit": "launch",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "launches",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.bit_serial_cycles": {
+      "component": "macro",
+      "name": "bit_serial_cycles",
+      "category": "cim_internal",
+      "count": 24,
+      "unit": "macro_cycle",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "bit_serial_cycles",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.activation_capture_bytes": {
+      "component": "macro",
+      "name": "activation_capture_bytes",
+      "category": "cim_internal",
+      "count": 48,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "activation_capture_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.result_bytes": {
+      "component": "macro",
+      "name": "result_bytes",
+      "category": "cim_internal",
+      "count": 384,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "result_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.weight_word_bit_products": {
+      "component": "macro",
+      "name": "weight_word_bit_products",
+      "category": "cim_internal",
+      "count": 12288,
+      "unit": "word_bit_product",
+      "dtype": "INT8",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "weight_word_bit_products",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.local_tree_adds": {
+      "component": "macro",
+      "name": "local_tree_adds",
+      "category": "cim_internal",
+      "count": 11520,
+      "unit": "add",
+      "dtype": "unspecified",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "local_tree_adds",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.shift_accumulates": {
+      "component": "macro",
+      "name": "shift_accumulates",
+      "category": "cim_internal",
+      "count": 768,
+      "unit": "shift_accumulate",
+      "dtype": "unspecified",
+      "scope": "sum_of_macro_actions",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "shift_accumulates",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.logical_activation_broadcast_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 48,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "native_action": "logical_activation_broadcast_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.logical_inter_superlane_adds": {
+      "component": "inter_superlane_reduction",
+      "name": "add",
+      "category": "vector",
+      "count": 0,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "native_action": "logical_inter_superlane_adds",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.logical_inter_k_tile_adds": {
+      "component": "vxm",
+      "name": "add",
+      "category": "vector",
+      "count": 0,
+      "unit": "add",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "native_action": "logical_inter_k_tile_adds",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.gate.logical_cluster_partial_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 72,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "logical_gemm",
+      "basis": "logical",
+      "role": "summary",
+      "status": "available",
+      "attributes": {
+        "native_action": "logical_cluster_partial_bytes",
+        "parent_node": "router.gate",
+        "repetitions": "1"
+      }
+    },
+    "router.select.mem_read_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 996,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "mem_read_bytes",
+        "parent_node": "router.select",
+        "repetitions": "1"
+      }
+    },
+    "router.select.input_stream_bytes": {
+      "component": "stream_to_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 26880,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "input_stream_bytes",
+        "parent_node": "router.select",
+        "repetitions": "1"
+      }
+    },
+    "router.select.mem_write_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 684,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "mem_write_bytes",
+        "parent_node": "router.select",
+        "repetitions": "1"
+      }
+    },
+    "router.select.output_stream_bytes": {
+      "component": "stream_from_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 23040,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "output_stream_bytes",
+        "parent_node": "router.select",
+        "repetitions": "1"
+      }
+    },
+    "router.select.boundary_to_fp32": {
+      "component": "vxm",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 18,
+      "unit": "element",
+      "dtype": "mixed_storage",
+      "scope": "single_hem",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "boundary_to_fp32",
+        "parent_node": "router.select",
+        "repetitions": "1"
+      }
+    },
+    "router.select.fp32_mul": {
+      "component": "vxm",
+      "name": "fp32_mul",
+      "category": "vector",
+      "count": 30,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_mul",
+        "parent_node": "router.select",
+        "repetitions": "1"
+      }
+    },
+    "router.select.fp32_exp": {
+      "component": "vxm",
+      "name": "fp32_exp",
+      "category": "nonlinear",
+      "count": 18,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_exp",
+        "parent_node": "router.select",
+        "repetitions": "1"
+      }
+    },
+    "router.select.fp32_add": {
+      "component": "vxm",
+      "name": "fp32_add",
+      "category": "vector",
+      "count": 48,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_add",
+        "parent_node": "router.select",
+        "repetitions": "1"
+      }
+    },
+    "router.select.fp32_rcp": {
+      "component": "vxm",
+      "name": "fp32_rcp",
+      "category": "nonlinear",
+      "count": 21,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_rcp",
+        "parent_node": "router.select",
+        "repetitions": "1"
+      }
+    },
+    "router.select.fp32_max": {
+      "component": "vxm",
+      "name": "fp32_max",
+      "category": "vector",
+      "count": 33,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_max",
+        "parent_node": "router.select",
+        "repetitions": "1"
+      }
+    }
+  },
+  "coverage": {
+    "offchip_memory": "outside_native_boundary",
+    "interconnect": "onchip_streams_only",
+    "physical_memory_transactions": "not_modeled"
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null
+  }
+}

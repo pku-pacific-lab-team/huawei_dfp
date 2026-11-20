@@ -20,7 +20,7 @@ ARCHITECTURES = ("ascend", "tpu", "tsp", "tsp_cim")
 OPERATIONS = ("int32_add", "fp32_add", "fp32_mul", "fp32_exp", "fp32_rsqrt", "rmsnorm", "softmax",
               "residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention",
               "rmsnorm_int8", "qkv_projection", "attention_output_projection", "rope", "embedding", "vocabulary_projection",
-              "mla_preprocess", "mla_cache", "mla_decode_attention", "moe_experts")
+              "mla_preprocess", "mla_cache", "mla_decode_attention", "moe_experts", "moe_router", "moe_combine", "moe")
 
 
 def build_plan(scope, root=ROOT, *, details=False):
