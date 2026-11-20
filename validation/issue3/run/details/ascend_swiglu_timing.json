@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "operator_details",
-  "result_sha256": "7e2ac626d111da0b01954bdd1449058a16882eede2ec0601c6239dbfc6383dcf",
+  "result_sha256": "6ccd2c35eb6d5eddd41db7b23a6f3b366b7c3bc6f30a1dbb0b9ea68562271f45",
   "native_report": {
     "schema_version": 1,
     "model": "ascend_materialized_block",

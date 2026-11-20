@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "scope": "Initial block-level inventory after batch 5; this is not a complete model execution or a numerical accuracy claim.",
+  "full_target_model_coverage": false,
+  "status_definitions": {
+    "implemented": "The named coarse block runs on all four architectures under documented assumptions.",
+    "partial": "Reusable primitives exist; the complete named block or its storage boundary is pending.",
+    "pending": "Named block has no complete executable implementation."
+  },
+  "references": {
+    "llama3": "https://github.com/meta-llama/llama3/blob/main/llama/model.py",
+    "gqa": "https://arxiv.org/abs/2305.13245v3",
+    "deepseek_r1": "https://github.com/deepseek-ai/DeepSeek-R1",
+    "deepseek_v3": "https://arxiv.org/abs/2412.19437v2",
+    "task": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3"
+  },
+  "models": [
+    {
+      "name": "LLaMA3-70B",
+      "reference_ids": [
+        "llama3",
+        "gqa",
+        "task"
+      ],
+      "blocks": [
+        {
+          "id": "embedding",
+          "status": "pending",
+          "owner": "issue3",
+          "implementation": [],
+          "tests": [],
+          "notes": "Coarse vocabulary lookup/read block still needs an explicit boundary and accounting."
+        },
+        {
+          "id": "normalization",
+          "status": "partial",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/composite.py"
+          ],
+          "tests": [
+            "tests.operators.test_composite"
+          ],
+          "notes": "FP32 RMSNorm exists; target INT8 activation boundaries and model-specific bindings remain."
+        },
+        {
+          "id": "residual",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_blocks"
+          ],
+          "notes": "INT8/FP32 coarse addition with explicit storage-boundary proxies."
+        },
+        {
+          "id": "vocabulary_projection",
+          "status": "partial",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/primitives.py"
+          ],
+          "tests": [
+            "tests.operators.test_gemm"
+          ],
+          "notes": "INT8 GEMM primitive exists; vocabulary/output boundary wrapper remains."
+        },
+        {
+          "id": "qkv_projections",
+          "status": "partial",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/primitives.py"
+          ],
+          "tests": [
+            "tests.operators.test_gemm"
+          ],
+          "notes": "Primitive available; grouped query/KV projection wrapper and output storage boundaries remain."
+        },
+        {
+          "id": "rope",
+          "status": "pending",
+          "owner": "issue3",
+          "implementation": [],
+          "tests": [],
+          "notes": "Q and new K are assumed already position-processed by DecodeAttention; a coarse RoPE block remains."
+        },
+        {
+          "id": "gqa_attention_core",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/attention.py",
+            "src/runtime/attention.py"
+          ],
+          "tests": [
+            "tests.operators.test_attention",
+            "tests.operators.test_attention_cli"
+          ],
+          "notes": "Given Q and KV cache/new K/V: scale, Softmax and PV; one token, uniform lengths; INT8 what-if storage."
+        },
+        {
+          "id": "kv_cache",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/attention.py",
+            "src/runtime/attention.py"
+          ],
+          "tests": [
+            "tests.operators.test_attention",
+            "tests.operators.test_attention_cli"
+          ],
+          "notes": "Preallocated conventional K/V cache: append only new token, read valid prefix; no eviction."
+        },
+        {
+          "id": "attention_output_projection",
+          "status": "partial",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/primitives.py"
+          ],
+          "tests": [
+            "tests.operators.test_gemm"
+          ],
+          "notes": "Attention returns per-head context; concatenated head view, projection and output boundary wrapper remain."
+        },
+        {
+          "id": "swiglu_ffn",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_blocks"
+          ],
+          "notes": "Three INT8 GEMMs and FP32 SwiGLU, with explicit INT8 storage boundaries; no external residual or normalization."
+        }
+      ]
+    },
+    {
+      "name": "DeepSeek-R1",
+      "reference_ids": [
+        "deepseek_r1",
+        "deepseek_v3",
+        "task"
+      ],
+      "blocks": [
+        {
+          "id": "embedding",
+          "status": "pending",
+          "owner": "issue3",
+          "implementation": [],
+          "tests": [],
+          "notes": "Coarse vocabulary lookup/read block still needs an explicit boundary and accounting."
+        },
+        {
+          "id": "normalization",
+          "status": "partial",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/composite.py"
+          ],
+          "tests": [
+            "tests.operators.test_composite"
+          ],
+          "notes": "FP32 RMSNorm exists; target INT8 activation boundaries and model-specific bindings remain."
+        },
+        {
+          "id": "residual",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_blocks"
+          ],
+          "notes": "INT8/FP32 coarse addition with explicit storage-boundary proxies."
+        },
+        {
+          "id": "vocabulary_projection",
+          "status": "partial",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/primitives.py"
+          ],
+          "tests": [
+            "tests.operators.test_gemm"
+          ],
+          "notes": "INT8 GEMM primitive exists; vocabulary/output boundary wrapper remains."
+        },
+        {
+          "id": "mla_projections",
+          "status": "pending",
+          "owner": "issue3",
+          "implementation": [],
+          "tests": [],
+          "notes": "MLA query/KV compression and reconstruction require dedicated shape/work contracts; conventional GQA cannot substitute."
+        },
+        {
+          "id": "mla_rope",
+          "status": "pending",
+          "owner": "issue3",
+          "implementation": [],
+          "tests": [],
+          "notes": "Separate content and positional branches require their own coarse work and dependencies."
+        },
+        {
+          "id": "mla_compressed_cache",
+          "status": "pending",
+          "owner": "issue3",
+          "implementation": [],
+          "tests": [],
+          "notes": "Latent KV and positional cache formats remain; conventional K/V cache accounting is not claimed to cover MLA."
+        },
+        {
+          "id": "mla_attention_core",
+          "status": "pending",
+          "owner": "issue3",
+          "implementation": [],
+          "tests": [],
+          "notes": "Absorbed/unabsorbed MLA Decode scheduling and cache-use policy remain."
+        },
+        {
+          "id": "attention_output_projection",
+          "status": "partial",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/primitives.py"
+          ],
+          "tests": [
+            "tests.operators.test_gemm"
+          ],
+          "notes": "GEMM primitive available; MLA output shape/boundary wrapper remains."
+        },
+        {
+          "id": "dense_swiglu_ffn",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_blocks"
+          ],
+          "notes": "Reusable dense block only; this does not cover routed expert scheduling."
+        },
+        {
+          "id": "shared_expert_ffn",
+          "status": "partial",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_blocks"
+          ],
+          "notes": "Individual dense expert arithmetic available; shared-expert and routed-path composition remains."
+        },
+        {
+          "id": "moe_routed_ffn",
+          "status": "pending",
+          "owner": "issue3",
+          "implementation": [],
+          "tests": [],
+          "notes": "Expert/token assignment, expert GEMM shapes, resident weights and coarse dependencies remain."
+        },
+        {
+          "id": "moe_router_and_combine",
+          "status": "pending",
+          "owner": "issue3",
+          "implementation": [],
+          "tests": [],
+          "notes": "Coarse routing/weighting/combine work remains; no Top-K or gather/scatter instruction model is required."
+        }
+      ]
+    }
+  ],
+  "outside_this_batch": [
+    "Full decoder/model assembly and end-to-end evaluation (Issue #4).",
+    "Chip partition and inter-core/inter-hemisphere communication.",
+    "Numerical matrices, quantization accuracy and silicon calibration."
+  ]
+}

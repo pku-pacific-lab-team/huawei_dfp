@@ -1,0 +1,1237 @@
+{
+  "schema_version": 2,
+  "kind": "operator_result",
+  "status": "success",
+  "architecture": "tpu",
+  "mode": "timing",
+  "operator": {
+    "kind": "decode_attention",
+    "inputs": [
+      {
+        "name": "query",
+        "shape": [
+          2,
+          4,
+          1,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 56,
+        "logical_bytes": 56
+      },
+      {
+        "name": "kv_cache.key",
+        "shape": [
+          2,
+          2,
+          9,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 252,
+        "logical_bytes": 252
+      },
+      {
+        "name": "kv_cache.value",
+        "shape": [
+          2,
+          2,
+          9,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 252,
+        "logical_bytes": 252
+      },
+      {
+        "name": "kv_cache.new_key",
+        "shape": [
+          2,
+          2,
+          1,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 28,
+        "logical_bytes": 28
+      },
+      {
+        "name": "kv_cache.new_value",
+        "shape": [
+          2,
+          2,
+          1,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 28,
+        "logical_bytes": 28
+      }
+    ],
+    "outputs": [
+      {
+        "name": "context",
+        "shape": [
+          2,
+          4,
+          1,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 56,
+        "logical_bytes": 56
+      },
+      {
+        "name": "kv_cache.key.after",
+        "shape": [
+          2,
+          2,
+          9,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 252,
+        "logical_bytes": 252
+      },
+      {
+        "name": "kv_cache.value.after",
+        "shape": [
+          2,
+          2,
+          9,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 252,
+        "logical_bytes": 252
+      }
+    ],
+    "accumulation_dtype": "INT32",
+    "attributes": {
+      "append_tokens": 1,
+      "batch": 2,
+      "cache_capacity": 9,
+      "head_dim": 7,
+      "kv_heads": 2,
+      "length_after": 6,
+      "length_before": 5,
+      "projection_and_position_processing_included": false,
+      "query_heads": 4,
+      "scale": 0.3779644730092272,
+      "softmax_compute_dtype": "FP32"
+    }
+  },
+  "latency_s": 4.5180952380952386e-06,
+  "cycle_count": 4744,
+  "timing_status": "analytical_estimate",
+  "boundary": {
+    "scope": "single_tensorcore",
+    "chip_execution_included": false,
+    "numeric_values_simulated": false,
+    "start": "tensors_in_HBM",
+    "end": "tensors_in_HBM",
+    "offchip_supply_included": true,
+    "layout": "symbolic_padded_head_views",
+    "state_aliases": {
+      "kv_cache.key.after": "kv_cache.key",
+      "kv_cache.value.after": "kv_cache.value"
+    },
+    "cache_update": "append_only_within_capacity"
+  },
+  "work_counts": {
+    "logical": {
+      "operations": 1624,
+      "useful_macs": 672,
+      "operation_counts": {
+        "fp32_mul": 96,
+        "fp32_max": 40,
+        "fp32_sub": 48,
+        "fp32_exp": 48,
+        "fp32_add": 40,
+        "fp32_rcp": 8
+      },
+      "output_bytes": 56,
+      "cache_appended_bytes": 56,
+      "cache_read_payload_bytes": 672
+    },
+    "issued": {
+      "operations": null,
+      "status": "per_node_only"
+    },
+    "internal": {
+      "boundary_elements": {
+        "boundary_to_fp32": 104,
+        "boundary_to_int8": 104
+      },
+      "status": "per_node_only"
+    }
+  },
+  "resource_requirements": {
+    "vmem": {
+      "scope": "tensorcore",
+      "required_bytes": 124,
+      "capacity_bytes": 16777216,
+      "requirement_basis": "peak_bytes"
+    },
+    "cmem": {
+      "scope": "single_tensorcore",
+      "required_bytes": 49,
+      "capacity_bytes": 67108864,
+      "requirement_basis": "peak_bytes"
+    },
+    "hbm": {
+      "scope": "chip",
+      "required_bytes": 672,
+      "capacity_bytes": 34359738368,
+      "requirement_basis": "peak_bytes"
+    }
+  },
+  "action_counts": {
+    "cache_append.append.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 56,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "append.hbm_read_bytes",
+        "parent_node": "cache_append",
+        "repetitions": "1"
+      }
+    },
+    "cache_append.append.vmem_dma_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 56,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "append.vmem_dma_write_bytes",
+        "parent_node": "cache_append",
+        "repetitions": "1"
+      }
+    },
+    "cache_append.append.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 56,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "append.hbm_write_bytes",
+        "parent_node": "cache_append",
+        "repetitions": "1"
+      }
+    },
+    "cache_append.append.vmem_dma_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 56,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "append.vmem_dma_read_bytes",
+        "parent_node": "cache_append",
+        "repetitions": "1"
+      }
+    },
+    "qk.matrix_mac": {
+      "component": "mxu",
+      "name": "mac",
+      "category": "matrix",
+      "count": 336,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "matrix_mac",
+        "parent_node": "qk",
+        "repetitions": "8"
+      }
+    },
+    "qk.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 392,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "qk",
+        "repetitions": "8"
+      }
+    },
+    "qk.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 192,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "qk",
+        "repetitions": "8"
+      }
+    },
+    "qk.cmem_write_bytes": {
+      "component": "cmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 392,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "cmem_write_bytes",
+        "parent_node": "qk",
+        "repetitions": "8"
+      }
+    },
+    "qk.cmem_read_bytes": {
+      "component": "cmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 392,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "cmem_read_bytes",
+        "parent_node": "qk",
+        "repetitions": "8"
+      }
+    },
+    "qk.vmem_input_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 392,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_input_write_bytes",
+        "parent_node": "qk",
+        "repetitions": "8"
+      }
+    },
+    "qk.vmem_input_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 392,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_input_read_bytes",
+        "parent_node": "qk",
+        "repetitions": "8"
+      }
+    },
+    "qk.vmem_psum_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_psum_read_bytes",
+        "parent_node": "qk",
+        "repetitions": "8"
+      }
+    },
+    "qk.vmem_psum_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_psum_write_bytes",
+        "parent_node": "qk",
+        "repetitions": "8"
+      }
+    },
+    "qk.vmem_final_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 192,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_final_write_bytes",
+        "parent_node": "qk",
+        "repetitions": "8"
+      }
+    },
+    "qk.vmem_export_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 192,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_export_read_bytes",
+        "parent_node": "qk",
+        "repetitions": "8"
+      }
+    },
+    "scale.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 192,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "scale",
+        "repetitions": "8"
+      }
+    },
+    "scale.vmem_dma_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 192,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_dma_write_bytes",
+        "parent_node": "scale",
+        "repetitions": "8"
+      }
+    },
+    "scale.vmem_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 384,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_read_bytes",
+        "parent_node": "scale",
+        "repetitions": "8"
+      }
+    },
+    "scale.vmem_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 384,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_write_bytes",
+        "parent_node": "scale",
+        "repetitions": "8"
+      }
+    },
+    "scale.boundary_to_fp32": {
+      "component": "vector",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 48,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_tensorcore",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "boundary_to_fp32",
+        "parent_node": "scale",
+        "repetitions": "8"
+      }
+    },
+    "scale.fp32_mul": {
+      "component": "vector",
+      "name": "fp32_mul",
+      "category": "vector",
+      "count": 48,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_mul",
+        "parent_node": "scale",
+        "repetitions": "8"
+      }
+    },
+    "scale.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 192,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "scale",
+        "repetitions": "8"
+      }
+    },
+    "scale.vmem_dma_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 192,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_dma_read_bytes",
+        "parent_node": "scale",
+        "repetitions": "8"
+      }
+    },
+    "softmax.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 576,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "softmax",
+        "repetitions": "8"
+      }
+    },
+    "softmax.vmem_dma_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 576,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_dma_write_bytes",
+        "parent_node": "softmax",
+        "repetitions": "8"
+      }
+    },
+    "softmax.vmem_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 1376,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_read_bytes",
+        "parent_node": "softmax",
+        "repetitions": "8"
+      }
+    },
+    "softmax.vmem_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 992,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_write_bytes",
+        "parent_node": "softmax",
+        "repetitions": "8"
+      }
+    },
+    "softmax.fp32_max": {
+      "component": "vector",
+      "name": "fp32_max",
+      "category": "vector",
+      "count": 40,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_max",
+        "parent_node": "softmax",
+        "repetitions": "8"
+      }
+    },
+    "softmax.fp32_sub": {
+      "component": "vector",
+      "name": "fp32_sub",
+      "category": "vector",
+      "count": 48,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_sub",
+        "parent_node": "softmax",
+        "repetitions": "8"
+      }
+    },
+    "softmax.fp32_exp": {
+      "component": "vector",
+      "name": "fp32_exp",
+      "category": "nonlinear",
+      "count": 48,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_exp",
+        "parent_node": "softmax",
+        "repetitions": "8"
+      }
+    },
+    "softmax.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 384,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "softmax",
+        "repetitions": "8"
+      }
+    },
+    "softmax.vmem_dma_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 384,
+      "unit": "byte",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_dma_read_bytes",
+        "parent_node": "softmax",
+        "repetitions": "8"
+      }
+    },
+    "softmax.fp32_add": {
+      "component": "vector",
+      "name": "fp32_add",
+      "category": "vector",
+      "count": 40,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_add",
+        "parent_node": "softmax",
+        "repetitions": "8"
+      }
+    },
+    "softmax.fp32_rcp": {
+      "component": "vector",
+      "name": "fp32_rcp",
+      "category": "nonlinear",
+      "count": 8,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_rcp",
+        "parent_node": "softmax",
+        "repetitions": "8"
+      }
+    },
+    "softmax.fp32_mul": {
+      "component": "vector",
+      "name": "fp32_mul",
+      "category": "vector",
+      "count": 48,
+      "unit": "op",
+      "dtype": "FP32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "fp32_mul",
+        "parent_node": "softmax",
+        "repetitions": "8"
+      }
+    },
+    "probability_storage.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 192,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "probability_storage",
+        "repetitions": "8"
+      }
+    },
+    "probability_storage.vmem_dma_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 192,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_dma_write_bytes",
+        "parent_node": "probability_storage",
+        "repetitions": "8"
+      }
+    },
+    "probability_storage.vmem_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 192,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_read_bytes",
+        "parent_node": "probability_storage",
+        "repetitions": "8"
+      }
+    },
+    "probability_storage.vmem_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 48,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_write_bytes",
+        "parent_node": "probability_storage",
+        "repetitions": "8"
+      }
+    },
+    "probability_storage.boundary_to_int8": {
+      "component": "vector",
+      "name": "boundary_to_int8",
+      "category": "vector",
+      "count": 48,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_tensorcore",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "boundary_to_int8",
+        "parent_node": "probability_storage",
+        "repetitions": "8"
+      }
+    },
+    "probability_storage.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 48,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "probability_storage",
+        "repetitions": "8"
+      }
+    },
+    "probability_storage.vmem_dma_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 48,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_dma_read_bytes",
+        "parent_node": "probability_storage",
+        "repetitions": "8"
+      }
+    },
+    "pv.matrix_mac": {
+      "component": "mxu",
+      "name": "mac",
+      "category": "matrix",
+      "count": 336,
+      "unit": "MAC",
+      "dtype": "INT8xINT8->INT32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "matrix_mac",
+        "parent_node": "pv",
+        "repetitions": "8"
+      }
+    },
+    "pv.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 384,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "pv",
+        "repetitions": "8"
+      }
+    },
+    "pv.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 224,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "pv",
+        "repetitions": "8"
+      }
+    },
+    "pv.cmem_write_bytes": {
+      "component": "cmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 384,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "cmem_write_bytes",
+        "parent_node": "pv",
+        "repetitions": "8"
+      }
+    },
+    "pv.cmem_read_bytes": {
+      "component": "cmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 384,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "cmem_read_bytes",
+        "parent_node": "pv",
+        "repetitions": "8"
+      }
+    },
+    "pv.vmem_input_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 384,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_input_write_bytes",
+        "parent_node": "pv",
+        "repetitions": "8"
+      }
+    },
+    "pv.vmem_input_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 384,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_input_read_bytes",
+        "parent_node": "pv",
+        "repetitions": "8"
+      }
+    },
+    "pv.vmem_psum_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_psum_read_bytes",
+        "parent_node": "pv",
+        "repetitions": "8"
+      }
+    },
+    "pv.vmem_psum_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 0,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_psum_write_bytes",
+        "parent_node": "pv",
+        "repetitions": "8"
+      }
+    },
+    "pv.vmem_final_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 224,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_final_write_bytes",
+        "parent_node": "pv",
+        "repetitions": "8"
+      }
+    },
+    "pv.vmem_export_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 224,
+      "unit": "byte",
+      "dtype": "INT32",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_export_read_bytes",
+        "parent_node": "pv",
+        "repetitions": "8"
+      }
+    },
+    "output_storage.hbm_read_bytes": {
+      "component": "hbm",
+      "name": "read",
+      "category": "offchip_memory",
+      "count": 224,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_read_bytes",
+        "parent_node": "output_storage",
+        "repetitions": "8"
+      }
+    },
+    "output_storage.vmem_dma_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 224,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_dma_write_bytes",
+        "parent_node": "output_storage",
+        "repetitions": "8"
+      }
+    },
+    "output_storage.vmem_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 448,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_read_bytes",
+        "parent_node": "output_storage",
+        "repetitions": "8"
+      }
+    },
+    "output_storage.vmem_write_bytes": {
+      "component": "vmem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 280,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_write_bytes",
+        "parent_node": "output_storage",
+        "repetitions": "8"
+      }
+    },
+    "output_storage.boundary_to_fp32": {
+      "component": "vector",
+      "name": "boundary_to_fp32",
+      "category": "vector",
+      "count": 56,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_tensorcore",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "boundary_to_fp32",
+        "parent_node": "output_storage",
+        "repetitions": "8"
+      }
+    },
+    "output_storage.boundary_to_int8": {
+      "component": "vector",
+      "name": "boundary_to_int8",
+      "category": "vector",
+      "count": 56,
+      "unit": "element",
+      "dtype": "mixed_storage_boundary",
+      "scope": "single_tensorcore",
+      "basis": "modeled_internal",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "boundary_to_int8",
+        "parent_node": "output_storage",
+        "repetitions": "8"
+      }
+    },
+    "output_storage.hbm_write_bytes": {
+      "component": "hbm",
+      "name": "write",
+      "category": "offchip_memory",
+      "count": 56,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "hbm_write_bytes",
+        "parent_node": "output_storage",
+        "repetitions": "8"
+      }
+    },
+    "output_storage.vmem_dma_read_bytes": {
+      "component": "vmem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 56,
+      "unit": "byte",
+      "dtype": "mixed_storage",
+      "scope": "single_tensorcore",
+      "basis": "logical",
+      "role": "action",
+      "status": "available",
+      "attributes": {
+        "native_action": "vmem_dma_read_bytes",
+        "parent_node": "output_storage",
+        "repetitions": "8"
+      }
+    }
+  },
+  "coverage": {
+    "offchip_memory": "native_payload_counts",
+    "interconnect": "not_modeled",
+    "physical_memory_transactions": "not_modeled"
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null
+  }
+}

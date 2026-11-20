@@ -1,9 +1,81 @@
 {
-  "tests_run": 105,
+  "tests_run": 131,
   "status_counts": {
-    "passed": 105
+    "passed": 131
   },
   "tests": {
+    "tests.operators.test_attention.AttentionTest.test_all_heads_share_one_workspace_without_report_expansion": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_batch_sequence_and_capacity_have_distinct_scaling": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_cache_capacity_counts_unused_slots_but_reads_only_filled_range": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_cache_copy_and_read_hand_cycles_all_memory_paths": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_cache_states_are_immutable_and_append_bytes_constant": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_capacity_failure_even_when_individual_kernels_fit": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_connection_requires_head_layout_validation": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_descriptor_rejects_prefill_invalid_grouping_and_alias": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_four_architecture_count_timing_and_serial_template": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_gqa_shares_storage_but_not_native_reads": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_hand_attention_arithmetic_and_dtype_boundaries": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_hand_attention_hbm_traffic_no_extra_cache_read": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_live_peak_one_workspace_and_state_aliases": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_missing_conversion_and_clock_values": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_native_cim_summary_roles_survive_repetition": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_native_gemm_and_softmax_counts_reused_with_repetitions": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_read_only_mha_gqa_mqa_and_one_token_softmax": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_resident_capacity_includes_softmax_scratch": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_resident_striping_reserved_and_scratch": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_strict_workload_profile_and_source_audit": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention.AttentionTest.test_tile_policy_changes_rounding_not_logical_work": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention_cli.AttentionCLITest.test_empty_cache_first_token_and_chip_rejection": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention_cli.AttentionCLITest.test_invalid_cache_query_and_profiles_preserve_reports": {
+      "status": "passed"
+    },
+    "tests.operators.test_attention_cli.AttentionCLITest.test_profiles_and_allocations_from_another_directory": {
+      "status": "passed"
+    },
     "tests.operators.test_blocks.BlockTest.test_batch_scaling_and_cross_k_native_allocation": {
       "status": "passed"
     },
@@ -215,6 +287,12 @@
       "status": "passed"
     },
     "tests.operators.test_layering.LayeringTest.test_native_results_adapt_without_recounting_or_aliasing": {
+      "status": "passed"
+    },
+    "tests.operators.test_model_coverage.ModelCoverageTest.test_conventional_cache_is_not_claimed_as_mla": {
+      "status": "passed"
+    },
+    "tests.operators.test_model_coverage.ModelCoverageTest.test_inventory_claims_have_evidence_and_all_gaps_have_owners": {
       "status": "passed"
     },
     "tests.operators.test_output.OperatorOutputTest.test_defaults_separate_architectures_operations_and_preserve_failed_outputs": {

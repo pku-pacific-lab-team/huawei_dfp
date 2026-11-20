@@ -2,7 +2,6 @@
 [Time] None cycles; None s (not_evaluated)
 [Scope] single_hem; mode=count
 [Memory] mem: 484 / 115343360 B (single_hem)
-[Memory] lifetime_validation: 484 / None B (None)
 [Action] swiglu.mem_read_bytes: 616 byte (logical, action)
 [Action] swiglu.input_stream_bytes: 3520 byte (padded, action)
 [Action] swiglu.mem_write_bytes: 462 byte (logical, action)
@@ -13,5 +12,5 @@
 [Action] swiglu.fp32_add: 14 op (logical, action)
 [Action] swiglu.fp32_rcp: 14 op (logical, action)
 [Action] swiglu.boundary_to_int8: 14 element (modeled_internal, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-_1o4u657\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-_1o4u657\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-gu7k8omf\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-gu7k8omf\report.json

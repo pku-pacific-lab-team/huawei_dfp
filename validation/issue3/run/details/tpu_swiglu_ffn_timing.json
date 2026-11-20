@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "operator_details",
-  "result_sha256": "9553552f74658b3a0d098c3d74d2f097b0c293733a2359c5ae4de485638dc368",
+  "result_sha256": "4e00de4ba0b92a7abd1be99beab88724133937ccb743fadce18241f4e4d0b38b",
   "native_report": {
     "schema_version": 1,
     "model": "tpu_materialized_block",

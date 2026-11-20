@@ -2,7 +2,6 @@
 [Time] None cycles; None s (not_evaluated)
 [Scope] single_hem; mode=count
 [Memory] mem: 3564 / 115343360 B (single_hem)
-[Memory] lifetime_validation: 3564 / None B (None)
 [Action] gate.program_bytes: 1024 byte (modeled_internal, action)
 [Action] gate.context_programs: 2 context (modeled_internal, action)
 [Action] gate.context_switches: 2 switch (modeled_internal, action)
@@ -100,5 +99,5 @@
 [Action] output.output_stream_bytes: 640 byte (padded, action)
 [Action] output.boundary_to_fp32: 34 element (modeled_internal, action)
 [Action] output.boundary_to_int8: 34 element (modeled_internal, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-9m9bij_w\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-9m9bij_w\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-idd17d7c\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-idd17d7c\report.json

@@ -4,7 +4,6 @@
 [Memory] cmem: 153 / 67108864 B (single_tensorcore)
 [Memory] vmem: 402 / 16777216 B (tensorcore)
 [Memory] hbm: 561 / 34359738368 B (chip)
-[Memory] lifetime_validation: 561 / None B (None)
 [Action] gate.matrix_mac: 238 MAC (logical, action)
 [Action] gate.hbm_read_bytes: 153 byte (logical, action)
 [Action] gate.hbm_write_bytes: 56 byte (logical, action)
@@ -58,5 +57,5 @@
 [Action] output.boundary_to_int8: 34 element (modeled_internal, action)
 [Action] output.hbm_write_bytes: 34 byte (logical, action)
 [Action] output.vmem_dma_read_bytes: 34 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-_q8_h9a5\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-_q8_h9a5\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-ouj6qrnx\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-ouj6qrnx\report.json

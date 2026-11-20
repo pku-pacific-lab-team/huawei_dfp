@@ -15,7 +15,7 @@ def make_path(op, arch, spec, execution, mode, live_bytes, capacity, allocation,
     output = op.spec.outputs[0]
     scratch_per_element = 4 * sum(t.dtype != "FP32" for t in op.inputs)
     scratch_per_element += 4 * (op.operation == "swiglu")
-    scratch_per_element += 4 * (output.dtype == "INT8" and op.operation != "ffn_output")
+    scratch_per_element += 4 * (output.dtype == "INT8" and op.operation not in {"ffn_output", "storage_boundary"})
     timed = mode == "timing"
     resident = allocation is not None
     native = spec.native_reference_spec if arch == "tsp_cim" else spec
@@ -119,6 +119,8 @@ def simulate(op, path, execution, block_execution, mode):
                      "boundary_to_fp32", proxy="to_fp32_cost")
         if op.operation == "residual":
             step("residual_add", [4 * n, 4 * n], [4 * n], "fp32_add")
+        elif op.operation == "attention_scale":
+            step("scale_by_inverse_sqrt_head_dim", [4 * n], [4 * n], "fp32_mul")
         elif op.operation == "swiglu":
             step("negate_gate", [4 * n], [4 * n], "fp32_mul")
             step("exp", [4 * n], [4 * n], "fp32_exp")
@@ -126,7 +128,7 @@ def simulate(op, path, execution, block_execution, mode):
             step("reciprocal", [4 * n], [4 * n], "fp32_rcp", proxy="fp32_rcp_cost")
             step("silu", [4 * n, 4 * n], [4 * n], "fp32_mul")
             step("multiply_up", [4 * n, 4 * n], [4 * n], "fp32_mul")
-        elif op.operation != "ffn_output":
+        elif op.operation not in {"ffn_output", "storage_boundary"}:
             raise ValueError("Unsupported block elementwise kernel")
         if output.dtype == "INT8":
             step("output_to_int8", [4 * n], [n], "boundary_to_int8", proxy="to_int8_cost")

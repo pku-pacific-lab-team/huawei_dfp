@@ -8,7 +8,6 @@
 [Memory] ub: 4096 / 262144 B (core)
 [Memory] l2: 1536 / 1048576 B (core_share_of_chip)
 [Memory] hbm: 5120 / 32000000000 B (chip)
-[Memory] lifetime_validation: 5120 / None B (None)
 [Action] gate.l1_l0a: 512 byte (padded, action)
 [Action] gate.l1_l0b: 512 byte (padded, action)
 [Action] gate.l0c_ub: 1024 byte (padded, action)
@@ -53,5 +52,5 @@
 [Action] output.boundary_to_int8: 34 element (modeled_internal, action)
 [Action] output.hbm_write_bytes: 34 byte (logical, action)
 [Action] output.ub_dma_read_bytes: 34 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-_mr66643\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-_mr66643\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-0_bf72ke\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-0_bf72ke\report.json

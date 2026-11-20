@@ -1,0 +1,266 @@
+{
+  "schema_version": 2,
+  "kind": "operator_result",
+  "status": "success",
+  "architecture": "tsp_cim",
+  "mode": "timing",
+  "operator": {
+    "kind": "kv_cache",
+    "inputs": [
+      {
+        "name": "kv_cache.key",
+        "shape": [
+          2,
+          2,
+          9,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 252,
+        "logical_bytes": 252
+      },
+      {
+        "name": "kv_cache.value",
+        "shape": [
+          2,
+          2,
+          9,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 252,
+        "logical_bytes": 252
+      },
+      {
+        "name": "kv_cache.new_key",
+        "shape": [
+          2,
+          2,
+          1,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 28,
+        "logical_bytes": 28
+      },
+      {
+        "name": "kv_cache.new_value",
+        "shape": [
+          2,
+          2,
+          1,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 28,
+        "logical_bytes": 28
+      }
+    ],
+    "outputs": [
+      {
+        "name": "kv_cache.key.after",
+        "shape": [
+          2,
+          2,
+          9,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 252,
+        "logical_bytes": 252
+      },
+      {
+        "name": "kv_cache.value.after",
+        "shape": [
+          2,
+          2,
+          9,
+          7
+        ],
+        "dtype": "INT8",
+        "numel": 252,
+        "logical_bytes": 252
+      }
+    ],
+    "accumulation_dtype": null,
+    "attributes": {
+      "append_tokens": 1,
+      "capacity": 9,
+      "length_after": 6,
+      "length_before": 5,
+      "read_cache": true,
+      "state_outputs_alias_inputs": true
+    }
+  },
+  "latency_s": 2.6666666666666667e-08,
+  "cycle_count": 24,
+  "timing_status": "analytical_estimate",
+  "boundary": {
+    "scope": "single_hem",
+    "chip_execution_included": false,
+    "numeric_values_simulated": false,
+    "start": "tensors_in_local_MEM",
+    "end": "tensors_in_local_MEM",
+    "offchip_supply_included": false,
+    "layout": "symbolic_padded_head_views",
+    "state_aliases": {
+      "kv_cache.key.after": "kv_cache.key",
+      "kv_cache.value.after": "kv_cache.value"
+    },
+    "cache_update": "append_only_within_capacity",
+    "selected_hemisphere": 0,
+    "mem_slices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "streams_per_direction": 32
+  },
+  "work_counts": {
+    "logical": {
+      "operations": 0,
+      "output_bytes": 504,
+      "appended_bytes": 56,
+      "cache_read_bytes": 336
+    },
+    "issued": {
+      "operations": null,
+      "status": "not_applicable"
+    },
+    "internal": {
+      "status": "not_modeled"
+    }
+  },
+  "resource_requirements": {
+    "mem": {
+      "scope": "single_hem",
+      "required_bytes": 4576,
+      "capacity_bytes": 115343360,
+      "requirement_basis": "resident_bytes"
+    }
+  },
+  "action_counts": {
+    "append.mem_read_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 56,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "append.input_stream_bytes": {
+      "component": "stream_to_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 2560,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available"
+    },
+    "append.mem_write_bytes": {
+      "component": "mem",
+      "name": "write",
+      "category": "onchip_memory",
+      "count": 56,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "append.output_stream_bytes": {
+      "component": "stream_from_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 2560,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available"
+    },
+    "read.mem_read_bytes": {
+      "component": "mem",
+      "name": "read",
+      "category": "onchip_memory",
+      "count": 336,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "logical",
+      "role": "action",
+      "status": "available"
+    },
+    "read.input_stream_bytes": {
+      "component": "stream_to_vxm",
+      "name": "transfer",
+      "category": "interconnect",
+      "count": 2560,
+      "unit": "byte",
+      "dtype": "INT8",
+      "scope": "single_hem",
+      "basis": "padded",
+      "role": "action",
+      "status": "available"
+    }
+  },
+  "coverage": {
+    "offchip_memory": "outside_native_boundary",
+    "interconnect": "onchip_streams_only",
+    "physical_memory_transactions": "not_modeled"
+  },
+  "energy": {
+    "status": "not_evaluated",
+    "total_pj": null
+  }
+}

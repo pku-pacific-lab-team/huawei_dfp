@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "profile_id": "decode_attention_serial_heads_v1",
+  "schedule": "serial_query_heads",
+  "cache": "preallocated_append_only",
+  "reuse": "no_cross_query_head_reuse",
+  "layout": "symbolic_padded_head_views",
+  "status": "assumed",
+  "source": "model-policy; ARCHITECTURE.md#decode-attention",
+  "conditions": "Single-token Decode with uniform cache lengths. INT8 what-if storage, FP32 scale/Softmax. Preallocated per-KV-head backing is shared; each query head rereads K/V using native GEMM, with no physical repeat or transpose instruction. Q/K/V projection, position processing, output projection, cache eviction and chip execution are outside this block."
+}

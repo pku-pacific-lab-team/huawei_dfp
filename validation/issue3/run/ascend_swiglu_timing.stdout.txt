@@ -3,7 +3,6 @@
 [Scope] single_core; mode=timing
 [Memory] ub: 350 / 262144 B (core)
 [Memory] hbm: 126 / 32000000000 B (chip)
-[Memory] lifetime_validation: 126 / None B (None)
 [Action] swiglu.hbm_read_bytes: 112 byte (logical, action)
 [Action] swiglu.ub_dma_write_bytes: 112 byte (logical, action)
 [Action] swiglu.ub_read_bytes: 616 byte (logical, action)
@@ -16,5 +15,5 @@
 [Action] swiglu.boundary_to_int8: 14 element (modeled_internal, action)
 [Action] swiglu.hbm_write_bytes: 14 byte (logical, action)
 [Action] swiglu.ub_dma_read_bytes: 14 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-w3lllzre\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-w3lllzre\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-t97pxprn\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-t97pxprn\report.json

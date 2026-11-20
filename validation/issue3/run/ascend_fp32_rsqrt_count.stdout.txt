@@ -10,5 +10,5 @@
 [Action] ub_result_write_bytes: 4100 byte (logical, action)
 [Action] ub_export_read_bytes: 4100 byte (logical, action)
 [Action] fp32_rsqrt: 1025 op (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-y1h1chqh\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-y1h1chqh\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-nrfyv0g6\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-nrfyv0g6\report.json

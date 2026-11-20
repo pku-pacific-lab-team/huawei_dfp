@@ -1,6 +1,6 @@
 # 多架构算子仿真工程
 
-本工程提供 Ascend 910、TPU v4、原生 TSP、CIM-TSP 四个独立分析入口，支持 INT8 GEMM、独立 INT32/FP32 Vector/Nonlinear、FP32 RMSNorm/Softmax，以及 Residual、SwiGLU/FFN 复合块。当前交付以可追溯规格、容量检查、动作计数和局部解析时间为主。
+本工程提供 Ascend 910、TPU v4、原生 TSP、CIM-TSP 四个独立分析入口，支持 INT8 GEMM、独立 INT32/FP32 Vector/Nonlinear、FP32 RMSNorm/Softmax，以及 Residual、SwiGLU/FFN、Decode Attention/GQA 和 KV Cache 复合块。当前交付以可追溯规格、容量检查、动作计数和局部解析时间为主。
 
 技术说明见 [ARCHITECTURE.md](ARCHITECTURE.md)：[四套执行路径字符框图](ARCHITECTURE.md#execution-diagrams)、[四个仿真器结构](ARCHITECTURE.md#simulator-structure)、[公共口径](ARCHITECTURE.md#conventions)、[Ascend](ARCHITECTURE.md#ascend)、[TPU](ARCHITECTURE.md#tpu)、[TSP](ARCHITECTURE.md#tsp)、[CIM Macro](ARCHITECTURE.md#cim-macro)、[CIM-TSP](ARCHITECTURE.md#cim-tsp)、[验证状态](ARCHITECTURE.md#validation)。
 
@@ -56,7 +56,7 @@ Linux/macOS 对应使用 `python3 -m venv .venv` 和 `source .venv/bin/activate`
 
 ```powershell
 .\scripts\run_all.ps1 -Scope issue2  # 4 架构原生 GEMM + Issue #2 验证
-.\scripts\run_all.ps1 -Scope issue3  # 4 架构 × 11 类算子 + Issue #3 验证
+.\scripts\run_all.ps1 -Scope issue3  # 4 架构 × 13 类算子 + Issue #3 验证
 .\scripts\run_all.ps1 -Scope all     # 两组全部执行，并核对全仓库测试覆盖
 .\scripts\run_all.ps1                # 默认等同于 -Scope all
 ```
@@ -64,8 +64,8 @@ Linux/macOS 对应使用 `python3 -m venv .venv` 和 `source .venv/bin/activate`
 | 范围 | 日常 timing 报告 | 独立验证 |
 | --- | --- | --- |
 | `issue2` | 4 份原生 GEMM，`results/<架构>.json` | 原生测试及 17 项 CLI 检查，`validation/issue2/run/` |
-| `issue3` | 44 份：统一 GEMM 报告及 10 个 Vector/复合块样例 | 算子/验证工具测试及 96 项 count/timing/负例 CLI 检查，`validation/issue3/run/` |
-| `all` | 两组共 48 份，分别保存 | 两套判据分别汇总；核对单元测试集合并集覆盖全仓库且无重复 |
+| `issue3` | 52 份：统一 GEMM 报告及 12 个 Vector/复合块样例 | 算子/验证工具测试及 112 项 count/timing/负例 CLI 检查，`validation/issue3/run/` |
+| `all` | 两组共 56 份，分别保存 | 两套判据分别汇总；核对单元测试集合并集覆盖全仓库且无重复 |
 
 Issue #3 另输出每算子一行的 `results/run_all_<范围>_operators.csv`；可加 `-Details` 保留独立详细文件。Issue #3 的 GEMM 适配报告使用 `results/<架构>_gemm_operator.json`，其他算子使用 `<架构>_<算子>.json`。每个范围另生成 `results/run_all_<范围>.json` 总结和 `results/run_all/<范围>/` 命令日志，均以脚本所属工程为根目录。Python 优先使用工程 `.venv`，否则使用 PATH。Linux/macOS 可运行等价命令 `python scripts/run_all.py --scope all`。
 
@@ -122,7 +122,7 @@ report = result.to_dict()  # compact schema 2
 print(result.latency_s, result.cycle_count)
 ```
 
-第一批提供 INT8 GEMM → INT32 输出、公共类型和计数接口；第二批补充独立 Vector，第三批接入 RMSNorm/Softmax，第四批接入下方 Residual、SwiGLU/FFN 和粗粒度 INT8 存储边界工作量。Tensor 能描述 FP32 等存储类型，不表示这些 GEMM 输入格式已可执行。Attention/GQA、KV Cache、MLA、MoE 等复合块及整片执行仍待实现；完整模型拼装属于 Issue #4，能耗计算另行接入。容量不足和缺少必需服务继续报错；TSP/CIM 的片外流量标记为执行边界之外。接口、计数依据和已知限制见[算子契约](ARCHITECTURE.md#operator-contract)。
+第一批提供 INT8 GEMM → INT32 输出、公共类型和计数接口；第二批补充独立 Vector，第三批接入 RMSNorm/Softmax，第四批接入 Residual、SwiGLU/FFN 和粗粒度 INT8 存储边界工作量，第五批接入 Decode Attention/GQA 与 KV Cache。Tensor 能描述 FP32 等存储类型，不表示这些 GEMM 输入格式已可执行。RoPE、投影/归一化边界包装、MLA、MoE 等块及整片执行仍待实现；完整模型拼装属于 Issue #4，能耗计算另行接入。容量不足和缺少必需服务继续报错；TSP/CIM 的片外流量标记为执行边界之外。接口、计数依据和已知限制见[算子契约](ARCHITECTURE.md#operator-contract)。
 
 `Gemm.from_tensors()` 保留调用方的 Tensor 名称；GEMM、Vector、RMSNorm、Softmax 的 Python API 均可用 `output_name=` 指定输出。未指定时使用默认名称并避开输入名，显式输入输出重名会拒绝。Vector/复合 workload 同样接受可选 `output_name`。名称只在一次算子调用内标识张量，后续图层须用节点 ID 限定，不能以同名推断共用存储。
 
@@ -210,6 +210,35 @@ Python API 使用 `Residual`、`SwiGLU`、`SwiGLUFFN` 与 `simulate_block(op, ar
 独立 [blocks.json](configs/execution/blocks.json) 保存串行组合、符号补齐布局和未标定的类型边界代价，可用 `--block-config` 替换；`--vector-config` 继续控制所复用的 Vector 服务，`--vector-tile-elements` 控制点算 tile。INT32→FP32→INT8 不再被当作免费连接，但这里仅有块级工作量代理，不实现独立量化/反量化指令、量化数值或物理布局转换。详见[公式、生命周期与执行边界](ARCHITECTURE.md#decode-blocks)。
 
 执行范围仍为单 AI Core、单 TensorCore 或单半片，`chip_execution_included=false`。尚未实现整片 M/N 分片、权重/激活复制与跨核通信，不能直接把单核时间除以库存核数。
+
+### Decode Attention / GQA 与 KV Cache（Issue #3 第五批）
+
+四个入口新增 `kv_cache` 和 `decode_attention`，支持单 token、统一历史长度的 Decode。Query 为 INT8 `[B,Hq,1,D]`；预分配 K/V 缓存各为 INT8 `[B,Hkv,C,D]`，要求 `Hq` 是 `Hkv` 的整数倍，覆盖 MHA、GQA 和 MQA。`length` 是本次执行前的有效 token 数，`capacity` 是预留 token 数；`append_tokens` 可为 0 或 1，缓存满时拒绝追加。长度可以为零，此时首次追加后才能做 Attention。
+
+```powershell
+python ascend.py --workload operators/kv_cache.json
+python tpu.py --workload operators/decode_attention.json --details-output results/details/tpu_decode_attention.json
+python tsp.py --workload operators/decode_attention.json --mem-slices 0 1 --streams 2
+python tsp_cim.py --workload operators/decode_attention.json --hemisphere 1
+```
+
+```python
+from src.operators import TensorSpec, KVCacheSpec, KVCacheAccess, DecodeAttention, simulate_attention
+from src.utils.tpu_config import TPUConfigLoader
+
+cache = KVCacheSpec(batch=2, kv_heads=2, head_dim=7, length=5, capacity=9)
+op = DecodeAttention(TensorSpec("query", (2, 4, 1, 7), "INT8"), cache)
+result = simulate_attention(op, "tpu", TPUConfigLoader().load_hardware(), mode="timing")
+next_cache = op.cache_access.cache_after  # length=6；只推进不可变描述，不保存真实 K/V 值
+```
+
+本块接受已经投影、位置处理后的 Q 和新 K/V，执行缓存追加、`QKᵀ → 1/sqrt(D) 缩放 → Softmax → PV → INT8 context`；Q/K/V 投影、RoPE、输出投影尚未接入。新 K/V 输入由缓存形状生成对应 Tensor 描述，追加只写本轮 token。`kv_cache` 独立入口默认追加后读取有效前缀一次；Attention 内部仅调用追加阶段，K/V 读取由两个原生 GEMM 负责，不额外再收一次缓存读取。
+
+缓存容量按 `B*Hkv` 份 K/V head 分配，GQA 不创建复制后的 K/V 张量。当前每个 Query head 按原生 GEMM 冷启动策略读取 K/V，且完整执行六个阶段后才处理下一 head；多个 head 共享一个临时工作区，计数与时间以重复模板压缩汇总。`--attention-config` 指定独立 [attention.json](configs/execution/attention.json)，`--vector-config`、`--block-config` 分别控制复用的 Vector/Softmax 与存储边界成本；单独 `kv_cache` 不接受无计算用途的 `--block-config`。
+
+缓存状态输出与原缓存共享 backing，详细报告的 `cache_state` 和 `io_contract.state_aliases` 明确记录长度变化、追加区间和别名；不会为“更新后的缓存”重复申请整块空间。容量包含预留的未填充位置及原生补齐，读写量只计实际执行的访问。形状视图和转置仍是符号布局假设，无物理布局转换指令、数值计算、缓存淘汰或整片执行。概率和 context 的 INT8 存储也属于性能 what-if，不表示量化精度已验证。
+
+公式和容量口径见 [Decode 模型说明](ARCHITECTURE.md#decode-attention)。[目标模型覆盖矩阵](validation/issue3/model_coverage.json) 已登记已实现、部分实现和待实现块；常规 GQA/KV Cache 不替代 DeepSeek-R1 的 MLA 压缩缓存，整个 Issue #3 仍未完成。
 
 ### 导出报告
 
@@ -364,7 +393,7 @@ Issue #3 已实现算子的独立验证：
 python scripts/verify_issue3.py
 ```
 
-输出到 `validation/issue3/run/`，只运行算子及验证工具测试，另执行 96 项算子 CLI 检查。范围、逐项覆盖和剩余缺口见 [Issue #3 验证说明](validation/issue3/README.md)及[覆盖清单](validation/issue3/scope.json)；退出 0 只表示已实现范围通过，不表示整个 Issue #3 已完成。
+输出到 `validation/issue3/run/`，只运行算子及验证工具测试，另执行 112 项算子 CLI 检查。范围、逐项覆盖和剩余缺口见 [Issue #3 验证说明](validation/issue3/README.md)及[覆盖清单](validation/issue3/scope.json)；退出 0 只表示已实现范围通过，不表示整个 Issue #3 已完成。
 
 按 Issue #2 的四类交付物和五条条件执行原生模型验收：
 

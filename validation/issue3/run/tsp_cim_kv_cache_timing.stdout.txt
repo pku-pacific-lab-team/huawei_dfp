@@ -1,0 +1,12 @@
+[Operator] tsp_cim kv_cache (kv_cache.key[2, 2, 9, 7]:INT8, kv_cache.value[2, 2, 9, 7]:INT8, kv_cache.new_key[2, 2, 1, 7]:INT8, kv_cache.new_value[2, 2, 1, 7]:INT8) -> INT8
+[Time] 24 cycles; 2.6666666666666667e-08 s (analytical_estimate)
+[Scope] single_hem; mode=timing
+[Memory] mem: 4576 / 115343360 B (single_hem)
+[Action] append.mem_read_bytes: 56 byte (logical, action)
+[Action] append.input_stream_bytes: 2560 byte (padded, action)
+[Action] append.mem_write_bytes: 56 byte (logical, action)
+[Action] append.output_stream_bytes: 2560 byte (padded, action)
+[Action] read.mem_read_bytes: 336 byte (logical, action)
+[Action] read.input_stream_bytes: 2560 byte (padded, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-uv9ieg9f\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-uv9ieg9f\report.json

@@ -148,12 +148,6 @@
       "required_bytes": 5120,
       "capacity_bytes": 32000000000,
       "requirement_basis": "peak_bytes"
-    },
-    "lifetime_validation": {
-      "scope": null,
-      "required_bytes": 5120,
-      "capacity_bytes": null,
-      "requirement_basis": "peak_bytes"
     }
   },
   "action_counts": {

@@ -3,7 +3,6 @@
 [Scope] single_tensorcore; mode=timing
 [Memory] vmem: 350 / 16777216 B (tensorcore)
 [Memory] hbm: 126 / 34359738368 B (chip)
-[Memory] lifetime_validation: 126 / None B (None)
 [Action] swiglu.hbm_read_bytes: 112 byte (logical, action)
 [Action] swiglu.vmem_dma_write_bytes: 112 byte (logical, action)
 [Action] swiglu.vmem_read_bytes: 616 byte (logical, action)
@@ -16,5 +15,5 @@
 [Action] swiglu.boundary_to_int8: 14 element (modeled_internal, action)
 [Action] swiglu.hbm_write_bytes: 14 byte (logical, action)
 [Action] swiglu.vmem_dma_read_bytes: 14 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-ivuhfcci\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-ivuhfcci\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-117it1k8\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-117it1k8\report.json

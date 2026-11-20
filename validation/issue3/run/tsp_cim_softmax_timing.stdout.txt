@@ -12,5 +12,5 @@
 [Action] fp32_add: 8192 op (logical, action)
 [Action] fp32_rcp: 8 op (logical, action)
 [Action] fp32_mul: 8200 op (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-qi0zjoxn\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-qi0zjoxn\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-ex024ijv\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-ex024ijv\report.json

@@ -1,0 +1,13 @@
+[Operator] ascend kv_cache (kv_cache.key[2, 2, 9, 7]:INT8, kv_cache.value[2, 2, 9, 7]:INT8, kv_cache.new_key[2, 2, 1, 7]:INT8, kv_cache.new_value[2, 2, 1, 7]:INT8) -> INT8
+[Time] 32 cycles; 3.2e-08 s (analytical_estimate)
+[Scope] single_core; mode=timing
+[Memory] hbm: 4152 / 32000000000 B (chip)
+[Memory] ub: 42 / 262144 B (core)
+[Action] append.hbm_read_bytes: 56 byte (logical, action)
+[Action] append.ub_dma_write_bytes: 56 byte (logical, action)
+[Action] append.hbm_write_bytes: 56 byte (logical, action)
+[Action] append.ub_dma_read_bytes: 56 byte (logical, action)
+[Action] read.hbm_read_bytes: 336 byte (logical, action)
+[Action] read.ub_dma_write_bytes: 336 byte (logical, action)
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-r7thzrjf\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-r7thzrjf\report.json

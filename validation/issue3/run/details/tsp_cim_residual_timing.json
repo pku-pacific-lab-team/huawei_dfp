@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "operator_details",
-  "result_sha256": "caa8e72effdca5761443a445984b14c86c582cd74b8f38e02e02b7e6d3f07523",
+  "result_sha256": "9e2145998a0be0382fba6831335e822eaeeedfa2d6ad78ce3251df0c40d63178",
   "native_report": {
     "schema_version": 1,
     "model": "tsp_cim_materialized_block",

@@ -18,7 +18,7 @@ from scripts.verification import discover, fingerprints, save
 
 ARCHITECTURES = ("ascend", "tpu", "tsp", "tsp_cim")
 OPERATIONS = ("int32_add", "fp32_add", "fp32_mul", "fp32_exp", "fp32_rsqrt", "rmsnorm", "softmax",
-              "residual", "swiglu", "swiglu_ffn")
+              "residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention")
 
 
 def build_plan(scope, root=ROOT, *, details=False):
@@ -61,7 +61,7 @@ def source_snapshot(root=ROOT):
     paths.update(p for p in (root / name for name in (
         "ascend.py", "tpu.py", "tsp.py", "tsp_cim.py", "README.md", "ARCHITECTURE.md", "requirements.txt",
         "validation/README.md", "validation/report_output_review.md", "validation/issue2/review.json", "validation/issue3/README.md",
-        "validation/issue3/scope.json", "validation/issue2/review_context.json")) if p.exists())
+        "validation/issue3/scope.json", "validation/issue3/model_coverage.json", "validation/issue2/review_context.json")) if p.exists())
     return fingerprints(paths, root)
 
 

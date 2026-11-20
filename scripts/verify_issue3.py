@@ -19,7 +19,7 @@ from scripts.verification import (ISSUE3_TEST_DIRS, discover, fingerprints, issu
 
 ARCHITECTURES = ("ascend", "tpu", "tsp", "tsp_cim")
 VECTOR_OPS = ("int32_add", "fp32_add", "fp32_mul", "fp32_exp", "fp32_rsqrt")
-OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax", "residual", "swiglu", "swiglu_ffn")
+OPERATIONS = ("gemm", *VECTOR_OPS, "rmsnorm", "softmax", "residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention")
 NEGATIVE_CASES = ("reject_null_profile", "reject_unsupported")
 MANIFEST = ROOT / "validation/issue3/scope.json"
 
@@ -34,7 +34,7 @@ def snapshot():
                  "scripts/run_all.py", "scripts/run_all.ps1",
                  "ascend.py", "tpu.py", "tsp.py", "tsp_cim.py", "requirements.txt", "tests/__init__.py",
                  "README.md", "ARCHITECTURE.md", "calibration/parameter_source_audit.json",
-                 "calibration/operator_execution_audit.json", "validation/issue3/scope.json",
+                 "calibration/operator_execution_audit.json", "validation/issue3/scope.json", "validation/issue3/model_coverage.json",
                  "validation/issue3/README.md", "validation/report_output_review.md"))
     owned = {p for p in paths if issue3_owned(p.relative_to(ROOT).as_posix())}
     return {"issue3": fingerprints(owned), "shared_dependencies": fingerprints(paths - owned)}
@@ -88,8 +88,14 @@ def report_checks(report, arch, kind, mode, details):
     checks["native_actions"] = set(report["action_counts"]) == set(native["action_counts"]) and all(
         action["count"] == native["action_counts"][key]["count"] and
         action["unit"] == native["action_counts"][key]["unit"] for key, action in report["action_counts"].items())
-    dtype = "INT8" if kind in ("residual", "swiglu", "swiglu_ffn") else "INT32" if kind in ("gemm", "int32_add") else "FP32"
+    dtype = "INT8" if kind in ("residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention") else "INT32" if kind in ("gemm", "int32_add") else "FP32"
     checks["stored_output_dtype"] = op["outputs"][0]["dtype"] == dtype
+    if kind in ("kv_cache", "decode_attention"):
+        checks["lifetime_validated"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"
+        checks["single_resource"] = report["boundary"]["chip_execution_included"] is False
+        state = native["cache_state"]
+        checks["append_semantics"] = state["after"]["length"] == state["before"]["length"] + 1
+        checks["state_aliases"] = details["io_contract"]["state_aliases"] == state["output_aliases"]
     if kind in ("residual", "swiglu", "swiglu_ffn"):
         checks["lifetime_validated"] = native["memory"]["lifetime_validation"]["status"] == "validated_symbolic_schedule"
         checks["single_resource"] = report["boundary"]["chip_execution_included"] is False

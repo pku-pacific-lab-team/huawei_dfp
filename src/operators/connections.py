@@ -11,15 +11,19 @@ def io_contract(result):
                 "hemisphere": result.boundary.get("selected_hemisphere"),
                 "physical_device": None}
     layout = "native_packed" if gemm and arch != "tpu" else "logical_dense"
-    if op.kind in {"residual", "swiglu", "swiglu_ffn"}:
+    if op.kind in {"residual", "swiglu", "swiglu_ffn", "kv_cache", "decode_attention"}:
         layout = result.boundary["layout"]
     def tensors(values):
         return [{**tensor.to_dict(), "location": dict(location), "layout": layout} for tensor in values]
-    return {"schema_version": 1, "inputs": tensors(op.inputs), "outputs": tensors(op.outputs),
+    contract = {"schema_version": 1, "inputs": tensors(op.inputs), "outputs": tensors(op.outputs),
             "name_scope": "Within one operator call; graph callers must qualify names by node identity.",
             "intermediate_residency": "No UB/VMEM/register retention across operator calls is promised.",
             "conversion": "No implicit cast, dequantization or requantization; stored dtype is binding.",
             "traffic": "Standalone actions already include each block's boundary accesses; connections do not remove them."}
+    if op.kind in {"kv_cache", "decode_attention"}:
+        contract["state_aliases"] = dict(result.boundary["state_aliases"])
+        contract["cache_update"] = result.boundary["cache_update"]
+    return contract
 
 
 def plan_connection(producer, consumer, *, output_index=0, input_index=0):
@@ -42,7 +46,7 @@ def plan_connection(producer, consumer, *, output_index=0, input_index=0):
     transfer = a["architecture"] != b["architecture"] or a["memory"] != b["memory"]
     if a["hemisphere"] is not None and b["hemisphere"] is not None and a["hemisphere"] != b["hemisphere"]:
         transfer = True
-    layout_change = source["layout"] != target["layout"] or source["layout"] in {"native_packed", "symbolic_padded_views"}
+    layout_change = source["layout"] != target["layout"] or source["layout"] in {"native_packed", "symbolic_padded_views", "symbolic_padded_head_views"}
     needs = []
     if dtype_change:
         needs.append("explicit_conversion_model")

@@ -106,8 +106,8 @@ class RunAllTest(unittest.TestCase):
 
     def test_scope_matrix_and_default_powershell_from_another_directory(self):
         previous_native = None
-        for scope, simulations, issues in (("issue2", 4, {"issue2"}), ("issue3", 44, {"issue3"}),
-                                           (None, 48, {"issue2", "issue3"})):
+        for scope, simulations, issues in (("issue2", 4, {"issue2"}), ("issue3", 52, {"issue3"}),
+                                           (None, 56, {"issue2", "issue3"})):
             with self.subTest(scope=scope):
                 process, report = self.run_batch(scope, powershell=True)
                 self.assertEqual(process.returncode, 0, process.stderr + process.stdout)
@@ -134,7 +134,7 @@ class RunAllTest(unittest.TestCase):
         self.assertTrue(all(s["fresh_details"] for s in steps))
         with Path(report["operator_table"]).open(encoding="utf-8-sig", newline="") as stream:
             rows = list(csv.DictReader(stream))
-        self.assertEqual(len(rows), 44)
+        self.assertEqual(len(rows), 52)
         self.assertEqual({r["status"] for r in rows}, {"passed"})
         self.assertEqual({r["cycle_count"] for r in rows}, {"1"})
         self.assertEqual({r["latency_s"] for r in rows}, {"1e-09"})
@@ -146,7 +146,7 @@ class RunAllTest(unittest.TestCase):
         self.assertEqual(report["verification"]["issue2"]["status"], "needs_review")
         self.assertEqual(report["verification"]["issue3"]["status"], "passed")
         self.assertEqual(report["combined_test_coverage"]["status"], "passed")
-        self.assertEqual(len(report["steps"]), 50)
+        self.assertEqual(len(report["steps"]), 58)
         self.assertEqual(report["verification"]["issue2"]["review_context"]["github_review_status"],
                          "reviewed_and_merged")
         self.assertIn("PR #7 reviewed and merged", process.stdout)
@@ -157,7 +157,7 @@ class RunAllTest(unittest.TestCase):
         self.assertEqual(process.returncode, 1)
         self.assertEqual(report["steps"][0]["status"], "failed")
         self.assertEqual(report["steps"][-1]["status"], "passed")
-        self.assertEqual(len(report["steps"]), 50)
+        self.assertEqual(len(report["steps"]), 58)
         old = self.root / "results/ascend.json"
         old.write_text('{"mode":"timing","timing":{"total_cycles":1}}', encoding="utf-8")
         before = run_all.file_stamp(old)

@@ -13,5 +13,5 @@
 [Action] fp32_rsqrt: 2 op (logical, action)
 [Action] hbm_write_bytes: 8200 byte (logical, action)
 [Action] vmem_dma_read_bytes: 8200 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-mn3vajbb\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-mn3vajbb\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-6_7mx8hw\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-6_7mx8hw\report.json

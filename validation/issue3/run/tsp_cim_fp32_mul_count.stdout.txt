@@ -7,5 +7,5 @@
 [Action] input_stream_bytes: 8960 byte (padded, action)
 [Action] output_stream_bytes: 4480 byte (padded, action)
 [Action] fp32_mul: 1025 op (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-u5j5ztsb\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-u5j5ztsb\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-wt6xz8u3\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-wt6xz8u3\report.json

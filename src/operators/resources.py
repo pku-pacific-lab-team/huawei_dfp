@@ -5,6 +5,9 @@ def memory_requirements(memory):
     blocks = {"mem": memory} if "resident_bytes" in memory else memory
     result = {}
     for name, block in blocks.items():
+        if name == "lifetime_validation":
+            # A validation summary is not another physical memory resource.
+            continue
         if not isinstance(block, dict):
             continue
         basis = next((key for key in ("allocated_bytes", "resident_bytes", "padded_footprint_bytes",

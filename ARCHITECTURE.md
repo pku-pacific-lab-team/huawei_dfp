@@ -11,6 +11,7 @@
 - [独立 Vector / Nonlinear（Issue #3 第二批）](#vector-operators)
 - [RMSNorm / Softmax（Issue #3 第三批）](#normalization-operators)
 - [Residual / SwiGLU / FFN（Issue #3 第四批）](#decode-blocks)
+- [Decode Attention / GQA 与 KV Cache（Issue #3 第五批）](#decode-attention)
 - [Ascend 910](#ascend)
 - [TPU v4](#tpu)
 - [原生 TSP](#tsp)与[完整参数来源表](#tsp-parameters)
@@ -298,6 +299,42 @@ TSP/CIM 每个张量和用户 reserved 分别按选中 slice 数向上条带化�
 手算用例：TPU 的 M=2/H=17/I=7 FFN，常驻输入共 391 B，五阶段存储分别为 447、503、517、541、561 B，HBM 峰值 561 B；HBM 共读 687 B、写 296 B。Residual 的 7 个 INT8 元素在 UB=96 B、HBM=16 B/cycle、UB=32 B/cycle、共享预算=4 op/cycle、启动0时分 tile 6+1，周期 23+15=38，HBM 读14/写7 B，算法局部读98/写91 B，另计 DMA 端点。测试还检查原生 GEMM 对账、分支释放、全块容量失败、条带化、尾块、成本敏感性、未知参数、CIM/VXM 一致性及四入口错误路径。
 
 执行保持单 AI Core、单 TensorCore 或单 hemisphere，`chip_execution_included=false`。将来整片调度须先定义 M/N 分片、共享/复制权重与输入、局部容量、跨核/半片归约和通信，再组合时间，不能直接以核数除单核时间。本批不实现整片调度。LLMCompass 指定提交仅作为 Operator/Tensor/OpResult 接口参考；本节算法及存储策略是本工程显式建模假设。
+
+<a id="decode-attention"></a>
+
+## Decode Attention / GQA 与 KV Cache（Issue #3 第五批）
+
+`src/operators/attention.py` 定义 `KVCacheSpec`、`KVCacheAccess` 和 `DecodeAttention`；`src/runtime/attention.py` 绑定共享缓存、组合原生 GEMM/Softmax 和已有块级转换；`src/core/kv_cache.py` 只计缓存追加拷贝与流式读取；`src/runtime/composition.py` 汇总重复子块，同时保留 action role、来源和 summary 引用。新增配置 `configs/execution/attention.json` 明确预分配缓存、串行 Query head、无跨 head 读取复用和符号补齐视图，所有策略为 assumed。
+
+算法语义核对 [Meta Llama 3 的 Attention 实现](https://github.com/meta-llama/llama3/blob/main/llama/model.py)及 [GQA 论文](https://arxiv.org/abs/2305.13245v3)：Query head 与 KV head 按组对应，缩放点积后做 Softmax 和加权 V。本工程只采用这些块级依赖；INT8 存储、资源映射、串行策略和时间服务均来自本项目显式假设，不复制参考代码的数值精度或硬件性能。DeepSeek-R1 基于 V3 架构（见其[官方说明](https://github.com/deepseek-ai/DeepSeek-R1)），MLA/MoE 单独登记为待补，不以普通 GQA 替代。
+
+### 单 token 契约与工作量
+
+记 B 为 batch、Hq/Hkv 为 Query/KV head 数、D 为 head dimension、S 为执行前有效长度、C 为预分配容量、a 为追加数（0 或 1），L=S+a。要求 Hq 可被 Hkv 整除，0≤S≤L≤C，Attention 中 L≥1。所有 batch 项使用相同长度，没有 Prefill、多 token、变长 padding mask、滑窗、缓存增长或淘汰。Q 与新 K/V 已完成投影和位置处理；输出仍按 head 分列，后续输出投影不在本块内。
+
+每个 head 依次执行 INT8 `Q[1,D] * Kᵀ[D,L]`，将 INT32 scores 转为 FP32 并乘隐式常数 `1/sqrt(D)`，复用稳定 FP32 Softmax，将概率按块级代理存为 INT8，再执行 `P[1,L] * V[L,D]` 并将 INT32 context 经 FP32 边界存为 INT8。有效 MAC 总量为 `2*B*Hq*L*D`；矩阵基本 op 为其两倍。每个 head 的 Softmax 包含 MAX/ADD 各 L−1 次、SUB/EXP/MUL 各 L 次、RCP 一次，另有缩放 MUL L 次，所以非矩阵算法 op 为 `B*Hq*(6L−1)`。存储边界转换各有 `B*Hq*(L+D)` 个 to-FP32/to-INT8 元素，单列为 modeled_internal，不与算法 op 重复累加。
+
+缓存有效载荷为 `2*B*Hkv*L*D` byte，逻辑预留容量为 `2*B*Hkv*C*D` byte，每轮追加写入为 `2*B*Hkv*D*a` byte，追加来源也读取同样字节数。独立缓存读取按每个 KV head 一次，Attention 默认按每个 Query head 冷启动，因此其有效 K/V 读取载荷为 `2*B*Hq*L*D` byte。实际原生 action 可能包含补齐、内部重读等开销；逻辑载荷是解释视图，不是可以再次加进账本的动作。
+
+### 共享 backing 与容量
+
+K/V 缓存按每个 batch/KV head 分开预留，大小覆盖容量 C 内最大的原生矩阵视图：K 供 QK 的 `[D,C]` 权重视图使用，V 供 PV 的 `[C,D]` 视图使用；各架构沿用原生 GEMM 补齐要求。TSP/CIM 每个 head 分配、Query、context、输入新 token 和 reserved 分别按选中 slice 条带化。实际读取只使用前 L 个位置，但未填充位置仍占预分配容量。
+
+Query 与 context 为 B*Hq 个 head 的全局 backing；K/V 为 B*Hkv 个 head。`(b,h)` 映射到 `(b,floor(h/(Hq/Hkv)))` 的 K/V；视图本身不重复分配缓存。全局 Query、缓存和输出空间在块期间保留。追加时新 token 输入存活，追加结束后释放；随后只保留一个 head 的 scores、scaled scores、FP32/INT8 probabilities、INT32 context 临时区，并在各自最后一次消费后释放。重复整个 head 模板，不让不同 head 中间结果同时存活。TSP/CIM 将其他全局存储作为子块 reserved，Softmax 的行状态与 scratch 仍进入真实峰值检查。局部 UB/VMEM/CMEM 取串行子块峰值最大值。
+
+K 的转置、head 切片和缓存追加偏移都是符号补齐视图，不证明真实地址布局、bank 行为或免费物理重排。状态输出为原 K/V 分配的新版本描述，`cache_state.output_aliases` 明确映射；`cache_after` 返回不可变长度元数据，不进行数值存储修改。缓存长度增长不会重写已有历史。`memory.lifetime_validation` 是验证证据，不是额外硬件资源；资源摘要已排除该元数据（同时修正第四批摘要中重复列出的这一项，计算、容量峰值和 action 不变）。
+
+### 访问、时间及手算
+
+独立 Cache 在 Ascend/TPU 使用一个可复用 UB/VMEM 传输块：追加为 HBM→本地→HBM，读取为 HBM→本地，无完整读出缓存副本。TSP/CIM 为 MEM→输入 stream 的读取，以及追加时 stream→MEM 的写入，瞬态转发寄存器未建模。各次传输按带宽和启动成本分别取整，再按 K/V head 次数累加。此过程没有 MAC、非线性或转换计算。Attention 内部只嵌入 append；后续 QK/PV 原生读写已包含缓存访问，不增加额外 cache-read 节点。
+
+Attention 总时间为一次缓存追加，加上 B*Hq 次完整 head 模板的 elapsed 时间。原生 GEMM 内部保留既有流水；head 之间不重叠、也不保留冷启动缓存/权重上下文。重复模板报告给出节点的单次原生结果和 repetitions；所有父级 action 计数及角色引用同步乘重复次数。只有全部子块有 service 分解时才给父级 service 总和，elapsed 始终可按串行模板求和。能耗系数未接入。
+
+独立手算样例 B=2、Hq=4、Hkv=2、D=7、S=5、C=9、a=1：L=6，有效 MAC=672，非矩阵 op=280；追加56 B，独立 cache-read336 B，Attention 有效 K/V 读取672 B。TPU 逻辑 HBM 总读写为2016/1152 B：每个 head 读 `5D+2LD+21L`、写 `5D+17L`，另加追加读写各56 B。全局 Query/K/V/context 共616 B，追加阶段峰值672 B；六阶段存储分别为640、664、664、646、650、644 B。
+
+Cache 手算取 HBM或所选单 MEM slice=16 B/cycle、本地32 B/cycle、启动0：每个 K/V head 追加7 B读写各1 cycle，读取42 B用3 cycle，8个 K/V head 总40 cycle。测试进一步覆盖空缓存首次追加、满缓存拒绝、只读 MHA/GQA/MQA、batch/sequence/capacity 独立缩放、重复模板不展开、尾块、原生结果保真、slice 条带化、临时区容量、未知成本/时钟和四入口失败保护。
+
+`validation/issue3/model_coverage.json` 是初始目标模型块清单，区分 implemented/partial/pending，给出代码、测试和缺口归属。它没有宣称模型整体完成：RoPE、投影和归一化的完整存储边界包装、embedding、MLA、MoE 等仍需补齐。完整模型拼装属于 Issue #4，整片调度另行推进。
 
 <a id="execution-diagrams"></a>
 
