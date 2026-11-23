@@ -1,11 +1,12 @@
 import copy
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 import io
 import json
 from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from types import SimpleNamespace
 from unittest import mock
 
 from scripts import verification as common
@@ -22,6 +23,94 @@ def test_ids(suite):
 
 
 class VerificationTest(unittest.TestCase):
+    def test_main_regression_and_delivery_modes_return_distinct_exit_codes(self):
+        manifest = json.loads(issue3.MANIFEST.read_text(encoding="utf-8"))
+        records = {n: {"status": "passed"} for n in test_ids(common.discover(common.ISSUE3_TEST_DIRS))}
+        conditions = {k: {"status": "passed"} for k in manifest["requirements"]}
+        tests = SimpleNamespace(records=records, testsRun=len(records))
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory)
+            source = out / "scope.json"
+            for complete, strict in ((False, False), (False, True), (True, True)):
+                with self.subTest(complete=complete, strict=strict):
+                    source.write_text(json.dumps({**manifest, "pending_work": [] if complete else ["probe pending block"]}), encoding="utf-8")
+                    argv = ["--output-dir", str(out / "run")]
+                    if strict:
+                        argv.append("--require-complete")
+                    stream = io.StringIO()
+                    with mock.patch.object(issue3, "MANIFEST", source), \
+                         mock.patch.object(issue3, "snapshot", return_value={}), \
+                         mock.patch.object(issue3, "run_tests", return_value=(tests, {"passed": len(records)}, True)), \
+                         mock.patch.object(issue3, "run_commands", return_value={}), \
+                         mock.patch.object(issue3, "evaluate_conditions", return_value=conditions), redirect_stdout(stream):
+                        exit_code = issue3.main(argv)
+                    report = json.loads((out / "run/acceptance.json").read_text(encoding="utf-8"))
+                    self.assertEqual(exit_code, int(strict and not complete))
+                    self.assertEqual(report["exit_code"], exit_code)
+                    self.assertTrue(report["implemented_scope_passed"])
+                    self.assertEqual(report["full_issue_complete"], complete)
+                    self.assertEqual(report["acceptance_mode"], "delivery" if strict else "regression")
+                    if not complete:
+                        self.assertIn("probe pending block", stream.getvalue())
+                        self.assertTrue(report["delivery_failures"])
+
+    def test_delivery_rejects_missing_replaced_duplicate_and_invalid_block_ids(self):
+        manifest = json.loads(issue3.MANIFEST.read_text(encoding="utf-8"))
+        coverage = json.loads((common.ROOT / "validation/issue3/model_coverage.json").read_text(encoding="utf-8"))
+        records = {n: {"status": "passed"} for n in test_ids(common.discover(common.ISSUE3_TEST_DIRS))}
+        conditions = {k: {"status": "passed"} for k in manifest["requirements"]}
+        for model_index in (0, 1):
+            for case in ("missing", "replacement", "extra", "duplicate", "invalid", "missing_id"):
+                with self.subTest(model=model_index, case=case):
+                    bad = copy.deepcopy(coverage)
+                    model = bad["models"][model_index]
+                    block = next(b for b in model["blocks"] if b["id"] == "embedding")
+                    if case == "missing":
+                        model["blocks"].remove(block)
+                    elif case == "replacement":
+                        block["id"] = "unexpected_replacement"
+                    elif case == "duplicate":
+                        model["blocks"].append(copy.deepcopy(block))
+                    elif case == "extra":
+                        model["blocks"].append({**block, "id": "unexpected_extra"})
+                    elif case == "invalid":
+                        block["id"] = ["embedding"]
+                    else:
+                        del block["id"]
+                    audit = issue3.evaluate_delivery(manifest, bad, conditions, records)
+                    self.assertEqual(audit["status"], "failed")
+                    detail = audit["inventory"]["models"][model["name"]]
+                    if case == "duplicate":
+                        self.assertEqual(detail["duplicate_ids"], ["embedding"])
+                    elif case != "extra":
+                        self.assertEqual(detail["missing_ids"], ["embedding"])
+                    if case == "replacement":
+                        self.assertEqual(detail["unexpected_ids"], ["unexpected_replacement"])
+                    if case == "extra":
+                        self.assertEqual(detail["missing_ids"], [])
+                        self.assertEqual(detail["unexpected_ids"], ["unexpected_extra"])
+                    self.assertTrue(audit["failures"])
+
+    def test_inventory_rejects_missing_duplicate_and_unexpected_models(self):
+        coverage = json.loads((common.ROOT / "validation/issue3/model_coverage.json").read_text(encoding="utf-8"))
+        for case in ("missing", "duplicate", "replacement", "invalid"):
+            with self.subTest(case=case):
+                bad = copy.deepcopy(coverage)
+                name = bad["models"][0]["name"]
+                if case == "missing":
+                    bad["models"].pop(0)
+                elif case == "duplicate":
+                    bad["models"].append(copy.deepcopy(bad["models"][0]))
+                elif case == "replacement":
+                    bad["models"][0]["name"] = "unexpected_model"
+                else:
+                    bad["models"][0]["name"] = []
+                audit = common.issue3_inventory(bad)
+                self.assertEqual(audit["status"], "failed")
+                self.assertIn(name, audit["duplicate_models"] if case == "duplicate" else audit["missing_models"])
+                if case == "replacement":
+                    self.assertEqual(audit["unexpected_models"], ["unexpected_model"])
+
     def test_delivery_verdict_requires_live_evidence_for_every_model_block(self):
         manifest = json.loads(issue3.MANIFEST.read_text(encoding="utf-8"))
         coverage = json.loads((common.ROOT / "validation/issue3/model_coverage.json").read_text(encoding="utf-8"))

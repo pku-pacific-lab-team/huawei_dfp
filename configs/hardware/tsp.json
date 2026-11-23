@@ -288,13 +288,13 @@
       "verification": "model_assumption_explicit_in_config_not_hardware_calibrated"
     },
     "vxm_base_ops_per_cycle": {
-      "value": 320,
+      "value": 2560,
       "unit": "op/cycle",
       "scope": "hemisphere",
       "status": "assumed",
       "source": "https://github.com/pku-pacific-lab-team/LPU-HUAWEI-2012/blob/700b6e6509b1742878091382df0d0df3e92732e1/docs/public/tsp_architecture_doc_20260805.md",
-      "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
-      "conditions": "Shared single-task VXM budget of 320 equivalent basic operations/cycle. With int32_add_cost=1 this preserves the prior 320 INT32 add/cycle service. Hemisphere scope denotes the active task allocation from the central VXM, not a replicated unit per hemisphere. All operation types share this budget; rates are alternatives, not additive. MEM/stream supply is charged separately. Fixed analytical assumption, not hardware calibration or the full 5120-ALU chip peak.",
+      "source_version": "vxm-half-chip-allocation-v2; 2026-11-23; PR #8 peak correction and user-reported in-person hemisphere clarification",
+      "conditions": "Chip peak is 320 lanes * 16 ALUs/lane = 5120 basic op/cycle. The reference assigns a fixed equal share to each of two hemispheres: 2560 equivalent op/cycle per task, with no borrowing of the idle half. This allocation is a modeling assumption, not measured sustained throughput or a replicated VXM. Independent vectors and native/CIM GEMM cross-K additions consume the same budget. All operation types share it; rates are alternatives, not additive. MEM/stream supply and execution dependencies are accounted separately.",
       "verification": "model_assumption_explicit_in_config_not_hardware_calibrated"
     },
     "vxm_int32_add_cost": {
@@ -304,7 +304,7 @@
       "status": "assumed",
       "source": "model-policy; ARCHITECTURE.md#tsp-vxm-service",
       "source_version": "vxm-algorithmic-reference-v1; 2026-11-18; original hardware context retained in source and retired parameter evidence",
-      "conditions": "One scalar-element INT32 addition consumes one equivalent operation on the shared single-task VXM service. Together with base=320 this preserves the existing GEMM cross-K add rate. No independent add resource is introduced.",
+      "conditions": "One scalar-element INT32 addition consumes one equivalent operation on the shared half-chip VXM service. The reference base=2560 gives a peak task allocation of 2560 adds/cycle before memory and dependency constraints. No independent add resource is introduced.",
       "verification": "explicit_algorithmic_assumption_not_hardware_calibrated"
     },
     "vxm_fp32_basic_op_cost": {

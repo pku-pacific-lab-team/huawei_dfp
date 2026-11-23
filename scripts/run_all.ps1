@@ -4,7 +4,8 @@
 param(
     [ValidateSet('issue2', 'issue3', 'all')]
     [string]$Scope = 'all',
-    [switch]$Details
+    [switch]$Details,
+    [switch]$RequireComplete
 )
 
 $ErrorActionPreference = 'Stop'
@@ -26,5 +27,6 @@ if (-not (Test-Path -LiteralPath $pythonExe -PathType Leaf)) {
 $PSNativeCommandUseErrorActionPreference = $false
 $runnerArguments = @('--scope', $Scope.ToLowerInvariant())
 if ($Details) { $runnerArguments += '--details' }
+if ($RequireComplete) { $runnerArguments += '--require-complete' }
 & $pythonExe -B -X utf8 (Join-Path $PSScriptRoot 'run_all.py') @runnerArguments
 exit $LASTEXITCODE

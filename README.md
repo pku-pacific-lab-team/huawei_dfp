@@ -59,6 +59,7 @@ Linux/macOS 对应使用 `python3 -m venv .venv` 和 `source .venv/bin/activate`
 .\scripts\run_all.ps1 -Scope issue3  # 4 架构 × 26 类算子 + Issue #3 验证
 .\scripts\run_all.ps1 -Scope all     # 两组全部执行，并核对全仓库测试覆盖
 .\scripts\run_all.ps1                # 默认等同于 -Scope all
+.\scripts\run_all.ps1 -Scope issue3 -RequireComplete -Details # Issue #3 正式交付
 ```
 
 | 范围 | 日常 timing 报告 | 独立验证 |
@@ -67,7 +68,7 @@ Linux/macOS 对应使用 `python3 -m venv .venv` 和 `source .venv/bin/activate`
 | `issue3` | 104 份：统一 GEMM 报告及 25 个 Vector/复合块样例 | 算子/验证工具测试及 216 项 count/timing/负例 CLI 检查，`validation/issue3/run/` |
 | `all` | 两组共 108 份，分别保存 | 两套判据分别汇总；核对单元测试集合并集覆盖全仓库且无重复 |
 
-Issue #3 另输出每算子一行的 `results/run_all_<范围>_operators.csv`；可加 `-Details` 保留独立详细文件。Issue #3 的 GEMM 适配报告使用 `results/<架构>_gemm_operator.json`，其他算子使用 `<架构>_<算子>.json`。每个范围另生成 `results/run_all_<范围>.json` 总结和 `results/run_all/<范围>/` 命令日志，均以脚本所属工程为根目录。Python 优先使用工程 `.venv`，否则使用 PATH。Linux/macOS 可运行等价命令 `python scripts/run_all.py --scope all`。
+Issue #3 另输出每算子一行的 `results/run_all_<范围>_operators.csv`；可加 `-Details` 保留独立详细文件。Issue #3 的 GEMM 适配报告使用 `results/<架构>_gemm_operator.json`，其他算子使用 `<架构>_<算子>.json`。每个范围另生成 `results/run_all_<范围>.json` 总结和 `results/run_all/<范围>/` 命令日志，均以脚本所属工程为根目录。Python 优先使用工程 `.venv`，否则使用 PATH。Linux/macOS 可运行等价命令 `python scripts/run_all.py --scope all`。正式交付增加 `--require-complete`（PowerShell 为 `-RequireComplete`），只要求 Issue #3 的完整交付字段为真；普通回归仍只检查已实现范围。完整模型及自动分块搜索属于 Issue #4。
 
 某一步失败后会继续尝试其余选中步骤，最后统一返回：`0`=所选范围全部通过，`1`=执行/验证/覆盖检查失败，`2`=自动检查通过但 Issue #2 的 A1/A5 本地审阅证据需对齐（不等同于 GitHub PR 待审）。该状态不会阻止 Issue #3 执行，也不会被改成通过。旧报告保留时会标记本次未生成新报告，不能算作成功。`all` 指已登记的实现与测试；Issue #3 完成判断另由本地交付审计核对原始验收条件和两份模型清单。
 
@@ -154,7 +155,7 @@ python tsp_cim.py --workload operators/fp32_rsqrt.json --hemisphere 1
 
 Vector 默认 timing，`--mode count` 只计工作量。输出固定使用统一 operator report，可省略 `--report-format` 或显式选 `operator`，显式 `legacy` 会报错。`--vector-tile-elements` 覆盖块上限，Ascend/TPU 的 UB/VMEM 不足时自动缩小块；HBM 或 TSP 本侧完整输入输出容量不足会拒绝任务。`--format(s)`、GEMM tile、buffers、schedule、CMEM、loop-order、trace、比较与扫描选项不适用于 Vector，显式提供会报错。GEMM 任务不接受 Vector 专用选项。
 
-独立配置 [configs/execution/vector.json](configs/execution/vector.json) 当前使用 schema 2（schema 1 仍可用于独立 Vector），记录默认 1024 元素块、逐块逐阶段串行、显式零启动开销以及 Ascend UB 读写各 256 B/cycle 的未标定代理。后者是每周期 64 个 32-bit 字的建模假设，不是实测带宽。可用 `--vector-config` 指定替代配置；缺文件不回退。既有五类计算服务、HBM/VMEM/MEM/stream 参数继续来自所选硬件配置，GEMM 配置及 schema 无需迁移。新配置来源与哈希登记于独立[执行参数台账](calibration/operator_execution_audit.json)的 `vector_execution_profiles`；硬件规格台账不包含这些算子策略。
+独立配置 [configs/execution/vector.json](configs/execution/vector.json) 当前使用 schema 2（schema 1 仍可用于独立 Vector），记录可覆盖的默认 1024 元素块（软件策略，不是硬件上限，也未经最优性验证）、逐块逐阶段串行、显式零启动开销以及 Ascend UB 读写各 256 B/cycle 的未标定代理。后者是每周期 64 个 32-bit 字的建模假设，不是实测带宽。可用 `--vector-config` 指定替代配置；缺文件不回退。既有五类计算服务、HBM/VMEM/MEM/stream 参数继续来自所选硬件配置，GEMM 配置及 schema 无需迁移。新配置来源与哈希登记于独立[执行参数台账](calibration/operator_execution_audit.json)的 `vector_execution_profiles`；硬件规格台账不包含这些算子策略。
 
 ```python
 from src.operators import TensorSpec, Vector, simulate_vector
@@ -444,7 +445,7 @@ Ascend 仅保留流水调度，旧 `--timing-policy`/API `timing_policy` 参数�
 
 Ascend/TSP 的 `timing.parameters` 保留实际读取的固定配置值，`selection=configured`；Ascend 的 `timing.derived_services.hbm` 报告均分后的 HBM 速率；TSP 的 `timing.derived_services` 单独报告本次分配带宽、LW 空闲峰值、内部 IW 带宽、权重缓冲容量，以及实际尾块的 VXM 行计算/首行时间范围。`proxy_parameters` 列出已配置的 assumed 服务，`missing_parameters` 仅列本任务必需但仍为空的时间参数。修改服务直接改 JSON 的 value，不再使用 derivation。TSP 当前硬件 schema 9、报告 schema 10；此前 schema 3 将 install_first_cycles/vxm_add_first_cycles 分别拆为固定传播/额外流水延迟，不能直接复制旧值。迁移及公式见 [显式模型参数](ARCHITECTURE.md#explicit-model-parameters)。
 
-TSP schema 4 移除 6 项无执行用途的参数：`spare_superlanes`、`physical_sram_bytes`、`local_sram_bytes`、`offchip_capacity_bytes`、`offchip_bandwidth_bpc`、`interchip_bandwidth_bpc`。schema 6 替换旧 add/nonlinear 速率，schema 7 再删除 `mem_shared_bpc`，schema 8 增加有限待用权重缓冲；当前共 30 项且无 null，18 项 documented、12 项 assumed。共享 VXM 预算为 320 op/cycle，INT32 add/FP32 add/mul 代价为 1，exp 为 15、rsqrt 为 12。`TSPSpec.vxm_service_cycles()` 支持独立计算占用估算；原生/CIM GEMM 只消费 INT32 add。特殊函数值是算法工作量代理，不是原生指令时序。迁移及 API 示例见 [共享 VXM 服务](ARCHITECTURE.md#tsp-vxm-service)。自定义 schema 3 配置先删除上述 6 项完成历史 schema 4，再按[迁移说明](ARCHITECTURE.md#tsp-parameters)逐步迁移到当前 schema 9；更早版本还需先迁移固定服务字段。原生库存同步移除备用数量和物理/局部 SRAM 汇总，该次六项精简保持 MEM 容量与 GEMM 公式不变；当前读写并发公式见下文。CIM 共享来源不再转录三项外部系统参数，CIM 自身库存的后续精简见下文；历史配置和来源保存在台账 `retired_parameters`。具体迁移见 [TSP 参数说明](ARCHITECTURE.md#tsp-parameters)。
+TSP schema 4 移除 6 项无执行用途的参数：`spare_superlanes`、`physical_sram_bytes`、`local_sram_bytes`、`offchip_capacity_bytes`、`offchip_bandwidth_bpc`、`interchip_bandwidth_bpc`。schema 6 替换旧 add/nonlinear 速率，schema 7 再删除 `mem_shared_bpc`，schema 8 增加有限待用权重缓冲；当前共 30 项且无 null，18 项 documented、12 项 assumed。中央 VXM 整片峰值为 5120 op/cycle；按两半片固定均分假设，默认半片任务预算为 2560 op/cycle，不借用另一半空闲配额，INT32 add/FP32 add/mul 代价为 1，exp 为 15、rsqrt 为 12。`TSPSpec.vxm_service_cycles()` 支持独立计算占用估算；原生/CIM GEMM 只消费 INT32 add。特殊函数值是算法工作量代理，不是原生指令时序。迁移及 API 示例见 [共享 VXM 服务](ARCHITECTURE.md#tsp-vxm-service)。自定义 schema 3 配置先删除上述 6 项完成历史 schema 4，再按[迁移说明](ARCHITECTURE.md#tsp-parameters)逐步迁移到当前 schema 9；更早版本还需先迁移固定服务字段。原生库存同步移除备用数量和物理/局部 SRAM 汇总，该次六项精简保持 MEM 容量与 GEMM 公式不变；当前读写并发公式见下文。CIM 共享来源不再转录三项外部系统参数，CIM 自身库存的后续精简见下文；历史配置和来源保存在台账 `retired_parameters`。具体迁移见 [TSP 参数说明](ARCHITECTURE.md#tsp-parameters)。
 
 Ascend 硬件配置为 **schema 9**，报告为 **schema 12**。HBM 容量为 32,000,000,000 B，带宽为 1.2e12 B/s；单核均分后为 37.5 B/cycle。L2 使用 32 MiB 全芯片容量和已选的 **3 TB/s**（1 GHz 下 3000 B/cycle），均为 `assumed`，单核份额为 **1 MiB、93.75 B/cycle**。A/B 输入采用冷启动的整块 LRU；缺失依次经过 `hbm_to_l2 → l2_fill → l2_to_l1`，命中只走 L2→L1。C 输出和超过单核容量的输入块绕过缓存。报告分别统计 HBM 缺失读取、L2 填充/读取、输入请求及命中率；当前配置无 null 参数。策略、来源与局限见 [L2 说明](ARCHITECTURE.md#ascend-l2-bandwidth)，旧配置须按 [迁移说明](ARCHITECTURE.md#migration) 补全 execution.l2 和资源映射。缓存行、组相联、bank/控制器细节及真实硬件仲裁仍未模拟；3 TB/s 不是实测持续带宽。
 
@@ -488,10 +489,10 @@ python -m unittest discover -s tests -t . -v
 Issue #3 已实现算子的独立验证：
 
 ```powershell
-python scripts/verify_issue3.py
+python scripts/verify_issue3.py --require-complete
 ```
 
-只运行算子及验证工具测试，另执行 216 项算子 CLI 检查。报告和日志生成到 Git 忽略的 `validation/issue3/run/`，验收汇总为该目录的 `acceptance.json`。范围、逐项覆盖和剩余缺口见 [Issue #3 验证说明](validation/issue3/README.md)及[覆盖清单](validation/issue3/scope.json)；退出 0 表示已登记范围通过；`full_issue_complete` 还须通过三项原始验收映射、23个模型块的代码/实际测试证据、所有条件与快照一致性检查。该字段仅为本地算子范围交付结论，不改变 GitHub 状态。
+只运行算子及验证工具测试，另执行 216 项算子 CLI 检查。报告和日志生成到 Git 忽略的 `validation/issue3/run/`，验收汇总为该目录的 `acceptance.json`。范围、逐项覆盖和剩余缺口见 [Issue #3 验证说明](validation/issue3/README.md)及[覆盖清单](validation/issue3/scope.json)；默认普通回归模式退出 0 表示已登记范围通过；上述 `--require-complete` 正式交付模式还要求 `full_issue_complete=true`，否则退出 1 并列出未满足条件；`full_issue_complete` 还须通过三项原始验收映射、23个模型块的代码/实际测试证据、所有条件与快照一致性检查。该字段仅为本地算子范围交付结论，不改变 GitHub 状态。
 
 按 Issue #2 的四类交付物和五条条件执行原生模型验收：
 

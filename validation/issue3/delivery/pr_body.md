@@ -1,38 +1,39 @@
-现有四架构入口以原生 GEMM 为主，缺少描述 LLaMA3-70B 与 DeepSeek-R1 Decode 大块计算的统一算子层。本 PR 补齐独立 Vector/Nonlinear、复合块及其资源、延迟和动作报告，使目标模型清单中的 23 个粗粒度块均有实现与测试。
+# Issue #3：四架构 Decode 粗粒度算子与正式交付验收
 
-Refs #3。目标分支为 `main`，工作分支为 `dfp-issue3-pr`；实现基于已合入 PR #7 的 `7c84187`，实现交付提交为 `59c8331`。
+Refs #3
 
-## 实现范围
+## 修改内容
 
-- 增加 Tensor/Operator/OpResult 与 ActionLedger，区分逻辑工作、补齐工作、内部动作和 summary/reference，能耗系数与动作计数分离。
-- 四架构支持独立 Vector、RMSNorm/Softmax、残差、SwiGLU/FFN、归一化与投影边界、RoPE、Embedding 和词表投影。
-- 增加 Decode GQA/KV Cache，以及 DeepSeek absorbed MLA 的低秩前处理、共享压缩缓存、双路打分、加权 latent 和输出投影。
-- 增加 MoE Gate/Sigmoid、分组与专家选择代理、原始分数归一化、实际分配量对应的专家执行、FP32 加权/共享分支合并，以及整块生命周期校验。
-- 增加独立 Issue #3 验收和模型覆盖清单；紧凑报告与详细诊断分文件保存，哈希绑定。既有原生 GEMM 内核、硬件参数和 Issue #2 旧审阅快照保持原样。
+- 为 Ascend、TPU、TSP 和 CIM-TSP 增加统一 Tensor/Operator/Result 与动作计数接口，支持独立向量、非线性、Decode Attention、MLA 和粗粒度 MoE 等算子。覆盖 LLaMA 的 10 个、DeepSeek 的 13 个计算块。
+- 将模型预期 block ID 集合与实现证据清单分开，明确拒绝缺项、替换项、额外项、重复项和模型缺失/重复；保留逐块实现文件与实际测试证据校验。
+- 新增 `--require-complete` / `-RequireComplete` 正式交付模式：除已实现范围回归通过外，还要求 `full_issue_complete=true`；子脚本和批量汇总均校验，失败返回非零并列出原因。普通回归语义保留，Issue #2 判定独立。
+- 修正共享 VXM：整片峰值 5120 op/cycle；根据用户转述师兄当面澄清的半片因素，采用两个半片固定均分、单任务 2560 op/cycle 的模型假设。TSP/CIM 独立向量与 GEMM 跨 K 累加共用此预算；访存和依赖另行计时，操作代价不变。
+- 保留 `tile_elements=1024`，澄清其为可覆盖的软件默认策略；受约束的自动搜索归入 Issue #4。
+- 沿用 `4802166` 的清理：生成报告和日志按需生成，`validation/issue3/run/` 保持 Git 忽略，固定回归基线继续跟踪。
+
+接口组织参考 Issue #3 指定的 LLMCompass_mod 提交 `98e79ee5b34991f09c65efe395e1e84d58589fab`。
 
 ## 验证与复现
 
-在 Python 3.12+ 环境、仓库根目录运行；仿真与测试只需标准库：
+Python 3.12+，仓库根目录，仅需标准库：
 
 ```powershell
-python -B -X utf8 scripts/verify_issue3.py --output-dir results/issue3-reproduction
-python -B -X utf8 scripts/run_all.py --scope all --details
+# 普通回归：只要求已实现范围通过
+python -B -X utf8 scripts/verify_issue3.py --output-dir results/issue3-regression
+# 正式交付：还必须满足完整 Issue #3 算子范围
+python -B -X utf8 scripts/verify_issue3.py --require-complete
+# 两套验收和全部日常仿真；严格交付只作用于 Issue #3
+python -B -X utf8 scripts/run_all.py --scope all --require-complete --details
 ```
 
-已保存的结果：
+本轮 480 项单测（215 原生 + 265 算子/验收工具）全部通过；Issue #3 普通与正式模式分别通过 216 项 CLI 和 18 项条件，日常仿真 108/108 通过。全量汇总退出 2 仅保留 Issue #2 历史 A1/A5 标记，无自动检查失败。详细验证记录见 [PR #8 修订记录](pr8_followup.md)。验收报告中的时间、运行时 HEAD、源码快照和工作区内容共同标识被验证版本；未提交修改不会体现在 HEAD 中。
 
-- 474 个测试通过：Issue #2 为 215 个，Issue #3 为 259 个。
-- Issue #3 CLI 216/216 通过；日常仿真 108/108 通过。
-- 64 组历史 API 基线通过；第八批 A 的 184 份 CLI 正例摘要及原生报告完全一致。
-- 三项原始验收要求已映射，LLaMA 10 个块、DeepSeek 13 个块均有代码与实际测试证据，`full_issue_complete=true`。
-- 最终审查另做了 88 组跨形状案例，共 176 次 count/timing 仿真，工作量公式、动作一致性及容量检查均通过。
+64 组 API 基线逐项核对后更新：周期、算子身份、动作和容量保持不变；60 份原生报告的差异来自来源哈希、预算元数据或策略文字。较大形状的计算/访存受限案例另由针对性测试覆盖；历史基线快照和原始产物字段保留。
 
-运行验收后，在输出目录查看 `acceptance.json` 和 `commands.json`。Git 保留 `validation/issue3/baselines/report_format.json`；历史 `batch8a_comparison.json` 可在清理前的提交 `82971de` 查看。第八批 B 首次验收生成于 `8533f2c` HEAD 下的工作区，当时已核对其源码快照与实现提交 `59c8331` 一致。2026-11-23 同步使用说明、接口契约和历史状态措辞后，重新运行既有验收以更新文档快照；当前结果的生成时间、运行时 HEAD 与文件快照以报告本身为准。仿真实现、测试及配置未修改，详见[文档同步记录](documentation_update.md)。
+Issue #2 的 A1/A5 仍按历史本地审阅快照判定；PR #7 已审阅并合入，该状态不表示重新等待其审阅。旧人工签核保持原样。
 
-`verify_issue3.py` 预期返回 0。`run_all --scope all` 当前返回 2，仅来自 Issue #2 的 A1/A5 历史本地审阅快照未对齐；其 215 个自动测试通过。PR #7 已完成审阅并合入，此状态不表示再次等待其审阅。旧快照未被重写为通过。
+## 模型边界
 
-## 模型边界与审查入口
+当前为 INT8 矩阵/INT32 累加及显式 FP32 非线性和存储转换代理，按单核/TensorCore/半片执行。固定半片均分、全权重驻留、串行物化、符号布局和路由分布均为声明的建模条件；不执行数值路由。完整模型拼装、整片调度/通信/卸载、自动 tiling search、数值精度和硬件/能耗标定归入后续工作。
 
-当前为 INT8 矩阵/INT32 累加及显式 FP32 非线性和存储边界代理，按单核/TensorCore/半片执行。全权重驻留、串行物化、符号布局和路由分布均是明确的建模条件；MoE 计入路由服务，但实际专家 assignments 由调用方提供，不执行数值路由。完整 Decoder/模型拼装、整片分片/通信/卸载、真实数值精度和硬件/能耗标定另行推进。
-
-建议先审阅 `src/operators/` 的契约、`src/runtime/` 的组合和容量计划、`src/core/` 新增 Vector/复合内核，再看 `scripts/verify_issue3.py` 与 `validation/issue3/model_coverage.json`。详细阅读顺序、复核命令和审查记录见 `validation/issue3/delivery/review.md`。Issue #3 批量报告及日志按需生成，不纳入 Git 跟踪。
+建议最终使用 Squash and merge，以免把早期提交过的生成报告带入 main 历史。

@@ -205,6 +205,7 @@
   "follow_up_outside_issue3": [
     "Complete Decoder/model assembly, target-scale batch/sequence experiments and end-to-end evaluation (Issue #4).",
     "Chip partition, distributed expert scheduling, inter-core/hemisphere communication and weight offload.",
-    "Numerical BF16/FP8 accuracy, physical layout/ISA validation and measured hardware/energy calibration."
+    "Numerical BF16/FP8 accuracy, physical layout/ISA validation and measured hardware/energy calibration.",
+    "Issue #4 constrained software tiling/scheduling search by architecture and shape, with end-to-end latency selection; retain fixed configurations and do not optimize hardware parameters."
   ]
 }

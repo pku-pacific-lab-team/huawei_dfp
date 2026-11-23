@@ -13,7 +13,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from scripts.verification import (ISSUE3_TEST_DIRS, discover, fingerprints, issue3_owned,
+from scripts.verification import (ISSUE3_TEST_DIRS, discover, fingerprints, issue3_owned, issue3_inventory,
                                   output_directory, run_tests, save)
 
 
@@ -78,12 +78,18 @@ def evaluate_delivery(manifest, coverage, conditions, records, root=ROOT):
                 for name, ids in mapping.items()}
     mapping_valid = set(mapping) == required and all(criteria.values())
     blocks = {}
+    inventory = issue3_inventory(coverage)
+    inventory_valid = inventory["status"] == "passed"
     models = coverage.get("models", [])
-    inventory_valid = {m.get("name") for m in models} == {"LLaMA3-70B", "DeepSeek-R1"} and len(models) == 2
+    models = models if isinstance(models, list) else []
     for model in models:
+        if not isinstance(model, dict) or not isinstance(model.get("name"), str):
+            continue
         items = model.get("blocks", [])
-        inventory_valid &= bool(items) and len({b.get("id") for b in items}) == len(items)
+        items = items if isinstance(items, list) else []
         for b in items:
+            if not isinstance(b, dict) or not isinstance(b.get("id"), str) or not b["id"]:
+                continue
             modules = b.get("tests", [])
             tests_pass = bool(modules) and all(
                 any(n.startswith(m + ".") for n in records) and
@@ -94,8 +100,24 @@ def evaluate_delivery(manifest, coverage, conditions, records, root=ROOT):
     inventory_valid &= bool(blocks) and all(v == "passed" for v in blocks.values()) and coverage.get("full_target_model_coverage") is True
     all_conditions = bool(conditions) and manifest["requirements"].keys() <= conditions.keys() and all(v.get("status") == "passed" for v in conditions.values())
     passed = mapping_valid and inventory_valid and all_conditions and not manifest.get("pending_work", ["missing declaration"])
+    failures = []
+    if not mapping_valid:
+        failures.append("Acceptance mapping incomplete or failed: " + ", ".join(sorted(
+            (required - mapping.keys()) | (mapping.keys() - required) | {k for k, ok in criteria.items() if not ok})))
+    if inventory["status"] != "passed":
+        failures.append("Model/block inventory mismatch: " + json.dumps(inventory, ensure_ascii=False, sort_keys=True))
+    if coverage.get("full_target_model_coverage") is not True:
+        failures.append("full_target_model_coverage is not true")
+    failures.extend("Missing implementation/test evidence: " + name for name, status in blocks.items() if status != "passed")
+    if not all_conditions:
+        failures.append("Acceptance conditions missing or failed: " + ", ".join(sorted(
+            (manifest["requirements"].keys() - conditions.keys()) |
+            {k for k, value in conditions.items() if value.get("status") != "passed"})))
+    if manifest.get("pending_work", ["missing declaration"]):
+        failures.append("Pending work: " + json.dumps(manifest.get("pending_work", ["missing declaration"]), ensure_ascii=False))
     return {"status": "passed" if passed else "failed", "acceptance_criteria": criteria,
             "model_blocks": blocks, "inventory_valid": bool(inventory_valid),
+            "inventory": inventory, "failures": failures,
             "scope": "Local coarse-operator delivery; excludes full decoder/chip execution and numerical calibration.",
             "github_state_changed": False}
 
@@ -256,6 +278,7 @@ def run_commands(out):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=ROOT / "validation/issue3/run")
+    parser.add_argument("--require-complete", action="store_true", help="Require complete Issue #3 delivery, not only implemented-scope regression")
     args = parser.parse_args(argv)
     try:
         out = output_directory(args.output_dir, "issue3")
@@ -272,6 +295,11 @@ def main(argv=None):
     delivery = evaluate_delivery(manifest, coverage, conditions, tests.records)
     unchanged = snapshot() == before
     passed = tests_passed and unchanged and all(c["status"] == "passed" for c in conditions.values())
+    full_issue_complete = passed and delivery["status"] == "passed"
+    failures = list(delivery["failures"])
+    if not passed:
+        failures.append("Implemented-scope regression failed; inspect unit tests, CLI conditions and source snapshot")
+    exit_code = 0 if passed and (not args.require_complete or full_issue_complete) else 1
     git = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True)
     summary = {"schema_version": 1, "issue": manifest["issue"], "scope": manifest["scope"],
                "reference_commit": manifest["reference_commit"], "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -281,18 +309,23 @@ def main(argv=None):
                               "details": "tests.json", "log": "unittest.txt"},
                "cli_checks": {"total": len(commands), "passed": sum(c["passed"] for c in commands.values()), "details": "commands.json"},
                "conditions": conditions, "implemented_scope_passed": passed,
-               "full_issue_complete": passed and delivery["status"] == "passed", "delivery_audit": delivery,
+               "full_issue_complete": full_issue_complete, "delivery_audit": delivery,
+               "acceptance_mode": "delivery" if args.require_complete else "regression",
+               "require_complete": args.require_complete, "exit_code": exit_code, "delivery_failures": failures,
                "pending_work": manifest["pending_work"], "follow_up_outside_issue3": manifest.get("follow_up_outside_issue3", []),
                "limits": ["full_issue_complete is a local scoped delivery verdict; it does not close GitHub or claim review approval.",
                           "No Issue #2 review or acceptance result is imported, renewed, or overwritten.",
                           "Shared native dependencies are fingerprinted separately; analytical tests do not calibrate hardware."]}
     save(out / "acceptance.json", summary)
     print(f"Issue #3 implemented scope: {'passed' if passed else 'failed'}; local delivery complete: {summary['full_issue_complete']}")
+    print(f"Acceptance mode: {summary['acceptance_mode']}; exit={exit_code}")
     print(f"Unit tests: {counts}; CLI checks: {summary['cli_checks']['passed']}/{len(commands)}; unchanged snapshot: {unchanged}")
     for key, result in conditions.items():
         print(f"{key}: {result['status']}")
+    for failure in failures:
+        print(f"Delivery unmet: {failure}")
     print(f"Evidence: {out / 'acceptance.json'}")
-    return 0 if passed else 1
+    return exit_code
 
 
 if __name__ == "__main__":

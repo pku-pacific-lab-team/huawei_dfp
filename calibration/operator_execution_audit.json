@@ -42,7 +42,7 @@
   },
   "vector_execution_profiles": {
     "configs/execution/vector.json": {
-      "canonical_json_sha256": "85eef7e2fa110f03cdd6e7aab4dc2ab36360674ba6693900b8eb6e98a2e1b0f6",
+      "canonical_json_sha256": "34c9b2a5f377af94342f8f26d2e544e0a4154bdc9652a213fed7c3b02b03e7ad",
       "schema_version": 2,
       "parameters": {
         "ascend_ub_read_bpc": {
@@ -67,7 +67,7 @@
         }
       },
       "policy_source": "vector_serial_policy_v1",
-      "conditions": "Separate execution profile; native hardware parameter counts/hashes unchanged. TSP/CIM share one policy.",
+      "conditions": "Separate execution profile; TSP/CIM share one policy. tile_elements=1024 is an overridable software default, not a hardware limit or a verified optimum. Tiling search belongs to Issue #4; this clarification changes no execution parameter values.",
       "composite_parameters": {
         "fp32_sub_cost": {
           "status": "assumed",

@@ -183,7 +183,7 @@ Issue #3 使用[独立覆盖清单、证据目录和判据](validation/issue3/RE
 
 ### 配置与来源
 
-新增 `src/hardware/vector.py` 解析独立 [Vector 执行 profile](configs/execution/vector.json)，当前 schema 2，兼容 schema 1 的独立 Vector。其 policies 分别定义 Ascend、TPU 和原生/CIM 共用的 TSP 策略，明确逐块逐阶段串行、1024 元素默认块、读写启动和计算启动各 0 cycle。零是显式省略固定延迟，不表示实测零延迟。schema 2 增加下节的 composite 策略，不改变已有 Vector 或 GEMM 的执行公式、硬件 schema 和参数值。
+新增 `src/hardware/vector.py` 解析独立 [Vector 执行 profile](configs/execution/vector.json)，当前 schema 2，兼容 schema 1 的独立 Vector。其 policies 分别定义 Ascend、TPU 和原生/CIM 共用的 TSP 策略，明确逐块逐阶段串行、可覆盖的 1024 元素软件默认块（不是硬件上限，也未经最优性验证）、读写启动和计算启动各 0 cycle。零是显式省略固定延迟，不表示实测零延迟。schema 2 增加下节的 composite 策略，不改变已有 Vector 或 GEMM 的执行公式、硬件 schema 和参数值。
 
 唯一新增带宽参数为 Ascend UB read/write，各 256 B/cycle，status=assumed。取每周期 64 个 32-bit 字（64×4=256）的服务代理，量级参考已有单核 Vector 预算；不声称是公开硬件端口规格。它是固定独立参数，不随 Vector compute budget 自动缩放，也不表示读写可以同时叠加。DMA 对 UB 和 HBM 同时预约，以较慢端为周期下限。来源、条件和配置哈希记录在 `calibration/operator_execution_audit.json.vector_execution_profiles`，与原有硬件参数数量分开。
 
@@ -877,7 +877,7 @@ Ascend/TPU 流水尚未按临界路径或互斥区间归因，不能直接把服
 
 已有服务代理直接填写 value，并标 status=assumed；conditions 写明公式、参考条件、固定值是否需随硬件依据手工更新。null 只表示尚无该字段的可用数值，不再触发隐藏的服务默认值。剩余 null 的 conditions 明确说明当前仅作规格/库存或为后续算子预留。Macro 局部 timing 参数已退役，不再要求补齐。
 
-TSP 自 schema 3 起，时间参数的 value 均为固定能力或固定延迟，已移除 derivation、reference_value 和 configured_derivation；当前 schema 9 采用独立 MEM 读写预算，将 LW 预取与内部 IW 服务分开，并将 VXM 加法速率归约为共享预算/操作代价。安装端口上限 10240 B/cycle 与 VXM 加法能力 320 op/cycle 不随分配改变；安装传播延迟为 19 cycle，额外 VXM 流水延迟为 0。实际带宽、载荷服务和逐块行计算时间由执行公式计算，放在 timing.derived_services；timing.parameters 始终保留配置原值。
+TSP 自 schema 3 起，时间参数的 value 均为固定能力或固定延迟，已移除 derivation、reference_value 和 configured_derivation；当前 schema 9 采用独立 MEM 读写预算，将 LW 预取与内部 IW 服务分开，并将 VXM 加法速率归约为共享预算/操作代价。安装端口上限 10240 B/cycle 与 VXM 半片加法预算 2560 op/cycle 不随分配改变；安装传播延迟为 19 cycle，额外 VXM 流水延迟为 0。实际带宽、载荷服务和逐块行计算时间由执行公式计算，放在 timing.derived_services；timing.parameters 始终保留配置原值。
 
 固定服务直接修改 value，保持其真实来源状态。Ascend 的 Cube/三条核内路径与 TPU VMEM 带宽是固定配置；Ascend 硬件 schema 5 的 HBM 路径从芯片 byte/s、核数、时钟派生，三者改变时自动联动。固定参数迁移保留计数和原串行服务公式；后续 Ascend 报告 schema 6 的流水调度改变总耗时，见 Ascend 章节。配置身份、缺参列表和派生规格随新参数更新；assumed 输入产生的规格峰值仍为模型假设。
 
@@ -1373,7 +1373,7 @@ HBM 分配为芯片带宽除以 TensorCore 数再除以时钟，参考值约 571
 
 参考可用 MEM 为 220 MiB/chip、110 MiB/hemisphere。memory tile 的 128 KiB 定义包含两个 bank，20 tiles/slice×44 slices/hemisphere×2 hemispheres 得到 220 MiB，不能再乘 bank_count。当前模型不保留额外局部 SRAM、备用 SuperLane 或物理总 SRAM 汇总字段；已知 MEM 容量不表示全部物理 SRAM，历史缺口记录保存在来源台账。
 
-库存为 320 lane、4 MXM plane/chip、5120 VXM ALU；单侧执行使用 2 plane，不复制中心 VXM。INT32 add 使用明确的单任务吞吐参数，不自动把 5120 ALU 当作每种操作的吞吐。参考验证仅接受不超过每 ALU 每周期一次 INT32 add 的预算上限；该上限是本模型的保守约束。
+库存为 320 lane、4 MXM plane/chip、5120 VXM ALU；单侧执行使用 2 plane，不复制中心 VXM。INT32 add 使用明确的单任务吞吐参数，不自动把 5120 ALU 当作每种操作的吞吐。默认半片预算为 2560 op/cycle，来自整片 5120 的固定 50% 分配；报告分别给出 `chip_peak_ops_per_cycle`、`base_ops_per_cycle` 和派生的 `allocated_peak_fraction`，不引入第二套可调峰值。参考验证仅接受不超过每 ALU 每周期一次 INT32 add 的整片预算上限；该上限是本模型的保守约束。
 
 几何峰值为 737.28 TOPS；标称 750 TOPS 保存在 [TSP 规格归档](configs/archive/tsp.json)，不再是活动输入或报告字段。32×320=10240 byte/cycle 是单方向网络上限，不能当作单个 MEM slice 的供给。45 个 SR 坐标是结构字段，代码检查其索引范围，不据此推导所有路径均为 45 hops。
 
@@ -1475,7 +1475,7 @@ reference_id 是 profile_id 加完整配置内容哈希，防止仅文件名相�
 | `mxm_row_ii` | 1 cycle | 理想驻留计算行 II；任务 II 仍由各资源瓶颈决定 |
 | `mxm_first_cycles` | 20 cycle | 完整 MXM 首结果参考延迟，不另计同一归约错拍 |
 | `row_io_latency_cycles` | 0 cycle | 显式省略额外固定 MEM/SR 路由开销；载荷仍计费 |
-| `vxm_base_ops_per_cycle` | 320 op/cycle | 单 hemisphere 任务的共享 VXM 等价操作预算；不随 stream 数变化 |
+| `vxm_base_ops_per_cycle` | 2560 op/cycle | 单 hemisphere 任务的共享 VXM 等价操作预算；不随 stream 数变化 |
 | `vxm_int32_add_cost` | 1 equivalent_op/op | 每元素 INT32 加法占用；默认仍为 320 add/cycle |
 | `vxm_add_latency_cycles` | 0 cycle | 纯行计算服务之外的额外固定流水延迟；不包含传输或整行算术工作 |
 
@@ -1513,15 +1513,15 @@ II_MEM = max(ceil(total_row_reads / read_supply),
 
 ### 共享 VXM 服务与非线性操作代价
 
-当前硬件 schema 9 沿用 schema 6 引入的 `vxm_base_ops_per_cycle=320` 的单任务共享预算，INT32 add 和 FP32 add/mul 的等价代价均为 1，FP32 exp 为 15，FP32 rsqrt 为 12，全部是 assumed。`hemisphere` 表示当前任务分配范围，不代表两个半球复制两套中心 VXM。原生和 CIM 的跨 K INT32 累加都调用同一个 `TSPSpec.vxm_service_cycles()`；更改基础预算或加法代价会改变两者的加法占用，更改 FP32 代价不改变 GEMM。
+当前硬件 schema 9 的中央 VXM 整片理论峰值由库存推导：`320 lane × 16 ALU/lane = 5120 op/cycle`。参考配置按两个半片固定均分，设 `vxm_base_ops_per_cycle=2560`，属于共享 VXM 的单半片任务预算；不借用另一半的空闲配额。均分是明确建模假设，依据 PR #8 反馈及用户转述师兄当面补充的半片口径（2026-11-23），不代表实测持续吞吐。INT32 add 和 FP32 add/mul 的等价代价均为 1，FP32 exp 为 15，FP32 rsqrt 为 12，全部是 assumed。`hemisphere` 表示当前任务分配范围，不代表两个半球复制两套中心 VXM。原生和 CIM 的跨 K INT32 累加都调用同一个 `TSPSpec.vxm_service_cycles()`；更改基础预算或加法代价会改变两者的加法占用，更改 FP32 代价不改变 GEMM。
 
 ```python
 from src.utils.tsp_config import TSPConfigLoader
 
 loader = TSPConfigLoader()
 spec = loader.create_tsp_spec(loader.load_hardware_config())
-spec.vxm_service_cycles({"fp32_exp": 320})    # 15 个计算占用周期
-spec.vxm_service_cycles({"fp32_rsqrt": 320})  # 12 个计算占用周期
+spec.vxm_service_cycles({"fp32_exp": 2560})   # 15 个计算占用周期
+spec.vxm_service_cycles({"fp32_rsqrt": 2560}) # 12 个计算占用周期
 spec.vxm_service_cycles({"int32_add": 160, "fp32_exp": 8,
                          "fp32_rsqrt": 3, "fp32_mul": 4})  # 共 320 等价操作，1 周期
 ```

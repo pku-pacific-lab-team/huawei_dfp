@@ -23,9 +23,11 @@ OPERATIONS = ("int32_add", "fp32_add", "fp32_mul", "fp32_exp", "fp32_rsqrt", "rm
               "mla_preprocess", "mla_cache", "mla_decode_attention", "moe_experts", "moe_router", "moe_combine", "moe")
 
 
-def build_plan(scope, root=ROOT, *, details=False):
+def build_plan(scope, root=ROOT, *, details=False, require_complete=False):
     if scope not in ("issue2", "issue3", "all"):
         raise ValueError("Unknown run scope")
+    if require_complete and scope == "issue2":
+        raise ValueError("--require-complete requires a scope containing Issue #3")
     steps = []
     for issue in (("issue2", "issue3") if scope == "all" else (scope,)):
         for arch in ARCHITECTURES:
@@ -51,6 +53,10 @@ def build_plan(scope, root=ROOT, *, details=False):
                       "report": evidence / "acceptance.json",
                       "arguments": [sys.executable, "-B", "-X", "utf8", str(root / f"scripts/verify_{issue}.py"),
                                     "--output-dir", str(evidence)]})
+        if issue == "issue3":
+            steps[-1]["require_complete"] = require_complete
+            if require_complete:
+                steps[-1]["arguments"].append("--require-complete")
     return steps
 
 
@@ -87,9 +93,19 @@ def verification_verdict(step, report, exit_code):
                "automatic_checks_passed": automatic and all(s in ("passed", "passed_with_recorded_review", "needs_review")
                                                               for s in conditions.values())}
     if step["issue"] == "issue3":
-        details.update(full_issue_complete=report["full_issue_complete"], pending_work=report["pending_work"])
+        require_complete = step.get("require_complete", False)
+        mode = "delivery" if require_complete else "regression"
+        details.update(full_issue_complete=report["full_issue_complete"], pending_work=report["pending_work"],
+                       acceptance_mode=mode, delivery_failures=report.get("delivery_failures", []))
         passed = (automatic and exit_code == 0 and report["implemented_scope_passed"] is True
                   and all(s == "passed" for s in conditions.values()))
+        if require_complete:
+            passed &= (report["full_issue_complete"] is True and report.get("require_complete") is True
+                       and report.get("acceptance_mode") == mode)
+            if report["full_issue_complete"] is not True:
+                details["delivery_failures"] = [*details["delivery_failures"], "full_issue_complete is not true"]
+            if report.get("require_complete") is not True or report.get("acceptance_mode") != mode:
+                details["delivery_failures"] = [*details["delivery_failures"], "Verifier did not report delivery mode"]
         return ("passed" if passed else "failed"), details
     details["review_context"] = report.get("review_context")
     passed = automatic and exit_code == 0 and report["local_acceptance_passed"] is True and all(
@@ -214,9 +230,12 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--scope", choices=("issue2", "issue3", "all"), default="all")
     parser.add_argument("--details", action="store_true", help="Also retain separate Issue #3 diagnostics")
+    parser.add_argument("--require-complete", action="store_true", help="Require complete Issue #3 delivery; Issue #2 retains its own verdict")
     args = parser.parse_args(argv)
+    if args.require_complete and args.scope == "issue2":
+        parser.error("--require-complete requires --scope issue3 or all")
     root = ROOT
-    plan = build_plan(args.scope, root, details=args.details)
+    plan = build_plan(args.scope, root, details=args.details, require_complete=args.require_complete)
     results = root / "results"
     logs = results / "run_all" / args.scope
     logs.mkdir(parents=True, exist_ok=True)
@@ -236,6 +255,7 @@ def main(argv=None):
     status = "failed" if failed else "needs_review" if pending else "passed"
     exit_code = 1 if failed else 2 if pending else 0
     summary = {"schema_version": 1, "scope": args.scope, "status": status, "exit_code": exit_code,
+               "issue3_acceptance_mode": ("delivery" if args.require_complete else "regression") if args.scope != "issue2" else "not_requested",
                "generated_at_utc": datetime.now(timezone.utc).isoformat(), "snapshot": before,
                "snapshot_unchanged_during_run": unchanged, "steps": records, "combined_test_coverage": coverage,
                "simulation_count": sum(r["kind"] == "simulation" for r in records),

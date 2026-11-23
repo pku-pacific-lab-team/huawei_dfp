@@ -201,8 +201,36 @@ class VectorTest(unittest.TestCase):
         b = inspect_result(simulate_vector(op, "tsp", TSPSpec(cfg), mode="timing", include_details=True))
         self.assertEqual(a["action_ledger"], b["action_ledger"])
         self.assertEqual(a["native_report"]["counts"]["fp32_exp"], 80)
-        self.assertEqual(a["native_report"]["timing"]["service_cycles"]["by_stage"]["vector_compute"], 4)
+        self.assertEqual(a["native_report"]["timing"]["service_cycles"]["by_stage"]["vector_compute"], 1)
         self.assertEqual(b["native_report"]["timing"]["service_cycles"]["by_stage"]["vector_compute"], 8)
+
+    def test_half_chip_budget_changes_compute_but_preserves_memory_service(self):
+        # At full supply exp is compute dominated; restricted streams make add memory dominated.
+        for operation, streams in (("fp32_exp", 32), ("int32_add", 1)):
+            reports = []
+            for budget in (320, 2560):
+                cfg = raw("tsp")
+                cfg["parameters"]["vxm_base_ops_per_cycle"]["value"] = budget
+                native = TSPSpec(cfg)
+                cim_cfg = TSPCIMConfigLoader().load_hardware_config()
+                cim_cfg["_native_reference_config"] = cfg
+                for arch, spec in (("tsp", native), ("tsp_cim", TSPCIMSpec(cim_cfg))):
+                    report = inspect_result(simulate_vector(task(operation, 2560), arch, spec, mode="timing",
+                                                            tile_elements=2560, streams=streams, include_details=True))
+                    reports.append(report)
+            old, old_cim, new, new_cim = reports
+            with self.subTest(operation=operation):
+                self.assertEqual(old["action_ledger"], new["action_ledger"])
+                before = old["native_report"]["timing"]["elapsed_cycles"]["by_stage"]
+                after = new["native_report"]["timing"]["elapsed_cycles"]["by_stage"]
+                self.assertEqual(before["vector_compute"], 8 * after["vector_compute"])
+                for stage in ("mem_to_vxm", "vxm_to_mem"):
+                    self.assertEqual(before[stage], after[stage])
+                self.assertEqual(old["latency"], old_cim["latency"])
+                self.assertEqual(new["latency"], new_cim["latency"])
+                self.assertGreater(new["latency"]["cycle_count"] * 8, old["latency"]["cycle_count"])
+                if operation == "int32_add":
+                    self.assertGreater(after["mem_to_vxm"], after["vector_compute"])
 
     def test_invalid_ops_shapes_aliases_and_allocations_fail(self):
         for op, tensors in (("unknown", (TensorSpec("a", (1,), "FP32"),)),

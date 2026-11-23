@@ -1,3 +1,5 @@
+> 本文保留 PR #8 反馈前的审查与测试记录（474 项测试）。本轮验收/VXM 修订及最新结果见 [PR #8 修订记录](pr8_followup.md)。历史数值不充当当前版本的通过证据。
+
 # Issue #3 本地最终审查与交付记录
 
 以下分支审查及补充探针记录对应实现提交 `59c8331`。2026-11-23 的文档修订与验收刷新另见[文档同步记录](documentation_update.md)；历史提交、分支统计和探针结果保留原值，`run/` 指向最新一次自动验收。
@@ -88,10 +90,10 @@ print("Saved source snapshots match")
 
 ```powershell
 # 独立验收 Issue #3，写入独立复现目录，预期退出 0。
-python -B -X utf8 scripts/verify_issue3.py --output-dir results/issue3-reproduction
+python -B -X utf8 scripts/verify_issue3.py --require-complete --output-dir results/issue3-reproduction
 
 # 两套验收及全部日常报告，包含详细诊断。
-python -B -X utf8 scripts/run_all.py --scope all --details
+python -B -X utf8 scripts/run_all.py --scope all --require-complete --details
 
 # 检查分支代码差异，优先阅读实现，生成证据另行查看。
 git diff origin/main...HEAD -- src scripts configs tests ascend.py tpu.py tsp.py tsp_cim.py

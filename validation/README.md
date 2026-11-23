@@ -5,7 +5,7 @@ Issue #2 与 Issue #3 分别维护入口、覆盖范围、判据和生成结果�
 | 范围 | 入口 | 结果及通过字段 |
 | --- | --- | --- |
 | Issue #2 原生模型 | `python scripts/verify_issue2.py` | [issue2/run/acceptance.json](issue2/run/acceptance.json)：`local_acceptance_passed` 与 A1—A5 |
-| Issue #3 已实现算子 | `python scripts/verify_issue3.py` | 运行后查看 `issue3/run/acceptance.json`：`implemented_scope_passed` 表示登记范围通过；`full_issue_complete` 另核对原始验收映射、23 个模型块、内部待办及快照，仅表示本地粗粒度算子交付 |
+| Issue #3 算子交付 | `python scripts/verify_issue3.py --require-complete` | 运行后查看 `issue3/run/acceptance.json`：`implemented_scope_passed` 表示登记范围通过；`full_issue_complete` 另核对原始验收映射、23 个模型块、内部待办及快照，仅表示本地粗粒度算子交付 |
 
 统一运行入口为 `scripts/run_all.ps1 -Scope issue2|issue3|all`，默认 `all`；各范围先运行对应日常 timing 仿真，再调用表中验证脚本。总结写入 `results/run_all_<范围>.json`，原始日志写入 `results/run_all/<范围>/`。`all` 会核对两组测试并集覆盖全仓库，不重复执行整套测试。退出码 0 表示所选范围通过，1 表示实际失败，2 表示仅 Issue #2 本地审阅证据需对齐；该状态不等同于 GitHub PR 尚待审阅，任一组失败或待审都不阻止其余选中组执行。
 
@@ -30,3 +30,5 @@ PR #7 已由师兄（Bwoah-Kimi）审查并合入 main，修复提交为 `d49d25
 以后需要保留历史验收时，将原始输出及依赖的基线一并归档，记录原路径、文件哈希、对应版本和当时的验收状态，再更新对应 Issue 的输出。同一 Issue 避免并列维护多个声称代表当前状态的 `run/` 目录。临时实验可使用 `--output-dir results/<实验名>`；两个脚本均拒绝输出到对方 Issue 的证据树。
 
 硬件规格归档另见 [configs/archive/](../configs/archive/README.md)。原生参数来源使用[硬件台账](../calibration/parameter_source_audit.json)，Issue #3 新增执行策略使用[执行参数台账](../calibration/operator_execution_audit.json)；这些都不属于生成文件的清理范围。
+
+Issue #3 普通回归不带 `--require-complete`；正式交付必须带该选项并满足 `full_issue_complete=true`，否则退出 1。批量入口使用 `--require-complete` / `-RequireComplete`，仅约束 Issue #3，汇总中记录验收模式。生成目录 `validation/issue3/run/` 保持 Git 忽略。

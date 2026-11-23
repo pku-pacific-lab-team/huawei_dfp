@@ -13,7 +13,7 @@
       "status": "assumed",
       "source": "model-policy; ARCHITECTURE.md#vector-operators",
       "version": "vector-serial-v1",
-      "conditions": "HBM 与 UB 同时预约的 DMA 取两端最小服务率。输入 DMA、UB 操作数读取、计算、UB 结果写入、导出 DMA 分阶段串行，L2 bypass。每次算子调用为冷启动。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+      "conditions": "HBM 与 UB 同时预约的 DMA 取两端最小服务率。输入 DMA、UB 操作数读取、计算、UB 结果写入、导出 DMA 分阶段串行，L2 bypass。每次算子调用为冷启动。 1024 元素为可覆盖的软件默认分块策略，不是硬件上限，也未经最优性验证；有效块大小仍受算子形状和容量约束；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
     },
     "tpu": {
       "scope": "single_tensorcore",
@@ -25,7 +25,7 @@
       "status": "assumed",
       "source": "model-policy; ARCHITECTURE.md#vector-operators",
       "version": "vector-serial-v1",
-      "conditions": "HBM 按 TensorCore 数均分，VMEM 为单核共享服务。输入 DMA、操作数读取、计算、结果写入、导出 DMA 分阶段串行；CMEM bypass。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+      "conditions": "HBM 按 TensorCore 数均分，VMEM 为单核共享服务。输入 DMA、操作数读取、计算、结果写入、导出 DMA 分阶段串行；CMEM bypass。 1024 元素为可覆盖的软件默认分块策略，不是硬件上限，也未经最优性验证；有效块大小仍受算子形状和容量约束；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
     },
     "tsp": {
       "scope": "single_hem",
@@ -37,7 +37,7 @@
       "status": "assumed",
       "source": "model-policy; ARCHITECTURE.md#vector-operators",
       "version": "vector-serial-v1",
-      "conditions": "完整输入和输出驻留所选本侧 MEM。每个输入读取受 MEM 和输入 stream 共同约束；输出写回受 MEM 和输出 stream 共同约束。FP32/INT32 每元素 4 byte，stream 每块按完整宽度补齐，MEM 只计逻辑载荷。使用一个共享 VXM 任务预算，CIM 不复制预算。 分块上限 1024 为确定性策略；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
+      "conditions": "完整输入和输出驻留所选本侧 MEM。每个输入读取受 MEM 和输入 stream 共同约束；输出写回受 MEM 和输出 stream 共同约束。FP32/INT32 每元素 4 byte，stream 每块按完整宽度补齐，MEM 只计逻辑载荷。使用一个共享 VXM 任务预算，CIM 不复制预算。 1024 元素为可覆盖的软件默认分块策略，不是硬件上限，也未经最优性验证；有效块大小仍受算子形状和容量约束；显式零启动开销表示未建模固定延迟，不表示实测零延迟。无跨块重叠、广播、归约、转换或原地更新。"
     }
   },
   "parameters": {

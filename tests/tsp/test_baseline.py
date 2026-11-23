@@ -147,18 +147,18 @@ class TSPReferenceTest(unittest.TestCase):
         self.assertEqual(full["timing"]["parameters"],limited["timing"]["parameters"])
         p=limited["timing"]["parameters"]
         self.assertEqual(p["install_bpc"]["value"],10240)
-        self.assertEqual(p["vxm_base_ops_per_cycle"]["value"],320)
+        self.assertEqual(p["vxm_base_ops_per_cycle"]["value"],2560)
         d=limited["timing"]["derived_services"]
         self.assertEqual(d["install_bytes_per_cycle"],10240)
         self.assertEqual(d["stream_bytes_per_cycle"],320)
-        self.assertEqual(d["vxm_row_compute_cycles"],{"min":2,"max":2})
+        self.assertEqual(d["vxm_row_compute_cycles"],{"min":1,"max":1})
         self.assertEqual(full["counts"],limited["counts"])
         self.assertGreater(limited["timing"]["total_cycles"],full["timing"]["total_cycles"])
         self.assertEqual(self.spec.values["install_bpc"],10240)
         # Full outward stream blocks prefetch: LW=640+32; internal IW=39+20.
-        # The two row windows still cost 55+79 cycles.
-        self.assertEqual(limited["timing"]["elapsed_cycles"]["by_stage"],{"weight_load_stall":672,"install":59,"row_service":134})
-        self.assertEqual(limited["timing"]["total_cycles"],865)
+        # N640 cross-K add rounds from 2 to 1 cycle; row windows cost 55+78.
+        self.assertEqual(limited["timing"]["elapsed_cycles"]["by_stage"],{"weight_load_stall":672,"install":59,"row_service":133})
+        self.assertEqual(limited["timing"]["total_cycles"],864)
 
     def test_fixed_install_ceiling_and_propagation_are_independent(self):
         cfg=copy.deepcopy(self.cfg)
@@ -227,11 +227,14 @@ class TSPReferenceTest(unittest.TestCase):
         for key in ("counts", "action_counts", "memory", "timing"):
             self.assertEqual(baseline[key], other[key])
         self.assertEqual(baseline["schema_version"], 10)
-        self.assertEqual(baseline["timing"]["total_cycles"], 221)
+        # Two N640 cross-K first-row adds each save one cycle at the new budget.
+        self.assertEqual(baseline["timing"]["total_cycles"], 219)
 
     def test_vxm_tail_service_and_fixed_pipeline_latency(self):
-        sim=TSPSimulator(self.spec)
-        # N640 costs 2 compute cycles; the padded N16 tail costs only 1.
+        cfg=copy.deepcopy(self.cfg)
+        cfg["parameters"]["vxm_base_ops_per_cycle"]["value"]=320
+        sim=TSPSimulator(TSPSpec(cfg))
+        # At an explicitly restricted budget, N640 costs 2 cycles and N16 costs 1.
         combined=sim.simulate(2,321,641,mode="timing")
         full=sim.simulate(2,321,640,mode="timing")
         tail=sim.simulate(2,321,1,mode="timing")
@@ -240,7 +243,6 @@ class TSPReferenceTest(unittest.TestCase):
         self.assertLess(combined["timing"]["total_cycles"],
                         full["timing"]["total_cycles"]+tail["timing"]["total_cycles"])
         self.assertEqual(combined["timing"]["derived_services"]["vxm_row_compute_cycles"],{"min":1,"max":2})
-        cfg=copy.deepcopy(self.cfg)
         cfg["parameters"]["vxm_add_latency_cycles"]["value"]=5
         delayed=TSPSimulator(TSPSpec(cfg)).simulate(2,321,641,mode="timing")
         self.assertEqual(delayed["counts"],combined["counts"])
@@ -317,9 +319,9 @@ class TSPReferenceTest(unittest.TestCase):
         r=sim.simulate(1,321,16,mode="timing")
         self.assertEqual(r["timing"]["total_cycles"],89)  # Cold LW 1 + IW 40 + rows 48; second LW is hidden.
         slow=sim.simulate(3,32,640,mode="timing",tile=(320,16,640),streams=1,mem_slices=[0])
-        self.assertEqual(slow["timing"]["parameters"]["vxm_base_ops_per_cycle"]["value"],320)
+        self.assertEqual(slow["timing"]["parameters"]["vxm_base_ops_per_cycle"]["value"],2560)
         self.assertEqual(slow["timing"]["parameters"]["vxm_add_latency_cycles"]["value"],0)
-        self.assertEqual(slow["timing"]["derived_services"]["vxm_row_compute_cycles"],{"min":2,"max":2})
+        self.assertEqual(slow["timing"]["derived_services"]["vxm_row_compute_cycles"],{"min":1,"max":1})
         self.assertGreaterEqual(slow["timing"]["max_row_interval_cycles"],16)
         cfg=copy.deepcopy(self.cfg)
         cfg["parameters"]["mxm_first_cycles"].update(value=5,status="assumed")

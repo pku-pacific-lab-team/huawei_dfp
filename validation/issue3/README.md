@@ -3,16 +3,20 @@
 在工程根目录运行：
 
 ```powershell
-.\.venv\Scripts\python.exe scripts/verify_issue3.py
+.\.venv\Scripts\python.exe scripts/verify_issue3.py --require-complete
 ```
 
 默认输出到 `validation/issue3/run/`，其中 `acceptance.json` 是验收汇总。该目录下的报告及日志不纳入 Git 跟踪，按需运行脚本生成。临时验证可使用 `--output-dir tmp/issue3-experiment`。脚本拒绝输出到 `validation/issue2/` 及其子目录；Issue #2 脚本也不能写入本目录。
 
-退出 0 表示[覆盖清单](scope.json)的已实现范围通过。第八批 B 后，`full_issue_complete` 由原始三项验收映射、全部条件、LLaMA3-70B/DeepSeek-R1 共23个模型块的代码与实际测试证据、无 Issue #3 内部待办以及源码快照一致性共同决定；不再硬编码 false。该字段表示本地粗粒度算子交付，不代表 GitHub 已关闭或后续模型/整片执行已完成。
+普通回归（不带 `--require-complete`）退出 0 表示[覆盖清单](scope.json)的已实现范围通过。正式交付模式还要求 `full_issue_complete=true`，否则退出 1 并输出 `delivery_failures`。报告用 `acceptance_mode=regression|delivery`、`require_complete` 和 `exit_code` 标识本次判定。
+
+`full_issue_complete` 由原始三项验收映射、全部条件、LLaMA3-70B/DeepSeek-R1 共 23 个模型块的代码与实际测试证据、无 Issue #3 内部待办以及源码快照一致性共同决定。预期 ID 集合独立定义在 `scripts/verification.py`：LLaMA 10 项、DeepSeek 13 项；`model_coverage.json` 只提供待检查的证据。缺失、替换、额外或重复 ID，以及模型缺失/重复均失败，具体差异记录在 `delivery_audit.inventory`。该字段仅表示本地粗粒度算子交付，不代表 GitHub 已关闭或 Issue #4 完整模型运行已完成。
 
 日常单算子仿真报告与 Issue #2 一样放在工程根目录 `results/`：全部非 GEMM 算子的默认名称为 `<架构>_<算子>.json`，例如 `ascend_fp32_add.json`。同一架构与算子的 count/timing 共用文件名，成功重跑时覆盖；显式 `--output` 可另存，任务失败时保留旧文件。该目录仍是 Git 忽略的可再生输出，与本目录的验收证据分开。
 
 也可使用 `scripts/run_all.ps1 -Scope issue3` 一次生成四架构 × 26 类操作（GEMM 加 25 个非 GEMM 样例）的 104 份精简日常 timing 报告、每算子一行的 CSV 汇总并执行本验证；`-Scope all` 再包含 Issue #2 的 4 份原生 GEMM 报告，共 108 份，并执行两套独立验证。汇总报告在 `results/run_all_<范围>.json`；GEMM 适配报告另存为 `<架构>_gemm_operator.json`，不覆盖原生报告。
+
+正式批量交付使用 `python scripts/run_all.py --scope issue3 --require-complete --details` 或 `scripts/run_all.ps1 -Scope issue3 -RequireComplete -Details`。汇总记录 `issue3_acceptance_mode`；即使子脚本退出 0，正式模式也会复核完整交付字段。`--scope all` 的严格要求只作用于 Issue #3，保留 Issue #2 原判定；`--scope issue2 --require-complete` 拒绝执行，避免无效选项被忽略。
 
 ## 检查与证据
 
@@ -41,6 +45,7 @@
 生成文件包括 `acceptance.json`（本 Issue 的条件和待办）、`tests.json` / `unittest.txt`（测试结果）、`commands.json`（命令与逐项检查），以及精简 CLI 报告、`details/` 下的独立详细报告、输出日志和负例输入。正例验证显式请求详细输出以检查原生结果与摘要的关联，日常 CLI 默认不导出详细数据。读取结果时同时核对：
 
 - `implemented_scope_passed=true`；
+- 正式交付还要求 `acceptance_mode=delivery`、`full_issue_complete=true`、`exit_code=0`；
 - `conditions` 全部 passed，测试全部 passed，CLI 全部通过；
 - `snapshot_unchanged_during_run=true`，且快照仍匹配当前文件。
 
@@ -50,7 +55,7 @@
 
 Issue #3 的契约与执行编排位于 `src/operators/`、`src/runtime/`；内核包括各架构的 `vector.py`/`composite.py`，以及 `src/core/` 下的 `vector*`、`composite*`、`block_*`、`kv_cache.py`、`moe.py` 和 `operator_result.py`。执行 profile 类型位于 `src/hardware/vector.py`、`blocks.py`、`attention.py`，任务解析和输出位于 `src/utils/operator_*.py`。具体实现与测试映射见 [scope.json](scope.json) 和 [model_coverage.json](model_coverage.json)；执行配置在 `configs/execution/`，样例在 `configs/workload/operators/`，功能测试在 `tests/operators/`。这些执行层和资源装配文件也单列为 Issue #3 自有文件，不加入 Issue #2 的人工审阅快照。
 
-新增执行假设及哈希使用独立[执行参数台账](../../calibration/operator_execution_audit.json)。[硬件参数台账](../../calibration/parameter_source_audit.json)继续维护原生规格，不再追加算子 profile 项。两套脚本只共享 `scripts/verification.py` 中的测试记录、文本指纹和目录保护工具，不共享验收条件。
+新增执行假设及哈希使用独立[执行参数台账](../../calibration/operator_execution_audit.json)。[硬件参数台账](../../calibration/parameter_source_audit.json)继续维护原生规格，不再追加算子 profile 项。两套脚本复用 `scripts/verification.py` 中的测试记录、文本指纹和目录保护工具；该文件另定义仅供 Issue #3 使用的预期 block ID 集合，Issue #2 不读取它作为验收条件。
 
 Issue #2 仅运行原生架构与 common 测试，仍输出 A1—A5；其 `snapshot` 不包含 Issue #3 专属文件。四入口目前会导入算子分派代码，因此 Issue #2 将这些源码单列到 `dependency_snapshot`，用于运行可复现性，不据此续签或作废 A1/A5 的人工审阅。修改共享入口、原生源码或共享文档，仍可能使 Issue #2 旧审阅失效；脚本不会自动重写其 review.json。
 
@@ -144,3 +149,9 @@ MLA 核心采用每 head 五次原生 GEMM，分别计入 Q→latent、两路打
 `evaluate_delivery` 逐块检查实现文件存在、实际测试记录全部通过和 owner/status；缺模块、未执行、失败、缺验收映射、未登记证据或仍有内部待办都会阻止完成判断。`full_target_model_coverage=true` 表示10个 LLaMA块与13个 DeepSeek块在所述解析假设下覆盖；`full_issue_complete` 还取决于本次运行的全部验证与快照。此结论不代替新的人工代码审阅，也不改变 GitHub 状态。
 
 保留边界：INT8性能假设、单核/单半片、全权重驻留、符号布局和路由分布场景。完整 Decoder/模型拼装、真实规模的整片分片与供给、跨资源通信以及端到端评估另行推进；数值精度、ISA与硬件/能耗标定不纳入这次解析验收。它们登记在 `follow_up_outside_issue3`，不以已实现算子覆盖来冒充已完成。
+
+## PR #8 修订后的性能口径
+
+中央 VXM 整片理论峰值为 5120 op/cycle，默认单半片固定分配 2560 op/cycle；这是均分建模假设，不代表实测持续吞吐。TSP/CIM 的向量与跨 K 累加共用预算，访存及依赖另行计时。默认 `tile_elements=1024` 是可覆盖的软件策略，不是硬件上限或已验证最优值。受容量约束的自动分块/调度搜索留在 Issue #4，不属于本轮交付条件。
+
+本轮基线逐项比较保留在 `baselines/report_format.json` 的追加更新记录：64 组小形状 API 的周期、动作及容量均不变，60 份原生报告仅因来源哈希、预算元数据或策略说明更新而变化。原始快照、历史产物字段和 `layering.json` 保留原义。较大形状下的性能变化由原生 VXM 和 Vector 测试分别核验计算占用、访存服务及动作不变性。

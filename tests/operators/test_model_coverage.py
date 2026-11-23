@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 import unittest
 
+from scripts.verification import issue3_inventory
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -10,6 +12,7 @@ class ModelCoverageTest(unittest.TestCase):
     def test_inventory_claims_have_evidence_and_all_gaps_have_owners(self):
         d = json.loads((ROOT / "validation/issue3/model_coverage.json").read_text(encoding="utf-8"))
         self.assertEqual(d["schema_version"], 1)
+        self.assertEqual(issue3_inventory(d)["status"], "passed", issue3_inventory(d))
         self.assertEqual({m["name"] for m in d["models"]}, {"LLaMA3-70B", "DeepSeek-R1"})
         incomplete = []
         for model in d["models"]:

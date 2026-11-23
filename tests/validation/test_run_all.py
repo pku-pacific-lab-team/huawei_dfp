@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 STUB = '''import argparse, hashlib, json, os, sys
 from pathlib import Path
 p = argparse.ArgumentParser()
+p.add_argument('--require-complete', action='store_true')
 for key in ('output', 'output-dir', 'workload', 'mode', 'report-format', 'details-output'):
     p.add_argument('--' + key)
 a = p.parse_args()
@@ -26,7 +27,8 @@ if name.startswith('verify_'):
     issue = name.removeprefix('verify_')
     out = Path(a.output_dir)
     out.mkdir(parents=True, exist_ok=True)
-    pending = mode == 'review' and issue == 'issue2'
+    pending = mode in ('review', 'review_complete') and issue == 'issue2'
+    complete = mode in ('complete', 'review_complete')
     conditions = {k: {'status': 'needs_review' if pending and k in ('A1','A5') else 'passed'}
                   for k in (('A1','A2','A3','A4','A5') if issue == 'issue2' else ('operators',))}
     test = 'tests.test_fixture.' + ('Issue2Case' if issue == 'issue2' else 'Issue3Case') + '.test_ok'
@@ -36,12 +38,15 @@ if name.startswith('verify_'):
               'snapshot_unchanged_during_run': True, 'conditions': conditions,
               'unit_tests': {'passed': True, 'total': 1, 'status_counts': {'passed': 1}},
               'local_acceptance_passed': not pending, 'implemented_scope_passed': True,
-              'full_issue_complete': False, 'pending_work': ['remaining operators']}
+              'full_issue_complete': complete, 'pending_work': [] if complete else ['remaining operators'],
+              'require_complete': a.require_complete,
+              'acceptance_mode': 'delivery' if a.require_complete else 'regression',
+              'delivery_failures': [] if complete else ['remaining operators']}
     if pending:
         report['review_context'] = {'github_review_status': 'reviewed_and_merged',
                                    'summary': 'PR #7 reviewed and merged; local evidence is separate.'}
     (out/'acceptance.json').write_text(json.dumps(report), encoding='utf-8')
-    sys.exit(1 if pending else 0)
+    sys.exit(1 if pending or (a.require_complete and not complete and mode != 'misleading_exit') else 0)
 operation = Path(a.workload).stem
 operation = 'gemm' if operation == 'tiny_gemm' else operation
 if name == 'ascend' and operation == 'gemm' and a.report_format is None and mode in ('failure','stale'):
@@ -84,7 +89,7 @@ class RunAllTest(unittest.TestCase):
             "import unittest\nclass Issue2Case(unittest.TestCase):\n def test_ok(self): pass\n"
             "class Issue3Case(unittest.TestCase):\n def test_ok(self): pass\n", encoding="utf-8")
 
-    def run_batch(self, scope=None, mode="", powershell=False, details=False):
+    def run_batch(self, scope=None, mode="", powershell=False, details=False, require_complete=False):
         shell = shutil.which("pwsh") or shutil.which("powershell")
         if powershell and shell:
             command = [shell, "-NoProfile", "-File", str(self.root / "scripts/run_all.ps1")]
@@ -96,6 +101,8 @@ class RunAllTest(unittest.TestCase):
                 command += ["--scope", scope]
         if details:
             command += ["-Details" if powershell and shell else "--details"]
+        if require_complete:
+            command += ["-RequireComplete" if powershell and shell else "--require-complete"]
         env = dict(os.environ, RUN_ALL_STUB_MODE=mode)
         env["PATH"] = str(Path(sys.executable).parent) + os.pathsep + env.get("PATH", "")
         # Windows interpreter startup repeats for every fixture command; let the
@@ -106,6 +113,28 @@ class RunAllTest(unittest.TestCase):
         report = self.root / "results" / f"run_all_{scope or 'all'}.json"
         self.assertTrue(report.exists(), process.stderr + process.stdout)
         return process, json.loads(report.read_text(encoding="utf-8"))
+
+    def test_delivery_requires_completion_even_when_verifier_exits_zero(self):
+        for mode in ("", "misleading_exit", "complete"):
+            with self.subTest(mode=mode):
+                process, report = self.run_batch("issue3", mode, powershell=True, require_complete=True)
+                self.assertEqual(process.returncode, 0 if mode == "complete" else 1, process.stderr)
+                self.assertEqual(report["issue3_acceptance_mode"], "delivery")
+                verification = report["verification"]["issue3"]
+                self.assertEqual(verification["status"], "passed" if mode == "complete" else "failed")
+                self.assertEqual(verification["acceptance_mode"], "delivery")
+                if mode != "complete":
+                    self.assertTrue(verification["delivery_failures"])
+
+    def test_all_delivery_preserves_issue2_review_semantics(self):
+        process, report = self.run_batch("all", "review_complete", require_complete=True)
+        self.assertEqual(process.returncode, 2, process.stderr)
+        self.assertEqual(report["verification"]["issue2"]["status"], "needs_review")
+        self.assertEqual(report["verification"]["issue3"]["status"], "passed")
+        for step in report["steps"]:
+            self.assertEqual("--require-complete" in step["arguments"], step["name"] == "verify_issue3")
+        with self.assertRaisesRegex(ValueError, "Issue #3"):
+            run_all.build_plan("issue2", self.root, require_complete=True)
 
     def test_scope_matrix_and_default_powershell_from_another_directory(self):
         previous_native = None
