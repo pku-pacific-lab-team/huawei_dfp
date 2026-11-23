@@ -7,5 +7,5 @@
 [Action] input_stream_bytes: 4480 byte (padded, action)
 [Action] output_stream_bytes: 4480 byte (padded, action)
 [Action] fp32_rsqrt: 1025 op (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-o5ry_6te\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-o5ry_6te\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-72i0iur7\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-72i0iur7\report.json

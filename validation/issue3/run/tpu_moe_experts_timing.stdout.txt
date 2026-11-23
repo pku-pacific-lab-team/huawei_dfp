@@ -238,5 +238,5 @@
 [Action] shared.ffn.output.boundary_to_fp32: 15 element (modeled_internal, action)
 [Action] shared.ffn.output.hbm_write_bytes: 60 byte (logical, action)
 [Action] shared.ffn.output.vmem_dma_read_bytes: 60 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-5pmysdw_\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-5pmysdw_\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-h91mcar6\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-h91mcar6\report.json

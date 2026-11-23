@@ -10,9 +10,9 @@
 
 退出 0 表示[覆盖清单](scope.json)的已实现范围通过。第八批 B 后，`full_issue_complete` 由原始三项验收映射、全部条件、LLaMA3-70B/DeepSeek-R1 共23个模型块的代码与实际测试证据、无 Issue #3 内部待办以及源码快照一致性共同决定；不再硬编码 false。该字段表示本地粗粒度算子交付，不代表 GitHub 已关闭或后续模型/整片执行已完成。
 
-日常单算子仿真报告与 Issue #2 一样放在工程根目录 `results/`：Vector / RMSNorm / Softmax / Residual / SwiGLU / FFN / KV Cache / Decode Attention 的默认名称为 `<架构>_<算子>.json`，例如 `ascend_fp32_add.json`。同一架构与算子的 count/timing 共用文件名，成功重跑时覆盖；显式 `--output` 可另存，任务失败时保留旧文件。该目录仍是 Git 忽略的可再生输出，与本目录的验收证据分开。
+日常单算子仿真报告与 Issue #2 一样放在工程根目录 `results/`：全部非 GEMM 算子的默认名称为 `<架构>_<算子>.json`，例如 `ascend_fp32_add.json`。同一架构与算子的 count/timing 共用文件名，成功重跑时覆盖；显式 `--output` 可另存，任务失败时保留旧文件。该目录仍是 Git 忽略的可再生输出，与本目录的验收证据分开。
 
-也可使用 `scripts/run_all.ps1 -Scope issue3` 一次生成四架构 × 二十二类算子的 88 份精简日常 timing 报告、每算子一行的 CSV 汇总并执行本验证；`-Scope all` 再包含 Issue #2 的 4 份原生 GEMM 报告和独立验证。汇总报告在 `results/run_all_<范围>.json`；GEMM 适配报告另存为 `<架构>_gemm_operator.json`，不覆盖原生报告。
+也可使用 `scripts/run_all.ps1 -Scope issue3` 一次生成四架构 × 26 类操作（GEMM 加 25 个非 GEMM 样例）的 104 份精简日常 timing 报告、每算子一行的 CSV 汇总并执行本验证；`-Scope all` 再包含 Issue #2 的 4 份原生 GEMM 报告，共 108 份，并执行两套独立验证。汇总报告在 `results/run_all_<范围>.json`；GEMM 适配报告另存为 `<架构>_gemm_operator.json`，不覆盖原生报告。
 
 ## 检查与证据
 
@@ -48,7 +48,7 @@
 
 ## 文件归属
 
-Issue #3 的实现位于 `src/operators/`、`src/runtime/`、`src/core/**/vector.py`、`src/core/**/composite*.py`、`src/core/vector_resources.py`、`src/core/operator_result.py`、`src/hardware/vector.py` 和 `src/utils/operator_*.py`；执行配置在 `configs/execution/`，样例在 `configs/workload/operators/`，功能测试在 `tests/operators/`。这些执行层和资源装配文件也单列为 Issue #3 自有文件，不加入 Issue #2 的人工审阅快照。
+Issue #3 的契约与执行编排位于 `src/operators/`、`src/runtime/`；内核包括各架构的 `vector.py`/`composite.py`，以及 `src/core/` 下的 `vector*`、`composite*`、`block_*`、`kv_cache.py`、`moe.py` 和 `operator_result.py`。执行 profile 类型位于 `src/hardware/vector.py`、`blocks.py`、`attention.py`，任务解析和输出位于 `src/utils/operator_*.py`。具体实现与测试映射见 [scope.json](scope.json) 和 [model_coverage.json](model_coverage.json)；执行配置在 `configs/execution/`，样例在 `configs/workload/operators/`，功能测试在 `tests/operators/`。这些执行层和资源装配文件也单列为 Issue #3 自有文件，不加入 Issue #2 的人工审阅快照。
 
 新增执行假设及哈希使用独立[执行参数台账](../../calibration/operator_execution_audit.json)。[硬件参数台账](../../calibration/parameter_source_audit.json)继续维护原生规格，不再追加算子 profile 项。两套脚本只共享 `scripts/verification.py` 中的测试记录、文本指纹和目录保护工具，不共享验收条件。
 
@@ -72,6 +72,10 @@ Issue #2 仅运行原生架构与 common 测试，仍输出 A1—A5；其 `snaps
 
 Issue #2 输出是否需要调整，另见[报告评估](../report_output_review.md)；该评估不改变其报告格式或验收判据。
 
+## 分批证据的阅读约定
+
+以下第四批至第八批 A 记录对应批次完成时的范围、数量和待办，保留历史状态。当前范围以本文开头、[第八批 B 交付核对](#issue3-delivery)及实际验收快照为准。
+
 ## 第四批证据范围
 
 第四批将三种块接入四架构的 count/timing，当时独立 CLI 矩阵为 88 项正例及 8 项负例，共 96 项。该批 `run_all -Scope all` 生成 48 份日常报告（Issue #2 的 4 份 + Issue #3 的 44 份），再运行两套验证。新增测试不改写 64 组历史 API 基线；既有算子输出应继续匹配。
@@ -88,7 +92,7 @@ Issue #2 输出是否需要调整，另见[报告评估](../report_output_review
 
 ## 第六批 A 证据范围
 
-新增 `rmsnorm_int8`、`qkv_projection`、`attention_output_projection`，复用已有 GEMM、RMSNorm 和存储边界代理。该批独立 CLI 矩阵为136项，`run_all --scope all --details` 生成68份日常报告，并分别执行两套验证。目标覆盖矩阵将常规 INT8 归一化和 LLaMA QKV/输出投影更新为 implemented；DeepSeek MLA 组合保持未完成。
+新增 `rmsnorm_int8`、`qkv_projection`、`attention_output_projection`，复用已有 GEMM、RMSNorm 和存储边界代理。该批独立 CLI 矩阵为136项，`run_all --scope all --details` 生成68份日常报告，并分别执行两套验证。该批完成时，目标覆盖矩阵将常规 INT8 归一化和 LLaMA QKV/输出投影更新为 implemented；DeepSeek MLA 组合当时尚未完成。
 
 新增测试检查同时存活的三个最终输出、head/matrix 视图不重复分配、全块容量超限和 TSP 归一化条带化行状态/临时空间。既有64组 API 基线保持不变，刷新后的第五批原生 CLI 结果与本地提交 `b50e82c` 对账记录在 `run/batch5_comparison.json`。RoPE、Embedding 和词表输出边界随后由第六批 B 实现，完整模型与整片执行仍不在本次完成范围。
 
@@ -98,7 +102,7 @@ Issue #2 输出是否需要调整，另见[报告评估](../report_output_review
 
 第六批 A 已保存为本地提交 `df3501e`。既有128份 CLI 正例的摘要与原生报告对账记录在 `run/batch6a_comparison.json`；历史64组 API 基线不改写。本批来源、假设和 scratch 使用方式另列于执行参数台账；共享执行 profile 的参数与哈希保持不变。
 
-LLaMA 清单内独立粗粒度块已覆盖，DeepSeek 仍有 MLA/MoE 缺口；`full_target_model_coverage` 与 `full_issue_complete` 继续为 false。implemented 不代表完整模型权重能在单核/单半片驻留，也不表示完成真实张量计算、量化精度或端到端模型拼装。
+第六批 B 完成时，LLaMA 清单内独立粗粒度块已覆盖，DeepSeek 当时仍有 MLA/MoE 缺口；该批的 `full_target_model_coverage` 与 `full_issue_complete` 均为 false。implemented 不代表完整模型权重能在单核/单半片驻留，也不表示完成真实张量计算、量化精度或端到端模型拼装。
 
 ## 第七批 A 证据范围
 
@@ -106,7 +110,7 @@ LLaMA 清单内独立粗粒度块已覆盖，DeepSeek 仍有 MLA/MoE 缺口；`f
 
 新增测试核对三次原生 GEMM、两次 FP32 归一化、两个位置旋转分支及选中通道的物化读写/转换。共享缓存区分 capacity、length、append_tokens；latent 与位置 K 均不按 query head 数复制，缓存状态输出复用原 backing。两个不同 latent GEMM 角色按最大补齐视图预留一次；读取只覆盖有效范围，不含未来 Attention 自己的 per-head 读取。
 
-来源和执行假设见 `calibration/operator_execution_audit.json` 的 `mla_preprocessing_and_cache`。矩阵、Vector、转换及 cache profile 参数不变。INT8、串行物化、符号布局和复用策略是项目假设；没有官方 FP8/BF16 数值复现或新硬件测量。DeepSeek 清单更新 MLA RoPE/压缩缓存为 implemented，MLA projections 为 partial，Attention 核心仍 pending；下一批必须显式计入 absorbed 路线的 Q-content→latent 与 latent-context→V 投影。
+来源和执行假设见 `calibration/operator_execution_audit.json` 的 `mla_preprocessing_and_cache`。矩阵、Vector、转换及 cache profile 参数不变。INT8、串行物化、符号布局和复用策略是项目假设；没有官方 FP8/BF16 数值复现或新硬件测量。第七批 A 完成时，DeepSeek 清单中的 MLA RoPE/压缩缓存为 implemented，MLA projections 为 partial，Attention 核心为 pending；这些剩余投影与核心工作随后由第七批 B 显式计入。
 
 ## 第七批 B 证据范围
 
@@ -114,18 +118,20 @@ LLaMA 清单内独立粗粒度块已覆盖，DeepSeek 仍有 MLA/MoE 缺口；`f
 
 MLA 核心采用每 head 五次原生 GEMM，分别计入 Q→latent、两路打分、加权 latent 及 latent→V。FP32 合并/缩放/Softmax 和所有 INT8 边界明确计费；共享缓存仅追加一次，没有额外独立扫描。可选输出投影复用已有节点并纳入完整块的容量校验；不提供 Wo 时输出 context。新测试核对1314 MAC、120个非矩阵 op、TPU读写2474/1386 B、941 B峰值，以及共享权重/缓存、有效长度、显式 scale、位置绑定、生命周期、容量拒绝、四架构入口和输出保护。
 
-执行假设见台账 `mla_absorbed_attention`。原生硬件与三个共享执行 profile 的参数/哈希保持不变。MLA 相关清单在所述单 token、INT8、absorbed 和符号布局条件下更新为 implemented；目标模型仍因 MoE 缺口而不完整，`full_issue_complete` 仍为 false。
+执行假设见台账 `mla_absorbed_attention`。原生硬件与三个共享执行 profile 的参数/哈希保持不变。MLA 相关清单在所述单 token、INT8、absorbed 和符号布局条件下更新为 implemented；第七批 B 完成时，目标模型仍有 MoE 缺口，该批 `full_issue_complete=false`。
 
 ## 第八批 A 证据范围
 
 第七批 B 已保存为本地提交 `ff44d8c`。本批新增 `moe_experts` 和可选 FP32 FFN 输出；CLI 为184项正例、8项负例，共192项，日常 `all` 生成96份报告。已有176份正例的摘要与原生结果对账保存在 `run/batch7b_comparison.json`；64组历史 API 基线不改写。
 
-给定路由 `[B,top_k]` 中每行索引必须互异且有效。按实际 token 数执行各专家，空专家跳过；全部专家权重仍驻留。输入行分发与 FP32 结果回填明确计流量；输出保留原 token/slot 顺序，另返回共享分支结果。路由器与加权合并仍 pending，`full_issue_complete=false`。
+给定路由 `[B,top_k]` 中每行索引必须互异且有效。按实际 token 数执行各专家，空专家跳过；全部专家权重仍驻留。输入行分发与 FP32 结果回填明确计流量；输出保留原 token/slot 顺序，另返回共享分支结果。第八批 A 完成时，路由器与加权合并仍为 pending，该批 `full_issue_complete=false`；第八批 B 随后补齐。
 
 样例 B=3、H=5、I=7、E=5、top_k=2、shared=2，专家负载 `[3,1,2,0,0]`：1260 MAC、504个非矩阵 op、FP32/INT8 边界213/84元素。TPU读写1725/1266 B，峰值1272 B；容量1271 B必须拒绝。新增测试覆盖不均匀分配、token/slot 守恒、空专家权重容量、batch/top_k 缩放、原生 action/role、条带化与 scratch 回退、未知服务/时钟、四架构 CLI 和错误输出保护。
 
 执行假设见 `calibration/operator_execution_audit.json` 的 `moe_fixed_routing_experts`；`src/core/moe.py` 归属 Issue #3。原生硬件、三个执行 profile 的参数/哈希不变；INT8、串行、全权重驻留及符号分发属于本项目假设。
 
+
+<a id="issue3-delivery"></a>
 
 ## 第八批 B 与 Issue #3 交付核对
 

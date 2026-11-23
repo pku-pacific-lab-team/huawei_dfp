@@ -192,11 +192,11 @@ report = simulate_composite(op, "tpu", TPUConfigLoader().load_hardware(),
 
 RMSNorm 两遍读取输入，Softmax 用输出区暂存指数值再归一化。块内树形归约、跨块合并、行标量广播和中间存储访问均进入模型；不会将独立 Vector 的完整 HBM 往返直接拼接。超过 UB/VMEM 的行可分块，TSP/CIM 仍要求完整输入输出及块内临时区驻留 MEM。详见[复合块公式与容量边界](ARCHITECTURE.md#normalization-operators)。
 
-每次复合块执行还会检查符号缓冲生命周期，结果在 `memory.lifetime_validation`：包括初始化后才读取、局部槽覆盖顺序、奇数归约存活值、完整指数行写完后才归一化，以及临时容量。重复块最多检查首轮和稳定轮，检查量不随 batch 或块数线性增长。这不是物理地址、bank 或寄存器级验证。
+每次 RMSNorm/Softmax 执行还会检查符号缓冲生命周期。使用 `--details-output` 导出详情后，可在 `native_report.memory.lifetime_validation` 查看结果；Python API 需指定 `include_details=True` 后调用 `to_detailed_dict()`。默认精简结果不包含该诊断字段。检查包括初始化后才读取、局部槽覆盖顺序、奇数归约存活值、完整指数行写完后才归一化，以及临时容量。重复块最多检查首轮和稳定轮，检查量不随 batch 或块数线性增长。这不是物理地址、bank 或寄存器级验证。
 
 ### Residual / SwiGLU / FFN（Issue #3 第四批）
 
-四个入口支持三种 schema 1 workload：`residual` 接受两个同形状 INT8 或 FP32 输入，输出保持相同存储类型；`swiglu` 接受两个同形状 INT8、INT32 或 FP32 输入，内部使用 FP32，输出默认为 INT8，可指定 `output_dtype="FP32"`；`swiglu_ffn` 输入顺序为 INT8 的 `x[M,H]`、`gate_weight[H,I]`、`up_weight[H,I]`、`down_weight[I,H]`，输出为 INT8 `[M,H]`。当前 FFN 不含 bias 或外部残差连接，Residual 是单独的块。
+四个入口支持三种 schema 1 workload：`residual` 接受两个同形状 INT8 或 FP32 输入，输出保持相同存储类型；`swiglu` 接受两个同形状 INT8、INT32 或 FP32 输入，内部使用 FP32，输出默认为 INT8，可指定 `output_dtype="FP32"`；`swiglu_ffn` 输入顺序为 INT8 的 `x[M,H]`、`gate_weight[H,I]`、`up_weight[H,I]`、`down_weight[I,H]`，输出默认为 INT8 `[M,H]`，也可指定 `output_dtype="FP32"`。当前 FFN 不含 bias 或外部残差连接，Residual 是单独的块。
 
 ```powershell
 python ascend.py --workload operators/residual.json
@@ -205,7 +205,7 @@ python tsp.py --workload operators/swiglu_ffn.json --mem-slices 0 1 --streams 2
 python tsp_cim.py --workload operators/swiglu_ffn.json --hemisphere 1 --details-output results/details/tsp_cim_ffn.json
 ```
 
-Python API 使用 `Residual`、`SwiGLU`、`SwiGLUFFN` 与 `simulate_block(op, architecture, spec, mode="timing")`。三个 GEMM 复用原生内核，FFN 按 gate → up → SwiGLU → down → INT8 输出依次执行。每个子块在 HBM（Ascend/TPU）或本侧 MEM（TSP/CIM）中物化结果；父块保留全部子块读写，不额外加收“连接流量”。输入与权重在整块期间常驻，中间张量在最后一次使用后释放，容量按同时存活峰值检查。
+Python API 使用 `Residual`、`SwiGLU`、`SwiGLUFFN` 与 `simulate_block(op, architecture, spec, mode="timing")`。三个 GEMM 复用原生内核，FFN 按 gate → up → SwiGLU → down → 输出存储边界依次执行。默认将 INT32 累加经 FP32 边界转换为 INT8；选择 FP32 输出时只执行最后的 INT32→FP32 转换，中间激活仍存为 INT8。每个子块在 HBM（Ascend/TPU）或本侧 MEM（TSP/CIM）中物化结果；父块保留全部子块读写，不额外加收“连接流量”。输入与权重在整块期间常驻，中间张量在最后一次使用后释放，容量按同时存活峰值检查。
 
 独立 [blocks.json](configs/execution/blocks.json) 保存串行组合、符号补齐布局和未标定的类型边界代价，可用 `--block-config` 替换；`--vector-config` 继续控制所复用的 Vector 服务，`--vector-tile-elements` 控制点算 tile。INT32→FP32→INT8 不再被当作免费连接，但这里仅有块级工作量代理，不实现独立量化/反量化指令、量化数值或物理布局转换。详见[公式、生命周期与执行边界](ARCHITECTURE.md#decode-blocks)。
 
@@ -342,7 +342,7 @@ Combine 接受 FP32 experts[B,k,H]、weights[B,k] 和可选 shared[B,H]，流式
 成功运行后默认保存到**工程根目录**的 `results/`，并在终端打印 `[Report]` 路径。从其他工作目录启动时，默认位置仍然是本工程的 `results/`。
 
 - GEMM：`ascend.json`、`tpu.json`、`tsp.json` 或 `tsp_cim.json`。
-- Vector / RMSNorm / Softmax：`<架构>_<算子>.json`，例如 `ascend_fp32_add.json`、`tpu_softmax.json`、`tsp_cim_rmsnorm.json`。不同算子分别保存，不覆盖原有 GEMM 报告。
+- 全部非 GEMM 算子：`<架构>_<算子>.json`，例如 `ascend_fp32_add.json`、`tpu_mla_decode_attention.json`、`tsp_cim_moe.json`。不同算子分别保存，不覆盖原有 GEMM 报告。
 
 目录会自动创建，同一架构与算子再次成功运行会覆盖对应文件；count/timing 共用该默认文件名，任务检查或仿真失败时不写入报告。需要保留多次结果时，用 `--output` 指定不同文件名。显式提供的相对路径以当前工作目录为基准，绝对路径直接使用：
 
@@ -515,7 +515,7 @@ huawei_dfp/
 ├── configs/hardware/                # 架构参考规格与共享 Macro profile
 ├── configs/archive/                 # 已退出运行配置的硬件规格与来源
 ├── configs/workload/                # 公共 GEMM 任务
-├── configs/workload/operators/      # Vector / 归一化任务
+├── configs/workload/operators/      # Vector、归一化及 Decode 复合块任务
 ├── configs/execution/               # 算子执行策略与代理参数
 ├── src/hardware/                    # 规格、校验与派生库存
 ├── src/operators/                   # 算子描述、公共 API、结果适配

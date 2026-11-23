@@ -259,6 +259,6 @@ test_owned_changes_and_shared_dependencies_have_distinct_snapshots (tests.valida
 test_subtest_failure_and_skips_do_not_become_success (tests.validation.test_verification.VerificationTest.test_subtest_failure_and_skips_do_not_become_success) ... ok
 
 ----------------------------------------------------------------------
-Ran 259 tests in 429.206s
+Ran 259 tests in 414.739s
 
 OK

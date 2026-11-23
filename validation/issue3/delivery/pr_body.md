@@ -27,7 +27,7 @@ python -B -X utf8 scripts/run_all.py --scope all --details
 - 三项原始验收要求已映射，LLaMA 10 个块、DeepSeek 13 个块均有代码与实际测试证据，`full_issue_complete=true`。
 - 最终审查另做了 88 组跨形状案例，共 176 次 count/timing 仿真，工作量公式、动作一致性及容量检查均通过。
 
-证据见 `validation/issue3/run/acceptance.json`、`commands.json`、`batch8a_comparison.json` 和 `validation/issue3/baselines/report_format.json`。保存的全量验收生成于 `8533f2c` HEAD 下的第八批 B 工作区；已核对其源码快照与提交 `59c8331` 一致。提交后的审查未修改仿真实现，无需仅因提交哈希变化重跑同一套检查。
+证据见 `validation/issue3/run/acceptance.json`、`commands.json`、`batch8a_comparison.json` 和 `validation/issue3/baselines/report_format.json`。第八批 B 首次验收生成于 `8533f2c` HEAD 下的工作区，当时已核对其源码快照与实现提交 `59c8331` 一致。2026-11-23 同步使用说明、接口契约和历史状态措辞后，重新运行既有验收以更新文档快照；当前 `run/` 的生成时间、运行时 HEAD 与文件快照以报告本身为准。仿真实现、测试及配置未修改，详见[文档同步记录](documentation_update.md)。
 
 `verify_issue3.py` 预期返回 0。`run_all --scope all` 当前返回 2，仅来自 Issue #2 的 A1/A5 历史本地审阅快照未对齐；其 215 个自动测试通过。PR #7 已完成审阅并合入，此状态不表示再次等待其审阅。旧快照未被重写为通过。
 

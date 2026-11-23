@@ -11,5 +11,5 @@
 [Action] combine.fp32_add: 30 op (logical, action)
 [Action] combine.hbm_write_bytes: 60 byte (logical, action)
 [Action] combine.ub_dma_read_bytes: 60 byte (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-p0_4xm8o\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-p0_4xm8o\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-h8lastcj\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-h8lastcj\report.json

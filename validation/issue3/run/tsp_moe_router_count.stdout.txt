@@ -25,5 +25,5 @@
 [Action] router.select.fp32_add: 48 op (logical, action)
 [Action] router.select.fp32_rcp: 21 op (logical, action)
 [Action] router.select.fp32_max: 33 op (logical, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-dlq61tsb\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-dlq61tsb\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-6gxah120\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-6gxah120\report.json

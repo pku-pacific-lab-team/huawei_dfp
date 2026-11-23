@@ -111,5 +111,5 @@
 [Action] k_rope.fp32_sub: 4 op (logical, action)
 [Action] k_rope.fp32_add: 4 op (logical, action)
 [Action] k_rope.boundary_to_int8: 8 element (modeled_internal, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-qwwujm0j\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-qwwujm0j\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-nlivsfe4\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-nlivsfe4\report.json

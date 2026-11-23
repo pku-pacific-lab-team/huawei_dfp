@@ -20,5 +20,5 @@
 [Action] key_rope.fp32_sub: 20 op (logical, action)
 [Action] key_rope.fp32_add: 20 op (logical, action)
 [Action] key_rope.boundary_to_int8: 40 element (modeled_internal, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-hezmsvgf\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-hezmsvgf\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-ejdeojm6\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-ejdeojm6\report.json

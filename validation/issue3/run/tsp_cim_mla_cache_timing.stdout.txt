@@ -14,5 +14,5 @@
 [Action] latent_read.input_stream_bytes: 640 byte (padded, action)
 [Action] rope_read.mem_read_bytes: 24 byte (logical, action)
 [Action] rope_read.input_stream_bytes: 640 byte (padded, action)
-[Details] C:\Users\86152\AppData\Local\Temp\issue3-k2z__3xa\details.json
-[Report] C:\Users\86152\AppData\Local\Temp\issue3-k2z__3xa\report.json
+[Details] C:\Users\86152\AppData\Local\Temp\issue3-vmv0vyl4\details.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue3-vmv0vyl4\report.json
