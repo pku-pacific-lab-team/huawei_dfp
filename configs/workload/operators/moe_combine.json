@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "operation": "moe_combine",
+  "experts": {
+    "name": "unweighted_experts",
+    "shape": [
+      3,
+      2,
+      5
+    ],
+    "dtype": "FP32"
+  },
+  "weights": {
+    "name": "route_weights",
+    "shape": [
+      3,
+      2
+    ],
+    "dtype": "FP32"
+  },
+  "shared": {
+    "name": "shared_output",
+    "shape": [
+      3,
+      5
+    ],
+    "dtype": "FP32"
+  },
+  "output_dtype": "FP32"
+}

@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "issue": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3",
+  "scope": "implemented_batches_1_8b_coarse_decode_operator_delivery",
+  "reference_commit": "98e79ee5b34991f09c65efe395e1e84d58589fab",
+  "requirements": {
+    "I3_contracts": {
+      "title": "Tensor、算子与动作账本契约",
+      "test_modules": [
+        "tests.operators.test_contracts"
+      ],
+      "cli_operations": []
+    },
+    "I3_gemm_adapter": {
+      "title": "四架构 GEMM 统一报告与原生行为兼容",
+      "test_modules": [
+        "tests.operators.test_gemm",
+        "tests.operators.test_cli"
+      ],
+      "cli_operations": [
+        "gemm"
+      ]
+    },
+    "I3_vector": {
+      "title": "五种独立 Vector/Nonlinear 的执行、容量、时间和来源",
+      "test_modules": [
+        "tests.operators.test_vector",
+        "tests.operators.test_vector_cli",
+        "tests.operators.test_vector_config"
+      ],
+      "cli_operations": [
+        "int32_add",
+        "fp32_add",
+        "fp32_mul",
+        "fp32_exp",
+        "fp32_rsqrt"
+      ]
+    },
+    "I3_normalization": {
+      "title": "RMSNorm/Softmax 调度、手算对账与符号缓冲生命周期",
+      "test_modules": [
+        "tests.operators.test_composite",
+        "tests.operators.test_composite_cli",
+        "tests.operators.test_composite_storage"
+      ],
+      "cli_operations": [
+        "rmsnorm",
+        "softmax"
+      ]
+    },
+    "I3_interfaces": {
+      "title": "Tensor 身份、语义属性、连接边界、严格输入校验与报告路径",
+      "test_modules": [
+        "tests.operators.test_interface_finalization",
+        "tests.operators.test_output"
+      ],
+      "cli_operations": [
+        "reject_null_profile",
+        "reject_unsupported"
+      ]
+    },
+    "I3_layering": {
+      "title": "执行分层、原生结果适配、显式内存路径与重构前结果对账",
+      "test_modules": [
+        "tests.operators.test_layering"
+      ],
+      "cli_operations": []
+    },
+    "I3_evidence": {
+      "title": "验收范围、失败传播和证据目录隔离",
+      "test_modules": [
+        "tests.validation.test_verification",
+        "tests.validation.test_run_all"
+      ],
+      "cli_operations": []
+    },
+    "I3_reporting": {
+      "title": "Compact operator results, separate diagnostics and batch summaries",
+      "test_modules": [
+        "tests.operators.test_reporting"
+      ],
+      "cli_operations": []
+    },
+    "I3_decode_blocks": {
+      "title": "Residual/SwiGLU/FFN 组合、存储边界工作量、生命周期、容量及四架构执行",
+      "test_modules": [
+        "tests.operators.test_blocks",
+        "tests.operators.test_blocks_cli"
+      ],
+      "cli_operations": [
+        "residual",
+        "swiglu",
+        "swiglu_ffn"
+      ]
+    },
+    "I3_decode_attention": {
+      "title": "单 token Decode/GQA、KV Cache 追加读取、共享存储与重复 head 调度",
+      "test_modules": [
+        "tests.operators.test_attention",
+        "tests.operators.test_attention_cli"
+      ],
+      "cli_operations": [
+        "kv_cache",
+        "decode_attention"
+      ]
+    },
+    "I3_model_inventory": {
+      "title": "目标模型块覆盖矩阵与未实现范围的明确归属",
+      "test_modules": [
+        "tests.operators.test_model_coverage"
+      ],
+      "cli_operations": []
+    },
+    "I3_decode_projections": {
+      "title": "INT8 RMSNorm、Q/K/V 与 Attention 输出投影：多输出、视图、存储边界、原生内核复用和全块容量",
+      "test_modules": [
+        "tests.operators.test_projections",
+        "tests.operators.test_projections_cli"
+      ],
+      "cli_operations": [
+        "rmsnorm_int8",
+        "qkv_projection",
+        "attention_output_projection"
+      ]
+    },
+    "I3_position_vocabulary": {
+      "title": "RoPE、Embedding 与词表输出投影：位置/精度契约、整表容量与访问量、临时空间及四架构映射",
+      "test_modules": [
+        "tests.operators.test_position_vocabulary",
+        "tests.operators.test_position_vocabulary_cli"
+      ],
+      "cli_operations": [
+        "rope",
+        "embedding",
+        "vocabulary_projection"
+      ]
+    },
+    "I3_mla_preprocess_cache": {
+      "title": "MLA 独立维度、低秩前处理、分支读写/转换、共享压缩缓存、容量与四架构执行",
+      "test_modules": [
+        "tests.operators.test_mla",
+        "tests.operators.test_mla_cli"
+      ],
+      "cli_operations": [
+        "mla_preprocess",
+        "mla_cache"
+      ]
+    },
+    "I3_mla_attention": {
+      "title": "Absorbed MLA Attention：两路打分、FP32 合并/缩放/Softmax、共享缓存、权重分段、输出集成与全块容量",
+      "test_modules": [
+        "tests.operators.test_mla_attention",
+        "tests.operators.test_mla_attention_cli"
+      ],
+      "cli_operations": [
+        "mla_decode_attention"
+      ]
+    },
+    "I3_moe_experts": {
+      "title": "给定路由的 MoE 专家：不均匀分配、空专家、FP32 输出、分发/回填流量、全权重驻留与全块容量",
+      "test_modules": [
+        "tests.operators.test_moe",
+        "tests.operators.test_moe_cli"
+      ],
+      "cli_operations": [
+        "moe_experts"
+      ]
+    },
+    "I3_moe_complete": {
+      "title": "MoE sigmoid/group routing, FP32 weighted/shared combine, whole-block global lifetime and four-architecture execution",
+      "test_modules": [
+        "tests.operators.test_moe_block",
+        "tests.operators.test_moe_block_cli"
+      ],
+      "cli_operations": [
+        "moe_router",
+        "moe_combine",
+        "moe"
+      ]
+    }
+  },
+  "pending_work": [],
+  "acceptance_mapping": {
+    "independent_vector": [
+      "I3_vector",
+      "I3_layering"
+    ],
+    "verifiable_gemm": [
+      "I3_gemm_adapter",
+      "I3_contracts"
+    ],
+    "tested_model_blocks": [
+      "I3_model_inventory",
+      "I3_moe_complete",
+      "I3_moe_experts",
+      "I3_mla_attention",
+      "I3_mla_preprocess_cache",
+      "I3_position_vocabulary",
+      "I3_decode_projections",
+      "I3_decode_attention",
+      "I3_decode_blocks",
+      "I3_normalization"
+    ]
+  },
+  "follow_up_outside_issue3": [
+    "Complete Decoder/model assembly, target-scale batch/sequence experiments and end-to-end evaluation (Issue #4).",
+    "Chip partition, distributed expert scheduling, inter-core/hemisphere communication and weight offload.",
+    "Numerical BF16/FP8 accuracy, physical layout/ISA validation and measured hardware/energy calibration.",
+    "Issue #4 constrained software tiling/scheduling search by architecture and shape, with end-to-end latency selection; retain fixed configurations and do not optimize hardware parameters."
+  ]
+}

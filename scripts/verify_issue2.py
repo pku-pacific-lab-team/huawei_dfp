@@ -1,19 +1,19 @@
 """Reproduce issue #2 acceptance evidence; never publish or close the issue."""
 import argparse
-from collections import Counter
 from datetime import datetime, timezone
-import hashlib
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
-import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+
+from scripts.verification import (ISSUE2_TEST_DIRS, discover, fingerprints, issue3_owned,
+                                  output_directory, run_tests, save)
 
 TESTS = {
     "A1": [
@@ -178,11 +178,6 @@ TITLES = {"A1": "来源、单位与作用域可追溯", "A2": "派生算力、�
           "A3": "缺参显式处理", "A4": "四入口 INT8 GEMM 冒烟", "A5": "迁移说明与四入口的 GEMM 边界"}
 
 
-def save(path, value):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
-
-
 def timing_breakdowns_valid(report):
     timing = report["timing"]
     if any(key in timing for key in ("stages_cycles", "service_cycles_sum", "stages_cycles_basis", "stage_semantics")):
@@ -208,76 +203,49 @@ def timing_breakdowns_valid(report):
 
 
 def snapshot():
-    """Text-normalized fingerprints cover uncommitted files and new modules too."""
+    """Issue #2 native-model review scope; operator work has its own evidence."""
     paths = {ROOT / name for name in ("README.md", "ARCHITECTURE.md", "ascend.py", "tpu.py", "tsp.py", "tsp_cim.py",
-                                     "requirements.txt", "scripts/verify_issue2.py", "scripts/clear_results.ps1", "scripts/run_all.ps1",
+                                     "requirements.txt", "scripts/verify_issue2.py", "scripts/verification.py",
+                                     "scripts/clear_results.ps1", "scripts/run_all.ps1", "scripts/run_all.py",
                                      "calibration/parameter_source_audit.json")}
     for folder, pattern in (("src", "*.py"), ("tests", "*.py"), ("configs", "*.json")):
-        paths.update((ROOT / folder).rglob(pattern))
-    return {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_text(encoding="utf-8").encode()).hexdigest()
-            for p in sorted(paths)}
+        paths.update(p for p in (ROOT / folder).rglob(pattern)
+                     if not issue3_owned(p.relative_to(ROOT).as_posix())
+                     and not p.relative_to(ROOT).as_posix().startswith("tests/validation/"))
+    return fingerprints(paths)
 
 
-class RecordedResult(unittest.TextTestResult):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.records = {}
-
-    def startTest(self, test):
-        self.records[test.id()] = {"status": "running"}
-        super().startTest(test)
-
-    def addSuccess(self, test):
-        self.records[test.id()] = {"status": "passed"}
-        super().addSuccess(test)
-
-    def addFailure(self, test, err):
-        self.records[test.id()] = {"status": "failed"}
-        super().addFailure(test, err)
-
-    def addError(self, test, err):
-        self.records[test.id()] = {"status": "error"}
-        super().addError(test, err)
-
-    def addSkip(self, test, reason):
-        self.records[test.id()] = {"status": "skipped", "reason": reason}
-        super().addSkip(test, reason)
-
-    def addExpectedFailure(self, test, err):
-        self.records[test.id()] = {"status": "expected_failure"}
-        super().addExpectedFailure(test, err)
-
-    def addUnexpectedSuccess(self, test):
-        self.records[test.id()] = {"status": "unexpected_success"}
-        super().addUnexpectedSuccess(test)
-
-    def addSubTest(self, test, subtest, err):
-        if err:
-            self.records[test.id()] = {"status": "failed", "subtest": str(subtest)}
-        super().addSubTest(test, subtest, err)
+def dependency_snapshot():
+    # Shared CLI imports the optional operator dispatcher. Record its code for
+    # reproducibility without treating operator tests/policy as A1/A5 criteria.
+    return fingerprints(p for p in (ROOT / "src").rglob("*.py")
+                        if issue3_owned(p.relative_to(ROOT).as_posix()))
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=ROOT / "validation/issue2/run")
     args = parser.parse_args(argv)
-    out = args.output_dir.resolve()
+    try:
+        out = output_directory(args.output_dir, "issue2")
+    except ValueError as exc:
+        parser.error(str(exc))
     out.mkdir(parents=True, exist_ok=True)
     os.chdir(ROOT)
     os.environ["PYTHONUTF8"] = "1"
     before = snapshot()
+    dependencies_before = dependency_snapshot()
     review_path = ROOT / "validation/issue2/review.json"
     review = json.loads(review_path.read_text(encoding="utf-8")) if review_path.exists() else {}
+    context_path = ROOT / "validation/issue2/review_context.json"
+    review_context = json.loads(context_path.read_text(encoding="utf-8")) if context_path.exists() else None
     reviewed = review.get("snapshot", {})
-    changed = sorted(k for k in set(before) | set(reviewed) if before.get(k) != reviewed.get(k))
+    changed = sorted(k for k in set(before) | set(reviewed)
+                     if not issue3_owned(k) and not k.startswith("tests/validation/")
+                     and before.get(k) != reviewed.get(k))
     review_valid = not changed and all(review.get("conditions", {}).get(k, {}).get("status") == "reviewed" for k in ("A1", "A5"))
 
-    suite = unittest.defaultTestLoader.discover(str(ROOT / "tests"), top_level_dir=str(ROOT))
-    with (out / "unittest.txt").open("w", encoding="utf-8") as log:
-        tests = unittest.TextTestRunner(stream=log, verbosity=2, resultclass=RecordedResult).run(suite)
-    counts = dict(Counter(r["status"] for r in tests.records.values()))
-    suite_passed = tests.testsRun > 0 and counts == {"passed": tests.testsRun}
-    save(out / "tests.json", {"tests_run": tests.testsRun, "status_counts": counts, "tests": tests.records})
+    tests, counts, suite_passed = run_tests(discover(ISSUE2_TEST_DIRS), out)
 
     workload = {"operation": "gemm", "gemm": {"M": 16, "K": 32, "N": 16},
                 "data_format": "INT8", "accumulation_dtype": "INT32", "output_dtype": "INT32"}
@@ -536,13 +504,15 @@ def main(argv=None):
             status = "passed_with_recorded_review" if review_valid else "needs_review"
         conditions[key] = {"title": TITLES[key], "status": status, "tests": matching, "commands": cli,
                            "review_basis": review_path.as_posix() if reviewed_condition else None}
-    unchanged = snapshot() == before
+    unchanged = snapshot() == before and dependency_snapshot() == dependencies_before
     accepted = suite_passed and unchanged and all(c["status"].startswith("passed") for c in conditions.values())
     git = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True)
     summary = {"issue": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/2",
                "generated_at_utc": datetime.now(timezone.utc).isoformat(), "python": sys.version,
                "repository_head": git.stdout.strip(), "snapshot": before, "snapshot_unchanged_during_run": unchanged,
+               "dependency_snapshot": dependencies_before, "test_directories": list(ISSUE2_TEST_DIRS),
                "review_matches_current_files": review_valid, "review_changed_files": changed,
+               "review_context": review_context,
                "scope_adjustment": "User explicitly waived the historical 16-core / 128T target.",
                "unit_tests": {"total": tests.testsRun, "status_counts": counts, "passed": suite_passed, "details": "tests.json", "log": "unittest.txt"},
                "deliverables": {
@@ -555,13 +525,17 @@ def main(argv=None):
                    "D4": {"title": "四入口 INT8 GEMM 冒烟", "evidence": ["workload.json", "commands.json", "ascend.json", "tpu.json", "tsp.json", "tsp_cim.json"], "conditions": ["A4"]},
                },
                "conditions": conditions, "local_acceptance_passed": accepted,
-               "limits": ["Local working-tree evidence, including uncommitted content; not a commit, publication or external sign-off.",
+               "limits": ["Issue #2 criteria only; operator acceptance is recorded separately by verify_issue3.py.",
+                          "Optional operator code imported by shared CLI is fingerprinted as a dependency, not an A1/A5 review condition.",
+                          "Local working-tree evidence, including uncommitted content; not a commit, publication or external sign-off.",
                           "A1/A5 reuse recorded source/code/document review only if fingerprints match. This command does not re-verify external publications.",
                           "Unknown and assumed parameters remain explicit; test success is not hardware calibration or chip-performance validation."]}
     save(out / "acceptance.json", summary)
     print(f"Unit tests: {counts}; unchanged snapshot: {unchanged}")
     for key, result in conditions.items():
         print(f"{key}: {result['status']} - {result['title']}")
+    if review_context:
+        print(f"Review context: {review_context['summary']}")
     print(f"Evidence: {out / 'acceptance.json'}")
     return 0 if accepted else 1
 

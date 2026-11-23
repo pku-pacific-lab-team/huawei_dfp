@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "operation": "moe_router",
+  "x": {
+    "name": "tokens",
+    "shape": [
+      3,
+      5
+    ],
+    "dtype": "INT8"
+  },
+  "weight": {
+    "name": "router_weight",
+    "shape": [
+      5,
+      6
+    ],
+    "dtype": "INT8"
+  },
+  "top_k": 2,
+  "groups": 3,
+  "selected_groups": 2,
+  "bias": {
+    "name": "router_bias",
+    "shape": [
+      6
+    ],
+    "dtype": "FP32"
+  },
+  "route_scale": 2.5,
+  "output_names": [
+    "selected_experts",
+    "route_weights"
+  ]
+}

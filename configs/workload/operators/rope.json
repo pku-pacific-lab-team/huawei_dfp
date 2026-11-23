@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "operation": "rope",
+  "description": "Single-token adjacent-pair Q/K rotation; supplied FP32 tables, INT8 storage, no table generation",
+  "inputs": [
+    {"name": "query", "shape": [2, 4, 1, 10], "dtype": "INT8"},
+    {"name": "key", "shape": [2, 2, 1, 10], "dtype": "INT8"},
+    {"name": "cos", "shape": [9, 5], "dtype": "FP32"},
+    {"name": "sin", "shape": [9, 5], "dtype": "FP32"}
+  ],
+  "position": 5
+}

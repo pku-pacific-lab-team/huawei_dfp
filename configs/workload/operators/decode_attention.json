@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "operation": "decode_attention",
+  "query": {
+    "name": "query",
+    "shape": [
+      2,
+      4,
+      1,
+      7
+    ],
+    "dtype": "INT8"
+  },
+  "cache": {
+    "batch": 2,
+    "kv_heads": 2,
+    "head_dim": 7,
+    "length": 5,
+    "capacity": 9
+  },
+  "append_tokens": 1
+}

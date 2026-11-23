@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "operation": "swiglu",
+  "inputs": [
+    {
+      "name": "gate",
+      "shape": [
+        2,
+        7
+      ],
+      "dtype": "INT32"
+    },
+    {
+      "name": "up",
+      "shape": [
+        2,
+        7
+      ],
+      "dtype": "INT32"
+    }
+  ]
+}

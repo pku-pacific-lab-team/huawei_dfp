@@ -1,0 +1,26 @@
+warning: in the working copy of 'scripts/verification.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/operators/test_model_coverage.py', LF will be replaced by CRLF the next time Git touches it
+ ARCHITECTURE.md                                |  14 [32m+[m[31m-[m
+ README.md                                      |  11 [32m+[m[31m-[m
+ calibration/operator_execution_audit.json      |   4 [32m+[m[31m-[m
+ calibration/parameter_source_audit.json        |  45 [32m++[m[31m-[m
+ configs/execution/vector.json                  |   6 [32m+[m[31m-[m
+ configs/hardware/tsp.json                      |   8 [32m+[m[31m-[m
+ scripts/run_all.ps1                            |   4 [32m+[m[31m-[m
+ scripts/run_all.py                             |  26 [32m+[m[31m-[m
+ scripts/verification.py                        |  42 [32m+++[m
+ scripts/verify_issue3.py                       |  43 [32m++[m[31m-[m
+ src/hardware/tsp.py                            |   6 [32m+[m
+ tests/operators/test_model_coverage.py         |   3 [32m+[m
+ tests/operators/test_vector.py                 |  30 [32m+[m[31m-[m
+ tests/tsp/test_baseline.py                     |  24 [32m+[m[31m-[m
+ tests/tsp/test_vxm_service.py                  |  26 [32m+[m[31m-[m
+ tests/validation/test_run_all.py               |  37 [32m+[m[31m-[m
+ tests/validation/test_verification.py          |  91 [32m++++[m[31m-[m
+ validation/README.md                           |   4 [32m+[m[31m-[m
+ validation/issue3/README.md                    |  17 [32m+[m[31m-[m
+ validation/issue3/baselines/report_format.json | 463 [32m+++++++++++++++++++++[m[31m----[m
+ validation/issue3/delivery/pr_body.md          |  47 [32m+[m[31m--[m
+ validation/issue3/delivery/review.md           |   6 [32m+[m[31m-[m
+ validation/issue3/scope.json                   |   3 [32m+[m[31m-[m
+ 23 files changed, 810 insertions(+), 150 deletions(-)

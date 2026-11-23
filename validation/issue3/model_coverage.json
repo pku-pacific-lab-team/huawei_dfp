@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "scope": "Coarse Decode operator inventory through batch 8B; all named blocks covered under analytical assumptions, not full model/chip execution.",
+  "full_target_model_coverage": true,
+  "status_definitions": {
+    "implemented": "The named coarse block runs on all four architectures under documented assumptions.",
+    "partial": "Reusable primitives exist; the complete named block or its storage boundary is pending.",
+    "pending": "Named block has no complete executable implementation."
+  },
+  "references": {
+    "llama3": "https://github.com/meta-llama/llama3/blob/main/llama/model.py",
+    "gqa": "https://arxiv.org/abs/2305.13245v3",
+    "deepseek_r1": "https://github.com/deepseek-ai/DeepSeek-R1",
+    "deepseek_v3": "https://arxiv.org/abs/2412.19437v2",
+    "task": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3",
+    "deepseek_v3_inference": "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/model.py",
+    "deepseek_v3_671b": "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/configs/config_671B.json",
+    "deepseek_v3_fixed_moe": "https://github.com/deepseek-ai/DeepSeek-V3/blob/9b4e9788e4a3a731f7567338ed15d3ec549ce03b/inference/model.py"
+  },
+  "models": [
+    {
+      "name": "LLaMA3-70B",
+      "reference_ids": [
+        "llama3",
+        "gqa",
+        "task"
+      ],
+      "blocks": [
+        {
+          "id": "embedding",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/embedding.py",
+            "src/runtime/blocks.py",
+            "src/core/block_embedding.py"
+          ],
+          "tests": [
+            "tests.operators.test_position_vocabulary",
+            "tests.operators.test_position_vocabulary_cli"
+          ],
+          "notes": "Decode INT32 symbolic in-range indices, full INT8 table residency and selected-row copies. No duplicate-row reuse or address/gather instruction model; oversized resident tables explicitly fail."
+        },
+        {
+          "id": "normalization",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_projections",
+            "tests.operators.test_projections_cli"
+          ],
+          "notes": "INT8 activation -> FP32 RMSNorm with FP32 scale weight -> INT8 storage. Last axis, explicit boundary work; model assembly and MLA branch bindings are separate."
+        },
+        {
+          "id": "residual",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_blocks"
+          ],
+          "notes": "INT8/FP32 coarse addition with explicit storage-boundary proxies."
+        },
+        {
+          "id": "vocabulary_projection",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_position_vocabulary",
+            "tests.operators.test_position_vocabulary_cli"
+          ],
+          "notes": "Native INT8 GEMM with INT32 accumulation followed by explicit FP32 logits storage; no final Softmax or sampling. Full weight/output capacity checked."
+        },
+        {
+          "id": "qkv_projections",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_projections",
+            "tests.operators.test_projections_cli"
+          ],
+          "notes": "Three bias-free INT8 GEMMs with INT32 accumulation and INT8 Q/K/V head outputs; distinct query/KV heads, serial materialization. RoPE remains separate."
+        },
+        {
+          "id": "rope",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/rope.py",
+            "src/runtime/blocks.py",
+            "src/core/block_rope.py"
+          ],
+          "tests": [
+            "tests.operators.test_position_vocabulary",
+            "tests.operators.test_position_vocabulary_cli"
+          ],
+          "notes": "Single-token full-head adjacent-pair Q/K rotation using supplied FP32 cos/sin tables. Uniform batch position; INT8 storage boundaries, table generation outside scope. Not MLA positional-branch semantics."
+        },
+        {
+          "id": "gqa_attention_core",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/attention.py",
+            "src/runtime/attention.py"
+          ],
+          "tests": [
+            "tests.operators.test_attention",
+            "tests.operators.test_attention_cli"
+          ],
+          "notes": "Given Q and KV cache/new K/V: scale, Softmax and PV; one token, uniform lengths; INT8 what-if storage."
+        },
+        {
+          "id": "kv_cache",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/attention.py",
+            "src/runtime/attention.py"
+          ],
+          "tests": [
+            "tests.operators.test_attention",
+            "tests.operators.test_attention_cli"
+          ],
+          "notes": "Preallocated conventional K/V cache: append only new token, read valid prefix; no eviction."
+        },
+        {
+          "id": "attention_output_projection",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_projections",
+            "tests.operators.test_projections_cli"
+          ],
+          "notes": "INT8 per-head context uses a symbolic concatenation view, native INT8 GEMM and INT8 output boundary; no physical reshape instruction model."
+        },
+        {
+          "id": "swiglu_ffn",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_blocks"
+          ],
+          "notes": "Three INT8 GEMMs and FP32 SwiGLU, with explicit INT8 storage boundaries; no external residual or normalization."
+        }
+      ]
+    },
+    {
+      "name": "DeepSeek-R1",
+      "reference_ids": [
+        "deepseek_r1",
+        "deepseek_v3",
+        "task",
+        "deepseek_v3_inference",
+        "deepseek_v3_671b",
+        "deepseek_v3_fixed_moe"
+      ],
+      "blocks": [
+        {
+          "id": "embedding",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/embedding.py",
+            "src/runtime/blocks.py",
+            "src/core/block_embedding.py"
+          ],
+          "tests": [
+            "tests.operators.test_position_vocabulary",
+            "tests.operators.test_position_vocabulary_cli"
+          ],
+          "notes": "Decode INT32 symbolic in-range indices, full INT8 table residency and selected-row copies. No duplicate-row reuse or address/gather instruction model; oversized resident tables explicitly fail."
+        },
+        {
+          "id": "normalization",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_projections",
+            "tests.operators.test_projections_cli"
+          ],
+          "notes": "INT8 activation -> FP32 RMSNorm with FP32 scale weight -> INT8 storage. Last axis, explicit boundary work; model assembly and MLA branch bindings are separate."
+        },
+        {
+          "id": "residual",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_blocks"
+          ],
+          "notes": "INT8/FP32 coarse addition with explicit storage-boundary proxies."
+        },
+        {
+          "id": "vocabulary_projection",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/projections.py",
+            "src/runtime/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_position_vocabulary",
+            "tests.operators.test_position_vocabulary_cli"
+          ],
+          "notes": "Native INT8 GEMM with INT32 accumulation followed by explicit FP32 logits storage; no final Softmax or sampling. Full weight/output capacity checked."
+        },
+        {
+          "id": "mla_projections",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/mla.py",
+            "src/runtime/mla.py",
+            "src/runtime/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_mla_attention",
+            "tests.operators.test_mla_attention_cli",
+            "tests.operators.test_mla"
+          ],
+          "notes": "Low-rank preprocessing plus native Q-content-to-latent and latent-context-to-V GEMMs. No free weight absorption; K/V sections of one KV up-weight backing are disjoint and shared across batches. INT8 boundaries explicit. Direct rank-zero Q and numeric FP8/BF16 inference are outside the declared path."
+        },
+        {
+          "id": "mla_rope",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/mla.py",
+            "src/runtime/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_mla",
+            "tests.operators.test_mla_cli"
+          ],
+          "notes": "Rotate Q positional branch and one shared positional K per batch with supplied FP32 tables; content Q and latent KV bypass RoPE. Uniform position, adjacent pairs, explicit INT8 what-if boundaries; table generation/YaRN construction not included."
+        },
+        {
+          "id": "mla_compressed_cache",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/mla.py",
+            "src/runtime/mla.py"
+          ],
+          "tests": [
+            "tests.operators.test_mla",
+            "tests.operators.test_mla_cli"
+          ],
+          "notes": "Preallocated shared latent KV and positional K, [B,1,C,rank] and [B,1,C,rope_dim]. Capacity, valid length and append amount are distinct; state outputs alias backing. Native view capacity reserved once per batch, append/read traffic explicit. Standalone read is once per component; MLA Attention owns per-head reads."
+        },
+        {
+          "id": "mla_attention_core",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/mla.py",
+            "src/runtime/mla.py"
+          ],
+          "tests": [
+            "tests.operators.test_mla_attention",
+            "tests.operators.test_mla_attention_cli"
+          ],
+          "notes": "Single-token absorbed MLA with shared compressed cache, two score GEMMs, separate INT32-to-FP32 conversions, FP32 add/scale/Softmax, INT8 probabilities and weighted latent output. Cache appended once; each query head owns native reads. Base scale uses nope+rope dimension; optional positive multiplier has explicit provenance. Preprocessing bindings validate shapes and newest-token position; physical placement remains symbolic."
+        },
+        {
+          "id": "attention_output_projection",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/mla.py",
+            "src/runtime/mla.py",
+            "src/operators/projections.py"
+          ],
+          "tests": [
+            "tests.operators.test_mla_attention",
+            "tests.operators.test_mla_attention_cli"
+          ],
+          "notes": "Existing output projection nodes execute after MLA's latent-to-V contexts, with full global storage reserved. Context is a shared symbolic head/matrix view; no duplicate context allocation. Optional context-only API also connects to standalone output projection."
+        },
+        {
+          "id": "dense_swiglu_ffn",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_blocks"
+          ],
+          "notes": "Reusable dense block only; this does not cover routed expert scheduling."
+        },
+        {
+          "id": "shared_expert_ffn",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/moe.py",
+            "src/runtime/moe.py",
+            "src/core/moe.py",
+            "src/operators/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_moe",
+            "tests.operators.test_moe_cli"
+          ],
+          "notes": "One widened shared FFN executes all Decode tokens; width = shared_experts * expert intermediate. INT8 GEMM/SwiGLU storage, FP32 final output, global resident weight/capacity checks. Standalone output remains separate; MoECombine and whole MoE now add it after weighted routed accumulation."
+        },
+        {
+          "id": "moe_routed_ffn",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/moe.py",
+            "src/runtime/moe.py",
+            "src/core/moe.py",
+            "src/operators/blocks.py"
+          ],
+          "tests": [
+            "tests.operators.test_moe",
+            "tests.operators.test_moe_cli"
+          ],
+          "notes": "Fixed caller-supplied token/expert assignments; actual rows per active expert, empty experts skipped, all declared weights resident. Explicit dispatch and FP32 publish payloads, global storage and reused expert workspace. Unweighted [B,top_k,H] output preserves token/slot mapping; standalone experts exclude gate/combine, now supplied by MoERouter/MoECombine and whole MoE."
+        },
+        {
+          "id": "moe_router_and_combine",
+          "status": "implemented",
+          "owner": "issue3",
+          "implementation": [
+            "src/operators/moe_block.py",
+            "src/runtime/moe_block.py",
+            "src/core/block_moe.py"
+          ],
+          "tests": [
+            "tests.operators.test_moe_block",
+            "tests.operators.test_moe_block_cli"
+          ],
+          "notes": "INT8 gate GEMM, FP32 sigmoid, optional selection-only bias, group/expert repeated-max selection proxy, original-score normalization/scaling, FP32 weighted/shared sum and optional final INT8 conversion. Whole MoE reserves external weights and live route/expert tensors globally. Actual expert assignments are explicit shape-only scenarios; no numeric routing or Top-K/gather/scatter ISA."
+        }
+      ]
+    }
+  ],
+  "outside_this_batch": [
+    "Full decoder/model assembly and end-to-end evaluation (Issue #4).",
+    "Chip partition and inter-core/inter-hemisphere communication.",
+    "Numerical matrices, quantization accuracy and silicon calibration."
+  ]
+}

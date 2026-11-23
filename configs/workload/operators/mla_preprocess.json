@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "operation": "mla_preprocess",
+  "description": "Small single-token MLA low-rank preprocessing; independent dimensions; INT8 performance what-if, supplied position tables.",
+  "dimensions": {"hidden_size": 17, "query_heads": 3, "q_lora_rank": 5, "kv_lora_rank": 7, "qk_nope_head_dim": 3, "qk_rope_head_dim": 4, "v_head_dim": 6},
+  "position": 2,
+  "inputs": [
+    {"name": "x", "shape": [2, 17], "dtype": "INT8"},
+    {"name": "wqa", "shape": [17, 5], "dtype": "INT8"},
+    {"name": "q_norm", "shape": [5], "dtype": "FP32"},
+    {"name": "wqb", "shape": [5, 21], "dtype": "INT8"},
+    {"name": "wkva", "shape": [17, 11], "dtype": "INT8"},
+    {"name": "kv_norm", "shape": [7], "dtype": "FP32"},
+    {"name": "cos", "shape": [9, 2], "dtype": "FP32"},
+    {"name": "sin", "shape": [9, 2], "dtype": "FP32"}
+  ]
+}

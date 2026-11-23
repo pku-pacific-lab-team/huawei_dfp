@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "operation": "softmax",
+  "inputs": [
+    {
+      "name": "x",
+      "shape": [
+        2,
+        4,
+        1025
+      ],
+      "dtype": "FP32"
+    }
+  ],
+  "axis": -1
+}

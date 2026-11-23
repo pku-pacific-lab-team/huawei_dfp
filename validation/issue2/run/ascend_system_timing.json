@@ -429,7 +429,7 @@
     "assumptions": [
       "Configured Cube/local/L2 services retain provenance. HBM rate is derived from bandwidth, core count and clock; L2 capacity and byte/cycle rate are equally partitioned. Required unknown inputs fail.",
       "HBM fetch/output/bypass share one allocated service; L2 fill/read share another. Cold panel misses fetch, fill, then read serially. Input requests complete in program order; compute/output may overlap. Clean input eviction has no writeback; C bypasses L2.",
-      "MTE1 serializes A/B copies. Fixed buffer slots are released after their last reader; L0C holds the entire K reduction.",
+      "A/B copies share MTE1 by default. L1 slots are released after both operands' last reads; L0C holds the entire K reduction.",
       "Zero configured startup allowances omit uncalibrated fixed latency; each modeled transfer charges its configured allowance. The model is not a calibrated physical upper/lower bound.",
       "Assumed service values remain assumed in hardware provenance and derived specification peaks; missing required services fail."
     ],

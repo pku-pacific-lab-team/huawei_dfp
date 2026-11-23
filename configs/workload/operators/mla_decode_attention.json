@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "operation": "mla_decode_attention",
+  "description": "Small absorbed single-token MLA: preprocessed queries/new tokens, shared cache, five native GEMMs per head and final output projection. INT8 performance what-if.",
+  "dimensions": {"hidden_size": 17, "query_heads": 3, "q_lora_rank": 5, "kv_lora_rank": 7, "qk_nope_head_dim": 3, "qk_rope_head_dim": 4, "v_head_dim": 6},
+  "cache": {"batch": 2, "kv_lora_rank": 7, "qk_rope_head_dim": 4, "length": 2, "capacity": 9},
+  "query_nope": {"name": "query_nope", "shape": [2, 3, 1, 3], "dtype": "INT8"},
+  "query_rope": {"name": "query_rope", "shape": [2, 3, 1, 4], "dtype": "INT8"},
+  "kv_up_weight": {"name": "wkvb", "shape": [3, 9, 7], "dtype": "INT8"},
+  "output_weight": {"name": "wo", "shape": [18, 17], "dtype": "INT8"},
+  "new_latent": {"name": "latent_kv", "shape": [2, 1, 1, 7], "dtype": "INT8"},
+  "new_rope": {"name": "key_rope", "shape": [2, 1, 1, 4], "dtype": "INT8"},
+  "append_tokens": 1,
+  "position": 2,
+  "scale_multiplier": 1.0,
+  "scale_source": "base_qk_dimension"
+}

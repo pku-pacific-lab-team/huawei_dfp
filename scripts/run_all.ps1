@@ -1,7 +1,12 @@
-# Run all four default INT8 timing simulations and write reports to results.
+# Run simulations and independent verification for issue2, issue3, or both.
 # Resolve paths from this script so callers do not need to change directory.
 [CmdletBinding()]
-param()
+param(
+    [ValidateSet('issue2', 'issue3', 'all')]
+    [string]$Scope = 'all',
+    [switch]$Details,
+    [switch]$RequireComplete
+)
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).ProviderPath
@@ -17,16 +22,11 @@ if (-not (Test-Path -LiteralPath $pythonExe -PathType Leaf)) {
     $pythonExe = $pythonCommand.Source
 }
 
-$entries = @('ascend.py', 'tpu.py', 'tsp.py', 'tsp_cim.py')
-for ($index = 0; $index -lt $entries.Count; $index++) {
-    $entry = $entries[$index]
-    $entryPath = Join-Path $projectRoot $entry
-    Write-Output ("[{0}/{1}] Running {2}" -f ($index + 1), $entries.Count, $entry)
-    & $pythonExe -B -X utf8 $entryPath
-    # Native process failures must stop the batch instead of reporting success.
-    if ($LASTEXITCODE -ne 0) {
-        throw "Stopped: $entry failed with exit code $LASTEXITCODE. Later simulators were not run."
-    }
-}
-
-Write-Output ("All four simulations completed. Reports: {0}" -f (Join-Path $projectRoot 'results'))
+# Child failures are collected by the runner so all selected checks can finish.
+# PowerShell 7 may otherwise turn an expected needs-review exit into an exception.
+$PSNativeCommandUseErrorActionPreference = $false
+$runnerArguments = @('--scope', $Scope.ToLowerInvariant())
+if ($Details) { $runnerArguments += '--details' }
+if ($RequireComplete) { $runnerArguments += '--require-complete' }
+& $pythonExe -B -X utf8 (Join-Path $PSScriptRoot 'run_all.py') @runnerArguments
+exit $LASTEXITCODE

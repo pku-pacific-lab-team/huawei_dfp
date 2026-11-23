@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "operation": "attention_output_projection",
+  "description": "Decode context head concatenation view and bias-free INT8 output projection",
+  "inputs": [
+    {"name": "context", "shape": [2, 4, 1, 7], "dtype": "INT8"},
+    {"name": "weight", "shape": [28, 17], "dtype": "INT8"}
+  ]
+}

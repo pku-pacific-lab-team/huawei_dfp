@@ -175,6 +175,9 @@ class TSPSpec:
             "scope": "single_hem", "status": "analytical_compute_service",
             "resource_policy": "one_shared_vxm_service",
             "base_ops_per_cycle": base,
+            "chip_peak_ops_per_cycle": self.total_vxm_alus,
+            "allocated_peak_fraction": None if base is None else float(Fraction(str(base)) / self.total_vxm_alus),
+            "allocation_policy": "configured_static_hemisphere_share_no_idle_borrowing",
             "operation_costs": {op: v[name] for op, name in VXM_OPERATION_COSTS.items()},
             "operation_rates_per_cycle": {
                 op: None if base is None or v[name] is None else float(Fraction(str(base)) / Fraction(str(v[name])))
@@ -184,6 +187,9 @@ class TSPSpec:
             "assumed_inputs": [name for name in VXM_SERVICE_PARAMETERS if self.parameters[name]["status"] == "assumed"],
             "missing_parameters": [name for name in VXM_SERVICE_PARAMETERS if v[name] is None],
             "conditions": "One task allocation from the central VXM, not replicated per hemisphere. "
+                          "Chip peak assumes one basic operation per ALU per cycle; the reference assigns "
+                          "half to each hemisphere (2560 of 5120 op/cycle), without idle-share borrowing. "
+                          "The fraction is derived from the configured budget, not a second adjustable parameter. "
                           "Rates share one budget and cannot be added. Compute occupancy only: no transfers, "
                           "reduction, dependency scheduling or special-function startup latency. "
                           "FP32 denotes operand format, not correctly rounded exp/rsqrt accuracy. "

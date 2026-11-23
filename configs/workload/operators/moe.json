@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "operation": "moe",
+  "router": {
+    "schema_version": 1,
+    "operation": "moe_router",
+    "x": {
+      "name": "tokens",
+      "shape": [
+        3,
+        5
+      ],
+      "dtype": "INT8"
+    },
+    "weight": {
+      "name": "router_weight",
+      "shape": [
+        5,
+        6
+      ],
+      "dtype": "INT8"
+    },
+    "top_k": 2,
+    "groups": 3,
+    "selected_groups": 2,
+    "bias": {
+      "name": "router_bias",
+      "shape": [
+        6
+      ],
+      "dtype": "FP32"
+    },
+    "route_scale": 2.5,
+    "output_names": [
+      "selected_experts",
+      "route_weights"
+    ]
+  },
+  "experts": {
+    "schema_version": 1,
+    "operation": "moe_experts",
+    "description": "Fixed Decode routing: uneven [3,1,2,0,0] loads, two empty experts, widened shared FFN and unweighted FP32 outputs.",
+    "x": {
+      "name": "tokens",
+      "shape": [
+        3,
+        5
+      ],
+      "dtype": "INT8"
+    },
+    "gate_weight": {
+      "name": "expert_gate",
+      "shape": [
+        6,
+        5,
+        7
+      ],
+      "dtype": "INT8"
+    },
+    "up_weight": {
+      "name": "expert_up",
+      "shape": [
+        6,
+        5,
+        7
+      ],
+      "dtype": "INT8"
+    },
+    "down_weight": {
+      "name": "expert_down",
+      "shape": [
+        6,
+        7,
+        5
+      ],
+      "dtype": "INT8"
+    },
+    "routing": {
+      "expert_count": 6,
+      "assignments": [
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "name": "selected_experts"
+    },
+    "shared_experts": 2,
+    "shared_gate_weight": {
+      "name": "shared_gate",
+      "shape": [
+        5,
+        14
+      ],
+      "dtype": "INT8"
+    },
+    "shared_up_weight": {
+      "name": "shared_up",
+      "shape": [
+        5,
+        14
+      ],
+      "dtype": "INT8"
+    },
+    "shared_down_weight": {
+      "name": "shared_down",
+      "shape": [
+        14,
+        5
+      ],
+      "dtype": "INT8"
+    },
+    "output_names": [
+      "unweighted_experts",
+      "shared_output"
+    ]
+  },
+  "output_dtype": "INT8",
+  "description": "Shape-only grouped sigmoid routing, scenario assignments, native experts and weighted shared combine."
+}

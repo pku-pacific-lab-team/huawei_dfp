@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "operation": "swiglu_ffn",
+  "inputs": [
+    {
+      "name": "x",
+      "shape": [
+        2,
+        17
+      ],
+      "dtype": "INT8"
+    },
+    {
+      "name": "gate_weight",
+      "shape": [
+        17,
+        7
+      ],
+      "dtype": "INT8"
+    },
+    {
+      "name": "up_weight",
+      "shape": [
+        17,
+        7
+      ],
+      "dtype": "INT8"
+    },
+    {
+      "name": "down_weight",
+      "shape": [
+        7,
+        17
+      ],
+      "dtype": "INT8"
+    }
+  ]
+}

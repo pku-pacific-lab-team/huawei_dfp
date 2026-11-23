@@ -1,12 +1,23 @@
 # 架构、参数与验收说明
 
-整理日期：2026-11-18（America/Los_Angeles）。本文汇总当前本地实现；来源材料的原始版本日期和 Git blob 保持不变。
+初次整理：2026-11-18；最近同步实现与文档：2026-11-23（America/Los_Angeles）。本文汇总当前本地实现；来源材料的原始版本日期和 Git blob 保持不变。
 
 本文是四架构及共享 CIM Macro 的现行技术说明。安装与运行见 [README](README.md)，参数来源核验结果见[核验结论](#source-audit)及[逐项证据台账](calibration/parameter_source_audit.json)。参数的完整元数据以链接的 JSON 为准；本文中的未知项、假设和执行范围与代码对应。
 
 - [四个仿真器的代码结构](#simulator-structure)
 - [四套执行路径字符框图](#execution-diagrams)：[Ascend](#diagram-ascend)、[TPU](#diagram-tpu)、[原生 TSP](#diagram-tsp)、[CIM-TSP](#diagram-cim-tsp)、[粒度对照](#diagram-comparison)
 - [共同约定与报告口径](#conventions)
+- [算子契约与 GEMM 适配（Issue #3 第一批）](#operator-contract)
+- [独立 Vector / Nonlinear（Issue #3 第二批）](#vector-operators)
+- [RMSNorm / Softmax（Issue #3 第三批）](#normalization-operators)
+- [Residual / SwiGLU / FFN（Issue #3 第四批）](#decode-blocks)
+- [Decode Attention / GQA 与 KV Cache（Issue #3 第五批）](#decode-attention)
+- [INT8 RMSNorm 与 Attention 投影（Issue #3 第六批 A）](#decode-projections)
+- [RoPE、Embedding 与词表输出（Issue #3 第六批 B）](#position-vocabulary)
+- [MLA 前处理与共享压缩缓存（第七批 A）](#mla-preprocess-cache)
+- [Absorbed MLA Attention 与输出集成（第七批 B）](#mla-attention)
+- [给定路由的 MoE 专家（第八批 A）](#moe-experts)
+- [MoE 路由与整块执行（第八批 B）](#moe-complete)
 - [Ascend 910](#ascend)
 - [TPU v4](#tpu)
 - [原生 TSP](#tsp)与[完整参数来源表](#tsp-parameters)
@@ -38,7 +49,7 @@ flowchart LR
 
 ### 从入口到结果的调用链
 
-四个入口均先构造硬件规格和任务，再调用仿真器；分块函数由 `simulate` 内部调用。`src/hardware` 负责描述和检查规格，`src/core` 负责分块与执行统计，`src/utils` 负责配置、任务和报告适配。
+以下调用链描述原生 GEMM：四个入口构造硬件规格和任务，再调用仿真器；分块函数由 `simulate` 内部调用。`src/hardware` 负责描述和检查规格，`src/core` 负责分块与执行统计，`src/utils` 负责配置、任务解析和报告展示。Issue #3 的执行编排和统一结果适配见下方[算子执行分层](#operator-layering)。
 
 `src/core` 的四个架构包均含 `simulator.py`。Ascend、TPU、原生 TSP 使用各自的 `tiling.py`；CIM-TSP 在 `hemisphere.py` 中完成静态任务域映射，并复用原生 TSP 的驻留容量检查。`cim` 是 CIM-TSP 的支持包，保存 `macro_model.py` 和 Macro 聚合函数所在的 `simulator.py`，没有独立场景或 CLI。`tests` 对应四架构及 Macro 支持模型，跨架构检查归入 `tests/common`。硬件和工具层每种职责通常只有一个文件，继续采用架构前缀命名；详细位置与迁移关系见[目录迁移表](#directory-migration)。
 
@@ -78,6 +89,423 @@ flowchart LR
 - [parameter_source_audit.json](calibration/parameter_source_audit.json) 与对应回归绑定配置版本、参数证据和核验判断；审计台账不参与运行期性能计算。
 
 四个仿真器均不持有真实 A/B/C 数组，不执行数值 GEMM，也没有整片任务调度、逐周期资源争用或完整能耗/面积求解。推荐读代码时从各入口的 `main` 开始，依次看 Spec、`simulate`、tiling，最后看报告和测试；详细算法与限制见后续各架构章节。
+
+<a id="operator-contract"></a>
+
+## 算子契约与 GEMM 适配（Issue #3 第一批）
+
+[src/operators](src/operators) 在现有执行内核上增加公共描述与结果视图。`types.py` 定义 `TensorSpec`、`OperatorSpec`、`OpResult`；`actions.py` 定义 Action ledger；`primitives.py` 提供 `Gemm` 与 `simulate_gemm`；`adapters.py` 显式映射四架构现有报告。四个 CLI 的 `--report-format operator` 输出精简 JSON 和终端摘要；默认 `legacy` 保持原行为。原生报告 schema 仍为 Ascend/TPU/TSP/CIM **12/13/10/10**；统一结果独立使用 schema **2**；详细诊断独立使用 `operator_details` schema **1**。
+
+接口组织参考 [LLMCompass_mod 固定提交](https://github.com/pku-pacific-lab-team/LLMCompass_mod/commit/98e79ee5b34991f09c65efe395e1e84d58589fab) 的 Tensor、算子形状描述与 OpResult，不引入其运行依赖、硬件模板、公式或能耗系数。原生 Simulator 仍是映射、容量检查、动作计数和时间的唯一执行来源。第一批无需新增硬件参数、改变硬件 schema 或更新参数来源台账。
+
+<a id="operator-layering"></a>
+
+### 算子执行分层
+
+GEMM、Vector 和归一化的公共 Python 入口均保留在 `src.operators.simulate_*`，签名不变；它们将执行委托给 [runtime/simulation.py](src/runtime/simulation.py)。后端注册表 [runtime/backends.py](src/runtime/backends.py) 统一检查架构与 Spec 的对应关系，并选择原生 GEMM Simulator、Vector 内核或归一化内存路径。
+
+```mermaid
+flowchart LR
+    CLI["四个 CLI：参数和输出"] --> W["runtime/workloads<br/>解析与执行装配"]
+    API["operators.simulate_*<br/>兼容入口"] --> R["runtime/simulation<br/>选择后端、配置并执行"]
+    W --> R
+    R --> K["core 原生内核<br/>计数、容量与时间"]
+    H["hardware Spec / 执行 profile"] --> K
+    K --> N["原生报告 / NativeResult"]
+    N --> A["operators/adapters<br/>ActionLedger + OpResult"]
+    A --> O["调用方 / CLI 报告"]
+```
+
+职责按以下边界分开：
+
+- `utils/operator_workload.py` 只把 workload 字典解析为算子描述；`runtime/cli.py` 处理 CLI 选项兼容性、展示和输出路径；`runtime/workloads.py` 装配解析、profile 和硬件加载，不打印或写结果文件。
+- Vector/归一化内核返回 [NativeResult](src/core/operator_result.py)，包含原生报告和动作元数据；[adapters.py](src/operators/adapters.py) 将其包装为统一结果，不重新计算周期或动作数量。原生 GEMM 仍返回原有字典。`core` 不导入 `operators` 或 `runtime`。
+- [composite_memory.py](src/core/composite_memory.py) 显式定义 `MemoryPath`、`LocalMemoryPath` 和 `ResidentMemoryPath`。各架构工厂在构造时填写字段；存储校验通过 `MemoryKind` 和临时容量接口区分路径，不再依赖动态挂载属性或 `hasattr(local)`。
+- [vector_resources.py](src/core/vector_resources.py) 集中计算 Vector 与归一化共用的 HBM/本地带宽以及 MEM/stream 分配。两类内核保留各自的搬运顺序、容量公式和调度。CIM 的 Vector/归一化继续复用原生 TSP 路径。
+
+四个 CLI 的原生 GEMM 路径保持原有入口；选择 Vector/归一化后走 runtime 分支，Ascend 不再为取得 Spec 而构造 GEMM Simulator。分层重构保持硬件配置、计算公式和调用入口；后续报告精简将统一结果迁移至 schema 2，原生报告 schema 和默认输出路径不变。验收仍按 Issue #2 / #3 分开；[分层回归测试](tests/operators/test_layering.py) 对照报告精简前 64 组 API 的原生结果、算子描述和完整动作语义，并检查依赖方向与适配结果的隔离。
+
+### 类型、执行和结果
+
+- `TensorSpec(name, shape, dtype)` 描述逻辑存储字节；维度只接受正整数，空 shape 表示标量。支持 INT8/INT32/FP16/BF16/FP32 的存储描述，不分配数值数组，也不放宽旧 GEMM 精度检查。
+- `Gemm(M, K, N)` 或 `Gemm.from_tensors(A, B)` 仅执行二维 INT8 输入、INT32 累加与输出。前者默认 A/B/C，后者检查 K 一致性并保留调用方 Tensor 名称；可用 output_name 显式命名输出。适配原生报告时验证维度一致，原生 GEMM 报告保持不变。尚未实现 INT8 输出转换或批量 GEMM；独立 Vector 见下一节。
+- `simulate_gemm(task, architecture, spec, mode="count", **policy)` 接受 ascend/tpu/tsp/tsp_cim，检查 Spec 与架构匹配后调用原内核。分块/缓冲等 policy 原样传递，非法选项、容量不足和必需参数缺失不回退为默认维度或零时间。
+- `adapt_gemm_report(architecture, report)` 可适配已运行的报告，验证原生模型、版本、范围、GEMM 逻辑工作量和完整动作集合。新增/删除动作或原生 schema 变化时需要重新审阅映射，不能静默漏计。
+- `OpResult` 直接提供 `latency_s`、`cycle_count`、`timing_status`、算子描述、边界、工作量、资源需求和动作账本。`to_dict()` 导出 schema 2；`action_counts` 只出现一次，不内嵌原生报告、完整配置或来源台账。
+- `resource_requirements` 每个资源只记录 `scope`、`required_bytes`、`capacity_bytes`、`requirement_basis` 及适用的 bypass 模式。分配/驻留/补齐/逻辑载荷的依据原样标明；各层容量不合池、不求和。没有容量信息时为 null。
+- `latency_s=time_ns/1e9`，`cycle_count` 保持原生总周期。count 为 `not_evaluated`，缺时钟但能计算周期为 `cycles_only`，完整计时为 `analytical_estimate`。能耗保持 `not_evaluated`，不使用 LLMCompass 的能耗系数。
+- `simulate_gemm/vector/composite(..., include_details=True)` 和 `adapt_gemm_report(..., include_details=True)` 才保留原生快照。此时 `native_report` 返回隔离副本，`to_detailed_dict()` 导出独立诊断，含原生报告、完整 io_contract 和动作来源；SHA-256 绑定规范化的精简结果。默认访问未保留的详细数据会明确报错。
+- CLI 用 `--details-output PATH` 显式选择详细文件。精简结果和详细文件独立写入；终端仅打印任务、时间、资源和计数。批量脚本的 `-Details` 只对 Issue #3 生效；其 CSV 汇总按架构与算子分行，资源与动作保持分项，失败行不读取旧报告。
+
+schema 1 → 2 的读取迁移：`latency.latency_s/cycle_count/status` 改为顶层 `latency_s/cycle_count/timing_status`；`action_ledger.entries/grouped_counts` 改为按动作 ID 索引的 `action_counts`；`resource_requirements.memory` 改为紧凑的资源表。`io_contract` 可通过 `src.operators.connections.io_contract(result)` 按需生成，连接检查直接使用精简结果，不要求详细快照。调度、执行策略、来源、比较/扫描结果在详细文件的 `native_report` 内。调用入口不变，旧 JSON 消费者需要按 schema 2 迁移。
+
+### Action ledger 的计数口径
+
+每条记录携带 architecture、component、name、category、count、unit、dtype、scope、basis、原生字段 JSON pointer 和原始依据。basis 使用 logical/padded/modeled_internal；原字段没有逐项 basis 的 TSP 使用明确的 K/N 和 stream 补齐规则。适配层逐条保留原动作的数值、单位和范围，不把逻辑载荷升级为物理 bank/DRAM 事务。
+
+| 来源 | 映射原则 |
+|---|---|
+| Ascend `cube_mac`、原生 TSP `mxm_mac` | padded MAC；保留尾块发出工作 |
+| TPU `matrix_mac` | logical MAC；补齐发出工作仍在 `work_counts.issued`，不凭空增加物理 MAC 动作 |
+| CIM `issued_mac` / `useful_mac` | 前者为 padded action，后者为 logical reference，仅前者进入动作汇总 |
+| CIM 四项 `logical_*` 别名 | summary 引用原动作并校验计数，汇总时排除，避免重复统计 |
+| Ascend L1→L0A/B、L0C→UB | 保留 onchip_transfer 路径，未补造 SRAM 端点读写次数 |
+| TSP/CIM stream | interconnect 指本侧片上 stream；不包含 C2C 或片外供给 |
+| CIM 内部动作 | 保留 Macro 独立计数；局部加法树及移位累加的内部操作位宽未指定，dtype 标为 unspecified，不套用最终 INT32 输出位宽 |
+
+`ActionLedger.grouped_counts()` 只合并架构、组件、动作名、类别、单位、精度、作用域、basis 和 attributes 全部一致的 action。适配记录以 `native_action` attribute 保留各阶段身份。重复 ID/来源和不一致的 summary 被拒绝；reference/summary 不进入汇总。未知计数必须是 `unavailable + null`，不能用零替代，且任何未知贡献使对应汇总保持未知。
+
+ledger 与其 grouped_counts 也是同一工作量的两种视图。Macro 的复合动作与内部 primitive 虽然分别列出，但不是可以全部累加的能耗项；Issue #5 接入系数时仍需声明不重叠的计费边界。本批不加载系数，energy 保持未评估。缺少某类动作不表示该硬件活动为零；`coverage` 明确 TSP/CIM 片外供给在边界外，所有架构均未提供物理存储事务。
+
+### 第一批验证范围
+
+`tests/operators` 覆盖 Tensor 字节与精度、ledger 单位/来源/别名、四架构小 M 和尾块/跨 K GEMM 的 count/timing 原生对账、策略透传、超容量/缺参、缺时钟周期结果、CLI 默认兼容及失败时保护输出。算子独立验证使用 `python scripts/verify_issue3.py`，全仓库回归另行使用 `python -m unittest discover -s tests -t . -v`。
+
+Issue #3 使用[独立覆盖清单、证据目录和判据](validation/issue3/README.md)，不读取或续用 Issue #2 的 A1/A5 审阅。Issue #2 不再发现算子测试，算子专属文件不进入其语义审阅快照；共享入口、原生代码和本文仍属于共同依赖，修改后可能使旧审阅过期。独立 Vector/Nonlinear 已在第二批接入，第三批加入 RMSNorm/Softmax；后续批次已补齐目标模型粗粒度块；完成结论由 Issue #3 独立交付审计生成，不续用 Issue #2 审阅。
+
+新增执行 profile 的来源及哈希独立维护在 [operator_execution_audit.json](calibration/operator_execution_audit.json)，原生硬件台账及参数总数不包含这些策略。
+
+### 接口收尾：语义、身份和连接边界
+
+早期 schema 1 曾新增 `operator.attributes` 和 `io_contract`。当前精简结果已迁移到 schema 2，保留 `operator.attributes`；完整 `io_contract` 放在可选的 `operator_details` schema 1 文件中，也可通过 `io_contract(result)` 按需生成。旧报告缺少这些信息时不能推断完整语义或边界；字段迁移见上文。`OperatorSpec.attributes` 接受字典或键值对，验证键唯一、值为有限 JSON 标量，保存为排序后的不可变元组；导出复制为字典。RMSNorm/Softmax 把 -1 转为真实正轴，RMSNorm epsilon 规范化为 float，因此同义轴表示相等，不同 epsilon 可区分。描述可作为节点语义键，但仿真结果缓存还须包括架构、硬件/执行 profile、mode 与全部策略覆盖。
+
+单输出算子通常用 `output_name` 指定输出，例如 GEMM、Vector、归一化和 FFN；QKVProjection、RoPE、MLAPreprocess、MoERouter、MoEExperts 等多输出算子使用 `output_names`。缓存状态的名称由缓存描述生成，并按各块契约返回别名输出；DecodeAttention 和 MLADecodeAttention 的 `output_name` 只指定主结果名称，不替代缓存状态命名。默认命名及输入输出冲突检查以对应算子契约为准，显式非法重名会拒绝；`Gemm.from_tensors` 保留输入名字。算子 workload 使用对应的命名字段，既有 GEMM workload 继续使用原解析器。Tensor 名称只在单次调用内有效，图层需要节点限定名；连接按显式端口索引建立，不从同名、相同形状或相同架构推断物理别名。
+
+`src/operators/connections.py` 按需生成的 io_contract 记录每个端口的 dtype、shape、逻辑 bytes、HBM/local_MEM 边界、作用域和已知 hemisphere。Ascend/TSP/CIM GEMM 保留 native_packed 标签，不把补齐或打包隐藏成逻辑稠密布局；TPU GEMM 与 Vector/复合块使用 logical_dense。物理设备 ID 未知，不承诺跨调用的 UB/VMEM/寄存器保留。
+
+`plan_connection` 仅给一个拟连接边生成需求描述：形状不同拒绝；精度不同返回 required_unmodeled 转换；native_packed 或布局差异需要布局核对；架构、存储层或已知 hemisphere 不同需要传输模型；其他情况仍需确认设备和分配。INT32→FP32 及 FP32→INT8 不默认做 cast/dequant/requant，也不假设 scale/rounding。报告两端逻辑载荷大小供后续规划，不能直接加为动作或峰值容量；新增时间、动作、能耗均为 null。现有独立块已经记过边界访问，连接检查不扣除这些流量，不模拟图执行，也不把未建模工作当作零。
+
+<a id="vector-operators"></a>
+
+## 独立 Vector / Nonlinear（Issue #3 第二批）
+
+支持 `int32_add`、`fp32_add`、`fp32_mul`、`fp32_exp`、`fp32_rsqrt` 五种操作。`Vector` 描述形状和输入数，`simulate_vector` 选择各架构独立路径。现有硬件 Spec 的 compute-only 服务不变：独立执行内核将搬运、局部存储访问和分块串接在服务外层。CIM 直接复用原生 TSP 路径，使用一个 VXM 任务预算，不乘半片数或 domain 数。没有实际浮点求值、数值域检查、广播、归约、量化转换和复合块融合。
+
+### 配置与来源
+
+新增 `src/hardware/vector.py` 解析独立 [Vector 执行 profile](configs/execution/vector.json)，当前 schema 2，兼容 schema 1 的独立 Vector。其 policies 分别定义 Ascend、TPU 和原生/CIM 共用的 TSP 策略，明确逐块逐阶段串行、可覆盖的 1024 元素软件默认块（不是硬件上限，也未经最优性验证）、读写启动和计算启动各 0 cycle。零是显式省略固定延迟，不表示实测零延迟。schema 2 增加下节的 composite 策略，不改变已有 Vector 或 GEMM 的执行公式、硬件 schema 和参数值。
+
+唯一新增带宽参数为 Ascend UB read/write，各 256 B/cycle，status=assumed。取每周期 64 个 32-bit 字（64×4=256）的服务代理，量级参考已有单核 Vector 预算；不声称是公开硬件端口规格。它是固定独立参数，不随 Vector compute budget 自动缩放，也不表示读写可以同时叠加。DMA 对 UB 和 HBM 同时预约，以较慢端为周期下限。来源、条件和配置哈希记录在 `calibration/operator_execution_audit.json.vector_execution_profiles`，与原有硬件参数数量分开。
+
+其余参数复用所选 Spec：Ascend 单核 HBM 份额、TPU 单 TensorCore HBM 份额及 VMEM 服务、TSP MEM slice 读写及方向 stream。计算代价复用 INT32 ADD=1、FP32 ADD/MUL=1、EXP=15、RSQRT=12 的现行配置值；用户修改硬件配置后直接生效，未在 Vector 内硬编码这些值。完整使用的硬件 provenance、执行 profile、profile hash 与实际 tile 保留在报告。
+
+### 计数、容量与时间公式
+
+设元素数 E、输入数 a（一元为 1、二元为 2），每元素均为 4 byte。逻辑输入字节为 4aE，输出为 4E，逻辑算术动作数为 E。EXP 的 15 倍代价只用于计算占用，不产生 15E 次 EXP action。`work_counts.issued.operations=null` 明确尚无 SIMD 指令发出/尾部算术门控模型。
+
+Ascend/TPU 检查完整输入输出 HBM 占用 `4(a+1)E`；局部块大小为请求上限、E、`floor(local_capacity/[4(a+1)])` 的最小值，零容量块报错。输入与输出分开分配，不假设 in-place 更新。Ascend 经过 HBM→UB（L2 bypass），TPU 经过 HBM→VMEM（CMEM bypass）；每个块依次执行：
+
+1. 每个输入 DMA：`ceil(4n / min(hbm_bpc, local_write_bpc)) + transfer_startup`。
+2. 局部操作数读取：`ceil(4an / local_read_bpc)`。
+3. 计算：调用原 Spec 对 n 个操作的加权周期估算，再加 compute_startup。
+4. 局部结果写入：`ceil(4n / local_write_bpc)`。
+5. 导出 DMA：`ceil(4n / min(local_read_bpc, hbm_bpc)) + transfer_startup`。
+
+TPU 的 local_read/write 使用同一 VMEM 服务上限，阶段串行不会重复分配带宽。HBM 与局部存储的 DMA 端点动作分别计数，但同一 DMA 时间只计一次。HBM 份额和时钟只影响本核服务，不把计算量乘硬件核数。
+
+TSP/CIM 检查完整输入输出按选定 slice 均匀条带化后的驻留量：每个 tensor 每 slice 为 `ceil(4E/slices)`，reserved 同样向上取整。减小 Vector tile 不能解决完整驻留容量不足。MEM action 计逻辑载荷；每个块的 stream 字节为 `align_up(4n, stream_width_bytes)`，显式假设尾组用掩码/填充值承载，不额外读取或分配 MEM。每个输入搬运时间为 `max(ceil(4n/MEM_read_bpc), ceil(padded_bytes/stream_bpc)) + startup`，然后计算，最后使用 MEM_write 和输出 stream 的相同公式写回。读写及不同输入在本版串行；不跨方向加算带宽，不新增 VXM 寄存器容量或将 MEM 块重复分配为一份完整工作集。
+
+所有块串行；完整块以次数聚合，尾块独立计算，不生成与元素数成正比的事件列表。`service_cycles` 和 `elapsed_cycles` 的分项在本串行策略下相同，均求和为 total_cycles；它们和 ledger/grouped_counts 是不同视图，不重复计费。所需带宽或当前操作服务缺失时 timing 拒绝，count 仍可统计字节与动作。未用的 Cube/MXU/MXM、其他 Vector 操作成本、L2/CMEM 服务不成为本算子的 timing 必需项。TSP 的 B/cycle 参数在缺时钟时仍允许 cycles_only；Ascend/TPU 换算 B/s 需要时钟。
+
+### 接口与验证
+
+`src/utils/operator_workload.py` 严格解析 schema 1 的 `{operation: "vector", op, inputs}`，每个 input 必须有 name/shape/dtype；未知字段、类型、重复名字、形状不一致和广播请求拒绝。新 CLI 参数为 `--vector-config`、`--vector-tile-elements`。Vector 固定采用 operator JSON，显式旧报告格式及 GEMM 专用选项拒绝；GEMM 默认行为不变。TSP 保留 mem-slices/streams/reserved-bytes，CIM 还保留 hemisphere 选择。默认 profile 相对于配置目录查找，缺文件不回退；API 可传入已验证的 VectorExecution。
+
+`tests/operators/test_vector*.py` 覆盖五种操作×四架构、矩阵/宏执行隔离、1025 元素尾块、手算阶段周期、输入输出/stream 字节守恒、局部容量回退与完整驻留容量拒绝、共享预算、缺参/缺时钟、启动开销、profile 来源哈希、CLI 选项与失败输出保护。参考小例中，17 个 FP32 ADD 元素、tile=8、4 op/cycle、HBM=16 B/cycle、local=32 B/cycle，Ascend/TPU 为 28 cycle；TSP 使用单 slice 读写 16 B/cycle、单 stream，得到 20 cycle。这是合成测试参数，不能作为四架构速度对比。
+
+<a id="normalization-operators"></a>
+
+## RMSNorm / Softmax（Issue #3 第三批）
+
+`src/operators/composite.py` 提供 `RMSNorm(x, weight, epsilon=1e-5, axis=-1)`、`Softmax(x, axis=-1)` 和 `simulate_composite`。只接受非标量 FP32，axis 为最后一个轴（可用 -1 或对应正索引）；设最后轴宽 D，前导维度乘积 R，总元素 E=RD。RMSNorm weight 必须为 `[D]`，且名字与 x 不同；输入输出不别名。算法不求实际张量值，不检查浮点数值域，不含 Softmax mask、转换、任意广播或布局指令。
+
+### 算法、工作量与依赖
+
+- RMSNorm：`y = x * rsqrt(sum(x*x)/D + epsilon) * weight`。每行先分块平方、SUM 归约及合并；随后均值缩放、epsilon 加法、RSQRT；最后重读 x 并应用行标量与 weight。
+- Softmax：`y = exp(x-max(x)) / sum(exp(x-max(x)))`。第一遍求行 MAX；第二遍重读 x，减最大值、EXP，把指数值写入输出区，同时求行 SUM；求一次行 RCP 后，第三遍读取输出区并乘倒数。
+
+| 算法 | 逻辑 FP32 算术计数 |
+| --- | --- |
+| RMSNorm | MUL=3E+R，ADD=E（归约 E-R 加 epsilon R），RSQRT=R，总计 4E+2R |
+| Softmax | MAX=E-R，SUB=E，EXP=E，ADD=E-R，RCP=R，MUL=E，总计 5E-R |
+
+D=1 时不产生 MAX/SUM 算术，但仍计算声明的归一化公式，不做常量折叠。`1/D` 和 epsilon 是隐式标量常数；均值仅计一次 MUL，无运行时 RCP。EXP/RSQRT/RCP 的等价工作量不能再当成额外 EXP 等动作重复入账。
+
+归约每块采用平衡二叉树：每层对 q 个存活值做 `floor(q/2)` 次操作，下层剩 `ceil(q/2)` 个。奇数尾值保留原位置，采用存活索引描述，不假设免费复制成连续数组；所计读取仍是逻辑载荷，不能作为物理 bank transaction。每块最后的部分结果按 tile 顺序合并到行状态，第一块只初始化状态，后续各做一次二元合并。全行恰好 D-1 次归约操作。树层和合并串行等待前驱；每轮 compute 时间为 `max(ceil(pair_count*cost/shared_budget), reduction_round_cycles)`，再加显式 compute startup。局部读写另计，不能用整个归约操作数一次除吞吐替代依赖。
+
+schema 2 的 `composite.parameters` 新增四个 assumed 参数：SUB=1、MAX=1、RCP=7 equivalent_op/op，归约依赖下限=1 cycle。RCP 的 7 是“一个种子等价操作 + 两次各 2 MUL/1 SUB 的 Newton 风格更新”工作代理，不实现种子或数值算法，不承诺精度及原生指令延迟。SUB/MAX 也未标定。新操作与已有 ADD/MUL/EXP/RSQRT 共用 Spec 的 Vector/VXM 预算，不增加 SFU 或按库存复制吞吐。参数来源与配置哈希另存于 `vector_execution_profiles.composite_parameters`；原硬件参数台账不变。未用成本可为 unknown/null，count 无需速率，timing 仅要求实际执行的服务。
+
+### 存储与架构映射
+
+`src/core/composite.py` 保存每行、每遍、每类块的高层执行图；`src/core/{ascend,tpu,tsp,tsp_cim}/composite.py` 分别选择本架构服务、容量和边界。RMSNorm 与 Softmax 不调用独立 Vector 的 HBM-to-HBM 仿真接口，也不调用 GEMM 或 Macro。所有行、块及阶段串行；相同块用重复次数表示，计算量不随 batch 展开成巨量事件。
+
+Ascend/TPU 仍使用 HBM→UB/VMEM 路径并绕过 L2/CMEM。DMA 时间取两个端点较慢服务，端点动作分别计数。算法阶段计局部操作数读、共享计算、结果写；多个局部操作数读取按总字节共享端口。行标量每块读 4 B，随后广播，不物化为 D 元素张量；额外 shuffle 服务未建模。
+
+| 项目 | RMSNorm | Softmax |
+| --- | --- | --- |
+| HBM 完整输入输出容量 | 8E+4D B | 8E B |
+| HBM 读流量 | 12E B（x 两次、weight 每行一次） | 12E B（x 两次、指数值一次） |
+| HBM 写流量 | 4E B | 8E B（指数值和最终输出各一次） |
+| UB/VMEM 工作集，实际 tile=t | 8t+4 B：两块缓冲及一个行状态 | 4t+8 B：一个可复用块缓冲及两个行状态 |
+
+RMSNorm 的第一遍两个块槽用于 x/平方与归约，第二遍复用为 x/输出和 weight；行和、均值、缩放量重用一个标量槽。Softmax 先导出指数值，再破坏性归约本地块，因此归一化时重载的指数值仍完整。MAX 和 SUM 在第二遍同时存活，RCP 后复用 SUM 槽。HBM 容量保存 weight 一份，但本版本不保留跨行局部 weight cache，因此按 R 次读流量计。请求块上限可被局部容量缩小，连一个元素及标量都放不下时拒绝。
+
+TSP/CIM 原始 x、weight、输出直接驻留选定本侧 MEM，load/export 不增加伪 DMA；每个算术阶段的实际逻辑读写经 MEM/stream 计数。每个读或写操作数分别按 stream 宽度补齐，时间为 `max(ceil(logical_bytes/MEM_bpc), ceil(padded_bytes/stream_bpc)) + transfer_startup`；不同操作数及方向串行。中间平方、移位值和树部分和写入一个 4t B 可复用 MEM 临时块，行状态另占 4/8 B；Softmax 指数值直接使用输出分配。总驻留要求为完整输入输出 + 临时块 + 行状态 + reserved；每份分配分别按 slice 向上取整。空间不足先缩小临时块，完整驻留加一个元素临时块仍不足则报错，不虚构片外分页或 VXM 寄存器容量。CIM 仅复用同一个原生 VXM，报告不产生 Macro MAC/编程动作。
+
+### 报告、迁移和验证
+
+统一 OpResult 精简结果使用 schema 2。axis/epsilon 等算子语义保留在 `operator.attributes`；原生 workload 中的 rows/width 等执行信息、`schedule.groups_per_row` 和 `memory.lifetimes` 在可选 `operator_details` schema 1 文件的 `native_report` 中读取。CLI 使用 `--details-output`，Python API 使用 `include_details=True` 和 `to_detailed_dict()` 导出详情。算术和存储 action 都汇总为不重复的逻辑账本，计数与阶段视图不能相加；issued operations 保持 null，不声明指令或物理事务。硬件配置 schema 不变；旧 Vector profile schema 1 可继续运行独立 Vector，复合块明确拒绝，迁移须新增完整 composite 元数据并升至 2。
+
+Vector 执行 profile schema 2 的 composite 必须为完整字典，null 不再等同于 schema 1 的缺省。复合执行在生成结果前调用 `src/core/composite_storage.py` 验证符号生命周期：局部 DMA 必须先于读取；归约逐层保留奇数存活值；行状态只能在初始化后读取；指数值在本地被归约覆盖前必须完成 HBM 导出；完整一行指数值保存后才能归一化；临时活跃字节不能超过声明分配。重复块检查首轮和稳定轮并保持次数聚合，不展开每个元素。详细文件的 `native_report.memory.lifetime_validation` 保存检查结果与临时峰值，这仍不是物理地址或 bank 校验。
+
+独立手算固定 D=7、tile=4（尾块 3）、共享预算 4 op/cycle、HBM=16 B/cycle、UB/VMEM=32 B/cycle、单 MEM slice=16 B/cycle、stream=320 B/cycle、启动 0。两块均有两层归约，第二块额外合并一次；EXP 两块分别占 15/12 cycle。
+
+| 手算项目 | RMSNorm | Softmax |
+| --- | --- | --- |
+| Ascend/TPU 分阶段周期 | sum_squares 25 + normalizer 11 + apply 18 = 54 | max 19 + exp/sum 58 + rcp 4 + normalize 10 = 91 |
+| TSP/CIM 分阶段周期（同原生服务配置） | sum_squares 24 + normalizer 11 + apply 16 = 51 | max 18 + exp/sum 57 + rcp 4 + normalize 8 = 87 |
+| 算法局部存储/MEM 读、写 | 184 / 124 B | 208 / 144 B |
+| HBM 读、写（Ascend/TPU） | 84 / 28 B | 84 / 56 B |
+| stream 输入、输出（TSP/CIM） | 6400 / 4800 B | 8000 / 6080 B |
+
+上述局部字节不含 DMA 端点，Ascend/TPU 还分别计输入 DMA 本地写与导出 DMA 本地读；TSP/CIM 没有这部分 HBM/DMA 动作。测试逐项对照固定手算账本并校验阶段汇总；另将 transfer startup=2、compute startup=3，RMSNorm 得到 Ascend/TPU 112、TSP 163 cycle，Softmax 为 162/226 cycle。测试通过故意交换归一化/指数阶段、删除初始化或 DMA、错写奇数存活数、延后指数导出及缩小声明临时区，验证生命周期错误会被拒绝。
+
+`tests/operators/test_composite*.py` 覆盖四架构的两个块、手算单元素周期/访问、D-1 归约守恒、尾块及跨块依赖、batch/head 缩放、临时空间回退和全驻留容量边界、缺参/缺时钟、原生/CIM 一致性、严格 CLI 与 schema 迁移。第四批的 Residual、SwiGLU/FFN 见下节。Attention/GQA、KV Cache、MLA、MoE 和覆盖矩阵由后续章节描述；完整模型拼装与端到端评估属于 Issue #4。
+
+<a id="decode-blocks"></a>
+
+## Residual / SwiGLU / FFN（Issue #3 第四批）
+
+`src/operators/blocks.py` 定义形状和存储类型；`src/runtime/blocks.py` 展开子块、分配符号存储并组合结果；`src/core/block_schedule.py` 检查拓扑与张量生命周期；`src/core/block_elementwise.py` 将点算阶段映射到既有 Vector/VXM 和显式 MemoryPath。core 不依赖公共 operators/runtime 层。组合调度保持串行，原生 GEMM 内部允许原有流水重叠，不改变既有 GEMM、Vector、RMSNorm/Softmax 的数值模型。
+
+| 块 | 输入/输出存储 | FP32 算法工作 |
+| --- | --- | --- |
+| Residual | 两个同形状 INT8 或 FP32，输出同类型 | 每元素一次 ADD |
+| SwiGLU | gate/up 同形状、同类型 INT8/INT32/FP32；输出 INT8 或 FP32 | `silu(gate)*up`：每元素 3 MUL（含负号）、1 EXP、1 ADD、1 RCP |
+| SwiGLUFFN | INT8 X[M,H]、Wg/Wu[H,I]、Wd[I,H]；Y[M,H] 默认 INT8，可选 FP32 | 三个 GEMM 的有效 MAC 总量 `3*M*H*I`；SwiGLU 处理 M*I 元素 |
+
+FFN 的依赖为 `gate=X*Wg`、`up=X*Wu`（INT32），`activation=SwiGLU(gate,up)`（FP32 计算后存 INT8），`down=activation*Wd`（INT32），最后经过块内存储边界写 Y：默认采用 INT32→FP32→INT8，`output_dtype="FP32"` 时仅执行 INT32→FP32；两种选择均不改变中间 INT8 激活。FFN 不含 bias、外部 Residual、RMSNorm 或其他 Decoder 层。形状、输入/输出别名和 dtype 不匹配均拒绝；内部张量名称避开全部边界名称。
+
+### 存储边界、访问与时间
+
+`configs/execution/blocks.json` 单独声明 `serial_materialized_nodes`、`persistent_inputs_reused_intermediates`、`symbolic_padded_views`。非 FP32 输入各有独立 FP32 tile 副本；SwiGLU 有一个 FP32 激活工作区，INT8 输出还有 FP32 结果工作区（FFN 最终转换直接复用其 FP32 副本）。这些工作区不重叠；tile 完成后复用。标量 -1/+1 为隐式常量，不分配完整常量张量。
+
+INT8/INT32→FP32 每元素暂按 1 个等价基本操作，FP32→INT8 按 3 个（scale/round/clamp 工作量代理），RCP 按 7 个。参数均为 `assumed`，使用一个共享 Vector/VXM 预算，未标定；它们不是独立量化、反量化或 ISA 指令模型，不计算数值、scale、零点或舍入误差。转换前后的存储读写单独计入。边界动作使用 `element` 单位并保留 `modeled_internal`，不混进 FP32 算法 op 或 GEMM MAC 计数。count 可以保留未知成本；timing 仅在实际用到未知成本时拒绝。来源和配置哈希记录在 `calibration/operator_execution_audit.json`。
+
+Ascend/TPU 点算经过 HBM→UB/VMEM→HBM；DMA 同时预约两端并取最小服务率，读取、计算、写回分阶段串行。TSP/CIM 数据驻留本侧 MEM，每次访问同时约束 MEM 与方向 stream，后者按完整 stream 宽度补齐；CIM 不额外复制 VXM。既有 Vector profile 提供 tile 上限、固定启动项和 Ascend UB 代理。每个阶段分别向上取整后按 tile 次数累加，不能先合并全部元素再只取整一次。
+
+子块输出全部物化，保留原生 GEMM 的冷缓存假设；相邻子块的写与读是两个不同动作。父块仅给子块 action ID 加节点前缀，保留原始单位、dtype、basis、role 和 summary 引用，不新增通用“边流量”。总周期为各子块 elapsed 周期之和；service 分解只有在所有子块均有该分解时提供，不能将 GEMM 内部重叠服务当作 elapsed 相加。详细文件保留每个子块的原生报告、配置及来源，精简 OpResult 仍为 schema 2。
+
+### 容量与可验证边界
+
+每个输入与权重在整块期间常驻；中间张量从产生时到最后一个消费者结束时存活，输出在生产阶段即占空间。每个张量只分配一次，大小取逻辑载荷与所有原生 GEMM 角色补齐要求的最大值：Ascend 为 M16/K32/N16，TPU 为逻辑尺寸，TSP 为 K/N supercell，CIM 的 N 进一步遵守 Macro 块尺寸。`symbolic_padded_views` 表示同一分配的符号视图，并不验证物理地址布局或免费实现真实转置；跨独立结果的连接规划仍要求布局核验。
+
+TSP/CIM 每个张量和用户 reserved 分别按选中 slice 数向上条带化，点算 scratch 为一个有不相交子区间的条带化池。逐节点检查活跃张量+reserved+scratch，GEMM 收到的 reserved 还包括其他存活张量。Ascend/TPU 检查 HBM 活跃峰值，UB/VMEM 等本地资源在串行节点之间复用，取节点峰值最大值；不得把不同存储层容量相加。HBM/MEM 不足直接拒绝，没有分页或片外供给补救。`memory.lifetime_validation` 提供各张量存活区间与逐节点峰值；这是符号容量检查，不是 bank、寄存器或物理地址验证。
+
+手算用例（默认 INT8 输出）：TPU 的 M=2/H=17/I=7 FFN，常驻输入共 391 B，五阶段存储分别为 447、503、517、541、561 B，HBM 峰值 561 B；HBM 共读 687 B、写 296 B。Residual 的 7 个 INT8 元素在 UB=96 B、HBM=16 B/cycle、UB=32 B/cycle、共享预算=4 op/cycle、启动0时分 tile 6+1，周期 23+15=38，HBM 读14/写7 B，算法局部读98/写91 B，另计 DMA 端点。测试还检查原生 GEMM 对账、分支释放、全块容量失败、条带化、尾块、成本敏感性、未知参数、CIM/VXM 一致性及四入口错误路径。
+
+执行保持单 AI Core、单 TensorCore 或单 hemisphere，`chip_execution_included=false`。将来整片调度须先定义 M/N 分片、共享/复制权重与输入、局部容量、跨核/半片归约和通信，再组合时间，不能直接以核数除单核时间。本批不实现整片调度。LLMCompass 指定提交仅作为 Operator/Tensor/OpResult 接口参考；本节算法及存储策略是本工程显式建模假设。
+
+<a id="decode-attention"></a>
+
+## Decode Attention / GQA 与 KV Cache（Issue #3 第五批）
+
+`src/operators/attention.py` 定义 `KVCacheSpec`、`KVCacheAccess` 和 `DecodeAttention`；`src/runtime/attention.py` 绑定共享缓存、组合原生 GEMM/Softmax 和已有块级转换；`src/core/kv_cache.py` 只计缓存追加拷贝与流式读取；`src/runtime/composition.py` 汇总重复子块，同时保留 action role、来源和 summary 引用。新增配置 `configs/execution/attention.json` 明确预分配缓存、串行 Query head、无跨 head 读取复用和符号补齐视图，所有策略为 assumed。
+
+算法语义核对 [Meta Llama 3 的 Attention 实现](https://github.com/meta-llama/llama3/blob/main/llama/model.py)及 [GQA 论文](https://arxiv.org/abs/2305.13245v3)：Query head 与 KV head 按组对应，缩放点积后做 Softmax 和加权 V。本工程只采用这些块级依赖；INT8 存储、资源映射、串行策略和时间服务均来自本项目显式假设，不复制参考代码的数值精度或硬件性能。DeepSeek-R1 基于 V3 架构（见其[官方说明](https://github.com/deepseek-ai/DeepSeek-R1)），MLA/MoE 由后续独立实现覆盖，不以普通 GQA 替代。
+
+### 单 token 契约与工作量
+
+记 B 为 batch、Hq/Hkv 为 Query/KV head 数、D 为 head dimension、S 为执行前有效长度、C 为预分配容量、a 为追加数（0 或 1），L=S+a。要求 Hq 可被 Hkv 整除，0≤S≤L≤C，Attention 中 L≥1。所有 batch 项使用相同长度，没有 Prefill、多 token、变长 padding mask、滑窗、缓存增长或淘汰。Q 与新 K/V 已完成投影和位置处理；输出仍按 head 分列，后续输出投影不在本块内。
+
+每个 head 依次执行 INT8 `Q[1,D] * Kᵀ[D,L]`，将 INT32 scores 转为 FP32 并乘隐式常数 `1/sqrt(D)`，复用稳定 FP32 Softmax，将概率按块级代理存为 INT8，再执行 `P[1,L] * V[L,D]` 并将 INT32 context 经 FP32 边界存为 INT8。有效 MAC 总量为 `2*B*Hq*L*D`；矩阵基本 op 为其两倍。每个 head 的 Softmax 包含 MAX/ADD 各 L−1 次、SUB/EXP/MUL 各 L 次、RCP 一次，另有缩放 MUL L 次，所以非矩阵算法 op 为 `B*Hq*(6L−1)`。存储边界转换各有 `B*Hq*(L+D)` 个 to-FP32/to-INT8 元素，单列为 modeled_internal，不与算法 op 重复累加。
+
+缓存有效载荷为 `2*B*Hkv*L*D` byte，逻辑预留容量为 `2*B*Hkv*C*D` byte，每轮追加写入为 `2*B*Hkv*D*a` byte，追加来源也读取同样字节数。独立缓存读取按每个 KV head 一次，Attention 默认按每个 Query head 冷启动，因此其有效 K/V 读取载荷为 `2*B*Hq*L*D` byte。实际原生 action 可能包含补齐、内部重读等开销；逻辑载荷是解释视图，不是可以再次加进账本的动作。
+
+### 共享 backing 与容量
+
+K/V 缓存按每个 batch/KV head 分开预留，大小覆盖容量 C 内最大的原生矩阵视图：K 供 QK 的 `[D,C]` 权重视图使用，V 供 PV 的 `[C,D]` 视图使用；各架构沿用原生 GEMM 补齐要求。TSP/CIM 每个 head 分配、Query、context、输入新 token 和 reserved 分别按选中 slice 条带化。实际读取只使用前 L 个位置，但未填充位置仍占预分配容量。
+
+Query 与 context 为 B*Hq 个 head 的全局 backing；K/V 为 B*Hkv 个 head。`(b,h)` 映射到 `(b,floor(h/(Hq/Hkv)))` 的 K/V；视图本身不重复分配缓存。全局 Query、缓存和输出空间在块期间保留。追加时新 token 输入存活，追加结束后释放；随后只保留一个 head 的 scores、scaled scores、FP32/INT8 probabilities、INT32 context 临时区，并在各自最后一次消费后释放。重复整个 head 模板，不让不同 head 中间结果同时存活。TSP/CIM 将其他全局存储作为子块 reserved，Softmax 的行状态与 scratch 仍进入真实峰值检查。局部 UB/VMEM/CMEM 取串行子块峰值最大值。
+
+K 的转置、head 切片和缓存追加偏移都是符号补齐视图，不证明真实地址布局、bank 行为或免费物理重排。状态输出为原 K/V 分配的新版本描述，`cache_state.output_aliases` 明确映射；`cache_after` 返回不可变长度元数据，不进行数值存储修改。缓存长度增长不会重写已有历史。`memory.lifetime_validation` 是验证证据，不是额外硬件资源；资源摘要已排除该元数据（同时修正第四批摘要中重复列出的这一项，计算、容量峰值和 action 不变）。
+
+### 访问、时间及手算
+
+独立 Cache 在 Ascend/TPU 使用一个可复用 UB/VMEM 传输块：追加为 HBM→本地→HBM，读取为 HBM→本地，无完整读出缓存副本。TSP/CIM 为 MEM→输入 stream 的读取，以及追加时 stream→MEM 的写入，瞬态转发寄存器未建模。各次传输按带宽和启动成本分别取整，再按 K/V head 次数累加。此过程没有 MAC、非线性或转换计算。Attention 内部只嵌入 append；后续 QK/PV 原生读写已包含缓存访问，不增加额外 cache-read 节点。
+
+Attention 总时间为一次缓存追加，加上 B*Hq 次完整 head 模板的 elapsed 时间。原生 GEMM 内部保留既有流水；head 之间不重叠、也不保留冷启动缓存/权重上下文。重复模板报告给出节点的单次原生结果和 repetitions；所有父级 action 计数及角色引用同步乘重复次数。只有全部子块有 service 分解时才给父级 service 总和，elapsed 始终可按串行模板求和。能耗系数未接入。
+
+独立手算样例 B=2、Hq=4、Hkv=2、D=7、S=5、C=9、a=1：L=6，有效 MAC=672，非矩阵 op=280；追加56 B，独立 cache-read336 B，Attention 有效 K/V 读取672 B。TPU 逻辑 HBM 总读写为2016/1152 B：每个 head 读 `5D+2LD+21L`、写 `5D+17L`，另加追加读写各56 B。全局 Query/K/V/context 共616 B，追加阶段峰值672 B；六阶段存储分别为640、664、664、646、650、644 B。
+
+Cache 手算取 HBM或所选单 MEM slice=16 B/cycle、本地32 B/cycle、启动0：每个 K/V head 追加7 B读写各1 cycle，读取42 B用3 cycle，8个 K/V head 总40 cycle。测试进一步覆盖空缓存首次追加、满缓存拒绝、只读 MHA/GQA/MQA、batch/sequence/capacity 独立缩放、重复模板不展开、尾块、原生结果保真、slice 条带化、临时区容量、未知成本/时钟和四入口失败保护。
+
+`validation/issue3/model_coverage.json` 是初始目标模型块清单，区分 implemented/partial/pending，给出代码、测试和缺口归属。它描述粗粒度块覆盖，MLA、MoE 已由第七、八批补齐；INT8 RMSNorm 与常规 Attention 投影已在第六批 A 实现，RoPE、Embedding 与词表输出边界已在第六批 B 实现。完整模型拼装属于 Issue #4，整片调度另行推进。
+
+<a id="decode-projections"></a>
+
+## INT8 RMSNorm 与 Attention 投影（Issue #3 第六批 A）
+
+`src/operators/projections.py` 定义三个粗粒度块，`src/runtime/blocks.py` 复用已有串行生命周期调度器与原生内核。算法形状参考 [LLaMA3 官方实现](https://github.com/meta-llama/llama3/blob/main/llama/model.py)，精度是 Issue #1 的 INT8 性能 what-if。RMSNorm 的 scale weight 显式存为 FP32，矩阵权重与激活存为 INT8；不声称这是官方模型的量化格式或数值结果。
+
+- `RMSNormINT8`：INT8→FP32 输入边界、已有 FP32 RMSNorm、FP32→INT8 输出边界。设 E 个元素、R 行，逻辑 MUL=`3E+R`、ADD=`E`、RSQRT=`R`，两种类型边界各 E 元素。输入转换直接写入 FP32 目标缓冲，不再申请另一份 cast scratch；归一化本身的 tile scratch 与行标量照常保留。
+- `QKVProjection`：输入 x `[B,H]`，矩阵 Wq `[H,Hq*D]`、Wk/Wv `[H,Hkv*D]`，顺序执行 Q GEMM→Q 存储边界→K GEMM→K 边界→V GEMM→V 边界。有效 MAC=`B*H*(Hq+2Hkv)*D`。累加为 INT32，两种边界各处理 `B*(Hq+2Hkv)*D` 个元素。输出 Q `[B,Hq,1,D]` 和 K/V `[B,Hkv,1,D]` 是 INT8；Hq/Hkv 为正整数且整除，覆盖 MHA/GQA/MQA，位置处理另行实现。
+- `AttentionOutputProjection`：context `[B,Hq,1,D]` 使用 `[B,Hq*D]` 视图，与 Wo `[Hq*D,Hout]` 做原生 GEMM，INT32 结果经存储边界输出 INT8 `[B,Hout]`。有效 MAC=`B*Hq*D*Hout`，两种边界各 `B*Hout` 元素。
+
+类型边界继续使用 `blocks.json` 的 `to_fp32_cost`/`to_int8_cost`，只影响共享 Vector/VXM 预算上的代理计算占用，不把其等价操作数当作新的数学运算。没有新增硬件速率或更改已有 profile 哈希；来源与适用条件登记在 `operator_execution_audit.json.decode_projection_blocks`。
+
+输入与权重全程保留，每个最终输出保留到最后一步，中间累加/FP32 张量在最后消费者后释放。分配按同一张量所有原生 GEMM 角色所需大小取最大值，再做 slice 条带化；原生实际分配与规划不符时拒绝。Q/K/V 的 head 视图与矩阵视图、context 拼接视图均在 `schedule.storage_views` 记录，绑定同一份 backing，既不重复分配，也不自动假设跨 block 零成本连接。物理 padding/打包地址变换未建模，`io_contract` 使用 `symbolic_padded_views`，连接检查要求布局验证。
+
+Ascend/TPU 使用 HBM 物化边界和原有 UB/VMEM 服务；TSP/CIM 把同时存活的其他张量传为子块 reserved。归一化临时占用以原生 `resident_bytes` 减去已分配全局存储计算，完整包含分别条带化的 scratch 和行标量。容量按每一步真实峰值检查，局部资源按串行子块峰值复用。父块时间是各子块 elapsed 之和，GEMM 内部仍沿用原生流水与冷缓存策略。
+
+独立手算样例 B=2、H=17、Hq=4、Hkv=2、D=7：QKV 有效 MAC=1904，边界各112元素，INT8 输出总112 B。TPU 六步 HBM 存储为1210/1266/1154/1182/1182/1210 B，峰值1266 B；HBM 读1502 B、写560 B。输出投影 Hout=17 时有效 MAC=952，两步存储668/702 B，无额外 head 拼接副本。TSP 三 slice、RMSNorm `[1,7]`、reserved=17 B、tile=3 时，归一化存储117 B，条带化 scratch/行状态18 B，峰值135 B。
+
+`tests/operators/test_projections*.py` 覆盖这些手算、原生 action/role 保真、四架构 count/timing、一份 backing、多输出存活、全块容量超限、局部最小临时空间、类型/形状/别名拒绝、成本敏感性及 CLI 输出保护。该范围仍是单核/单半片；RoPE、Embedding 和词表输出边界由第六批 B 补齐，MLA/MoE 由第七、八批实现，整片调度另行推进，模型拼装属于 Issue #4。
+
+<a id="position-vocabulary"></a>
+
+## RoPE、Embedding 与词表输出（Issue #3 第六批 B）
+
+三个块均通过既有串行组合执行层返回 OpResult，使用同一套硬件服务和执行 profile。形状与算法边界参考 [LLaMA3 官方实现](https://github.com/meta-llama/llama3/blob/main/llama/model.py)：Q/K 在写入缓存前应用旋转，模型入口读取 token embedding，末端投影输出转为浮点。INT8 存储、内部 FP32 与转换成本是本工程的性能假设，来源与限制记录在 `calibration/operator_execution_audit.json.decode_position_vocabulary_blocks`。
+
+### RoPE：预计算表与通道对
+
+`RoPE(query, key, cos, sin, position)` 接受 INT8 Q `[B,Hq,1,D]`、K `[B,Hkv,1,D]`，Hq 为 Hkv 的整数倍，D 为偶数。两张 FP32 表各为 `[C,D/2]`，`position` 为非布尔整数且在 `[0,C)` 内；当前 batch 位置统一。表生成、三角函数求值、部分 head 旋转和 MLA 解耦位置分支不包含在此块内。输出 Q/K 与输入同形状、独立分配，V 不在本块内。
+
+每对相邻通道 `(a,b)` 使用选中表行的 `(c,s)`，计算 `(a*c-b*s, a*s+b*c)`。令 `E=B*(Hq+Hkv)*D`，共有 E/2 对：FP32 MUL=`2E`、SUB=`E/2`、ADD=`E/2`，数学运算共 `3E`；INT8→FP32 和 FP32→INT8 边界各 E 元素。SUB 复用 `vector.json` 中的 composite 成本，其余复用既有 Vector 服务与 `blocks.json` 类型边界成本，无 FMA 折扣和新增硬件速率。
+
+Q、K 顺序执行；每个 head 按完整通道对分 tile，模板以重复次数压缩。每个 tile 先读 INT8 输入、cos、sin，再转换输入、计算四个乘积、做 SUB/ADD、转换并导出 INT8。显式策略为不同 head 不保留表行缓存，因此表读取载荷为 `4E` B；完整表容量仅为 `4CD` B，不按 head 数复制，也不把整表容量当作流量。位置变化不改变工作量，增大 C 只增加容量。
+
+每对 scratch 使用 8 B FP32 输入和四份 4 B 乘积，共24 B；全部四个 MUL 完成后，输入槽复用为8 B旋转结果。Ascend/TPU 另保留每对2 B输入、8 B表值、2 B输出，共36 B/对，HBM总读=`5E` B、总写=`E` B。TSP/CIM 的完整输入/表/输出先按 slice 条带化，scratch 作为单个独立池条带化；内部每阶段 MEM/stream 读写仍计入，不将 scratch 当作免费寄存器。请求 tile 单位为元素，最少2；奇数向下取完整对，报告同时给出请求元素数、实际元素数和 pair tile。
+
+独立手算 B=2、Hq=4、Hkv=2、D=10、C=9、position=5：E=120、MUL/SUB/ADD=240/60/60，转换各120元素。两步 HBM 存储为560/600 B，HBM 读写600/120 B；tile=4时 UB/VMEM 峰值72 B，局部算术访问读3480 B、写2040 B，DMA端点另列。三 slice、reserved=17 B 时，两步基本存储582/624 B，scratch48 B，峰值672 B。单 pair Q/K、4 op/cycle、HBM16 B/cycle、本地32 B/cycle、零启动成本时，每个 head29 cycle，两者共58 cycle。
+
+### Embedding：完整表驻留与选中行访问
+
+`Embedding(indices, weight)` 接受 INT32 `[B]` 索引描述与 INT8 `[V,H]` 表，输出 INT8 `[B,H]`。索引值不进入数值仿真，契约明确假设合法；V 不超过非负 signed INT32 可表示的行范围。一个 batch 项对应一个 Decode token，没有重复行缓存、权重分页、地址生成/Gather 指令或随机访问额外惩罚模型。
+
+HBM 基本容量为 `4B+VH+BH` B；TSP/CIM 对索引、完整表和输出分别条带化，再加 reserved。读流量为 `4B+BH` B，写为 `BH` B。每个 token 先读取一次4 B索引，再分块搬运一行；模板压缩不表示不同 token 重叠执行。没有 MAC、浮点运算或精度转换。
+
+Ascend/TPU 保留4 B索引槽和一个可复用行 tile，局部最小容量5 B；索引 DMA 后另计本地4 B读取，行搬运复用 DMA 缓冲，不再新增一次无意义的本地复制。TSP/CIM 直接计索引 MEM→stream 与行 MEM→stream→MEM 服务；瞬态寻址/转发寄存器未建模，不分配第二张词表。计算服务成本未知时，纯 Embedding timing 仍可运行，只要求实际使用的存储服务。
+
+B=2、V=19、H=7 时，HBM完整容量155 B、读22 B、写14 B；tile=4的局部容量8 B。在 HBM16 B/cycle、本地32 B/cycle、零启动成本下，每个 token 的索引读取2 cycle、两块行复制4 cycle，共12 cycle。三 slice、reserved=17 B 时，完整 MEM 占用177 B。扩大 V 只增容量，不改变本次读取；扩大 B 同时增索引/输出容量与访问量。完整表放不下时即使单行能放下也拒绝任务。
+
+### 词表投影：FP32 logits 边界
+
+`VocabularyProjection(x, weight)` 接受 INT8 `[B,H]` 和 `[H,V]`，按原生 GEMM→INT32→FP32 的两步执行，输出 FP32 `[B,V]`。有效 MAC=`BHV`，FP32 边界处理 `BV` 个元素，读写各 `4BV` B；仅模拟显式转换工作代理，不验证量化 scale 或 logits 数值，不含最终 Softmax、采样、权重共享或多核词表分片。
+
+转换直接写到独立的 FP32 输出，不另申请 cast scratch；INT32 累加张量与 FP32 输出同时存活，不能因每元素都是4 B而忽略其中一个分配。原生补齐、流水、cache/CMEM 行为与 action role 完整保留。TPU 样例 B=2、H=7、V=19：有效266 MAC、532 op、转换38元素；两个阶段 HBM 基本占用299/451 B，HBM读299 B、写304 B。
+
+`tests/operators/test_position_vocabulary*.py` 验证四架构 count/timing、手算工作量/流量/周期、通道对尾块、源槽复用顺序、全块及最小 scratch 容量、索引/位置/类型校验、profile 敏感性、原生矩阵动作与连接形状。独立块通过不表示完整模型能在单半片驻留；模型覆盖矩阵中的 implemented 仅表示所述策略下的块可执行。DeepSeek 的 MLA/MoE 见第七、八批章节；整片分片和完整 Decoder 拼装继续保持单独待办。
+
+<a id="mla-preprocess-cache"></a>
+
+## MLA 前处理与共享压缩缓存（第七批 A）
+
+算法依据 [DeepSeek-V3 官方 MLA 实现](https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/model.py) 和 [671B 配置](https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/configs/config_671B.json)。671B 的 H=7168、Hq=128、rq=1536、rk=512、dn=128、dr=64、dv=128；这些维度互相独立，不能套用常规 GQA 的同一 head_dim。官方 dtype 为 FP8/BF16，本工程仍是 INT8 性能 what-if。配置 dataclass 的默认维度不当作 671B 的实际值；本批小尺寸 fixture 也不冒充完整模型运行。
+
+符号：B 为 batch；H 为 hidden；Hq 为 query head 数；rq/rk 为 Q/KV 压缩秩；dn/dr 为非位置/位置 QK 维度；dv 为 V 维度。全部为正整数，dr 为偶数，当前不实现 rq=0 的直接 Q 路径。输入为 INT8 `x[B,H]`、`Wqa[H,rq]`、`Wqb[rq,Hq*(dn+dr)]`、`Wkva[H,rk+dr]`，FP32 两份 norm 权重及 `[positions,dr/2]` 的 cos/sin 表；所有 batch 项使用同一合法 position。
+
+`MLAPreprocess` 的 14 个串行节点复用原生 GEMM、FP32 RMSNorm、已有转换代理与 RoPE 服务：
+
+1. Q：GEMM 下投影 → INT32 转 FP32 → RMSNorm(rq) → INT8 → GEMM 上投影；分别读取每个 head 的 dn/dr 段并转换为两个 INT8 输出，位置段再执行 RoPE。
+2. KV：GEMM 到 rk+dr；rk 段读取并转换到 FP32 → RMSNorm(rk) → INT8 latent KV；dr 段读取并转换到 INT8 → 共享 K 的 RoPE。
+
+输出顺序为 INT8 `[B,Hq,1,dn]`、`[B,Hq,1,dr]`、`[B,1,1,rk]`、`[B,1,1,dr]`。非位置 Q 与 latent KV 不旋转。FP32 归一化直接接 INT32 累加转换，避免在归一化前人为插入一轮 INT8 存储。
+
+分支选择采用 **显式物化通道段**：源累加张量完整驻留到最后一个分支读取完毕，各目标张量独立分配；每个逻辑行单独分块，统计选中元素的读流量、类型边界工作及输出写流量，不重复读取未选中的通道。行 stride、offset、selected_channels 留在节点契约中。布局、偏移寻址和原生补齐间的物理对应保持符号假设；没有新增 Gather/Transpose 指令模型，也不将分支拷贝视为免费。
+
+有效 MAC 为 `B*(H*rq + rq*Hq*(dn+dr) + H*(rk+dr))`。两份 RMSNorm 的 FP32 op 为 `4B*(rq+rk)+4B`，RoPE 为 `3B*(Hq+1)*dr`；两个方向的转换元素数各为 `B*(rq+rk+Hq*dn+2*(Hq+1)*dr)`。所有 GEMM 延迟与动作由原生内核产生；转换成本与串行策略仍是显式假设，没有新增硬件标定值。
+
+`MLACacheSpec` 只描述共享 latent KV 和位置 K：`[B,1,C,rk]`、`[B,1,C,dr]`，这里的 1 表示共享存储，不等于 Hq。令旧长度 S、追加 a∈{0,1}，新长度 L=S+a≤C。逻辑容量为 `BC(rk+dr)` B；填充量为 `BS(rk+dr)` B；追加读/写各 `Ba(rk+dr)` B；独立 read 再读 `BL(rk+dr)` B。禁止空读取、越界追加、无操作与自动扩容，状态输出别名指向已有 backing。
+
+物理容量对每个 batch/component 分别考虑原生 GEMM 补齐和 MEM slice 条带化。latent backing 预留 `max(score 的 rk×C 权重视图, weighted-value 的 C×rk 权重视图)`，位置 backing 预留 dr×C score 视图；同一 backing 不按两个使用角色或 Hq 重复分配。物理布局兼容性仍待验证。全局同时保留新 token 和 reserved；Ascend/TPU 另有一个复用传输 tile，TSP/CIM 复用已有 stream 服务，不分配第二份完整读取结果。
+
+前处理与缓存是独立可执行块，连接形状兼容，但不自动拼成零成本流水；调用方仍须验证 position 与 cache length、布局和分配。独立缓存 read 每组件只读一次，后续调用 Attention 时，其 per-head GEMM 读取由 Attention 自己计入，不能从这里推断免费广播或跨 head 复用。
+
+样例 B=2、H=17、Hq=3、rq=5、rk=7、dn=3、dr=4、dv=6：前处理754 MAC、200个非矩阵 FP32 op、两方向各106转换元素，输出64 B；TPU HBM 峰值845 B。缓存 S=2、C=9、a=1：逻辑预分配198 B，新 token22 B，总峰值220 B，追加后填充66 B；本次读88 B、写22 B。两组件各自不超过一个16 B/cycle服务单元时，B=1、rk=3、dr=2、S=0、a=1的追加加读取为6 cycle。
+
+`tests/operators/test_mla*.py` 核对四架构 count/timing、上述手算、分支生命周期、native GEMM 动作、片内 scratch 缩小、容量拒绝、共享缓存和严格 CLI。第七批 A 完成时，`mla_rope`、`mla_compressed_cache` 为 implemented，`mla_projections` 为 partial；Q 内容到 latent、latent 加权输出到 V 的两次 Wkvb 使用当时尚未覆盖。第七批 B 已在 [MLA Attention](#mla-attention) 中计入这两次投影及打分、缩放/Softmax、加权 latent 和输出集成，MLA 相关块现均为 implemented。MoE 见[第八批实现](#moe-complete)；整片和完整模型执行仍在后续范围。
+
+<a id="mla-attention"></a>
+
+## Absorbed MLA Attention 与输出集成（第七批 B）
+
+本节接续第七批 A 的前处理/缓存描述，使用 [DeepSeek-V3 官方 absorbed 路线](https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/model.py#L446) 的依赖关系。`MLADecodeAttention` 的输入是两路 INT8 Query、新 latent/位置 token、共享缓存和 INT8 `Wkvb[Hq,dn+dv,rk]`，可选输出权重 `Wo[Hq*dv,H]`。沿用 B/H/Hq/rk/dn/dr/dv 的定义，更新后缓存长度为 L=S+a。它不重新执行前处理，不生成 cos/sin，也不实现数值 FP8/BF16 推理。
+
+每个 query head 的完整模板含14个串行节点：
+
+| 节点 | 输入→输出与工作 |
+| --- | --- |
+| query_to_latent / query_latent_storage | `[1,dn] × [dn,rk] → INT32 [1,rk] → INT8` |
+| content_score / position_score | latent Query × latent cache，以及位置 Query × 位置 cache，各产 INT32 `[1,L]` |
+| content_to_fp32 / position_to_fp32 | 两路独立转换并物化 FP32 score |
+| score_add / scale | FP32 两路相加，再乘一次最终 scale |
+| softmax / probability_storage | FP32 Softmax → INT8 `[1,L]` 概率 |
+| weighted_latent / latent_storage | 概率 × `[L,rk]` latent cache → INT32 `[1,rk]` → INT8 |
+| latent_to_value / context_storage | latent context × `[rk,dv]` → INT32 `[1,dv]` → INT8 |
+
+模板按 B×Hq 串行重复；报告的节点 repetitions 是压缩计账，不表示将同一种节点跨 head 批量并行执行。默认不跨 head 保留原生 GEMM 的片上 cache/CMEM 状态。若提供 Wo，所有 head 完成后复用 `AttentionOutputProjection` 的两个节点，产 INT8 `[B,H]`；否则产 INT8 `[B,Hq,1,dv]`。两种情况下都返回别名到原 backing 的缓存状态输出。
+
+有效 MAC 为 `B*Hq*(dn*rk + L*rk + L*dr + L*rk + rk*dv)`，Wo 另加 `B*Hq*dv*H`。五次 head GEMM 中的第一和最后一次仍实际执行，不能把权重吸收当作免费投影。非矩阵 FP32 op 为 `B*Hq*(7L-1)`；INT32/INT8→FP32 边界为 `B*Hq*(2rk+2L+dv)` 个元素，FP32→INT8 边界为 `B*Hq*(2rk+L+dv)` 个元素，Wo 的结果转换再给两者各加 BH。
+
+scale 基础值为 `1/sqrt(dn+dr)`，不使用 rk 或 dv。`scale_multiplier` 默认为1；任何非默认值都要求非空 `scale_source`，有效值须正且有限。官方长上下文分支使用 mscale² 修正；这里由调用方显式提供已确认的倍率及来源，而不从 cache capacity、当前 length 或推测的目标模型默认配置自动生成。最终 scale 合并为一次 FP32 MUL；不同正倍率改变语义元数据，不额外增加一个乘法节点或改变解析周期。
+
+追加只执行 `MLACacheAccess(..., read_cache=False)`，每 batch 向两份共享 backing 写入一个 token；不叠加独立缓存扫描。每个 query head 通过原生 GEMM 读取 latent 两次、位置 K 一次，逻辑 cache payload 为 `B*Hq*L*(2rk+dr)` B；追加另读写各 `Ba*(rk+dr)` B。原生补齐、冷 cache、CMEM、stream 与计算动作仍由已有内核决定，payload 指标不是全部系统流量。
+
+完整 Wkvb 由每个 head 的 K/V 两段组成。K 视图 `[dn,rk]`、V 视图 `[rk,dv]` 分别按各自原生角色补齐，作为同一权重 backing 内的两个不相交区域；容量为 `Hq*(padded_K+padded_V)`，不按 B 重复。V 的转置和打包保持符号描述，不另分配全尺寸转置副本，也不声称已有物理布局变换实现。
+
+全局同时保留 Query、两段权重、共享缓存、完整 context、可选 Wo 和 reserved。latent 的 score/value 视图绑定同一 batch 的 backing；位置 cache 同样按 batch 共享。完整 context 预留 `max(所有 head 输出所需空间, 输出 GEMM 的 A 空间)`，供 head 写回与最后输出投影共用。输入/new-token/状态别名不能冲突；新 token 在追加后释放，head 中间张量按最后消费者释放，scratch workspace 在串行 head 间复用。Wo 累加与最终输出在 head 阶段完成后分配，转换时两者重叠存活。保持全局输入和 context 到块结束是明确的保守驻留策略。
+
+Ascend/TPU 校验完整 HBM 峰值并复用本地 UB/VMEM；TSP/CIM 将其它存活张量作为 reserved 传给各原生 GEMM/Softmax，计入 scratch 和条带化。每个原生 GEMM 的实际分配还与规划值逐项核对。只有单个 GEMM 能放下，不能代表整个 MLA 块能放下。
+
+`from_preprocess` 绑定前处理输出并检查 Query/新 token 的类型、形状、压缩秩与 position。追加时 position=S；只读时 position=S-1，且不传新 token。它不是自动执行器：前处理与 Attention 仍是独立算子，连接仍需物理布局和分配验证，不能把各自报告相加当作经过整体调度的完整模型报告。可选 Wo 已在 Attention 的统一容量规划内执行。
+
+独立手算样例沿用 B=2、H=17、Hq=3、rk=7、dn=3、dr=4、dv=6、S=2、C=9、a=1：每 head117 MAC，总702 MAC；Wo612 MAC，总1314 MAC。FP32 非矩阵120 op，含 Wo 的两类边界分别190/172元素。每 head TPU HBM读329 B、写199 B，追加读写各22 B，Wo与其转换读478 B、写170 B，总读2474 B、写1386 B。全局基础存储771 B，追加峰值793 B，Wo两阶段907/941 B，故最终峰值941 B；容量940 B必须拒绝。
+
+`tests/operators/test_mla_attention*.py` 验证四架构 count/timing、上述手算、源 score 到最后消费者的生命周期、缓存/权重共享、有效长度与容量的独立变化、输出 context 视图、追加/只读、显式倍率、未知时钟/成本、位置与别名拒绝及 CLI 输出保护。模型清单的 MLA projections/core/output 更新为 implemented，含义限于本节的粗粒度 absorbed 路径。MoE 已由[第八批](#moe-complete)补齐；整片映射、数值精度和完整模型评估继续独立推进。
+
+<a id="moe-experts"></a>
+
+## 给定路由的 MoE 专家（第八批 A）
+
+算法依赖核对 [DeepSeek-V3 固定提交的 Expert/MoE](https://github.com/deepseek-ai/DeepSeek-V3/blob/9b4e9788e4a3a731f7567338ed15d3ec549ce03b/inference/model.py#L559)：每个专家执行三次 Linear 与 SwiGLU，只处理分配给它的 token；共享分支是宽度 `shared_experts × moe_inter_dim` 的一个 MLP。本批只复用这些依赖，矩阵精度、存储边界、串行调度和时间服务使用本项目假设，不复现官方 BF16/FP8 数值。
+
+`MoERoutingPlan(E, assignments)` 中 assignments 为 `[B,k]` 的固定专家 ID，每行等长、互异、在 `[0,E)` 内。它代表调用方提供的路由结果，不计算 Gate、group/Top-K 或路由权重。分组记录保留 `(token, selection_slot)`，每个专家收到 `n_e` 行，满足 `sum(n_e)=B*k`、`0<=n_e<=B`。空专家不构造零维 Tensor/GEMM。索引以 INT32 `[B,k]` 输入描述，额外计一次 `4*B*k` 字节的读取；外部计划生成与索引指令不在该算子边界内。
+
+`MoEExperts` 接收 INT8 `x[B,H]`、路由权重组 `gate/up[E,H,I]` 与 `down[E,I,H]`，可选共享权重 `gate/up[H,S*I]` 与 `down[S*I,H]`。`S=0` 时三个共享权重必须省略。执行顺序为索引读取、按专家编号逐个执行激活专家、共享分支；没有专家并行或跨节点重叠。
+
+每个激活专家先将 `n_e` 个输入行复制到独立的 packed INT8 输入，再调用已有 `SwiGLUFFN`：两个 INT8 GEMM→INT32、FP32 SwiGLU→INT8 激活、一个 INT8 GEMM→INT32、最后转换为 FP32。新增 `SwiGLUFFN.output_dtype="FP32"` 只改变最后存储边界，默认 INT8 路径的动作/时间不变。每个专家的 FP32 临时结果按原 token/slot 回填，输出为未加权的 `[B,k,H]`；共享 FFN 对全部 B 个 token 执行并直接产生独立 `[B,H]` FP32 输出。
+
+分发每个 assignment 复制 H 字节，发布复制 4H 字节，分别计入源读和目标写；它们与 FFN 自身的输入读取/输出写回是不同的物化阶段。共享分支直接使用原 x，不增加分发副本。payload 以行划分，复用当前 native memory/stream 服务；传输 tile 上限按字节解释，尾段不补算逻辑字节。FP32 行的字节切分不代表物理事务或 ISA 实现。路由选择、加权和共享分支相加均明确排除，不能把本算子时间当成完整 MoE 层时间。
+
+容量采用全声明权重驻留：所有 E 个路由专家（包括空专家）及共享权重均占用 HBM/所选 MEM；只有激活专家产生矩阵工作和权重访问。每个专家的三段权重分别按原生 GEMM 补齐/条带化后乘 E，不能只按 k 或实际激活专家数预留。全局 x 预留共享 GEMM 所需 padded view，与分发读共享一份 backing；routed output 和索引常驻。一个专家的 packed 输入、两个 gate/up 累加器、SwiGLU 激活、down 累加器与 FP32 临时输出按已有 FFN 生命周期分配；子块运行时其余全局对象显式保留。发布时 packed 输入和 FFN 中间结果已经释放，只有临时 FP32 源与目标槽位重叠。共享输出仅在最后的 FFN 转换阶段分配。scratch、输入/输出重叠及每段条带化都纳入全块容量检查；超容量直接拒绝，不隐式卸载权重。
+
+记 `N=B*k`，则矩阵 MAC 为 `3*H*I*(N+B*S)`；SwiGLU 非矩阵工作为 `6*I*(N+B*S)` 个 op（每元素3 MUL、1 ADD、1 EXP、1 RCP）。转换到 FP32 的元素数为 `2*I*(N+B*S)+H*(N+B*[S>0])`；转换到 INT8 仅发生在中间激活，为 `I*(N+B*S)`。上述计数仅用于手算核对；报告中的动作与时间来自已有原生内核，继续区分 logical/issued/internal、矩阵汇总与叶子动作，不能将它们重复相加。
+
+样例 B=3、H=5、I=7、E=5、k=2、S=2，assignments=`[[0,2],[0,1],[0,2]]`，负载 `[3,1,2,0,0]`。路由/共享各630 MAC，总1260 MAC；非矩阵504 op，FP32/INT8 转换213/84元素。声明权重逻辑735 B，激活权重逻辑525 B（这是权重规模，不替代 native 访问计数）。TPU 三个路由专家总读873 B、写618 B，共享读678 B、写498 B；加索引读24 B、分发读写各30 B、发布读写各120 B，总读1725 B、写1266 B。
+
+TPU 全局初始占用894 B：x15 B、索引24 B、路由输出120 B、全部路由权重525 B、共享权重210 B。首个专家分发909 B，激活阶段1098 B，发布954 B；共享激活阶段为894+2×168+42=1272 B，最终转换阶段为894+60+60=1014 B。容量1271 B必须拒绝，1272 B可执行。Resident 架构另计原生 padding、MEM 条带与 scratch，不能套用 TPU 的峰值。
+
+`tests/operators/test_moe*.py` 覆盖四架构 count/timing、手算、空专家、不均匀路由、slot 守恒、batch/top_k 缩放、全部权重驻留、原生 FFN action/role 对账、FP32 输出连接、容量边界和 CLI 输出保护。第八批 A 将 shared/routed FFN 标为所述条件下 implemented；第八批 B 的路由与合并见下节。整片、分布式专家、真实数值和完整模型评估不在本批内。
+
+<a id="moe-complete"></a>
+
+## MoE 路由与整块执行（第八批 B）
+
+语义参考固定 [DeepSeek-V3 Gate/MoE 源码](https://github.com/deepseek-ai/DeepSeek-V3/blob/9b4e9788e4a3a731f7567338ed15d3ec549ce03b/inference/model.py)。仅实现目标 R1 的 sigmoid 分支：INT8 Gate GEMM 累加 INT32，转换后以 negate/exp/add-one/reciprocal 计算 FP32 sigmoid。可选 FP32 bias 只生成选择分数，原始 sigmoid 分数保留供最终 gather。权重 shape 使用 [H,E] 符号转置视图，不计独立布局指令。官方 BF16/FP8 数值精度不在本工程范围。
+
+G>1 时将 E 个专家等分。无 bias 时组分数为组内最大值，有 bias 时为前两名之和；先选 L 组，再在 L*E/G 个候选中选 k 个专家。比较采用重复 MAX 归约代理：从 N 个候选选 q 个需要 sum(j=0..q-1)(N-j-1) 次比较；每轮依赖下限为 ceil(log2(N-j))*reduction_round_cycles。比较和归约使用既有 assumed composite/vector 服务，没有新增标定参数。索引生成、排除已选赢家、屏蔽未选组及地址映射是符号操作，不细拆 Top-K/Gather/Scatter ISA。读写的选中索引、分组状态和分数 payload 明确计数。
+
+选择阶段按 batch 行串行执行，保存原始分数、可选校正分数、组分数/赢家/索引、归一化标量、输出 indices/weights；本物化策略让这些缓冲同时存活到阶段结束。HBM 架构每步将输入搬入本地、读写计算缓冲并导出中间结果；一整行需要最多 12*max(E,k,G) B 本地空间，超限明确拒绝。所选值从原始 sigmoid 读取，以 k-1 次 ADD、一次 RCP、k 次归一化 MUL、k 次 route_scale MUL 得到 FP32 权重。选择性 bias 不修改最终权重来源。
+
+Combine 按 hidden tile 流式执行，无 [B,k,H] 广播权重副本：B*k*H 次 MUL、B*(k-1)*H 次 ADD，启用 shared 再加 B*H 次 ADD。每个 hidden tile 每个 slot 读取一个 FP32 权重；两个 4-byte/元素 scratch 缓冲保存乘积/累加结果，第一项乘积以别名初始化累加器。FP32 输出复制到独立 backing，INT8 输出只做一次最终转换。原生 MEM 流按各访问补齐，HBM 使用显式 DMA；本地 scratch 不产生额外 HBM 中间张量。
+
+完整 MoE 的全部外部权重和输入贯穿执行。x 只预留一份兼容 router/shared FFN native view 的最大 backing；router 中间区在选择完成后释放，indices 在专家阶段后释放，route weights 与专家 FP32 输出保留至 combine；最终输出在 combine 才分配。专家子块显式预留其余存活对象，所有阶段按本地条带、native padding 和 scratch 校验，不能简单取三个独立算子的最大峰值。原有 Action role、summary 引用及子块来源经嵌套组合保留。
+
+独立手算样例 B=3,H=5,I=7,E=6,k=2,S=2,G=3,L=2,bias=on：Gate 90 MAC，router 150 非矩阵 op，专家 1260 MAC+504 op，combine 60 op，总1350 MAC/3414 op；FP32 转换231元素、INT8转换99元素。TPU 固定输入/权重909 B；router选择峰1317 B，专家阶段全局峰1455 B，combine存储1128 B。1454 B 必须失败、1455 B 可运行；单独专家峰1377 B 不足以运行整块。hidden tile=3 时 router HBM读1041/写756 B、专家读1725/写1266 B、combine读228/写15 B，总读2994/写2037 B。
+
+`tests/operators/test_moe_block*.py` 检查上述手算、四架构 count/timing、偏置/分组/单候选边界、负载缩放、全局容量、原生动作、条带预留、本地空间回退、缺参失败与 CLI 输出保护。实际 expert assignments 仍是显式负载场景；完整数值路由、分布式专家、权重卸载、整片执行和端到端模型不在该块交付范围。
 
 <a id="execution-diagrams"></a>
 
@@ -449,7 +877,7 @@ Ascend/TPU 流水尚未按临界路径或互斥区间归因，不能直接把服
 
 已有服务代理直接填写 value，并标 status=assumed；conditions 写明公式、参考条件、固定值是否需随硬件依据手工更新。null 只表示尚无该字段的可用数值，不再触发隐藏的服务默认值。剩余 null 的 conditions 明确说明当前仅作规格/库存或为后续算子预留。Macro 局部 timing 参数已退役，不再要求补齐。
 
-TSP 自 schema 3 起，时间参数的 value 均为固定能力或固定延迟，已移除 derivation、reference_value 和 configured_derivation；当前 schema 9 采用独立 MEM 读写预算，将 LW 预取与内部 IW 服务分开，并将 VXM 加法速率归约为共享预算/操作代价。安装端口上限 10240 B/cycle 与 VXM 加法能力 320 op/cycle 不随分配改变；安装传播延迟为 19 cycle，额外 VXM 流水延迟为 0。实际带宽、载荷服务和逐块行计算时间由执行公式计算，放在 timing.derived_services；timing.parameters 始终保留配置原值。
+TSP 自 schema 3 起，时间参数的 value 均为固定能力或固定延迟，已移除 derivation、reference_value 和 configured_derivation；当前 schema 9 采用独立 MEM 读写预算，将 LW 预取与内部 IW 服务分开，并将 VXM 加法速率归约为共享预算/操作代价。安装端口上限 10240 B/cycle 与 VXM 半片加法预算 2560 op/cycle 不随分配改变；安装传播延迟为 19 cycle，额外 VXM 流水延迟为 0。实际带宽、载荷服务和逐块行计算时间由执行公式计算，放在 timing.derived_services；timing.parameters 始终保留配置原值。
 
 固定服务直接修改 value，保持其真实来源状态。Ascend 的 Cube/三条核内路径与 TPU VMEM 带宽是固定配置；Ascend 硬件 schema 5 的 HBM 路径从芯片 byte/s、核数、时钟派生，三者改变时自动联动。固定参数迁移保留计数和原串行服务公式；后续 Ascend 报告 schema 6 的流水调度改变总耗时，见 Ascend 章节。配置身份、缺参列表和派生规格随新参数更新；assumed 输入产生的规格峰值仍为模型假设。
 
@@ -616,7 +1044,7 @@ print(spec.vector_service())
 
 操作名仅支持 `int32_add/fp32_add/fp32_mul/fp32_exp/fp32_rsqrt`；计数须为非负整数。空或全零工作量返回 0；未知操作即使计数为零也拒绝。自定义配置可将未标定服务显式标 unknown/null，只在调用相应操作时要求其预算和代价；不会用单元库存或向量宽度静默补值。参考配置新增项均非 null。未使用的 Vector 参数不进入 GEMM 的 missing/timing.parameters，但仍在服务摘要和硬件来源中可见。
 
-这是与 TSP 非线性服务相同层次的独立计算接口，尚不包含 UB/HBM 搬运、归约、类型转换、算子依赖和 Cube/Vector 混合调度，不能把该返回值直接当成完整 Softmax、RMSNorm 或端到端算子延迟。CLI 仍只接受 GEMM。增加库存不会自动改变预算；修改预算和代价可改变此 API 的结果，而纯 GEMM 计数和时间保持不变。
+这是与 TSP 非线性服务相同层次的独立计算接口，本身不包含 UB/HBM 搬运、归约、类型转换、算子依赖和 Cube/Vector 混合调度，不能把该返回值直接当成完整 Softmax、RMSNorm 或端到端算子延迟。CLI 另通过独立 Vector 和复合块执行层接入前述行为。增加库存不会自动改变预算；修改预算和代价可改变此 API 的结果，而纯 GEMM 计数和时间保持不变。
 
 <a id="tpu"></a>
 
@@ -724,7 +1152,7 @@ rate[op] = vector_base_ops_per_cycle / cost[op]
 cycles = ceil(sum(count[op] * cost[op]) / vector_base_ops_per_cycle)
 ```
 
-`TPUSpec.vector_service_cycles({"int32_add": 2048, "fp32_add": 2048})` 返回 2 个理想服务占用周期；不能将两种模式当作两个并行执行单元。所有操作工作量先累加、再对服务总量取整，采用有理数避免额外浮点舍入周期。空工作量返回 0，只检查实际使用操作的配置；负数、非整数、布尔计数及未知操作均拒绝。支持 `int32_add`、`fp32_add`、`fp32_mul`、`fp32_exp`、`fp32_rsqrt`。FMA、DIV、跨 lane 归约及完整 Softmax/RMSNorm/GELU 仍必须先定义工作图与代价，不能静默取 1。
+`TPUSpec.vector_service_cycles({"int32_add": 2048, "fp32_add": 2048})` 返回 2 个理想服务占用周期；不能将两种模式当作两个并行执行单元。所有操作工作量先累加、再对服务总量取整，采用有理数避免额外浮点舍入周期。空工作量返回 0，只检查实际使用操作的配置；负数、非整数、布尔计数及未知操作均拒绝。支持 `int32_add`、`fp32_add`、`fp32_mul`、`fp32_exp`、`fp32_rsqrt`。该 Spec API 仍拒绝 FMA、DIV、归约和完整复合算子；第三批在外层定义 RMSNorm/Softmax 工作图与归约依赖，新增代价显式配置，不能静默取 1。
 
 2026-11-18 参考项目 [TSP 共享 VXM 服务](#tsp-vxm-service)，加入两个独立可配置的总等价工作量参数，均为 `assumed`，不引入单独 SFU：
 
@@ -945,7 +1373,7 @@ HBM 分配为芯片带宽除以 TensorCore 数再除以时钟，参考值约 571
 
 参考可用 MEM 为 220 MiB/chip、110 MiB/hemisphere。memory tile 的 128 KiB 定义包含两个 bank，20 tiles/slice×44 slices/hemisphere×2 hemispheres 得到 220 MiB，不能再乘 bank_count。当前模型不保留额外局部 SRAM、备用 SuperLane 或物理总 SRAM 汇总字段；已知 MEM 容量不表示全部物理 SRAM，历史缺口记录保存在来源台账。
 
-库存为 320 lane、4 MXM plane/chip、5120 VXM ALU；单侧执行使用 2 plane，不复制中心 VXM。INT32 add 使用明确的单任务吞吐参数，不自动把 5120 ALU 当作每种操作的吞吐。参考验证仅接受不超过每 ALU 每周期一次 INT32 add 的预算上限；该上限是本模型的保守约束。
+库存为 320 lane、4 MXM plane/chip、5120 VXM ALU；单侧执行使用 2 plane，不复制中心 VXM。INT32 add 使用明确的单任务吞吐参数，不自动把 5120 ALU 当作每种操作的吞吐。默认半片预算为 2560 op/cycle，来自整片 5120 的固定 50% 分配；报告分别给出 `chip_peak_ops_per_cycle`、`base_ops_per_cycle` 和派生的 `allocated_peak_fraction`，不引入第二套可调峰值。参考验证仅接受不超过每 ALU 每周期一次 INT32 add 的整片预算上限；该上限是本模型的保守约束。
 
 几何峰值为 737.28 TOPS；标称 750 TOPS 保存在 [TSP 规格归档](configs/archive/tsp.json)，不再是活动输入或报告字段。32×320=10240 byte/cycle 是单方向网络上限，不能当作单个 MEM slice 的供给。45 个 SR 坐标是结构字段，代码检查其索引范围，不据此推导所有路径均为 45 hops。
 
@@ -1047,7 +1475,7 @@ reference_id 是 profile_id 加完整配置内容哈希，防止仅文件名相�
 | `mxm_row_ii` | 1 cycle | 理想驻留计算行 II；任务 II 仍由各资源瓶颈决定 |
 | `mxm_first_cycles` | 20 cycle | 完整 MXM 首结果参考延迟，不另计同一归约错拍 |
 | `row_io_latency_cycles` | 0 cycle | 显式省略额外固定 MEM/SR 路由开销；载荷仍计费 |
-| `vxm_base_ops_per_cycle` | 320 op/cycle | 单 hemisphere 任务的共享 VXM 等价操作预算；不随 stream 数变化 |
+| `vxm_base_ops_per_cycle` | 2560 op/cycle | 单 hemisphere 任务的共享 VXM 等价操作预算；不随 stream 数变化 |
 | `vxm_int32_add_cost` | 1 equivalent_op/op | 每元素 INT32 加法占用；默认仍为 320 add/cycle |
 | `vxm_add_latency_cycles` | 0 cycle | 纯行计算服务之外的额外固定流水延迟；不包含传输或整行算术工作 |
 
@@ -1085,15 +1513,15 @@ II_MEM = max(ceil(total_row_reads / read_supply),
 
 ### 共享 VXM 服务与非线性操作代价
 
-当前硬件 schema 9 沿用 schema 6 引入的 `vxm_base_ops_per_cycle=320` 的单任务共享预算，INT32 add 和 FP32 add/mul 的等价代价均为 1，FP32 exp 为 15，FP32 rsqrt 为 12，全部是 assumed。`hemisphere` 表示当前任务分配范围，不代表两个半球复制两套中心 VXM。原生和 CIM 的跨 K INT32 累加都调用同一个 `TSPSpec.vxm_service_cycles()`；更改基础预算或加法代价会改变两者的加法占用，更改 FP32 代价不改变 GEMM。
+当前硬件 schema 9 的中央 VXM 整片理论峰值由库存推导：`320 lane × 16 ALU/lane = 5120 op/cycle`。参考配置按两个半片固定均分，设 `vxm_base_ops_per_cycle=2560`，属于共享 VXM 的单半片任务预算；不借用另一半的空闲配额。均分是明确建模假设，依据 PR #8 反馈及用户转述师兄当面补充的半片口径（2026-11-23），不代表实测持续吞吐。INT32 add 和 FP32 add/mul 的等价代价均为 1，FP32 exp 为 15，FP32 rsqrt 为 12，全部是 assumed。`hemisphere` 表示当前任务分配范围，不代表两个半球复制两套中心 VXM。原生和 CIM 的跨 K INT32 累加都调用同一个 `TSPSpec.vxm_service_cycles()`；更改基础预算或加法代价会改变两者的加法占用，更改 FP32 代价不改变 GEMM。
 
 ```python
 from src.utils.tsp_config import TSPConfigLoader
 
 loader = TSPConfigLoader()
 spec = loader.create_tsp_spec(loader.load_hardware_config())
-spec.vxm_service_cycles({"fp32_exp": 320})    # 15 个计算占用周期
-spec.vxm_service_cycles({"fp32_rsqrt": 320})  # 12 个计算占用周期
+spec.vxm_service_cycles({"fp32_exp": 2560})   # 15 个计算占用周期
+spec.vxm_service_cycles({"fp32_rsqrt": 2560}) # 12 个计算占用周期
 spec.vxm_service_cycles({"int32_add": 160, "fp32_exp": 8,
                          "fp32_rsqrt": 3, "fp32_mul": 4})  # 共 320 等价操作，1 周期
 ```
@@ -1107,7 +1535,7 @@ spec.vxm_service_cycles({"int32_add": 160, "fp32_exp": 8,
 
 [HotChips 2022，第 25 页](https://hc34.hotchips.org/assets/program/conference/day2/Machine%20Learning/HotChips34%20-%20Groq%20-%20Abts%20-%20final.pdf) 支持 VXM 具有 Exp/RSqrt 功能；[Answer Fast](https://arxiv.org/pdf/2206.11062) 描述 VXM 算术链。两者不能证明上述等价代价是原生硬件吞吐。[LLMCompass](https://github.com/PrincetonUniversity/LLMCompass/blob/2e015fd2ee750e6cad8d7152df52551e5b41ef20/hardware_model/compute_module.py) 提供共享预算与 exp 等价代价的抽象参考，其 TPU v3 的 15 不作为 TSP 测量证据。
 
-原生和 CIM 报告的 `hardware_derived.vxm_service` 包含操作代价、派生速率、依赖假设、缺参和使用边界，完整配置来源仍在 provenance。独立 API 只估算计算占用，不包含 MEM/stream、依赖与归约、特殊函数启动延迟；`vxm_add_latency_cycles` 只适用于当前 INT32 GEMM 加法。完整 Softmax/RMSNorm/SwiGLU 及其调度仍属于 Issue #3。
+原生和 CIM 报告的 `hardware_derived.vxm_service` 包含操作代价、派生速率、依赖假设、缺参和使用边界，完整配置来源仍在 provenance。独立 API 只估算计算占用，不包含 MEM/stream、依赖与归约、特殊函数启动延迟；`vxm_add_latency_cycles` 只适用于当前 INT32 GEMM 加法。RMSNorm/Softmax 已由第三批复合层组合调度；第四批的 SwiGLU/FFN 继续复用同一预算，见 Decode 块章节。
 
 历史 schema 5 → 6：删除 `vxm_add_ops_per_cycle` 和 `nonlinear_ops_per_cycle`；将旧 add 速率作为 `vxm_base_ops_per_cycle`，令 `vxm_int32_add_cost=1`，显式填写其余三项 FP32 代价及来源。保留 `vxm_add_latency_cycles`。旧版本和退役字段均拒绝；完整旧配置与审阅记录归档到 `retired_parameters`。默认 GEMM 计数和周期保持一致。原生报告升至 6，CIM 报告升至 7；当时 CIM 自身硬件配置仍为 5，共享来源跟随原生 schema 6；当前硬件版本见上方 MEM 并发迁移，报告字段见统一时间口径。
 
@@ -1510,7 +1938,7 @@ JSON schema 各自版本化：Ascend 硬件/报告为 9/12，TPU 为 12/13，TSP
 | A2 | 四类派生量和库存通过测试 | 明确映射的测试覆盖 Ascend/TPU/TSP/CIM/Macro：算力、容量、带宽换算和分层库存；TPU 检查三级峰值、私有/共享资源聚合与单核 VMEM 不合池，另有 TPU/CIM 阶段时间手算、MXU 分批与跨 K 累加；完整 ID 位于 `conditions.A2.tests` | 自动测试；面积库存通过不代表输出了 mm² 预测 |
 | A3 | 缺参显式处理，不静默补值 | 负例及 unknown 传播测试，包括 TPU 跨层依赖；Ascend 缺 HBM 带宽或可用容量、TSP 缺 MEM 基础服务、TPU 缺 HBM 可用容量或 timing 时钟的五个 CLI 负例退出 2 且无成功报告。四架构 timing 正例检查 assumed 参数、保留的硬件 unknown 和 null 芯片时间 | 自动测试 + CLI 正/负例；显式服务标 assumed，其他 unknown 保留，Macro 退役字段/API 明确拒绝，CIM 时钟 unknown 仍传播 |
 | A4 | 四入口 INT8 GEMM 冒烟完成 | 四份 count 报告为同一 M16/K32/N16、INT8 输入、INT32 累加/输出；`useful_ops=16384`，作用域正确，action/provenance 非空且无虚构时间；TPU 另查 schema 13、Scalar 库存和 SparseCore/SPMEM 已退役、五项库存规格已归档、共享 Vector/Nonlinear 算法服务、CMEM 读写代理、冷装入及单核计数不随库存放大。四个 timing 正例分别核对 Ascend L2 流水 83（服务工作量 84）、TPU 293、TSP 59、CIM 296 cycle，以及时间换算；Ascend 检查调度完成时间与共享 HBM，四者检查服务周期/时间分解的状态及求和口径 | 自动测试 + 子进程 JSON 检查；不以进程退出 0 单独判定，也不要求四者补齐动作相同 |
-| A5 | 行为变化已记录，四入口保持 GEMM 边界 | [迁移表](#migration)逐项审阅并绑定代码快照；旧接口/精度行为测试；四架构 GEMM 正例成功，四个入口的非 GEMM 请求均退出 2 且不产生成功报告 | 自动检查 + 已记录的代码/文档审阅；脚本不能独立证明迁移说明的语义完整性 |
+| A5 | 行为变化已记录，四入口保持 GEMM 边界 | [迁移表](#migration)逐项审阅并绑定代码快照；旧接口/精度行为测试；四架构 GEMM 正例成功，四个入口均拒绝未支持的 `operation="transformer"` 完整模型请求，退出 2 且不产生成功报告；已登记非 GEMM 算子通过 Issue #3 分派执行 | 自动检查 + 已记录的代码/文档审阅；脚本不能独立证明迁移说明的语义完整性 |
 
 A1 的通过含义是每项的文档依据、模型假设或未标定身份可追溯，模型所用单位/作用域明确。当前 **51 documented、48 assumed、0 unknown**；存在假设或缺口已按照 issue 的显式标记要求保留，不能把它解释为 99 项硬件参数均已确认。Ascend LLC 按用户选择采用 3 TB/s 的全芯片带宽假设；3/4 TB/s 的公开口径仍未对齐，不能视为实测标定。
 
@@ -1523,11 +1951,11 @@ $env:PYTHONUTF8 = "1"
 .\.venv\Scripts\python.exe scripts/verify_issue2.py
 ```
 
-脚本运行全部单元测试，再执行四架构显式 count 冒烟、四架构默认 timing 正例、缺参负例和四入口非 GEMM 边界检查。默认覆盖写入 `validation/issue2/run/` 的本轮结果，可用 `--output-dir results/my_issue2_run` 输出到其他目录。每个 CLI 使用临时输出路径，避免上一次的成功 JSON 被误当成本次结果。
+脚本仅运行 `tests/ascend`、`tpu`、`tsp`、`tsp_cim`、`cim`、`common` 的原生模型测试，再执行四架构显式 count 冒烟、四架构默认 timing 正例、缺参负例和四入口拒绝未支持的 `operation="transformer"` 请求检查；该负例不表示四入口拒绝已登记的 Vector 或复合算子。默认覆盖写入 `validation/issue2/run/` 的本轮结果，可用 `--output-dir results/my_issue2_run` 输出到其他目录。每个 CLI 使用临时输出路径，避免上一次的成功 JSON 被误当成本次结果。
 
 读取 `acceptance.json` 时检查：`local_acceptance_passed=true`、五项 status 均为 `passed` 或 `passed_with_recorded_review`、`unit_tests.status_counts` 全为 passed，以及 `snapshot_unchanged_during_run=true`。脚本只有满足这些条件才退出 0。A1/A5 若缺少审阅记录或代码/文档/配置快照变化，会返回 `needs_review` 和非零退出码，不自动续用旧审阅结论。
 
-本轮审阅记录由 Codex 根据原文、代码和迁移说明核对生成，不表示用户或外部验收组已经签字。记录绑定完整本地工作区内容，包括未提交文件；Git HEAD 仅作背景信息。只有单元测试总数不能替代五条验收证据，来源核验也不等于硬件标定。该本地验收不会提交代码、发布结果或关闭 GitHub issue。
+本轮审阅记录由 Codex 根据原文、代码和迁移说明核对生成，不表示用户或外部验收组已经签字。记录绑定 Issue #2 原生模型及共享文件范围，包括未提交内容；算子专属源码另存于 dependency_snapshot，不进入 A1/A5 审阅判据。Git HEAD 仅作背景信息。只有单元测试总数不能替代五条验收证据，来源核验也不等于硬件标定。该本地验收不会提交代码、发布结果或关闭 GitHub issue。
 
 <a id="source-audit"></a>
 
@@ -1556,7 +1984,7 @@ $env:PYTHONUTF8 = "1"
 | --- | --- | --- |
 | Ascend | L2 带宽为 3 TB/s 的 assumed 执行服务，配置无 null；HBM 十进制容量/全容量可用、Cube/核内服务、INT32 导出及精确队列仲裁仍为假设 | 硬件 schema 9、报告 schema 12；Vector 独立计算服务不进入 GEMM；冷 LRU 输入缓存接入依赖/资源流水，C/超大块绕过；缓存行/控制器/本地端口细节尚未模拟 |
 | TPU v4 | 21 项活动参数无 null；寄存器/ICI/工艺/面积规格另存归档；Scalar 库存已退出；SparseCore/SPMEM 已退役；CMEM 读写带宽为 libtpu v4 单值与 v4i 读写比例构造的代理，与 Vector、可用容量、VMEM 服务等假设一样尚需标定 | 硬件 schema 12、报告 schema 13；默认 tiled，冷完整 K 面板和容量约束双缓冲预取；bypass 保留对照。CMEM 已参与容量、流量和时间，Vector/Nonlinear 提供独立计算占用 API；无 null 不代表完成硬件验证 |
-| 原生 TSP | 参考参数已无 null；安装/MXM/VXM 与非线性代价为 assumed，仍待标定 | Issue #3 继续实现完整非线性算子、归约和依赖；当前已提供共享 VXM 计算占用 API，GEMM 默认加法能力不变。六项非执行字段已退役，片外供给/互联由 Issue #6 独立系统层定义 |
+| 原生 TSP | 参考参数已无 null；安装/MXM/VXM 与非线性代价为 assumed，仍待标定 | Issue #3 已提供共享 VXM 服务、独立 Vector、归一化及 FFN、Attention、MLA、MoE 等声明范围内的复合块；GEMM 默认加法能力不变。完整模型和整片执行仍待实现。六项非执行字段已退役，片外供给/互联由 Issue #6 独立系统层定义 |
 | CIM Macro | 活动能耗和面积系数尚未标定 | 当前只提供几何、II、context 状态与动作计数；独立局部时序参数/API 已退役，后续成本模型按动作与组件接入 |
 | CIM-TSP | collector 实际容量、逐 bank/stream 调度与 assumed 服务仍待完善/标定 | 不保留无消费路径的容量占位；232.5 MiB 仅为已知小计，collector 容量未验证。共享 Nonlinear 来源保留，但不视为 GEMM 缺参 |
 

@@ -10,6 +10,9 @@ from src.utils.tsp_reference import run_reference
 from src.utils.tsp_report import print_report, write_report
 from src.utils.workload import parse_workloads
 from src.core.tsp.simulator import LOOP_ORDERS
+from src.operators import adapt_gemm_report
+from src.runtime.cli import add_vector_arguments, handles_operator_workload, operator_options, write_operator_result, write_operator_results
+from src.runtime.workloads import execute_workload
 
 
 def parse_args(argv=None):
@@ -27,8 +30,11 @@ def parse_args(argv=None):
     p.add_argument("--streams", type=int)
     p.add_argument("--reserved-bytes", type=int, default=0)
     p.add_argument("--output", default=str(Path(__file__).resolve().parent / "results" / "tsp.json"),
-                   help="JSON report path (default: %(default)s; overwrites on success)")
+                   help="JSON report path (GEMM default: %(default)s; Vector/composite: project results/<arch>_<op>.json; overwrites on success)")
     p.add_argument("--verbose", action="store_true")
+    p.add_argument("--report-format", choices=["legacy", "operator"], default="legacy",
+                   help="operator: unified GEMM result and action ledger; legacy (default): existing report")
+    add_vector_arguments(p)
     return p.parse_args(argv)
 
 
@@ -36,18 +42,30 @@ def main(argv=None):
     args = parse_args(argv)
     try:
         loader = TSPConfigLoader(args.config_dir)
-        workloads = parse_workloads(loader.load_workload_config(args.workload), args.formats)
+        config = loader.load_workload_config(args.workload)
+        if handles_operator_workload(config, args, argv):
+            result = execute_workload(config, "tsp", lambda: loader.create_tsp_spec(loader.load_hardware_config(args.hardware)), mode=args.mode,
+                                      execution_file=args.vector_config, config_dir=loader.config_dir,
+                                      **operator_options(args, "tsp"))
+            write_operator_result(result, args, argv)
+            return 0
+        workloads = parse_workloads(config, args.formats)
         reports = []
         for w in workloads:
             # 每个精度任务独立运行；打印实际任务，便于确认是否使用了显式精度覆盖。
-            print("[Effective workload] " + json.dumps(w.to_dict(), ensure_ascii=False))
+            if args.report_format == "legacy":
+                print("[Effective workload] " + json.dumps(w.to_dict(), ensure_ascii=False))
             result = run_reference(w, hardware=args.hardware,config_dir=args.config_dir,
                 mode=args.mode,loop_order=args.loop_order,scope=args.scope,tile=tuple(args.tile) if args.tile is not None else None,
                 mem_slices=args.mem_slices,streams=args.streams,reserved_bytes=args.reserved_bytes)
-            print_report(result)
-            if args.verbose:
+            if args.report_format == "legacy":
+                print_report(result)
+            if args.verbose and args.report_format == "legacy":
                 print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
             reports.append(result)
+        if args.report_format == "operator":
+            write_operator_results([adapt_gemm_report("tsp", report, include_details=bool(args.details_output)) for report in reports], args)
+            return 0
         if args.output:
             write_report(args.output, reports[0] if len(reports)==1 else {"runs":reports})
             print(f"[Report] {args.output}")

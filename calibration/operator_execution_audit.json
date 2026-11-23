@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "issue": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/3",
+  "scope": "Operator execution policies only; native hardware provenance remains in parameter_source_audit.json.",
+  "hash_convention": "sha256 of UTF-8 canonical JSON: ensure_ascii=False, sort_keys=True, separators=(comma, colon)",
+  "sources": {
+    "vector_serial_policy_v1": {
+      "title": "独立 Vector 串行执行与 UB 服务假设",
+      "classification": "modeling_assumption",
+      "path": "ARCHITECTURE.md",
+      "section": "vector-operators",
+      "verification": "Explicit analytical policy; no published or measured UB bandwidth claim"
+    },
+    "normalization_serial_policy_v1": {
+      "title": "RMSNorm/Softmax 分行分阶段执行与归约依赖假设",
+      "classification": "modeling_assumption",
+      "path": "ARCHITECTURE.md",
+      "section": "normalization-operators",
+      "verification": "Explicit coarse work and storage policy; no silicon calibration claim"
+    },
+    "materialized_block_policy_v1": {
+      "title": "Materialized Decode block schedule and storage-boundary work proxies",
+      "classification": "modeling_assumption",
+      "path": "ARCHITECTURE.md",
+      "section": "decode-blocks",
+      "verification": "Explicit symbolic storage and uncalibrated compute assumptions; no numerical or physical-layout validation claim"
+    },
+    "decode_attention_policy_v1": {
+      "title": "Single-token Decode with shared KV backing and serial query heads",
+      "classification": "modeling_assumption",
+      "path": "ARCHITECTURE.md",
+      "section": "decode-attention",
+      "verification": "Native GEMM/Softmax reuse, independent workload/cache checks; symbolic layout and uncalibrated memory-service policies"
+    },
+    "fixed_routing_moe_policy_v1": {
+      "title": "Fixed-routing serial MoE experts with resident weights and FP32 outputs",
+      "classification": "modeling_assumption",
+      "path": "ARCHITECTURE.md",
+      "section": "moe-experts",
+      "verification": "Analytical payload/work/liveness tests; no numerical inference, physical index ISA or hardware calibration claim"
+    }
+  },
+  "vector_execution_profiles": {
+    "configs/execution/vector.json": {
+      "canonical_json_sha256": "34c9b2a5f377af94342f8f26d2e544e0a4154bdc9652a213fed7c3b02b03e7ad",
+      "schema_version": 2,
+      "parameters": {
+        "ascend_ub_read_bpc": {
+          "status": "assumed",
+          "decision": "Fixed uncalibrated 64*4 B/cycle UB service; only independent Ascend Vector uses it.",
+          "evidence": [
+            {
+              "source_id": "vector_serial_policy_v1",
+              "section": "vector-operators"
+            }
+          ]
+        },
+        "ascend_ub_write_bpc": {
+          "status": "assumed",
+          "decision": "Fixed uncalibrated 64*4 B/cycle UB service; only independent Ascend Vector uses it.",
+          "evidence": [
+            {
+              "source_id": "vector_serial_policy_v1",
+              "section": "vector-operators"
+            }
+          ]
+        }
+      },
+      "policy_source": "vector_serial_policy_v1",
+      "conditions": "Separate execution profile; TSP/CIM share one policy. tile_elements=1024 is an overridable software default, not a hardware limit or a verified optimum. Tiling search belongs to Issue #4; this clarification changes no execution parameter values.",
+      "composite_parameters": {
+        "fp32_sub_cost": {
+          "status": "assumed",
+          "decision": "One scalar SUB modeled as one basic equivalent operation; shares native Vector/VXM budget, not calibrated.",
+          "evidence": [
+            {
+              "source_id": "normalization_serial_policy_v1",
+              "section": "normalization-operators"
+            }
+          ]
+        },
+        "fp32_max_cost": {
+          "status": "assumed",
+          "decision": "One pairwise MAX comparison/selection modeled as one equivalent operation; not calibrated.",
+          "evidence": [
+            {
+              "source_id": "normalization_serial_policy_v1",
+              "section": "normalization-operators"
+            }
+          ]
+        },
+        "fp32_rcp_cost": {
+          "status": "assumed",
+          "decision": "Algorithmic proxy: one seed-equivalent operation plus two Newton-style updates of two MUL and one SUB each: 1+2*3=7. Seed accuracy and numerical result are not modeled; not native reciprocal timing.",
+          "evidence": [
+            {
+              "source_id": "normalization_serial_policy_v1",
+              "section": "normalization-operators"
+            }
+          ]
+        },
+        "reduction_round_cycles": {
+          "status": "assumed",
+          "decision": "Minimum compute dependency interval per tree level or cross-tile binary merge. Total compute is max(weighted-work cycles, this value); memory and startup charged separately. Not a measured shuffle or lane-network latency.",
+          "evidence": [
+            {
+              "source_id": "normalization_serial_policy_v1",
+              "section": "normalization-operators"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "block_execution_profiles": {
+    "configs/execution/blocks.json": {
+      "canonical_json_sha256": "a4cab24150f5fb8d3cf7779144ff212249d725cd5487b9f5095fb4d1479bd97a",
+      "schema_version": 1,
+      "policy_source": "materialized_block_policy_v1",
+      "parameters": {
+        "to_fp32_cost": {
+          "status": "assumed",
+          "decision": "Coarse storage-boundary conversion work; no standalone instruction model.",
+          "evidence": [
+            {
+              "source_id": "materialized_block_policy_v1",
+              "section": "decode-blocks"
+            }
+          ]
+        },
+        "to_int8_cost": {
+          "status": "assumed",
+          "decision": "Coarse scale/round/clamp work proxy; no numerical quantization or standalone instruction model.",
+          "evidence": [
+            {
+              "source_id": "materialized_block_policy_v1",
+              "section": "decode-blocks"
+            }
+          ]
+        },
+        "fp32_rcp_cost": {
+          "status": "assumed",
+          "decision": "Reciprocal work proxy on the shared Vector/VXM budget.",
+          "evidence": [
+            {
+              "source_id": "materialized_block_policy_v1",
+              "section": "decode-blocks"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "attention_execution_profiles": {
+    "configs/execution/attention.json": {
+      "canonical_json_sha256": "ca829c0ba6eaeeee868fa2beaa4f8e982fe7eb65b3c4465d266f6946b4f8d297",
+      "schema_version": 1,
+      "policy_source": "decode_attention_policy_v1",
+      "conditions": "Single-token Decode with uniform cache lengths. INT8 what-if storage, FP32 scale/Softmax. Preallocated per-KV-head backing is shared; each query head rereads K/V using native GEMM, with no physical repeat or transpose instruction. Q/K/V projection, position processing, output projection, cache eviction and chip execution are outside this block.",
+      "algorithm_references": [
+        "https://arxiv.org/abs/2305.13245v3",
+        "https://github.com/meta-llama/llama3/blob/main/llama/model.py"
+      ],
+      "precision_reference": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/1"
+    }
+  },
+  "decode_projection_blocks": {
+    "status": "assumed",
+    "documentation": "ARCHITECTURE.md#decode-projections",
+    "execution_profiles": [
+      "configs/execution/blocks.json",
+      "configs/execution/vector.json"
+    ],
+    "algorithm_reference": "https://github.com/meta-llama/llama3/blob/main/llama/model.py",
+    "precision_reference": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/1",
+    "conditions": "Single-token bias-free GQA projections. INT8 activation/matrix weights and outputs; RMSNorm scale weight and internal normalization FP32. Existing to_fp32/to_int8 proxies, no new measured hardware rate. Serial materialized nodes; head/matrix views share storage symbolically and require physical layout validation. No RoPE, numeric quantization, MLA composition or chip execution."
+  },
+  "decode_position_vocabulary_blocks": {
+    "status": "assumed",
+    "documentation": "ARCHITECTURE.md#position-vocabulary",
+    "execution_profiles": [
+      "configs/execution/blocks.json",
+      "configs/execution/vector.json"
+    ],
+    "algorithm_reference": "https://github.com/meta-llama/llama3/blob/main/llama/model.py",
+    "precision_reference": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/1",
+    "conditions": "Single-token full-head adjacent-channel RoPE with one uniform batch position and supplied FP32 cos/sin tables. No table generation; tables reread per head. INT8 Q/K and embedding/output activations; vocabulary logits FP32. Embedding assumes symbolic valid INT32 indices, complete INT8 table residency and no duplicate-row cache. Native matrix and existing conversion/SUB costs reused; no new hardware rates, address-generation or gather/transpose instructions, numeric accuracy, MLA composition or chip execution.",
+    "rope_workspace": "One pair uses 8 B converted input plus four 4 B products; converted-input slots become rotation results only after all four products. Local stored input/table/output slots add 12 B per pair.",
+    "embedding_workspace": "Local DMA path retains a 4 B index and one reusable row tile. Resident MEM copies have no second full table/output copy; transient address registers are not modeled."
+  },
+  "mla_preprocessing_and_cache": {
+    "status": "assumed",
+    "documentation": "ARCHITECTURE.md#mla-preprocess-cache",
+    "execution_profiles": [
+      "configs/execution/blocks.json",
+      "configs/execution/vector.json",
+      "configs/execution/attention.json"
+    ],
+    "algorithm_references": [
+      "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/model.py",
+      "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/configs/config_671B.json"
+    ],
+    "precision_reference": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/1",
+    "conditions": "Single-token low-rank Q and KV preprocessing, supplied cos/sin tables and uniform batch position. Three native INT8 GEMMs, two FP32 normalizations, materialized channel selections with cast/read/write work, and two positional rotations. Shared INT8 latent/position cache appends once per batch and streams each filled component once. These INT8 and serial materialization policies are project assumptions, distinct from official FP8/BF16 inference. No measured rates added.",
+    "cache_profile_usage": "Uses existing attention profile append-only capacity and symbolic-view layout. Query-head scheduling/reuse fields are inactive in standalone MLA cache; read_policy explicitly specifies one stream per batch/component.",
+    "cache_storage": "Reserve one maximum-size native score/value backing per batch for latent KV, one score backing for positional K. Native padding and slice striping included; no query-head replication. Physical layout compatibility and address/transpose instructions remain outside scope.",
+    "excluded": "Direct Q rank-zero path, absorbed attention core and its two Wkvb projection uses, output integration, MoE, chip partition, table generation/YaRN policy and full-model assembly."
+  },
+  "mla_absorbed_attention": {
+    "status": "assumed",
+    "documentation": "ARCHITECTURE.md#mla-attention",
+    "execution_profiles": [
+      "configs/execution/blocks.json",
+      "configs/execution/vector.json",
+      "configs/execution/attention.json"
+    ],
+    "algorithm_reference": "https://github.com/deepseek-ai/DeepSeek-V3/blob/main/inference/model.py",
+    "precision_reference": "https://github.com/pku-pacific-lab-team/huawei_dfp/issues/1",
+    "conditions": "Serial single-token absorbed MLA on preprocessed queries. Five native INT8 GEMMs per query head, explicit conversions, FP32 score add/scale/Softmax and optional existing output projection. Shared cache appended once with no redundant standalone read; native reads repeat per head. Inputs, weights, cache and context persist; one head workspace reused, output temporaries allocate after all heads. No new measured rates or profile parameter changes.",
+    "weight_views": "One KV up weight [heads,nope_dim+v_dim,kv_rank], with disjoint native-padded K and V subranges per head. These weights are shared across batch items; transpose/packing is symbolic, with no numerical weight dequantization model.",
+    "scale": "base=1/sqrt(nope_dim+rope_dim). Workload scale_multiplier defaults to 1; a non-default multiplier needs nonempty scale_source. Caller may supply squared YaRN mscale explicitly; no inference from cache capacity or automatic context-extension policy. Scale is applied once after FP32 score addition.",
+    "excluded": "Numerical FP8/BF16 accuracy, physical repacking/transpose instructions, direct rank-zero Q preprocessing, prefill/masks/sliding-window/eviction/paging, chip execution, MoE and full-model assembly."
+  },
+  "moe_fixed_routing_experts": {
+    "status": "assumed",
+    "source_id": "fixed_routing_moe_policy_v1",
+    "algorithm_reference": "https://github.com/deepseek-ai/DeepSeek-V3/blob/9b4e9788e4a3a731f7567338ed15d3ec549ce03b/inference/model.py",
+    "reference_commit": "9b4e9788e4a3a731f7567338ed15d3ec549ce03b",
+    "reference_scope": "Expert's three linear layers and SwiGLU; count per selected expert; shared widened MLP. Gate and weighted combine are explicitly excluded.",
+    "precision": "Project INT8 matrix/SwiGLU storage, INT32 matrix accumulation and FP32 expert outputs. Existing conversion proxies are explicit; no final per-expert INT8 conversion.",
+    "routing": "Caller-supplied distinct in-range expert IDs per token, uniform top_k. One INT32 indices payload read per slot; actual token counts and output slots retained.",
+    "storage": "All declared routed/shared weights resident with native padding, including inactive experts. Packed input and FFN intermediates reused per expert; routed destination overlaps temporary FP32 publish source. Shared output allocates in its final conversion.",
+    "traffic": "One INT8 input-row copy and one FP32 output-row copy per assignment; no deduplication, free dispatch, implicit physical transpose or index instruction assumption.",
+    "timing": "Serial active experts then shared FFN, existing native matrix/vector/memory services; no expert parallelism or overlap.",
+    "profiles": "Existing hardware, vector/blocks/attention profile values and hashes unchanged.",
+    "excluded": "Router GEMM/scoring/group/Top-K selection, route weights/normalization, weighted/shared summation, offloaded weights, inter-resource communication, full model and numerical accuracy.",
+    "tests": [
+      "tests.operators.test_moe",
+      "tests.operators.test_moe_cli"
+    ]
+  },
+  "moe_router_combine": {
+    "status": "assumed",
+    "source_id": "materialized_sigmoid_moe_v1",
+    "documentation": "ARCHITECTURE.md#moe-complete",
+    "algorithm_reference": "https://github.com/deepseek-ai/DeepSeek-V3/blob/9b4e9788e4a3a731f7567338ed15d3ec549ce03b/inference/model.py",
+    "reference_commit": "9b4e9788e4a3a731f7567338ed15d3ec549ce03b",
+    "reference_sha256": "fdb7995bc234badbf0011b5af8cf391be94343abc51305428cb9a04452116f02",
+    "reference_scope": "Gate sigmoid/bias/group selection/original-score normalization/scaling, weighted experts and shared addition. Official BF16/FP8 precision is not reproduced.",
+    "selection": "Repeated maximum without replacement; sum_j(N-j-1) comparisons, max(compute, ceil(log2(N-j))*reduction_round_cycles) per round. Group max or biased top2 sum. Symbolic masks, indices and addresses; explicit payload traffic, no detailed selection ISA.",
+    "precision": "INT8 gate/experts, INT32 accumulation, FP32 sigmoid/weights/combine; optional final INT8 conversion. Existing conversion and reciprocal proxies.",
+    "storage": "External weights/inputs persist; full score rows materialized. Post-router buffers release before experts, indices before combine; weights and FP32 expert outputs survive through combine. Global padding, stripe and scratch reservations verified.",
+    "routing_scenario": "Whole MoE receives explicit assignments satisfying group/top-k constraints; router work is modeled but numeric expert selection is not computed or verified.",
+    "profiles": "Existing hardware and vector/blocks/attention parameter values/hashes unchanged. No measured coefficients introduced.",
+    "tests": [
+      "tests.operators.test_moe_block",
+      "tests.operators.test_moe_block_cli"
+    ]
+  }
+}

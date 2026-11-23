@@ -230,6 +230,12 @@
       "path": "ARCHITECTURE.md#tsp-weight-prefetch",
       "version": "2026-11-18 finite one-block weight prefetch v1",
       "identity_verification": "Repository policy linked to reviewed primary mechanism descriptions; no new hardware calibration."
+    },
+    "tsp_vxm_half_chip_allocation": {
+      "type": "project_model_policy",
+      "locator": "ARCHITECTURE.md#tsp-vxm-service",
+      "basis": "PR #8 comment https://github.com/pku-pacific-lab-team/huawei_dfp/pull/8#issuecomment-7096080927 establishes chip peak 5120 op/cycle. User reported the reviewer in person acknowledged the omitted hemisphere scope, and authorized equal sharing on 2026-11-23.",
+      "scope": "2560 op/cycle is a fixed half-chip allocation assumption, not measured sustained throughput; no additional GitHub approval is claimed."
     }
   },
   "configs": {
@@ -2605,7 +2611,7 @@
       ]
     },
     "configs/hardware/tsp.json": {
-      "canonical_json_sha256": "8eeffbebaba01300fcf74fdefd9aef591db41700cd7da9ee54e58e1755d6b3ec",
+      "canonical_json_sha256": "7ca06a1bd957ed8fdfe9a24d6a1633e82f105429527a66b1d75a93f0358d1829",
       "parameter_count": 30,
       "status_counts": {
         "documented": 18,
@@ -3030,24 +3036,46 @@
               "source_id": "tsp_vxm_algorithmic_reference",
               "locator": "ARCHITECTURE.md#tsp-vxm-service",
               "finding": "Shared compute occupancy; no additive dtype resources or full nonlinear operator execution. Configuration value is an explicit model assumption."
+            },
+            {
+              "source_id": "tsp_vxm_half_chip_allocation",
+              "locator": "ARCHITECTURE.md#tsp-vxm-service",
+              "finding": "Chip 5120; fixed equal half-chip task allocation 2560; shared by standalone vector and native/CIM cross-K accumulation. Memory and dependencies still limit latency."
             }
           ],
-          "decision": "Shared single-task VXM budget of 320 equivalent basic operations/cycle. With int32_add_cost=1 this preserves the prior 320 INT32 add/cycle service. Hemisphere scope denotes the active task allocation from the central VXM, not a replicated unit per hemisphere. All operation types share this budget; rates are alternatives, not additive. MEM/stream supply is charged separately. Fixed analytical assumption, not hardware calibration or the full 5120-ALU chip peak.",
+          "decision": "Chip peak is 320 lanes * 16 ALUs/lane = 5120 basic op/cycle. The reference assigns a fixed equal share to each of two hemispheres: 2560 equivalent op/cycle per task, with no borrowing of the idle half. This allocation is a modeling assumption, not measured sustained throughput or a replicated VXM. Independent vectors and native/CIM GEMM cross-K additions consume the same budget. All operation types share it; rates are alternatives, not additive. MEM/stream supply and execution dependencies are accounted separately.",
           "prior_hardware_disposition": {
             "result": "unresolved",
             "status": "unknown",
             "decision": "5120 physical ALUs do not specify the allocation/task-effective INT32 addition budget. Operator lane mapping and allocation are unresolved."
-          }
+          },
+          "allocation_revision_history": [
+            {
+              "date": "2026-11-23",
+              "previous_decision": "Shared single-task VXM budget of 320 equivalent basic operations/cycle. With int32_add_cost=1 this preserves the prior 320 INT32 add/cycle service. Hemisphere scope denotes the active task allocation from the central VXM, not a replicated unit per hemisphere. All operation types share this budget; rates are alternatives, not additive. MEM/stream supply is charged separately. Fixed analytical assumption, not hardware calibration or the full 5120-ALU chip peak."
+            }
+          ]
         },
         "parameters.vxm_int32_add_cost": {
           "result": "explicit_model_assumption",
           "status": "assumed",
-          "decision": "One scalar-element INT32 addition consumes one equivalent operation on the shared single-task VXM service. Together with base=320 this preserves the existing GEMM cross-K add rate. No independent add resource is introduced.",
+          "decision": "One scalar-element INT32 addition consumes one equivalent operation on the shared half-chip VXM service. The reference base=2560 gives a peak task allocation of 2560 adds/cycle before memory and dependency constraints. No independent add resource is introduced.",
           "evidence": [
             {
               "source_id": "tsp_vxm_algorithmic_reference",
               "locator": "ARCHITECTURE.md#tsp-vxm-service",
               "finding": "Shared compute occupancy; no additive dtype resources or full nonlinear operator execution. Configuration value is an explicit model assumption."
+            },
+            {
+              "source_id": "tsp_vxm_half_chip_allocation",
+              "locator": "ARCHITECTURE.md#tsp-vxm-service",
+              "finding": "Chip 5120; fixed equal half-chip task allocation 2560; shared by standalone vector and native/CIM cross-K accumulation. Memory and dependencies still limit latency."
+            }
+          ],
+          "allocation_revision_history": [
+            {
+              "date": "2026-11-23",
+              "previous_decision": "One scalar-element INT32 addition consumes one equivalent operation on the shared single-task VXM service. Together with base=320 this preserves the existing GEMM cross-K add rate. No independent add resource is introduced."
             }
           ]
         },
@@ -4813,6 +4841,15 @@
       "reference_null_parameters": [],
       "policy": "Original numeric values, units, scopes, provenance status, source, version and conditions preserved exactly. Archive is reference-only and is never loaded or merged into execution. Nominal TOPS and VPU geometry remain in the active profile. No computational formulas or other configured values change.",
       "validation": "Six before/after tiled/bypass cases (16x32x16,17x257x15,512x256x512) preserve counts/actions/memory/counting policy/timing and Vector service exactly. A temporary isolated configuration root containing only the active hardware JSON loads and runs tiny GEMM at 9244 cycles, proving no archive runtime dependency."
+    },
+    "tsp_vxm_half_chip_2026_11_23": {
+      "previous_config_sha256": "8eeffbebaba01300fcf74fdefd9aef591db41700cd7da9ee54e58e1755d6b3ec",
+      "previous_budget_op_per_cycle": 320,
+      "chip_peak_op_per_cycle": 5120,
+      "hemisphere_task_budget_op_per_cycle": 2560,
+      "allocated_peak_fraction": 0.5,
+      "decision": "Fixed equal sharing with no idle-half borrowing. Arithmetic costs and hardware inventory unchanged; compute occupancy remains ceil(weighted work / allocated budget).",
+      "basis": "tsp_vxm_half_chip_allocation"
     }
   },
   "result_counts": {

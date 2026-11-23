@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "operation": "vocabulary_projection",
+  "description": "INT8 hidden state and weight, INT32 native accumulation, explicit FP32 logits output",
+  "inputs": [
+    {"name": "x", "shape": [2, 7], "dtype": "INT8"},
+    {"name": "weight", "shape": [7, 19], "dtype": "INT8"}
+  ],
+  "output_name": "logits"
+}

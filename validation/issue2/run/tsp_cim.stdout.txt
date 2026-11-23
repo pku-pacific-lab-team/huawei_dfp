@@ -251,8 +251,8 @@
     "useful_mac": {
       "count": 8192,
       "unit": "MAC",
-      "scope": "sum_of_macro_actions",
-      "basis": "action count; not switching energy"
+      "scope": "logical_gemm",
+      "basis": "logical requirement; aliases must not be charged twice"
     },
     "issued_mac": {
       "count": 16384,
@@ -1209,7 +1209,6 @@
         "context_programs",
         "context_switches",
         "program_wordlines",
-        "useful_mac",
         "issued_mac",
         "launches",
         "bit_serial_cycles",
@@ -1223,4 +1222,4 @@
     "semantics": "Views of existing counts, not additional additive actions. Logical payload is not a physical memory transaction. Unknown internal activity is not zero."
   }
 }
-[Report] C:\Users\86152\AppData\Local\Temp\issue2-4cbt_xk6\report.json
+[Report] C:\Users\86152\AppData\Local\Temp\issue2-ius5hqyd\report.json

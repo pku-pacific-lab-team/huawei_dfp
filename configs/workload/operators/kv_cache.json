@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "operation": "kv_cache",
+  "cache": {
+    "batch": 2,
+    "kv_heads": 2,
+    "head_dim": 7,
+    "length": 5,
+    "capacity": 9
+  },
+  "append_tokens": 1,
+  "read_cache": true
+}

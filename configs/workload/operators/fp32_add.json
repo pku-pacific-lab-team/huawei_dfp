@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "operation": "vector",
+  "op": "fp32_add",
+  "inputs": [
+    {
+      "name": "x0",
+      "shape": [
+        1025
+      ],
+      "dtype": "FP32"
+    },
+    {
+      "name": "x1",
+      "shape": [
+        1025
+      ],
+      "dtype": "FP32"
+    }
+  ]
+}

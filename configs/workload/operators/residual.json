@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "operation": "residual",
+  "inputs": [
+    {
+      "name": "x",
+      "shape": [
+        2,
+        7
+      ],
+      "dtype": "INT8"
+    },
+    {
+      "name": "residual",
+      "shape": [
+        2,
+        7
+      ],
+      "dtype": "INT8"
+    }
+  ]
+}
