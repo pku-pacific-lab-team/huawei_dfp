@@ -86,6 +86,7 @@ output/
 results/
 results.txt
 tmp/
+/validation/issue3/run/
 # Local recovery copies retained during cleanup; portable evidence.zip and manifests remain versionable.
 /validation/archive/*/originals/
 pdf/

@@ -5,7 +5,7 @@ Issue #2 与 Issue #3 分别维护入口、覆盖范围、判据和生成结果�
 | 范围 | 入口 | 结果及通过字段 |
 | --- | --- | --- |
 | Issue #2 原生模型 | `python scripts/verify_issue2.py` | [issue2/run/acceptance.json](issue2/run/acceptance.json)：`local_acceptance_passed` 与 A1—A5 |
-| Issue #3 已实现算子 | `python scripts/verify_issue3.py` | [issue3/run/acceptance.json](issue3/run/acceptance.json)：`implemented_scope_passed` 表示登记范围通过；`full_issue_complete` 另核对原始验收映射、23 个模型块、内部待办及快照，仅表示本地粗粒度算子交付 |
+| Issue #3 已实现算子 | `python scripts/verify_issue3.py` | 运行后查看 `issue3/run/acceptance.json`：`implemented_scope_passed` 表示登记范围通过；`full_issue_complete` 另核对原始验收映射、23 个模型块、内部待办及快照，仅表示本地粗粒度算子交付 |
 
 统一运行入口为 `scripts/run_all.ps1 -Scope issue2|issue3|all`，默认 `all`；各范围先运行对应日常 timing 仿真，再调用表中验证脚本。总结写入 `results/run_all_<范围>.json`，原始日志写入 `results/run_all/<范围>/`。`all` 会核对两组测试并集覆盖全仓库，不重复执行整套测试。退出码 0 表示所选范围通过，1 表示实际失败，2 表示仅 Issue #2 本地审阅证据需对齐；该状态不等同于 GitHub PR 尚待审阅，任一组失败或待审都不阻止其余选中组执行。
 
@@ -20,7 +20,8 @@ PR #7 已由师兄（Bwoah-Kimi）审查并合入 main，修复提交为 `d49d25
 | `issue2/run/` | Issue #2 默认验收输出；只由其脚本生成和覆盖 |
 | `issue2/review.json` | 审阅依据，持续保留；完成实际审阅后才能更新 |
 | `issue2/review_context.json` | 已合入 PR 的审阅事实与范围说明；不自动续签 A1/A5 |
-| `issue3/run/` | Issue #3 默认验证输出；只由其脚本生成和覆盖 |
+| `issue3/run/` | Issue #3 默认验证输出；由验收脚本生成和覆盖，不纳入 Git 跟踪 |
+| `issue3/baselines/` | 固定回归基线；保留在 Git 中，验收脚本不覆盖 |
 | `issue3/scope.json` / `issue3/README.md` | 已实现范围、测试/CLI 映射和剩余缺口；作为源码维护 |
 | [archive/2026-11-18-cleanup/](archive/2026-11-18-cleanup/README.md) | 本次清理前的验证材料、迁移基线、旧源码备份和一次性脚本；原路径保存在压缩包内 |
 | `../results/` | 可再生仿真报告，不是验收依据；使用 `scripts/clear_results.ps1` 清理 |

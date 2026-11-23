@@ -37,9 +37,9 @@
 | Issue #3 CLI | 216/216：208 个正例和 8 个负例 |
 | 日常仿真 | 108/108：4 份原生 GEMM、104 份统一算子报告 |
 | 历史 API | 64 组，原生结果/Operator/账本基线保持一致 |
-| 第八批 A 兼容性 | 184 份 CLI 摘要与原生报告均一致，见 [batch8a_comparison.json](../run/batch8a_comparison.json) |
+| 第八批 A 兼容性 | 184 份 CLI 摘要与原生报告均一致，历史对账见 `82971de:validation/issue3/run/batch8a_comparison.json` |
 | 模型覆盖 | LLaMA 10 个块、DeepSeek 13 个块，全部有实现与实际测试证据 |
-| 交付判据 | [acceptance.json](../run/acceptance.json) 的 `implemented_scope_passed=true`、`full_issue_complete=true` |
+| 交付判据 | 验收脚本生成的 `acceptance.json` 中 `implemented_scope_passed=true`、`full_issue_complete=true` |
 | 补充审查探针 | 88 组形状、176 次仿真；两种模式动作和容量相同，时间有效，解析公式与结果相符 |
 
 补充探针的范围如下，四种架构均执行 count/timing，tile 上限为 3：
@@ -58,7 +58,7 @@
 
 上述实现审查当时未修改模型、测试、执行配置或原有验收文档；新增 delivery 材料不进入仿真源码快照，因此当时复用了全量验收，只额外运行跨形状探针和快照检查。2026-11-23 的文档同步改动了快照覆盖的说明文件，因此另行重跑两套验收与日常仿真，更新 `run/`；新报告保留各自真实的 `generated_at_utc`、`repository_head` 和文件快照，不沿用旧哈希。
 
-在仓库根目录可直接核对已保存证据与当前源码，无需依赖本机 tmp 文件：
+先在仓库根目录运行下节全量验收命令生成证据，再核对报告与当前源码：
 
 ```powershell
 @'
@@ -80,7 +80,7 @@ print("Saved source snapshots match")
 '@ | python -B -X utf8 -
 ```
 
-`results/` 是本地忽略输出，干净克隆中没有它时，仍可验证已提交的两份 Issue 快照；运行下方全量命令会重新生成 batch 结果。
+`results/` 和 `validation/issue3/run/` 是 Git 忽略的输出目录，干净克隆后按需生成。
 
 ## 复现与后续交付
 
@@ -88,7 +88,7 @@ print("Saved source snapshots match")
 
 ```powershell
 # 独立验收 Issue #3，写入独立复现目录，预期退出 0。
-python -B -X utf8 scripts/verify_issue3.py --output-dir validation/issue3/reproduction
+python -B -X utf8 scripts/verify_issue3.py --output-dir results/issue3-reproduction
 
 # 两套验收及全部日常报告，包含详细诊断。
 python -B -X utf8 scripts/run_all.py --scope all --details

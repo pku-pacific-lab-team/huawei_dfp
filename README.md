@@ -491,7 +491,7 @@ Issue #3 已实现算子的独立验证：
 python scripts/verify_issue3.py
 ```
 
-输出到 `validation/issue3/run/`，只运行算子及验证工具测试，另执行 216 项算子 CLI 检查。范围、逐项覆盖和剩余缺口见 [Issue #3 验证说明](validation/issue3/README.md)及[覆盖清单](validation/issue3/scope.json)；退出 0 表示已登记范围通过；`full_issue_complete` 还须通过三项原始验收映射、23个模型块的代码/实际测试证据、所有条件与快照一致性检查。该字段仅为本地算子范围交付结论，不改变 GitHub 状态。
+只运行算子及验证工具测试，另执行 216 项算子 CLI 检查。报告和日志生成到 Git 忽略的 `validation/issue3/run/`，验收汇总为该目录的 `acceptance.json`。范围、逐项覆盖和剩余缺口见 [Issue #3 验证说明](validation/issue3/README.md)及[覆盖清单](validation/issue3/scope.json)；退出 0 表示已登记范围通过；`full_issue_complete` 还须通过三项原始验收映射、23个模型块的代码/实际测试证据、所有条件与快照一致性检查。该字段仅为本地算子范围交付结论，不改变 GitHub 状态。
 
 按 Issue #2 的四类交付物和五条条件执行原生模型验收：
 

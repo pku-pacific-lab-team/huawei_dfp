@@ -6,7 +6,7 @@
 .\.venv\Scripts\python.exe scripts/verify_issue3.py
 ```
 
-默认输出到 `validation/issue3/run/`。临时验证可使用 `--output-dir tmp/issue3-experiment`。脚本拒绝输出到 `validation/issue2/` 及其子目录；Issue #2 脚本也不能写入本目录。
+默认输出到 `validation/issue3/run/`，其中 `acceptance.json` 是验收汇总。该目录下的报告及日志不纳入 Git 跟踪，按需运行脚本生成。临时验证可使用 `--output-dir tmp/issue3-experiment`。脚本拒绝输出到 `validation/issue2/` 及其子目录；Issue #2 脚本也不能写入本目录。
 
 退出 0 表示[覆盖清单](scope.json)的已实现范围通过。第八批 B 后，`full_issue_complete` 由原始三项验收映射、全部条件、LLaMA3-70B/DeepSeek-R1 共23个模型块的代码与实际测试证据、无 Issue #3 内部待办以及源码快照一致性共同决定；不再硬编码 false。该字段表示本地粗粒度算子交付，不代表 GitHub 已关闭或后续模型/整片执行已完成。
 
@@ -59,6 +59,8 @@ Issue #2 仅运行原生架构与 common 测试，仍输出 A1—A5；其 `snaps
 技术模型继续维护在 [ARCHITECTURE.md](../../ARCHITECTURE.md#operator-contract)。计数和解析时间通过测试不等于数值精度验证或硬件标定。
 
 ## 重构与报告迁移基线
+
+下文提到的 `run/*_comparison.json` 是历史对账记录，原文件位于清理前的 PR #8 提交 `82971de28ec2cb5b78a42af6d6641a550e138b72`，不属于当前验收脚本的输出。`baselines/` 中的固定回归基线继续纳入 Git 跟踪。
 
 `baselines/layering.json` 与 `run/layering_comparison.json` 保留前一轮分层重构的历史证据：当时的 64 组 API 结果和 100 份文件完整一致。它们不代表新报告格式的验证结论。
 

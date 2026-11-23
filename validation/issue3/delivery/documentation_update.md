@@ -22,7 +22,7 @@ README、ARCHITECTURE 等说明文件参与验收快照。修订后使用下列�
 python -B -X utf8 scripts/run_all.py --scope all --details
 ```
 
-结果入口为 [Issue #2 验收](../../issue2/run/acceptance.json)、[Issue #3 验收](../run/acceptance.json)；本地汇总在 `results/run_all_all.json`。两套测试集合的完整覆盖由汇总的 `combined_test_coverage` 核对。默认覆盖的旧证据仍可从修订前的 Git 提交恢复，刷新前另保留本地副本。
+结果入口为 [Issue #2 验收](../../issue2/run/acceptance.json)及运行后生成的 `validation/issue3/run/acceptance.json`；本地汇总在 `results/run_all_all.json`。两套测试集合的完整覆盖由汇总的 `combined_test_coverage` 核对。此次文档同步对应的历史 Issue #3 结果位于清理前的提交 `82971de`；当前 Issue #3 运行结果不再提交。
 
 本次刷新结果：
 
