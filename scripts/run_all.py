@@ -13,7 +13,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from scripts.verification import discover, fingerprints, save
+from scripts.verification import discover, fingerprints, run_tests, save
 
 
 ARCHITECTURES = ("ascend", "tpu", "tsp", "tsp_cim")
@@ -204,9 +204,9 @@ def write_operator_table(records, path):
     return str(path)
 
 
-def combined_coverage(records, root=ROOT):
+def combined_coverage(records, root=ROOT, *, model_tests=()):
     """Check the union against full discovery without executing tests twice."""
-    selected, duplicates = set(), set()
+    selected, duplicates = set(model_tests), set()
     try:
         for record in records:
             if record["kind"] != "verification":
@@ -248,7 +248,24 @@ def main(argv=None):
         print(f"  {record['status']}: {record['report']}", flush=True)
         if record.get("error"):
             print("  " + record["error"], flush=True)
-    coverage = combined_coverage(records, root) if args.scope == "all" else {"status": "not_requested"}
+    coverage = {"status": "not_requested"}
+    if args.scope == "all":
+        model_ids, model_reports = set(), {}
+        try:
+            for test_file in sorted((root / "tests" / "models").glob("test_*.py")):
+                name = "issue4_" + test_file.stem.removeprefix("test_")
+                model_logs = logs / name
+                model_logs.mkdir(exist_ok=True)
+                tests = discover(("tests/models",), root, pattern=test_file.name)
+                result, counts, passed = run_tests(tests, model_logs)
+                model_ids.update(result.records)
+                model_reports[name] = {"passed": passed, "status_counts": counts, "report": str(model_logs / "tests.json")}
+            coverage = combined_coverage(records, root, model_tests=model_ids)
+            coverage.update(model_reports)
+            if not all(r["passed"] for r in model_reports.values()):
+                coverage["status"] = "failed"
+        except (ImportError, OSError) as exc:
+            coverage = {"status": "failed", "error": f"Issue #4 model verification failed: {exc}"}
     unchanged = source_snapshot(root) == before
     failed = not unchanged or any(r["status"] == "failed" for r in records) or coverage["status"] == "failed"
     pending = any(r["status"] == "needs_review" for r in records)

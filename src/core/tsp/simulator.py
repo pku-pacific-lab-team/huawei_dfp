@@ -1,5 +1,6 @@
 """Native TSP row pipeline with one buffered weight-prefetch block."""
 from ..metrics import attach_contract, attach_timing_breakdowns
+from ..capacity import CapacityExceeded
 # 阅读主线：分块与驻留检查 → plane 权重复用 → MEM/stream 动作 → 可选行服务时间。
 # 执行范围固定为一个 hemisphere，规格中的整片资源只用于库存和峰值推导。
 import copy
@@ -45,7 +46,7 @@ class TSPSimulator:
         self.tsp_spec = tsp_spec
 
     def simulate(self, M, K, N, loop_order="KNM", *, mode="count", scope="single_hem",
-                 tile=None, mem_slices=None, streams=None, reserved_bytes=0):
+                 tile=None, mem_slices=None, streams=None, reserved_bytes=0, report_weight_buffer=False):
         if mode not in {"count", "timing"}:
             raise ValueError("mode must be count or timing")
         if scope != "single_hem":
@@ -89,6 +90,7 @@ class TSPSimulator:
         plane_tags = {}
         psum_progress = {}
         tiles = []
+        peak_pending_weight_bytes = 0
         max_row_ii = 0
         allocated_peak_mac = spec.n_mxm_planes_per_hemisphere * spec.mxm_plane_dim**2
         for ms,ks,ns,m,k,n in _generate_tile_iter(loop_order,M,K,N,plan["m"],plan["k"],plan["n"]):
@@ -114,7 +116,9 @@ class TSPSimulator:
             # 一次块级安装可能更新一个或两个 plane，所以事件数与 plane 安装数分开记。
             counts["weight_install_count"] += int(changed_bytes > 0)
             if changed_bytes > v["weight_buffer_bytes"]:
-                raise ValueError("unsupported_capacity: pending TSP weights exceed weight_buffer_bytes")
+                raise CapacityExceeded("unsupported_capacity: pending TSP weights exceed weight_buffer_bytes",
+                                       "weight_buffer", changed_bytes, v["weight_buffer_bytes"])
+            peak_pending_weight_bytes = max(peak_pending_weight_bytes, changed_bytes)
             counts["mem_read_weight_bytes"] += changed_bytes
             counts["weight_install_bytes"] += changed_bytes
             weight_groups = math.ceil(changed_bytes/width)
@@ -208,6 +212,9 @@ class TSPSimulator:
                 "One assumed finite weight buffer; LW capture has no additional port limit beyond allocated MEM/stream bandwidth.",
                 "IW uses a separate internal port and conservatively waits for prior row-window drain; exact rolling installation is not simulated.",
                 "Padded MAC count is issued logical work; inactive-cell switching and power gating are not modeled."]}
+        if report_weight_buffer:
+            result["memory"]["weight_buffer"] = {"scope": "single_hem", "capacity_bytes": v["weight_buffer_bytes"],
+                                                 "peak_bytes": peak_pending_weight_bytes}
         if timed:
             result["schedule"] = scheduled.pop("schedule")
             elapsed_stages = scheduled.pop("elapsed_stages")

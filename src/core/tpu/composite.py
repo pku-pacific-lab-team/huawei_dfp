@@ -1,5 +1,6 @@
 """Single TensorCore row blocks through HBM/VMEM; CMEM bypass."""
 from ..composite_memory import LocalMemoryPath
+from ..capacity import CapacityExceeded
 from ..vector import positive, tile_groups
 from ..vector_resources import tpu_services
 
@@ -14,6 +15,9 @@ def make_path(op, spec, execution, *, mode, tile_elements=None):
     if footprint > hbm:
         raise ValueError("unsupported_capacity: complete normalization tensors exceed HBM")
     slots, scalars = (2, 4) if op.operation == "rmsnorm" else (1, 8)
+    if local < scalars + 4 * slots:
+        raise CapacityExceeded("unsupported_capacity: local memory cannot hold one Vector element and its operands",
+                               local_name, scalars + 4 * slots, local)
     tile, _ = tile_groups(op.width, tile_elements, execution, (local - scalars) // (4 * slots))
     clock = v["clock_hz"]
     resources = tpu_services(spec, timed)

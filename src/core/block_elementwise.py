@@ -4,6 +4,7 @@ from copy import deepcopy
 from fractions import Fraction
 
 from .composite_memory import LocalMemoryPath, ResidentMemoryPath
+from .capacity import CapacityExceeded
 from .metrics import attach_timing_breakdowns
 from .operator_result import ActionSpec, NativeResult
 from .vector import cycles, positive, tile_groups
@@ -49,6 +50,9 @@ def make_workspace_path(arch, spec, execution, mode, live_bytes, capacity, alloc
         available = spec.capacities["UB"] if arch == "ascend" else int(positive(spec.values["vmem_usable_bytes"], "vmem_usable_bytes"))
         per_element = scratch_per_element + stored_per_element
         max_tile = (available - local_fixed_bytes) // per_element
+        if max_tile < 1:
+            raise CapacityExceeded("unsupported_capacity: local memory cannot hold one Vector element and its operands",
+                                   local, local_fixed_bytes + per_element, available)
         resources = ascend_services(spec, execution, timed) if arch == "ascend" else tpu_services(spec, timed)
         clock = (None if spec.clock_ghz is None else Fraction(str(spec.clock_ghz)) * 10**9) if arch == "ascend" else spec.values["clock_hz"]
         compute = spec.vector_service_cycles

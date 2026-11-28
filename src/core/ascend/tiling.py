@@ -1,6 +1,7 @@
 """Bounded tiling and capacity-aware slots; C stays in L0C across all K panels."""
 # m/k/n 是 L0 计算块；l1_k 是 L1 搬入的 K 面板长度，两者不可混用。
 from dataclasses import asdict, dataclass
+from ..capacity import CapacityExceeded
 
 
 def align_up(value, alignment):
@@ -34,8 +35,10 @@ def make_plan(workload, capacities, hbm_bytes, tile=(64, 128, 64), l1_k=256):
     padded = mp * kp + kp * np + 4 * mp * np
     if padded > hbm_bytes:
         raise ValueError("Padded A/B/C footprint exceeds usable HBM capacity")
-    if any(capacities[x] < minimum for x, minimum in {"L1": 1024, "L0A": 512, "L0B": 512, "L0C": 1024, "UB": 1024}.items()):
-        raise ValueError("Capacity cannot hold the minimum INT8/INT32 fractals")
+    for level, minimum in {"L1": 1024, "L0A": 512, "L0B": 512, "L0C": 1024, "UB": 1024}.items():
+        if capacities[level] < minimum:
+            raise CapacityExceeded("Capacity cannot hold the minimum INT8/INT32 fractals",
+                                   level, minimum, capacities[level])
     m, k, n = (min(v, align_up(dim, a)) for v, dim, a in zip(tile, workload.shape, (16, 32, 16)))
     k1 = min(l1_k, align_up(workload.K, 32))
     k = min(k, k1)
