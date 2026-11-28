@@ -1,8 +1,8 @@
 # 多架构算子仿真工程
 
-本工程提供 Ascend 910、TPU v4、原生 TSP、CIM-TSP 四个独立分析入口，支持 INT8 GEMM、独立 INT32/FP32 Vector/Nonlinear、FP32 RMSNorm/Softmax，以及 Residual、SwiGLU/FFN、Decode Attention/GQA 和 KV Cache 复合块，以及 INT8 RMSNorm、Q/K/V、Attention 输出投影、RoPE、Embedding 和 FP32 词表输出投影、absorbed MLA 以及路由/专家/加权合并的完整粗粒度 MoE 块。当前交付以可追溯规格、容量检查、动作计数和局部解析时间为主。
+本工程提供 Ascend 910、TPU v4、原生 TSP、CIM-TSP 四个独立分析入口，支持 INT8 GEMM、独立 INT32/FP32 Vector/Nonlinear、FP32 RMSNorm/Softmax，以及 Residual、SwiGLU/FFN、Decode Attention/GQA 和 KV Cache 复合块，以及 INT8 RMSNorm、Q/K/V、Attention 输出投影、RoPE、Embedding 和 FP32 词表输出投影、absorbed MLA 以及路由/专家/加权合并的完整粗粒度 MoE 块。在这些算子之上，四个入口支持 LLaMA3-70B 和 DeepSeek-R1 的整模 Decode，报告逐片容量、动作计数、计算关键路径和跨片通信清单。
 
-技术说明见 [ARCHITECTURE.md](ARCHITECTURE.md)：[四套执行路径字符框图](ARCHITECTURE.md#execution-diagrams)、[四个仿真器结构](ARCHITECTURE.md#simulator-structure)、[公共口径](ARCHITECTURE.md#conventions)、[Ascend](ARCHITECTURE.md#ascend)、[TPU](ARCHITECTURE.md#tpu)、[TSP](ARCHITECTURE.md#tsp)、[CIM Macro](ARCHITECTURE.md#cim-macro)、[CIM-TSP](ARCHITECTURE.md#cim-tsp)、[验证状态](ARCHITECTURE.md#validation)。
+技术说明见 [ARCHITECTURE.md](ARCHITECTURE.md)：[四套执行路径字符框图](ARCHITECTURE.md#execution-diagrams)、[四个仿真器结构](ARCHITECTURE.md#simulator-structure)、[公共口径](ARCHITECTURE.md#conventions)、[整模 Decode](ARCHITECTURE.md#decode-models)、[Ascend](ARCHITECTURE.md#ascend)、[TPU](ARCHITECTURE.md#tpu)、[TSP](ARCHITECTURE.md#tsp)、[CIM Macro](ARCHITECTURE.md#cim-macro)、[CIM-TSP](ARCHITECTURE.md#cim-tsp)、[验证状态](ARCHITECTURE.md#validation)。
 
 首次阅读建议先看[四套框图及粒度对照](ARCHITECTURE.md#execution-diagrams)，按存储边界、搬运、计算与累加、写回及调度约束理解当前实现，再进入各架构的参数和公式章节。
 
@@ -22,14 +22,18 @@ python tsp_cim.py --load-overlap serialized
 
 ## 当前能力
 
-| 入口 | 执行范围 | 当前能力 |
+整模计时可加 `--auto-tile`。例如 `python tpu.py --model deepseek_r1 --auto-tile` 会在同一请求、放置和路由下比较软件分块，输出默认与选中方案的计算关键路径时延、容量峰值和逐算子候选。[软件分块搜索与报告字段](validation/issue4/README.md#整模软件分块搜索)
+
+Issue #4 的四个架构入口均支持 `--model llama3_70b` 和 `--model deepseek_r1`。默认运行单请求的两步 Decode，LLaMA3-70B 从 8,190 个已有 KV 位置开始，DeepSeek-R1 从 131,072 个开始。Ascend 和 TPU 的 DeepSeek-R1 使用相同的 PP31、TP1、EP1 放置。TSP 和 TSP-CIM 均按片均分注意力头，LLaMA 使用 PP78、336 片，DeepSeek-R1 使用 PP61、EP52、4,942 片，共享专家与路由器同片。运行 `python scripts/verify_issue4.py` 可复现四架构、两模型的独立验收。[默认分片表、路由文件和报告字段](validation/issue4/README.md)
+
+| 入口 | 原生 GEMM 执行范围 | 原生模型能力 |
 | --- | --- | --- |
 | `ascend.py` | 单 AI Core 的 Cube GEMM 路径 | 容量约束、分块及动作计数；资源/依赖流水 timing，容量允许时双缓冲 |
 | `tpu.py` | 单 TensorCore | MXU → TensorCore → Chip 规格与分层库存；单核逻辑计数；支持容量约束 K 预取流水与串行对照，块内最多 4 MXU 并行 |
 | `tsp.py` | 单 hemisphere | 220 MiB 整片 MEM 参考规格；单侧驻留计数；支持显式代理下的行流水 timing，配置参数优先 |
 | `tsp_cim.py` | 单 hemisphere | 2 Plane、8 Cluster domains、3200 Macro；K/N 静态 wave、MEM 容量检查、共享带宽、默认后台 LW 和行流水；整片库存单独报告 |
 
-四个入口默认 timing，同时输出动作计数和任务时间。GEMM 共用 workload 精度选择规则；Vector/复合块在输入 Tensor 中声明 dtype。当前参考配置不提供可直接比较的整片执行时间，能耗和面积总量未评估；规格峰值与真实有效吞吐分开。原生 TSP 与 CIM 比较调用同一个参考实现。
+四个入口默认 timing，同时输出动作计数和任务时间。GEMM 共用 workload 精度选择规则；Vector/复合块在输入 Tensor 中声明 dtype。上表的原生 GEMM 时间按所列单元计算。四架构的整模计算关键路径由 `--model` 入口生成，能耗和面积总量尚待评估。原生 TSP 与 CIM 比较调用同一个参考实现。
 
 四个仿真器的现有参考配置均可运行带明确假设的局部任务 timing。已有代理服务直接写入硬件 JSON，标为 assumed，并在 conditions 中说明取法。TSP 配置只保存固定服务上限和固定延迟，实际分配带宽和逐行耗时由模拟器计算。null 表示尚无本模型可用值，必需服务缺失时明确报错。
 
@@ -66,9 +70,11 @@ Linux/macOS 对应使用 `python3 -m venv .venv` 和 `source .venv/bin/activate`
 | --- | --- | --- |
 | `issue2` | 4 份原生 GEMM，`results/<架构>.json` | 原生测试及 17 项 CLI 检查，`validation/issue2/run/` |
 | `issue3` | 104 份：统一 GEMM 报告及 25 个 Vector/复合块样例 | 算子/验证工具测试及 216 项 count/timing/负例 CLI 检查，`validation/issue3/run/` |
-| `all` | 两组共 108 份，分别保存 | 两套判据分别汇总；核对单元测试集合并集覆盖全仓库且无重复 |
+| `all` | 两组共 108 份，分别保存 | 运行 Issue #2、#3 的验收和 Issue #4 模型单测，核对全仓库单测覆盖 |
 
-Issue #3 另输出每算子一行的 `results/run_all_<范围>_operators.csv`；可加 `-Details` 保留独立详细文件。Issue #3 的 GEMM 适配报告使用 `results/<架构>_gemm_operator.json`，其他算子使用 `<架构>_<算子>.json`。每个范围另生成 `results/run_all_<范围>.json` 总结和 `results/run_all/<范围>/` 命令日志，均以脚本所属工程为根目录。Python 优先使用工程 `.venv`，否则使用 PATH。Linux/macOS 可运行等价命令 `python scripts/run_all.py --scope all`。正式交付增加 `--require-complete`（PowerShell 为 `-RequireComplete`），只要求 Issue #3 的完整交付字段为真；普通回归仍只检查已实现范围。完整模型及自动分块搜索属于 Issue #4。
+运行 `python scripts/verify_issue4.py` 可单独验收四架构、两模型的默认放置。八组整模结果、源码版本和通过状态写入 `results/issue4/acceptance/acceptance.json`。[整模验收字段](validation/issue4/README.md#实现与验收入口)
+
+Issue #3 另输出每算子一行的 `results/run_all_<范围>_operators.csv`；可加 `-Details` 保留独立详细文件。Issue #3 的 GEMM 适配报告使用 `results/<架构>_gemm_operator.json`，其他算子使用 `<架构>_<算子>.json`。每个范围另生成 `results/run_all_<范围>.json` 总结和 `results/run_all/<范围>/` 命令日志，均以脚本所属工程为根目录。Python 优先使用工程 `.venv`，否则使用 PATH。Linux/macOS 可运行等价命令 `python scripts/run_all.py --scope all`。正式交付增加 `--require-complete`（PowerShell 为 `-RequireComplete`），只要求 Issue #3 的完整交付字段为真；普通回归仍只检查已实现范围。整模及固定放置上的软件分块搜索由 Issue #4 专项脚本验收。
 
 某一步失败后会继续尝试其余选中步骤，最后统一返回：`0`=所选范围全部通过，`1`=执行/验证/覆盖检查失败，`2`=自动检查通过但 Issue #2 的 A1/A5 本地审阅证据需对齐（不等同于 GitHub PR 待审）。该状态不会阻止 Issue #3 执行，也不会被改成通过。旧报告保留时会标记本次未生成新报告，不能算作成功。`all` 指已登记的实现与测试；Issue #3 完成判断另由本地交付审计核对原始验收条件和两份模型清单。
 
@@ -123,7 +129,7 @@ report = result.to_dict()  # compact schema 2
 print(result.latency_s, result.cycle_count)
 ```
 
-第一批提供 INT8 GEMM → INT32 输出、公共类型和计数接口；第二批补充独立 Vector，第三批接入 RMSNorm/Softmax，第四批接入 Residual、SwiGLU/FFN 和粗粒度 INT8 存储边界工作量，第五批接入 Decode Attention/GQA 与 KV Cache，第六批 A 补齐 INT8 RMSNorm、Q/K/V 和 Attention 输出投影，第六批 B 补齐 RoPE、Embedding 和 FP32 词表输出边界，第七批 A 接入 MLA 低秩前处理与共享压缩缓存，第七批 B 补齐 absorbed MLA Attention 和输出投影集成，第八批 A 接入给定路由的 MoE 专家与独立 FP32 输出，第八批 B 补齐路由、加权合并和 MoE 整块。Tensor 能描述 FP32 等存储类型，不表示这些 GEMM 输入格式已可执行。整片执行仍待实现；完整模型拼装属于 Issue #4，能耗计算另行接入。容量不足和缺少必需服务继续报错；TSP/CIM 的片外流量标记为执行边界之外。接口、计数依据和已知限制见[算子契约](ARCHITECTURE.md#operator-contract)。
+第一批提供 INT8 GEMM → INT32 输出、公共类型和计数接口；第二批补充独立 Vector，第三批接入 RMSNorm/Softmax，第四批接入 Residual、SwiGLU/FFN 和粗粒度 INT8 存储边界工作量，第五批接入 Decode Attention/GQA 与 KV Cache，第六批 A 补齐 INT8 RMSNorm、Q/K/V 和 Attention 输出投影，第六批 B 补齐 RoPE、Embedding 和 FP32 词表输出边界，第七批 A 接入 MLA 低秩前处理与共享压缩缓存，第七批 B 补齐 absorbed MLA Attention 和输出投影集成，第八批 A 接入给定路由的 MoE 专家与独立 FP32 输出，第八批 B 补齐路由、加权合并和 MoE 整块。Tensor 能描述 FP32 等存储类型，不表示这些 GEMM 输入格式已可执行。这些独立算子的局部成本供 Issue #4 的逐片计算图复用。能耗系数仍待接入。容量不足和缺少必需服务继续报错；TSP/CIM 的片外流量标记为执行边界之外。接口、计数依据和已知限制见[算子契约](ARCHITECTURE.md#operator-contract)。
 
 `Gemm.from_tensors()` 保留调用方的 Tensor 名称；GEMM、Vector、RMSNorm、Softmax 的 Python API 均可用 `output_name=` 指定输出。未指定时使用默认名称并避开输入名，显式输入输出重名会拒绝。Vector/复合 workload 同样接受可选 `output_name`。名称只在一次算子调用内标识张量，后续图层须用节点 ID 限定，不能以同名推断共用存储。
 
@@ -210,7 +216,7 @@ Python API 使用 `Residual`、`SwiGLU`、`SwiGLUFFN` 与 `simulate_block(op, ar
 
 独立 [blocks.json](configs/execution/blocks.json) 保存串行组合、符号补齐布局和未标定的类型边界代价，可用 `--block-config` 替换；`--vector-config` 继续控制所复用的 Vector 服务，`--vector-tile-elements` 控制点算 tile。INT32→FP32→INT8 不再被当作免费连接，但这里仅有块级工作量代理，不实现独立量化/反量化指令、量化数值或物理布局转换。详见[公式、生命周期与执行边界](ARCHITECTURE.md#decode-blocks)。
 
-执行范围仍为单 AI Core、单 TensorCore 或单半片，`chip_execution_included=false`。尚未实现整片 M/N 分片、权重/激活复制与跨核通信，不能直接把单核时间除以库存核数。
+独立算子报告的执行范围为单 AI Core、单 TensorCore 或单半片，`chip_execution_included=false`。整模入口按各片内单元的实际分片和并行波次组合这些局部成本，片内交接时间取零。
 
 ### Decode Attention / GQA 与 KV Cache（Issue #3 第五批）
 
@@ -283,7 +289,7 @@ RoPE 只处理单 token、整条 head 的相邻通道对，D 必须为偶数，�
 
 Embedding 的 token 值保持符号描述，假设索引合法，不执行真实查表；同一行重复出现时按重复读取计算。完整词表、索引和输出都参加容量检查，访问量只计算本次索引与选中行。词表投影保留原生 INT32 累加，显式转换为 FP32 logits，不含最终 Softmax 或采样。这两种块使用可选 `output_name`。
 
-这些模型仍是单核/单半片的局部执行。TSP/CIM 无法驻留完整词表时明确拒绝，后续分片/片外供给不能靠缩小 tile 替代。当前 [覆盖矩阵](validation/issue3/model_coverage.json) 的 LLaMA 独立块已覆盖，MoE 已由第八批 B 补齐；整片调度和完整模型拼装另行推进。详细公式、容量与假设见 [第六批 B 说明](ARCHITECTURE.md#position-vocabulary)。
+这些模型仍是单核/单半片的局部执行。TSP/CIM 无法驻留完整词表时明确拒绝，后续分片/片外供给不能靠缩小 tile 替代。当前 [覆盖矩阵](validation/issue3/model_coverage.json) 的 LLaMA 独立块已覆盖，MoE 已由第八批 B 补齐；整模入口按每个 PP 段的实际放置拆分权重并检查逐片容量。详细公式、容量与假设见 [第六批 B 说明](ARCHITECTURE.md#position-vocabulary)。
 
 ### MLA 前处理与压缩缓存（第七批 A）
 
@@ -518,9 +524,11 @@ huawei_dfp/
 ├── configs/workload/                # 公共 GEMM 任务
 ├── configs/workload/operators/      # Vector、归一化及 Decode 复合块任务
 ├── configs/execution/               # 算子执行策略与代理参数
+├── configs/models/                  # 锁定的 LLaMA3-70B 和 DeepSeek-R1 上游配置
 ├── src/hardware/                    # 规格、校验与派生库存
 ├── src/operators/                   # 算子描述、公共 API、结果适配
 ├── src/runtime/                     # 后端选择、执行编排、CLI 选项与输出
+├── src/models/                      # 模型计算图、逐片放置、路由、关键路径和分块搜索
 ├── src/core/                        # 按架构组织执行内核
 │   ├── ascend/                     # 分块、L2 缓存与流水调度
 │   ├── tpu/                        # 分块、CMEM 与两级预取流水
@@ -535,15 +543,21 @@ huawei_dfp/
 │   ├── cim/                        # Macro 与 CIM-TSP 集成
 │   ├── common/                     # 任务、输出路径、库存和参数来源
 │   ├── operators/                  # Issue #3 算子与兼容性测试
+│   ├── models/                     # Issue #4 模型、分片、容量和整模入口测试
 │   └── validation/                 # 验证工具范围和目录隔离
 ├── scripts/verify_issue2.py          # Issue #2 原生模型验收
 ├── scripts/verify_issue3.py          # Issue #3 已实现算子独立验证
-├── scripts/verification.py          # 两者共用的无验收策略工具
+├── scripts/verify_issue4.py          # 四架构 × 两模型的 Decode 专项验收
+├── scripts/run_projection.py        # 逐片投影入口
+├── scripts/run_llama_block.py       # 单个 LLaMA Decoder 层入口
+├── scripts/run_llama_model.py       # LLaMA 整模入口
+├── scripts/verification.py          # 共用的测试、文件指纹和报告工具
 ├── scripts/run_all.ps1 / run_all.py  # issue2 / issue3 / all 仿真与验证总入口
 ├── scripts/clear_results.ps1         # 清除 results 顶层生成的 JSON 报告
 └── validation/                      # 当前验收与历史材料索引
     ├── issue2/                     # 原生审阅依据及 run/ 验收
     ├── issue3/                     # 算子覆盖清单及 run/ 验证
+    ├── issue4/                     # 整模验收说明、分片表和报告字段
     └── archive/                    # 历史验证、基线与过程材料归档
 ```
 

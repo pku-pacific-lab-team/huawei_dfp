@@ -1,9 +1,10 @@
 # 架构、参数与验收说明
 
-初次整理：2026-11-18；最近同步实现与文档：2026-11-23（America/Los_Angeles）。本文汇总当前本地实现；来源材料的原始版本日期和 Git blob 保持不变。
+初次整理：2026-11-18；最近同步实现与文档：2026-11-28（America/Los_Angeles）。本文汇总当前本地实现；来源材料的原始版本日期和 Git blob 保持不变。
 
 本文是四架构及共享 CIM Macro 的现行技术说明。安装与运行见 [README](README.md)，参数来源核验结果见[核验结论](#source-audit)及[逐项证据台账](calibration/parameter_source_audit.json)。参数的完整元数据以链接的 JSON 为准；本文中的未知项、假设和执行范围与代码对应。
 
+- [整模 Decode 与逐片建模（Issue #4）](#decode-models)
 - [四个仿真器的代码结构](#simulator-structure)
 - [四套执行路径字符框图](#execution-diagrams)：[Ascend](#diagram-ascend)、[TPU](#diagram-tpu)、[原生 TSP](#diagram-tsp)、[CIM-TSP](#diagram-cim-tsp)、[粒度对照](#diagram-comparison)
 - [共同约定与报告口径](#conventions)
@@ -26,6 +27,14 @@
 - [文件组织与迁移](#migration)
 - [验证与 issue #2 状态](#validation)
 - [待确认参数与后续工作](#remaining)
+
+<a id="decode-models"></a>
+
+## 整模 Decode 与逐片建模（Issue #4）
+
+四个架构入口接受 `--model llama3_70b` 和 `--model deepseek_r1`。[模型 CLI](src/runtime/model_cli.py) 将请求和硬件规格传给 [LLaMA](src/models/llama_model.py) 或 [DeepSeek-R1](src/models/deepseek_model.py)。PP 按连续层分段，TP 按张量或注意力头分片，EP 指定路由专家的归属。每段的物理片数取实际放置的芯片并集。模型的初始 KV 长度、四架构的默认放置及逐类权重归属见 [Issue #4 验收说明](validation/issue4/README.md)。
+
+[逐片计算图](src/models/block_graph.py) 把本地算子分给片内 AI Core、TensorCore 或半片，按各自的容量、分片大小和并行波次调用原生后端。[计算关键路径](src/models/compute_path.py) 按数据依赖回放单请求，同片计算串行，独立芯片可并行。片内交接、跨片传输及外部选词的服务时间取零，通信清单单列跨片参与者、依赖和逻辑字节数。运行 `python scripts/verify_issue4.py` 可核对八组整模用例及四组跨架构放置对齐。
 
 <a id="simulator-structure"></a>
 
@@ -270,7 +279,7 @@ Vector 执行 profile schema 2 的 composite 必须为完整字典，null 不再
 
 上述局部字节不含 DMA 端点，Ascend/TPU 还分别计输入 DMA 本地写与导出 DMA 本地读；TSP/CIM 没有这部分 HBM/DMA 动作。测试逐项对照固定手算账本并校验阶段汇总；另将 transfer startup=2、compute startup=3，RMSNorm 得到 Ascend/TPU 112、TSP 163 cycle，Softmax 为 162/226 cycle。测试通过故意交换归一化/指数阶段、删除初始化或 DMA、错写奇数存活数、延后指数导出及缩小声明临时区，验证生命周期错误会被拒绝。
 
-`tests/operators/test_composite*.py` 覆盖四架构的两个块、手算单元素周期/访问、D-1 归约守恒、尾块及跨块依赖、batch/head 缩放、临时空间回退和全驻留容量边界、缺参/缺时钟、原生/CIM 一致性、严格 CLI 与 schema 迁移。第四批的 Residual、SwiGLU/FFN 见下节。Attention/GQA、KV Cache、MLA、MoE 和覆盖矩阵由后续章节描述；完整模型拼装与端到端评估属于 Issue #4。
+`tests/operators/test_composite*.py` 覆盖四架构的两个块、手算单元素周期/访问、D-1 归约守恒、尾块及跨块依赖、batch/head 缩放、临时空间回退和全驻留容量边界、缺参/缺时钟、原生/CIM 一致性、严格 CLI 与 schema 迁移。第四批的 Residual、SwiGLU/FFN 见下节。Attention/GQA、KV Cache、MLA、MoE 和覆盖矩阵由后续章节描述；Issue #4 已接入整模计算关键路径，系统端到端评估仍需补上链路服务与选词时间。
 
 <a id="decode-blocks"></a>
 
@@ -304,7 +313,7 @@ TSP/CIM 每个张量和用户 reserved 分别按选中 slice 数向上条带化�
 
 手算用例（默认 INT8 输出）：TPU 的 M=2/H=17/I=7 FFN，常驻输入共 391 B，五阶段存储分别为 447、503、517、541、561 B，HBM 峰值 561 B；HBM 共读 687 B、写 296 B。Residual 的 7 个 INT8 元素在 UB=96 B、HBM=16 B/cycle、UB=32 B/cycle、共享预算=4 op/cycle、启动0时分 tile 6+1，周期 23+15=38，HBM 读14/写7 B，算法局部读98/写91 B，另计 DMA 端点。测试还检查原生 GEMM 对账、分支释放、全块容量失败、条带化、尾块、成本敏感性、未知参数、CIM/VXM 一致性及四入口错误路径。
 
-执行保持单 AI Core、单 TensorCore 或单 hemisphere，`chip_execution_included=false`。将来整片调度须先定义 M/N 分片、共享/复制权重与输入、局部容量、跨核/半片归约和通信，再组合时间，不能直接以核数除单核时间。本批不实现整片调度。LLMCompass 指定提交仅作为 Operator/Tensor/OpResult 接口参考；本节算法及存储策略是本工程显式建模假设。
+执行保持单 AI Core、单 TensorCore 或单 hemisphere，`chip_execution_included=false`。Issue #4 在整模入口按各片内单元的实际分片和并行波次组合局部成本，片内交接时间取零。LLMCompass 指定提交仅作为 Operator/Tensor/OpResult 接口参考；本节算法及存储策略是本工程显式建模假设。
 
 <a id="decode-attention"></a>
 
@@ -340,7 +349,7 @@ Attention 总时间为一次缓存追加，加上 B*Hq 次完整 head 模板的 
 
 Cache 手算取 HBM或所选单 MEM slice=16 B/cycle、本地32 B/cycle、启动0：每个 K/V head 追加7 B读写各1 cycle，读取42 B用3 cycle，8个 K/V head 总40 cycle。测试进一步覆盖空缓存首次追加、满缓存拒绝、只读 MHA/GQA/MQA、batch/sequence/capacity 独立缩放、重复模板不展开、尾块、原生结果保真、slice 条带化、临时区容量、未知成本/时钟和四入口失败保护。
 
-`validation/issue3/model_coverage.json` 是初始目标模型块清单，区分 implemented/partial/pending，给出代码、测试和缺口归属。它描述粗粒度块覆盖，MLA、MoE 已由第七、八批补齐；INT8 RMSNorm 与常规 Attention 投影已在第六批 A 实现，RoPE、Embedding 与词表输出边界已在第六批 B 实现。完整模型拼装属于 Issue #4，整片调度另行推进。
+`validation/issue3/model_coverage.json` 是初始目标模型块清单，区分 implemented/partial/pending，给出代码、测试和缺口归属。它描述粗粒度块覆盖，MLA、MoE 已由第七、八批补齐；INT8 RMSNorm 与常规 Attention 投影已在第六批 A 实现，RoPE、Embedding 与词表输出边界已在第六批 B 实现。Issue #4 将这些块展开为逐片执行的 Decode 图。
 
 <a id="decode-projections"></a>
 
@@ -360,7 +369,7 @@ Ascend/TPU 使用 HBM 物化边界和原有 UB/VMEM 服务；TSP/CIM 把同时�
 
 独立手算样例 B=2、H=17、Hq=4、Hkv=2、D=7：QKV 有效 MAC=1904，边界各112元素，INT8 输出总112 B。TPU 六步 HBM 存储为1210/1266/1154/1182/1182/1210 B，峰值1266 B；HBM 读1502 B、写560 B。输出投影 Hout=17 时有效 MAC=952，两步存储668/702 B，无额外 head 拼接副本。TSP 三 slice、RMSNorm `[1,7]`、reserved=17 B、tile=3 时，归一化存储117 B，条带化 scratch/行状态18 B，峰值135 B。
 
-`tests/operators/test_projections*.py` 覆盖这些手算、原生 action/role 保真、四架构 count/timing、一份 backing、多输出存活、全块容量超限、局部最小临时空间、类型/形状/别名拒绝、成本敏感性及 CLI 输出保护。该范围仍是单核/单半片；RoPE、Embedding 和词表输出边界由第六批 B 补齐，MLA/MoE 由第七、八批实现，整片调度另行推进，模型拼装属于 Issue #4。
+`tests/operators/test_projections*.py` 覆盖这些手算、原生 action/role 保真、四架构 count/timing、一份 backing、多输出存活、全块容量超限、局部最小临时空间、类型/形状/别名拒绝、成本敏感性及 CLI 输出保护。该范围仍是单核/单半片；RoPE、Embedding 和词表输出边界由第六批 B 补齐，MLA/MoE 由第七、八批实现，逐片放置与模型拼装见[整模 Decode](#decode-models)。
 
 <a id="position-vocabulary"></a>
 
@@ -396,7 +405,7 @@ B=2、V=19、H=7 时，HBM完整容量155 B、读22 B、写14 B；tile=4的局�
 
 转换直接写到独立的 FP32 输出，不另申请 cast scratch；INT32 累加张量与 FP32 输出同时存活，不能因每元素都是4 B而忽略其中一个分配。原生补齐、流水、cache/CMEM 行为与 action role 完整保留。TPU 样例 B=2、H=7、V=19：有效266 MAC、532 op、转换38元素；两个阶段 HBM 基本占用299/451 B，HBM读299 B、写304 B。
 
-`tests/operators/test_position_vocabulary*.py` 验证四架构 count/timing、手算工作量/流量/周期、通道对尾块、源槽复用顺序、全块及最小 scratch 容量、索引/位置/类型校验、profile 敏感性、原生矩阵动作与连接形状。独立块通过不表示完整模型能在单半片驻留；模型覆盖矩阵中的 implemented 仅表示所述策略下的块可执行。DeepSeek 的 MLA/MoE 见第七、八批章节；整片分片和完整 Decoder 拼装继续保持单独待办。
+`tests/operators/test_position_vocabulary*.py` 验证四架构 count/timing、手算工作量/流量/周期、通道对尾块、源槽复用顺序、全块及最小 scratch 容量、索引/位置/类型校验、profile 敏感性、原生矩阵动作与连接形状。独立块通过不表示完整模型能在单半片驻留；模型覆盖矩阵中的 implemented 仅表示所述策略下的块可执行。DeepSeek 的 MLA/MoE 见第七、八批章节；完整 Decoder 和词表分片已在[整模入口](#decode-models)接入。
 
 <a id="mla-preprocess-cache"></a>
 
@@ -808,7 +817,7 @@ Macro              K16 × N32
 | TSP | 9 | 10 | 单半片；tile 320/320/640；有限缓冲后台权重预取与行流水；共享 VXM 操作代价 |
 | CIM-TSP | 7 | 10 | 单半片 8 域；默认 M 行组 320；静态 K/N wave；默认后台 LW，serialized 为显式对照；共用原生 VXM 服务 |
 
-Ascend/TPU 的边界为 HBM→HBM，TSP/CIM 为本侧 MEM→MEM。这些架构边界不能通过重命名字段假装相同；整片调度和端到端供给仍未实现。TSP/CIM 的容量、MEM/stream 分配和 M 行组可匹配；原生固定采用后台预取，CIM 默认采用后台 LW，默认 `comparison.load_policy_matched=true`。该标记仅表示装载重叠策略类别一致，各自的权重缓冲、安装和切换机制仍不同。`tsp_cim.py --compare-load-policies` 保持任务及分配不变，分别报告原生预取、CIM 串行、CIM 后台装载的周期与计数一致性（原生字段为 native_prefetch_cycles）；串行对照用 `--load-overlap serialized` 显式选择。解析周期比不代表硬件实测加速比。
+Ascend/TPU 的边界为 HBM→HBM，TSP/CIM 为本侧 MEM→MEM。这些架构边界不能通过重命名字段假装相同；整模入口按片内分片组合局部时间，片外供给与链路服务时延仍待建模。TSP/CIM 的容量、MEM/stream 分配和 M 行组可匹配；原生固定采用后台预取，CIM 默认采用后台 LW，默认 `comparison.load_policy_matched=true`。该标记仅表示装载重叠策略类别一致，各自的权重缓冲、安装和切换机制仍不同。`tsp_cim.py --compare-load-policies` 保持任务及分配不变，分别报告原生预取、CIM 串行、CIM 后台装载的周期与计数一致性（原生字段为 native_prefetch_cycles）；串行对照用 `--load-overlap serialized` 显式选择。解析周期比不代表硬件实测加速比。
 
 CIM 的 `int32_writer_bpc` 表示每个转置 writer SuperLane/Plane 的 INT32 旁路服务假设，标为 `assumed`；`nim_conversion_lanes` 已移入规格归档，当前 GEMM 不执行 FP 转换。CIM 局部流水 3 cycle、上下文切换 1 cycle 已迁入 `execution.fixed_latency_cycles` 并被执行公式读取。
 
@@ -1984,7 +1993,7 @@ $env:PYTHONUTF8 = "1"
 | --- | --- | --- |
 | Ascend | L2 带宽为 3 TB/s 的 assumed 执行服务，配置无 null；HBM 十进制容量/全容量可用、Cube/核内服务、INT32 导出及精确队列仲裁仍为假设 | 硬件 schema 9、报告 schema 12；Vector 独立计算服务不进入 GEMM；冷 LRU 输入缓存接入依赖/资源流水，C/超大块绕过；缓存行/控制器/本地端口细节尚未模拟 |
 | TPU v4 | 21 项活动参数无 null；寄存器/ICI/工艺/面积规格另存归档；Scalar 库存已退出；SparseCore/SPMEM 已退役；CMEM 读写带宽为 libtpu v4 单值与 v4i 读写比例构造的代理，与 Vector、可用容量、VMEM 服务等假设一样尚需标定 | 硬件 schema 12、报告 schema 13；默认 tiled，冷完整 K 面板和容量约束双缓冲预取；bypass 保留对照。CMEM 已参与容量、流量和时间，Vector/Nonlinear 提供独立计算占用 API；无 null 不代表完成硬件验证 |
-| 原生 TSP | 参考参数已无 null；安装/MXM/VXM 与非线性代价为 assumed，仍待标定 | Issue #3 已提供共享 VXM 服务、独立 Vector、归一化及 FFN、Attention、MLA、MoE 等声明范围内的复合块；GEMM 默认加法能力不变。完整模型和整片执行仍待实现。六项非执行字段已退役，片外供给/互联由 Issue #6 独立系统层定义 |
+| 原生 TSP | 参考参数已无 null；安装/MXM/VXM 与非线性代价为 assumed，仍待标定 | Issue #3 已提供共享 VXM 服务、独立 Vector、归一化及 FFN、Attention、MLA、MoE 等声明范围内的复合块；GEMM 默认加法能力不变。Issue #4 已接入 LLaMA 和 DeepSeek-R1 的逐片执行。六项非执行字段已退役，片外供给/互联由 Issue #6 独立系统层定义 |
 | CIM Macro | 活动能耗和面积系数尚未标定 | 当前只提供几何、II、context 状态与动作计数；独立局部时序参数/API 已退役，后续成本模型按动作与组件接入 |
 | CIM-TSP | collector 实际容量、逐 bank/stream 调度与 assumed 服务仍待完善/标定 | 不保留无消费路径的容量占位；232.5 MiB 仅为已知小计，collector 容量未验证。共享 Nonlinear 来源保留，但不视为 GEMM 缺参 |
 
@@ -1992,5 +2001,5 @@ $env:PYTHONUTF8 = "1"
 
 ### 后续模型增强
 
-整片任务分配、真实 MEM 事务、逐 bank/stream/NoC 争用、逐拍调度、精确滚动 IW、真实缓存、数值仿真、整模和多芯片支持仍未实现；CIM 已有半片静态 wave、MEM 容量检查、解析共享带宽和后台 LW，仍需电路/调度标定。TPU 的 HBM-to-HBM 与 CIM 的 MEM-to-MEM 时间均采用上述显式假设。能耗系数、面积密度与实测拟合也需要另行补充。这些工作属于后续模型扩展，不自动作为 issue #2 规格与入口阶段的验收前提。
+Issue #4 已提供整模 PP、TP、EP 放置、片内单元分片和跨片通信清单。真实 MEM 事务、逐 bank/stream/NoC 争用、逐拍调度、精确滚动 IW、真实缓存、数值仿真及跨片通信时间仍待建模。CIM 已有半片静态 wave、MEM 容量检查、解析共享带宽和后台 LW，仍需电路/调度标定。TPU 的 HBM-to-HBM 与 CIM 的 MEM-to-MEM 时间均采用上述显式假设。能耗系数、面积密度与实测拟合也需要另行补充。这些工作属于后续模型扩展，不自动作为 issue #2 规格与入口阶段的验收前提。
 

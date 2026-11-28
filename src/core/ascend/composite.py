@@ -2,6 +2,7 @@
 from fractions import Fraction
 
 from ..composite_memory import LocalMemoryPath
+from ..capacity import CapacityExceeded
 from ..vector import positive, tile_groups
 from ..vector_resources import ascend_services
 
@@ -15,6 +16,9 @@ def make_path(op, spec, execution, *, mode, tile_elements=None):
         raise ValueError("unsupported_capacity: complete normalization tensors exceed HBM")
     slots, scalars = (2, 4) if op.operation == "rmsnorm" else (1, 8)
     local = spec.capacities["UB"]
+    if local < scalars + 4 * slots:
+        raise CapacityExceeded("unsupported_capacity: local memory cannot hold one Vector element and its operands",
+                               local_name, scalars + 4 * slots, local)
     tile, _ = tile_groups(op.width, tile_elements, execution, (local - scalars) // (4 * slots))
     clock = None if spec.clock_ghz is None else Fraction(str(spec.clock_ghz)) * 10**9
     resources = ascend_services(spec, execution, timed)

@@ -85,6 +85,19 @@ class RunAllTest(unittest.TestCase):
         tests = self.root / "tests"
         tests.mkdir()
         (tests / "__init__.py").write_text("", encoding="utf-8")
+        models = tests / "models"
+        models.mkdir()
+        (models / "__init__.py").write_text("", encoding="utf-8")
+        (models / "test_projection.py").write_text(
+            "import unittest\nclass ProjectionCase(unittest.TestCase):\n def test_ok(self): pass\n", encoding="utf-8")
+        (models / "test_llama_block.py").write_text(
+            "import unittest\nclass BlockCase(unittest.TestCase):\n def test_ok(self): pass\n", encoding="utf-8")
+        (models / "test_llama_model.py").write_text(
+            "import unittest\nclass ModelCase(unittest.TestCase):\n def test_ok(self): pass\n", encoding="utf-8")
+        (models / "test_deepseek_model.py").write_text(
+            "import unittest\nclass R1Case(unittest.TestCase):\n def test_ok(self): pass\n", encoding="utf-8")
+        (models / "test_software_tiles.py").write_text(
+            "import unittest\nclass TileCase(unittest.TestCase):\n def test_ok(self): pass\n", encoding="utf-8")
         (tests / "test_fixture.py").write_text(
             "import unittest\nclass Issue2Case(unittest.TestCase):\n def test_ok(self): pass\n"
             "class Issue3Case(unittest.TestCase):\n def test_ok(self): pass\n", encoding="utf-8")
@@ -156,7 +169,12 @@ class RunAllTest(unittest.TestCase):
                     self.assertTrue((self.root / "results/ascend_gemm_operator.json").exists())
                 else:
                     self.assertEqual(report["combined_test_coverage"]["status"], "passed")
-                    self.assertEqual(report["combined_test_coverage"]["recorded_tests"], 2)
+                    self.assertEqual(report["combined_test_coverage"]["recorded_tests"], 7)
+                    self.assertTrue(report["combined_test_coverage"]["issue4_projection"]["passed"])
+                    self.assertTrue(report["combined_test_coverage"]["issue4_llama_block"]["passed"])
+                    self.assertTrue(report["combined_test_coverage"]["issue4_llama_model"]["passed"])
+                    self.assertTrue(report["combined_test_coverage"]["issue4_deepseek_model"]["passed"])
+                    self.assertTrue(report["combined_test_coverage"]["issue4_software_tiles"]["passed"])
         self.assertFalse((self.cwd / "results").exists())
 
     def test_optional_details_and_operator_table(self):

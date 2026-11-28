@@ -135,16 +135,27 @@ def router_workspace(op, stripe):
     return sizes
 
 
-def router_path(op, arch, spec, execution, mode, live, capacity, allocation, tile):
-    # Whole score rows fit a bounded local workspace; reject oversized rows
-    # rather than silently omit their buffering. External buffers are in live.
-    e, k = op.weight.shape[1], op.top_k
+def router_path(op, arch, spec, execution, mode, live, capacity, allocation, tile, *, fragment_bytes=None):
+    # A standalone scan buffers a whole row. A distributed phase supplies its
+    # local operands, including any peer scalar consumed by a merge.
+    stored = 12 * max(op.weight.shape[1], op.top_k, op.groups) if fragment_bytes is None else fragment_bytes
     return make_workspace_path(arch, spec, execution, mode, live, capacity, allocation, tile,
-        elements=1, scratch_per_element=0, stored_per_element=12 * max(e, k, op.groups))
+        elements=1, scratch_per_element=0, stored_per_element=stored)
 
 
 def router(op, path, execution, block, mode):
     s = Schedule(op, path, execution, block, mode)
+    router_steps(op, s)
+    result = s.result("Materialized score rows. Top-K uses repeated scan/reduction over remaining candidates: sum_j(N-j-1) MAX comparisons. Winner indices and exclusion masks are symbolic; dependency floor is ceil(log2(N))*reduction_round_cycles. Bias affects selection only; gather reads original sigmoid values.")
+    e, g = op.weight.shape[1], op.groups
+    candidates = op.selected_groups * (e // g)
+    result.report["selection_policy"] = {"kind": "repeated_max_without_replacement", "candidate_experts": candidates,
+        "index_generation": "symbolic_no_integer_ISA_cost", "weights_from": "original_sigmoid_scores",
+        "numeric_values_simulated": False, "group_score": "top2_sum" if op.bias is not None else "max"}
+    return result
+
+
+def router_steps(op, s):
     e, k, g, selected = op.weight.shape[1], op.top_k, op.groups, op.selected_groups
     s.repeats = op.x.shape[0]
     def step(label, reads, writes, operation=None, count=0, width=0):
@@ -174,8 +185,3 @@ def router(op, path, execution, block, mode):
     step("reciprocal_selected_sum", [4], [4], "fp32_rcp", 1)
     step("normalize_selected_weights", [4*k, 4], [4*k], "fp32_mul", k)
     step("scale_selected_weights", [4*k], [4*k], "fp32_mul", k)
-    result = s.result("Materialized score rows. Top-K uses repeated scan/reduction over remaining candidates: sum_j(N-j-1) MAX comparisons. Winner indices and exclusion masks are symbolic; dependency floor is ceil(log2(N))*reduction_round_cycles. Bias affects selection only; gather reads original sigmoid values.")
-    result.report["selection_policy"] = {"kind": "repeated_max_without_replacement", "candidate_experts": candidates,
-        "index_generation": "symbolic_no_integer_ISA_cost", "weights_from": "original_sigmoid_scores",
-        "numeric_values_simulated": False, "group_score": "top2_sum" if op.bias is not None else "max"}
-    return result

@@ -3,6 +3,8 @@
 
 def memory_requirements(memory):
     blocks = {"mem": memory} if "resident_bytes" in memory else memory
+    if "resident_bytes" in memory and "weight_buffer" in memory:
+        blocks["weight_buffer"] = memory["weight_buffer"]
     result = {}
     for name, block in blocks.items():
         if name == "lifetime_validation":

@@ -10,6 +10,7 @@ from src.utils.ascend_config import AscendConfigLoader
 from src.utils.ascend_report import print_report, write_report
 from src.utils.workload import load_workload_config, parse_workloads
 from src.operators import adapt_gemm_report
+from src.runtime.model_cli import add_model_arguments, model_run
 from src.runtime.cli import add_vector_arguments, handles_operator_workload, operator_options, write_operator_result, write_operator_results
 from src.runtime.workloads import execute_workload
 
@@ -31,6 +32,7 @@ def parse_args(argv=None):
                         help="operator: unified GEMM result and action ledger; legacy (default): existing report")
     parser.add_argument("--output", default=str(Path(__file__).resolve().parent / "results" / "ascend.json"),
                         help="JSON report path (GEMM default: %(default)s; Vector/composite: project results/<arch>_<op>.json; overwrites on success)")
+    add_model_arguments(parser)
     add_vector_arguments(parser)
     return parser.parse_args(argv)
 
@@ -39,6 +41,9 @@ def main(argv=None):
     args = parse_args(argv)
     try:
         loader = AscendConfigLoader(args.config_dir)
+        result = model_run(args, "ascend", lambda: loader.load_hardware(args.hardware), argv)
+        if result is not None:
+            return result
         spec = loader.load_hardware(args.hardware)
         config = load_workload_config(args.workload, loader.config_dir)
         if handles_operator_workload(config, args, argv):

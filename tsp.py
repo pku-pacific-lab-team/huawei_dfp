@@ -11,6 +11,7 @@ from src.utils.tsp_report import print_report, write_report
 from src.utils.workload import parse_workloads
 from src.core.tsp.simulator import LOOP_ORDERS
 from src.operators import adapt_gemm_report
+from src.runtime.model_cli import add_model_arguments, model_run
 from src.runtime.cli import add_vector_arguments, handles_operator_workload, operator_options, write_operator_result, write_operator_results
 from src.runtime.workloads import execute_workload
 
@@ -34,6 +35,7 @@ def parse_args(argv=None):
     p.add_argument("--verbose", action="store_true")
     p.add_argument("--report-format", choices=["legacy", "operator"], default="legacy",
                    help="operator: unified GEMM result and action ledger; legacy (default): existing report")
+    add_model_arguments(p)
     add_vector_arguments(p)
     return p.parse_args(argv)
 
@@ -42,6 +44,9 @@ def main(argv=None):
     args = parse_args(argv)
     try:
         loader = TSPConfigLoader(args.config_dir)
+        result = model_run(args, "tsp", lambda: loader.create_tsp_spec(loader.load_hardware_config(args.hardware)), argv)
+        if result is not None:
+            return result
         config = loader.load_workload_config(args.workload)
         if handles_operator_workload(config, args, argv):
             result = execute_workload(config, "tsp", lambda: loader.create_tsp_spec(loader.load_hardware_config(args.hardware)), mode=args.mode,

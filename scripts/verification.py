@@ -89,9 +89,10 @@ def output_directory(path, issue, root=ROOT):
     return out
 
 
-def discover(folders, root=ROOT):
+def discover(folders, root=ROOT, *, pattern="test*.py"):
     loader = unittest.TestLoader()
-    return unittest.TestSuite(loader.discover(str(root / folder), top_level_dir=str(root)) for folder in folders)
+    return unittest.TestSuite(loader.discover(str(root / folder), pattern=pattern, top_level_dir=str(root))
+                              for folder in folders)
 
 
 class RecordedResult(unittest.TextTestResult):
